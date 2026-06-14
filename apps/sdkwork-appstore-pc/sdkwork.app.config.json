@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "appId": "sdkwork-appstore-pc",
+  "appName": "SDKWork App Store",
+  "appType": "pc-web",
+  "owner": "sdkwork-appstore",
+  "domain": "appstore",
+  "sdkFamily": "sdkwork-appstore-app-sdk",
+  "apiAuthority": "sdkwork-appstore-app-api",
+  "apiPrefix": "/app/v3/api",
+  "runtime": {
+    "framework": "react",
+    "buildTool": "vite",
+    "typescript": true
+  },
+  "surfaces": {
+    "browser": {
+      "enabled": true,
+      "port": 3000
+    },
+    "desktop": {
+      "enabled": false,
+      "host": "tauri"
+    }
+  },
+  "sdkDependencies": [
+    {
+      "sdkFamily": "sdkwork-appstore-app-sdk",
+      "purpose": "Store catalog, listings, publishers, releases, library"
+    },
+    {
+      "sdkFamily": "sdkwork-appbase-app-sdk",
+      "purpose": "IAM session, organization context"
+    }
+  ],
+  "environments": {
+    "development": {
+      "appstoreApiBaseUrl": "http://127.0.0.1:18090"
+    },
+    "test": {
+      "appstoreApiBaseUrl": "http://127.0.0.1:18090"
+    },
+    "staging": {
+      "appstoreApiBaseUrl": "https://staging-api.sdkwork.com"
+    },
+    "production": {
+      "appstoreApiBaseUrl": "https://api.sdkwork.com"
+    }
+  }
+}

@@ -1,0 +1,267 @@
+use chrono::Utc;
+use uuid::Uuid;
+
+use crate::context::AppstoreRequestContext;
+use crate::domain::commands::{
+    RetrieveComplianceProfileRequest, UpdateComplianceProfileRequest,
+    UpsertPermissionDisclosuresRequest,
+};
+use crate::domain::models::{
+    CompliancePermissionDisclosure, ComplianceProfile, ComplianceProfileId, ComplianceStatus,
+    DisclosureStatus,
+};
+use crate::domain::results::{
+    RetrieveComplianceProfileResult, UpdateComplianceProfileResult,
+    UpsertPermissionDisclosuresResult,
+};
+use crate::error::{AppstoreServiceError, AppstoreServiceResult};
+use crate::ports::repository::ComplianceRepositoryPort;
+
+#[async_trait::async_trait]
+pub trait ComplianceOperations {
+    async fn retrieve_compliance_profile(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RetrieveComplianceProfileRequest,
+    ) -> AppstoreServiceResult<RetrieveComplianceProfileResult>;
+
+    async fn update_compliance_profile(
+        &self,
+        context: &AppstoreRequestContext,
+        request: UpdateComplianceProfileRequest,
+    ) -> AppstoreServiceResult<UpdateComplianceProfileResult>;
+
+    async fn upsert_permission_disclosures(
+        &self,
+        context: &AppstoreRequestContext,
+        request: UpsertPermissionDisclosuresRequest,
+    ) -> AppstoreServiceResult<UpsertPermissionDisclosuresResult>;
+}
+
+#[derive(Debug, Clone)]
+pub struct ComplianceService<R> {
+    repository: R,
+}
+
+impl<R> ComplianceService<R> {
+    pub fn new(repository: R) -> Self {
+        Self { repository }
+    }
+}
+
+#[async_trait::async_trait]
+impl<R> ComplianceOperations for ComplianceService<R>
+where
+    R: ComplianceRepositoryPort,
+{
+    async fn retrieve_compliance_profile(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RetrieveComplianceProfileRequest,
+    ) -> AppstoreServiceResult<RetrieveComplianceProfileResult> {
+        if request.listing_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Listing ID is required".to_string(),
+            ));
+        }
+
+        let profile = self
+            .repository
+            .find_compliance_profile_by_listing(context, &request.listing_id)
+            .await?;
+
+        match profile {
+            Some(profile) => Ok(RetrieveComplianceProfileResult::found(
+                "appstore.compliance.profile.retrieve",
+                profile,
+            )),
+            None => Ok(RetrieveComplianceProfileResult::not_found(
+                "appstore.compliance.profile.retrieve",
+            )),
+        }
+    }
+
+    async fn update_compliance_profile(
+        &self,
+        context: &AppstoreRequestContext,
+        request: UpdateComplianceProfileRequest,
+    ) -> AppstoreServiceResult<UpdateComplianceProfileResult> {
+        if request.listing_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Listing ID is required".to_string(),
+            ));
+        }
+
+        let existing = self
+            .repository
+            .find_compliance_profile_by_listing(context, &request.listing_id)
+            .await?;
+
+        match existing {
+            Some(mut profile) => {
+                if !profile.is_editable() {
+                    return Err(AppstoreServiceError::InvalidState(
+                        "Compliance profile is not editable in current state".to_string(),
+                    ));
+                }
+
+                let mut updated_fields = Vec::new();
+
+                if let Some(privacy_nutrition) = request.privacy_nutrition {
+                    profile.privacy_nutrition_json = privacy_nutrition;
+                    updated_fields.push("privacy_nutrition_json".to_string());
+                }
+
+                if let Some(content_rating) = request.content_rating_questionnaire {
+                    profile.content_rating_questionnaire_json = content_rating;
+                    updated_fields.push("content_rating_questionnaire_json".to_string());
+                }
+
+                if let Some(data_safety) = request.data_safety {
+                    profile.data_safety_json = data_safety;
+                    updated_fields.push("data_safety_json".to_string());
+                }
+
+                if let Some(target_audience) = request.target_audience {
+                    profile.target_audience_json = target_audience;
+                    updated_fields.push("target_audience_json".to_string());
+                }
+
+                if updated_fields.is_empty() {
+                    return Ok(UpdateComplianceProfileResult::updated(
+                        "appstore.compliance.profile.update",
+                        profile,
+                    ));
+                }
+
+                profile.updated_at = Utc::now();
+
+                self.repository
+                    .update_compliance_profile(context, &profile)
+                    .await?;
+
+                Ok(UpdateComplianceProfileResult::updated(
+                    "appstore.compliance.profile.update",
+                    profile,
+                ))
+            }
+            None => {
+                let now = Utc::now();
+                let profile = ComplianceProfile {
+                    id: ComplianceProfileId::new(Uuid::new_v4().to_string()),
+                    tenant_id: context.tenant_id.clone(),
+                    organization_id: context.organization_id.clone().unwrap_or_default(),
+                    listing_id: request.listing_id,
+                    compliance_version: 1,
+                    privacy_nutrition_json: request
+                        .privacy_nutrition
+                        .unwrap_or(serde_json::Value::Object(serde_json::Map::new())),
+                    content_rating_questionnaire_json: request
+                        .content_rating_questionnaire
+                        .unwrap_or(serde_json::Value::Object(serde_json::Map::new())),
+                    data_safety_json: request
+                        .data_safety
+                        .unwrap_or(serde_json::Value::Object(serde_json::Map::new())),
+                    target_audience_json: request
+                        .target_audience
+                        .unwrap_or(serde_json::Value::Object(serde_json::Map::new())),
+                    compliance_status: ComplianceStatus::Draft,
+                    reviewed_by: None,
+                    reviewed_at: None,
+                    created_at: now,
+                    updated_at: now,
+                };
+
+                self.repository
+                    .insert_compliance_profile(context, &profile)
+                    .await?;
+
+                Ok(UpdateComplianceProfileResult::created(
+                    "appstore.compliance.profile.update",
+                    profile,
+                ))
+            }
+        }
+    }
+
+    async fn upsert_permission_disclosures(
+        &self,
+        context: &AppstoreRequestContext,
+        request: UpsertPermissionDisclosuresRequest,
+    ) -> AppstoreServiceResult<UpsertPermissionDisclosuresResult> {
+        if request.listing_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Listing ID is required".to_string(),
+            ));
+        }
+
+        if request.permissions.is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "At least one permission disclosure is required".to_string(),
+            ));
+        }
+
+        for item in &request.permissions {
+            if item.permission_code.trim().is_empty() {
+                return Err(AppstoreServiceError::ValidationFailed(
+                    "Permission code cannot be empty".to_string(),
+                ));
+            }
+            if item.usage_purpose.trim().is_empty() {
+                return Err(AppstoreServiceError::ValidationFailed(
+                    "Usage purpose cannot be empty".to_string(),
+                ));
+            }
+        }
+
+        let now = Utc::now();
+        let mut disclosures = Vec::new();
+
+        for item in &request.permissions {
+            let existing = self
+                .repository
+                .find_permission_disclosure(context, &request.listing_id, &item.permission_code)
+                .await?;
+
+            match existing {
+                Some(mut disclosure) => {
+                    disclosure.usage_purpose = item.usage_purpose.clone();
+                    disclosure.is_required = item.is_required;
+                    disclosure.disclosure_status = DisclosureStatus::Published;
+                    disclosure.updated_at = now;
+
+                    self.repository
+                        .update_permission_disclosure(context, &disclosure)
+                        .await?;
+
+                    disclosures.push(disclosure);
+                }
+                None => {
+                    let disclosure = CompliancePermissionDisclosure {
+                        id: Uuid::new_v4().to_string(),
+                        tenant_id: context.tenant_id.clone(),
+                        organization_id: context.organization_id.clone().unwrap_or_default(),
+                        listing_id: request.listing_id.clone(),
+                        permission_code: item.permission_code.clone(),
+                        usage_purpose: item.usage_purpose.clone(),
+                        is_required: item.is_required,
+                        disclosure_status: DisclosureStatus::Published,
+                        created_at: now,
+                        updated_at: now,
+                    };
+
+                    self.repository
+                        .insert_permission_disclosure(context, &disclosure)
+                        .await?;
+
+                    disclosures.push(disclosure);
+                }
+            }
+        }
+
+        Ok(UpsertPermissionDisclosuresResult::upserted(
+            "appstore.compliance.permissions.update",
+            disclosures,
+        ))
+    }
+}

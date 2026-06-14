@@ -1,0 +1,12 @@
+{
+  "name": "sdkwork-appstore",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SDKWork professional app store backend contracts and services",
+  "scripts": {
+    "verify": "node tools/verify-appstore-design.mjs",
+    "openapi:materialize": "node tools/appstore_openapi_materialize.mjs",
+    "sdk:generate": "node tools/appstore_sdk_generate.mjs",
+    "sdk:check": "node tools/appstore_sdk_generate.mjs"
+  }
+}

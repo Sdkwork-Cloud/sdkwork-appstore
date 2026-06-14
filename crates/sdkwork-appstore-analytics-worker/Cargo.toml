@@ -1,0 +1,16 @@
+[package]
+name = "sdkwork-appstore-analytics-worker"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "sdkwork-appstore-analytics-worker"
+path = "src/main.rs"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

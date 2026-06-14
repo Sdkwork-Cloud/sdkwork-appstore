@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "sdkName": "sdkwork-appstore-sdk",
+  "sdkOwner": "sdkwork-appstore",
+  "apiAuthority": "sdkwork-appstore-open-api",
+  "sdkFamily": "sdkwork-appstore-sdk",
+  "sdkType": "custom",
+  "apiPrefix": "/store/v3/api",
+  "generationInputSpec": "../../apis/open-api/store/openapi.yaml",
+  "generatedPackages": {},
+  "sdkDependencies": [
+    {
+      "sdkFamily": "sdkwork-drive-sdk",
+      "reason": "Artifact and media resolution"
+    }
+  ],
+  "dependencyApiExports": [],
+  "generatorName": "sdkwork-sdk-generator",
+  "baseUrl": "http://127.0.0.1:18092",
+  "standardProfile": "sdkwork-appstore-open-v3",
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 6,
+  "managedBy": "tools/appstore_sdk_generate.mjs"
+}

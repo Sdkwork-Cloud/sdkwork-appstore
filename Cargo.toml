@@ -1,0 +1,32 @@
+[workspace]
+members = [
+  "crates/sdkwork-appstore-api-server",
+  "crates/sdkwork-appstore-service-host",
+  "crates/sdkwork-appstore-repository-sqlx",
+  "crates/sdkwork-appstore-analytics-worker",
+  "crates/sdkwork-appstore-publisher-service",
+  "crates/sdkwork-appstore-listing-service",
+  "crates/sdkwork-appstore-release-service",
+  "crates/sdkwork-appstore-catalog-service",
+  "crates/sdkwork-appstore-library-service",
+  "crates/sdkwork-appstore-moderation-service",
+  "crates/sdkwork-appstore-compliance-service",
+  "crates/sdkwork-appstore-market-service",
+  "crates/sdkwork-router-catalog-app-api",
+  "crates/sdkwork-router-listing-app-api",
+  "crates/sdkwork-router-release-app-api",
+  "crates/sdkwork-router-library-app-api",
+  "crates/sdkwork-router-publisher-app-api",
+  "crates/sdkwork-router-compliance-app-api",
+  "crates/sdkwork-router-moderation-backend-api",
+  "crates/sdkwork-router-catalog-backend-api",
+  "crates/sdkwork-router-listing-backend-api",
+  "crates/sdkwork-router-publisher-backend-api",
+  "crates/sdkwork-router-market-backend-api",
+  "crates/sdkwork-router-metrics-backend-api",
+  "crates/sdkwork-router-release-open-api",
+  "crates/sdkwork-router-catalog-open-api",
+  "crates/sdkwork-router-listing-open-api",
+  "crates/sdkwork-router-automation-open-api"
+]
+resolver = "2"

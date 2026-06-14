@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "sdkName": "sdkwork-appstore-backend-sdk",
+  "sdkOwner": "sdkwork-appstore",
+  "apiAuthority": "sdkwork-appstore-backend-api",
+  "sdkFamily": "sdkwork-appstore-backend-sdk",
+  "sdkType": "custom",
+  "apiPrefix": "/backend/v3/api",
+  "generationInputSpec": "../../apis/backend-api/store/openapi.yaml",
+  "generatedPackages": {},
+  "sdkDependencies": [
+    {
+      "sdkFamily": "sdkwork-appbase-backend-sdk",
+      "reason": "Operator auth and tenant administration context"
+    }
+  ],
+  "dependencyApiExports": [],
+  "generatorName": "sdkwork-sdk-generator",
+  "baseUrl": "http://127.0.0.1:18091",
+  "standardProfile": "sdkwork-appstore-backend-v3",
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 14,
+  "managedBy": "tools/appstore_sdk_generate.mjs"
+}

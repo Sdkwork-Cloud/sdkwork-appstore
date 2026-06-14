@@ -1,0 +1,130 @@
+schemaVersion: 1
+owner: sdkwork-appstore
+domain: appstore
+databasePrefix: appstore_
+complianceLevel: L2
+serialization:
+  int64: string
+  decimal: string
+  instant: iso8601_utc
+tables:
+  - name: appstore_idempotency_key
+    profile: control
+    complianceLevel: L2
+  - name: appstore_publisher
+    profile: master
+    complianceLevel: L2
+  - name: appstore_publisher_member
+    profile: master
+    complianceLevel: L2
+  - name: appstore_publisher_verification
+    profile: master
+    complianceLevel: L2
+  - name: appstore_app
+    profile: master
+    complianceLevel: L2
+  - name: appstore_app_dependency
+    profile: relation
+    complianceLevel: L2
+  - name: appstore_category
+    profile: master
+    complianceLevel: L2
+  - name: appstore_category_localization
+    profile: master
+    complianceLevel: L2
+  - name: appstore_tag
+    profile: master
+    complianceLevel: L2
+  - name: appstore_tag_localization
+    profile: master
+    complianceLevel: L2
+  - name: appstore_listing
+    profile: master
+    complianceLevel: L2
+  - name: appstore_listing_localization
+    profile: master
+    complianceLevel: L2
+  - name: appstore_listing_media
+    profile: master
+    complianceLevel: L2
+  - name: appstore_listing_category_binding
+    profile: relation
+    complianceLevel: L2
+  - name: appstore_listing_tag_binding
+    profile: relation
+    complianceLevel: L2
+  - name: appstore_regional_availability
+    profile: master
+    complianceLevel: L2
+  - name: appstore_compliance_profile
+    profile: master
+    complianceLevel: L3
+  - name: appstore_compliance_permission_disclosure
+    profile: master
+    complianceLevel: L3
+  - name: appstore_release_channel
+    profile: master
+    complianceLevel: L2
+  - name: appstore_release
+    profile: master
+    complianceLevel: L2
+  - name: appstore_release_note_localization
+    profile: master
+    complianceLevel: L2
+  - name: appstore_release_artifact
+    profile: master
+    complianceLevel: L3
+  - name: appstore_release_rollout
+    profile: master
+    complianceLevel: L2
+  - name: appstore_market_channel
+    profile: master
+    complianceLevel: L2
+  - name: appstore_market_release
+    profile: workflow
+    complianceLevel: L2
+  - name: appstore_listing_submission
+    profile: workflow
+    complianceLevel: L2
+  - name: appstore_moderation_review
+    profile: workflow
+    complianceLevel: L3
+  - name: appstore_moderation_decision
+    profile: audit_event
+    complianceLevel: L3
+  - name: appstore_catalog_collection
+    profile: master
+    complianceLevel: L2
+  - name: appstore_catalog_collection_localization
+    profile: master
+    complianceLevel: L2
+  - name: appstore_catalog_collection_item
+    profile: relation
+    complianceLevel: L2
+  - name: appstore_catalog_featured_slot
+    profile: master
+    complianceLevel: L2
+  - name: appstore_catalog_chart_snapshot
+    profile: read_model
+    complianceLevel: L2
+  - name: appstore_user_library_item
+    profile: master
+    complianceLevel: L2
+  - name: appstore_user_wishlist_item
+    profile: master
+    complianceLevel: L2
+  - name: appstore_entitlement
+    profile: master
+    complianceLevel: L3
+  - name: appstore_download_grant
+    profile: ledger_event
+    complianceLevel: L3
+  - name: appstore_install_event
+    profile: audit_event
+    complianceLevel: L2
+  - name: appstore_listing_metric_snapshot
+    profile: read_model
+    complianceLevel: L2
+migrations:
+  - id: "0001"
+    file: migrations/0001_appstore_foundation.sql

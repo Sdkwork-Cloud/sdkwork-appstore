@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-appstore-library-service",
+    "displayName": "Library Service",
+    "version": "0.1.0",
+    "type": "rust-service",
+    "root": "crates/sdkwork-appstore-library-service",
+    "domain": "appstore",
+    "capability": "library-service",
+    "languages": ["rust"],
+    "generated": false,
+    "manifests": ["Cargo.toml"]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "RUST_CODE_SPEC.md",
+      "path": "../../../sdkwork-specs/RUST_CODE_SPEC.md",
+      "purpose": "Rust code standard."
+    }
+  ],
+  "contracts": {
+    "publicExports": ["."],
+    "runtimeEntrypoints": ["Cargo.toml#lib"],
+    "routeManifest": null,
+    "sdkClients": [],
+    "sdkDependencies": [],
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": [],
+    "events": [],
+    "configKeys": []
+  },
+  "verification": {
+    "commands": ["cargo check -p sdkwork-appstore-library-service"]
+  }
+}

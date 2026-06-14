@@ -1,0 +1,78 @@
+schemaVersion: 1
+kind: sdkwork.async.event.catalog
+owner: sdkwork-appstore
+domain: appstore
+eventPrefix: appstore.store
+events:
+  - type: appstore.store.publisher.created
+    version: 1
+    payload:
+      publisherId: string
+      organizationId: string
+      ownerUserId: string
+  - type: appstore.store.publisher.verified
+    version: 1
+    payload:
+      publisherId: string
+      verificationType: string
+  - type: appstore.store.listing.created
+    version: 1
+    payload:
+      listingId: string
+      plusAppId: string
+      plusAppKey: string
+      publisherId: string
+  - type: appstore.store.listing.submitted
+    version: 1
+    payload:
+      listingId: string
+      submissionId: string
+      submissionType: string
+  - type: appstore.store.listing.published
+    version: 1
+    payload:
+      listingId: string
+      releaseId: string
+      publishedAt: instant
+  - type: appstore.store.listing.delisted
+    version: 1
+    payload:
+      listingId: string
+      reasonCode: string
+  - type: appstore.store.release.created
+    version: 1
+    payload:
+      releaseId: string
+      listingId: string
+      channelCode: string
+      versionCode: string
+  - type: appstore.store.release.approved
+    version: 1
+    payload:
+      releaseId: string
+      reviewId: string
+  - type: appstore.store.release.rollout.updated
+    version: 1
+    payload:
+      releaseId: string
+      currentPercentage: int32
+      rolloutStatus: string
+  - type: appstore.store.moderation.decision.recorded
+    version: 1
+    payload:
+      reviewId: string
+      decisionId: string
+      decisionType: string
+  - type: appstore.store.install.recorded
+    version: 1
+    payload:
+      listingId: string
+      userId: string
+      platform: string
+      eventType: string
+  - type: appstore.store.download.grant.issued
+    version: 1
+    payload:
+      grantId: string
+      artifactId: string
+      expiresAt: instant

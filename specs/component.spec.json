@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-appstore-workspace",
+    "displayName": "SDKWork App Store Workspace",
+    "version": "0.1.0",
+    "type": "rust-crate",
+    "root": "sdkwork-appstore",
+    "domain": "ecosystem",
+    "capability": "store",
+    "languages": ["typescript", "rust"],
+    "generated": false,
+    "manifests": ["package.json", "Cargo.toml"]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "DOMAIN_SPEC.md",
+      "path": "../sdkwork-specs/DOMAIN_SPEC.md",
+      "purpose": "Canonical domain boundaries."
+    },
+    {
+      "file": "DATABASE_SPEC.md",
+      "path": "../sdkwork-specs/DATABASE_SPEC.md",
+      "purpose": "Persistence contracts."
+    },
+    {
+      "file": "API_SPEC.md",
+      "path": "../sdkwork-specs/API_SPEC.md",
+      "purpose": "HTTP contract rules."
+    },
+    {
+      "file": "SDK_SPEC.md",
+      "path": "../sdkwork-specs/SDK_SPEC.md",
+      "purpose": "SDK generation semantics."
+    },
+    {
+      "file": "SDK_WORKSPACE_GENERATION_SPEC.md",
+      "path": "../sdkwork-specs/SDK_WORKSPACE_GENERATION_SPEC.md",
+      "purpose": "SDK workspace layout."
+    }
+  ],
+  "contracts": {
+    "publicExports": ["."],
+    "runtimeEntrypoints": [],
+    "routeManifest": null,
+    "sdkClients": [
+      "sdkwork-appbase-app-sdk",
+      "sdkwork-comments-app-sdk",
+      "sdkwork-drive-app-sdk"
+    ],
+    "events": ["ecosystem.store.*"],
+    "configKeys": []
+  },
+  "verification": {
+    "commands": ["pnpm run verify", "pnpm run sdk:check"]
+  }
+}

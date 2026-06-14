@@ -1,0 +1,70 @@
+domain: appstore
+status: app-local-standard
+owner: sdkwork-appstore
+displayName: SDKWork App Store
+database_prefix: appstore
+api_tags:
+  - appstore
+  - store
+  - catalog
+  - listing
+  - library
+  - publisher
+  - release
+  - moderation
+  - compliance
+sdk_namespaces:
+  - store
+  - catalog
+  - listing
+  - library
+  - publisher
+  - release
+  - moderation
+capabilities:
+  - publisher
+  - listing
+  - release
+  - catalog
+  - library
+  - moderation
+  - compliance
+  - analytics
+depends_on:
+  - iam
+  - platform
+  - drive
+  - comments
+extends:
+  - ecosystem
+integration:
+  iam:
+    owner: sdkwork-appbase
+    surface: app-api
+    responsibility: login, session, organization context
+  platform:
+    owner: sdkwork-appbase
+    responsibility: PlusApp registration and manifest projection
+    referenceField: plus_app_id
+  drive:
+    owner: sdkwork-drive
+    responsibility: icons, screenshots, binaries, release artifacts
+  comments:
+    owner: sdkwork-comments
+    responsibility: reviews, ratings, favorites, visit history
+  commerce:
+    owner: sdkwork-commerce
+    responsibility: paid apps and IAP settlement (integration only)
+java_parity: deferred
+rust_parity: required
+compliance_level: L2
+target_compliance_level: L3
+open_api:
+  authority: sdkwork-appstore-open-api
+  prefix: /store/v3/api
+app_api:
+  authority: sdkwork-appstore-app-api
+  prefix: /app/v3/api
+backend_api:
+  authority: sdkwork-appstore-backend-api
+  prefix: /backend/v3/api

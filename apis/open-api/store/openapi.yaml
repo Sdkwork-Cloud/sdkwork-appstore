@@ -1,0 +1,271 @@
+openapi: 3.1.2
+info:
+  title: SDKWork App Store Open API
+  version: 1.0.0
+  description: >
+    Public distribution and automation contract for update checks, artifact resolution,
+    and CI/CD publishing integrations.
+  x-sdkwork-owner: sdkwork-appstore
+  x-sdkwork-api-authority: sdkwork-appstore-open-api
+  x-sdkwork-sdk-family: sdkwork-appstore-sdk
+  x-sdkwork-domain: appstore
+  x-sdkwork-standard-profile: sdkwork-appstore-open-v3
+  x-sdkwork-audience: Update clients, CI publish automation, public catalog integrations
+servers:
+  - url: http://127.0.0.1:18092
+    description: Local sdkwork-appstore open runtime
+tags:
+  - name: releases
+  - name: artifacts
+  - name: listings
+  - name: catalog
+  - name: automation
+paths:
+  /store/v3/api/releases/check_update:
+    post:
+      tags: [releases]
+      operationId: appstore.releases.checkUpdate
+      summary: Check whether a newer release is available
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReleaseCheckUpdateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseCheckUpdateResponse"
+  /store/v3/api/artifacts/resolve_download:
+    post:
+      tags: [artifacts]
+      operationId: appstore.artifacts.resolveDownload
+      summary: Resolve artifact download location from grant or entitlement
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtifactResolveDownloadRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactResolveDownloadResponse"
+  /store/v3/api/listings/{listingSlug}:
+    get:
+      tags: [listings]
+      operationId: appstore.listings.public.retrieve
+      summary: Retrieve public listing by slug
+      parameters:
+        - name: listingSlug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: locale
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreApiResult"
+  /store/v3/api/releases/{releaseId}:
+    get:
+      tags: [releases]
+      operationId: appstore.releases.public.retrieve
+      summary: Retrieve public release metadata
+      parameters:
+        - name: releaseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreApiResult"
+  /store/v3/api/catalog/featured:
+    get:
+      tags: [catalog]
+      operationId: appstore.catalog.public.featured.list
+      summary: List public featured listings
+      parameters:
+        - name: platform
+          in: query
+          schema:
+            type: string
+        - name: locale
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreApiResult"
+  /store/v3/api/automation/submissions:
+    post:
+      tags: [automation]
+      operationId: appstore.publish.automation.submissions.create
+      summary: Create automated publish submission
+      security:
+        - ApiKey: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationSubmissionCreateRequest"
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreApiResult"
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+  schemas:
+    StoreApiResult:
+      type: object
+      required: [success, code, message]
+      properties:
+        success:
+          type: boolean
+        code:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+    ReleaseCheckUpdateRequest:
+      type: object
+      required: [plusAppKey, platform, installedVersionCode, channelCode]
+      properties:
+        plusAppKey:
+          type: string
+        platform:
+          type: string
+        architecture:
+          type: string
+        installedVersionCode:
+          type: string
+        channelCode:
+          type: string
+        deviceId:
+          type: string
+        regionCode:
+          type: string
+    ReleaseCheckUpdateResponse:
+      allOf:
+        - $ref: "#/components/schemas/StoreApiResult"
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                updateAvailable:
+                  type: boolean
+                releaseId:
+                  type: string
+                versionName:
+                  type: string
+                versionCode:
+                  type: string
+                mandatory:
+                  type: boolean
+                artifactId:
+                  type: string
+    ArtifactResolveDownloadRequest:
+      type: object
+      required: [artifactId]
+      properties:
+        artifactId:
+          type: string
+        grantId:
+          type: string
+        plusAppKey:
+          type: string
+    ArtifactResolveDownloadResponse:
+      allOf:
+        - $ref: "#/components/schemas/StoreApiResult"
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                downloadUrl:
+                  type: string
+                expiresAt:
+                  type: string
+                checksumSha256:
+                  type: string
+                fileSizeBytes:
+                  type: string
+    AutomationSubmissionCreateRequest:
+      type: object
+      required: [plusAppKey, submissionType, release]
+      properties:
+        plusAppKey:
+          type: string
+        submissionType:
+          type: string
+        release:
+          type: object
+          required: [channelCode, versionName, versionCode]
+          properties:
+            channelCode:
+              type: string
+            versionName:
+              type: string
+            versionCode:
+              type: string
+        artifacts:
+          type: array
+          items:
+            type: object
+            required: [platform, architecture, packageFormat, driveNodeId, checksumSha256]
+            properties:
+              platform:
+                type: string
+              architecture:
+                type: string
+              packageFormat:
+                type: string
+              driveNodeId:
+                type: string
+              checksumSha256:
+                type: string

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "sdkName": "sdkwork-appstore-app-sdk",
+  "sdkOwner": "sdkwork-appstore",
+  "apiAuthority": "sdkwork-appstore-app-api",
+  "sdkFamily": "sdkwork-appstore-app-sdk",
+  "sdkType": "custom",
+  "apiPrefix": "/app/v3/api",
+  "generationInputSpec": "../../apis/app-api/store/openapi.yaml",
+  "generatedPackages": {},
+  "sdkDependencies": [
+    {
+      "sdkFamily": "sdkwork-appbase-app-sdk",
+      "reason": "IAM session and organization context"
+    },
+    {
+      "sdkFamily": "sdkwork-comments-app-sdk",
+      "reason": "Reviews and ratings integration"
+    },
+    {
+      "sdkFamily": "sdkwork-drive-app-sdk",
+      "reason": "Listing media and artifact uploads"
+    }
+  ],
+  "dependencyApiExports": [],
+  "generatorName": "sdkwork-sdk-generator",
+  "baseUrl": "http://127.0.0.1:18090",
+  "standardProfile": "sdkwork-appstore-app-v3",
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 42,
+  "managedBy": "tools/appstore_sdk_generate.mjs"
+}

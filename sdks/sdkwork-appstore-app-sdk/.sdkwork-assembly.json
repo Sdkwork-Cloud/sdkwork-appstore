@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "assemblyKind": "sdkwork.sdk.assembly",
+  "sdkFamily": "sdkwork-appstore-app-sdk",
+  "sdkOwner": "sdkwork-appstore",
+  "domain": "appstore",
+  "apiAuthority": "sdkwork-appstore-app-api",
+  "apiPrefix": "/app/v3/api",
+  "generationInputSpec": "../../apis/app-api/store/openapi.yaml",
+  "standardProfile": "sdkwork-appstore-app-v3",
+  "sdkDependencies": [
+    "sdkwork-appbase-app-sdk",
+    "sdkwork-comments-app-sdk",
+    "sdkwork-drive-app-sdk"
+  ]
+}

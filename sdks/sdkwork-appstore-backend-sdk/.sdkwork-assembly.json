@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "assemblyKind": "sdkwork.sdk.assembly",
+  "sdkFamily": "sdkwork-appstore-backend-sdk",
+  "sdkOwner": "sdkwork-appstore",
+  "domain": "appstore",
+  "apiAuthority": "sdkwork-appstore-backend-api",
+  "apiPrefix": "/backend/v3/api",
+  "generationInputSpec": "../../apis/backend-api/store/openapi.yaml",
+  "standardProfile": "sdkwork-appstore-backend-v3",
+  "sdkDependencies": ["sdkwork-appbase-backend-sdk"]
+}
