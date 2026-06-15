@@ -22,6 +22,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4"] }
 async-trait = "0.1"
+dotenvy = "0.15"
 sdkwork-appstore-service-host = { path = "../sdkwork-appstore-service-host" }
 sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
 sdkwork-appstore-publisher-service = { path = "../sdkwork-appstore-publisher-service" }
@@ -32,4 +33,6 @@ sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service
 sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
 sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
 sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
-sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }
+sdkwork-pool-config = { path = "../../../sdkwork-pool/crates/sdkwork-pool-config" }
+sdkwork-pool-sqlx = { path = "../../../sdkwork-pool/crates/sdkwork-pool-sqlx" }
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }

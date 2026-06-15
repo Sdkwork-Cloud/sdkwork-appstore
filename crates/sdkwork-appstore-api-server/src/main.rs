@@ -1,6 +1,5 @@
 use axum::{routing::get, Json, Router};
 use serde_json::{json, Value};
-use sqlx::sqlite::SqlitePoolOptions;
 use sqlx::Pool;
 use sqlx::Sqlite;
 use tower_http::cors::CorsLayer;
@@ -45,28 +44,33 @@ async fn main() {
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
-    let database_url =
-        std::env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:appstore.db?mode=rwc".to_string());
+    // Load .env file if present
+    let _ = dotenvy::dotenv();
 
-    let pool: Pool<Sqlite> = SqlitePoolOptions::new()
-        .max_connections(5)
-        .connect(&database_url)
+    // Create database pool using sdkwork-pool
+    let pool = sdkwork_pool_sqlx::create_pool_from_env("APPSTORE")
         .await
-        .expect("Failed to connect to database");
+        .expect("Failed to create database pool")
+        .expect("SDKWORK_APPSTORE_DATABASE_URL not set");
+
+    // Extract SQLite pool
+    let sqlite_pool = pool.as_sqlite()
+        .expect("Expected SQLite pool for appstore service")
+        .clone();
 
     tracing::info!("Database connected successfully");
 
-    let publisher_repo = SqlxPublisherRepository::new(pool.clone());
-    let listing_repo = SqlxListingRepository::new(pool.clone());
-    let release_repo = SqlxReleaseRepository::new(pool.clone());
-    let catalog_repo = SqlxCatalogRepository::new(pool.clone());
-    let library_repo = SqlxLibraryRepository::new(pool.clone());
-    let moderation_repo = SqlxModerationRepository::new(pool.clone());
-    let compliance_repo = SqlxComplianceRepository::new(pool.clone());
-    let market_repo = SqlxMarketRepository::new(pool.clone());
+    let publisher_repo = SqlxPublisherRepository::new(sqlite_pool.clone());
+    let listing_repo = SqlxListingRepository::new(sqlite_pool.clone());
+    let release_repo = SqlxReleaseRepository::new(sqlite_pool.clone());
+    let catalog_repo = SqlxCatalogRepository::new(sqlite_pool.clone());
+    let library_repo = SqlxLibraryRepository::new(sqlite_pool.clone());
+    let moderation_repo = SqlxModerationRepository::new(sqlite_pool.clone());
+    let compliance_repo = SqlxComplianceRepository::new(sqlite_pool.clone());
+    let market_repo = SqlxMarketRepository::new(sqlite_pool.clone());
 
     let state = AppState {
-        pool,
+        pool: sqlite_pool,
         publisher_service: PublisherService::new(publisher_repo),
         listing_service: ListingService::new(listing_repo),
         release_service: ReleaseService::new(release_repo),
