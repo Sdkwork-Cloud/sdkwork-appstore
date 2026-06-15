@@ -33,6 +33,6 @@ sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service
 sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
 sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
 sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
-sdkwork-pool-config = { path = "../../../sdkwork-pool/crates/sdkwork-pool-config" }
-sdkwork-pool-sqlx = { path = "../../../sdkwork-pool/crates/sdkwork-pool-sqlx" }
+sdkwork-database-config = { path = "../../../sdkwork-pool/crates/sdkwork-database-config" }
+sdkwork-database-sqlx = { path = "../../../sdkwork-pool/crates/sdkwork-database-sqlx" }
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }

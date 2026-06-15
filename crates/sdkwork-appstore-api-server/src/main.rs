@@ -48,7 +48,7 @@ async fn main() {
     let _ = dotenvy::dotenv();
 
     // Create database pool using sdkwork-pool
-    let pool = sdkwork_pool_sqlx::create_pool_from_env("APPSTORE")
+    let pool = sdkwork_database_sqlx::create_pool_from_env("APPSTORE")
         .await
         .expect("Failed to create database pool")
         .expect("SDKWORK_APPSTORE_DATABASE_URL not set");
