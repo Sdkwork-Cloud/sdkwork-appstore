@@ -1291,8 +1291,8 @@ dependencies = [
  "sdkwork-appstore-release-service",
  "sdkwork-appstore-repository-sqlx",
  "sdkwork-appstore-service-host",
- "sdkwork-pool-config",
- "sdkwork-pool-sqlx",
+ "sdkwork-database-config",
+ "sdkwork-database-sqlx",
  "serde",
  "serde_json",
  "sqlx",
@@ -1434,7 +1434,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "sdkwork-pool-config"
+name = "sdkwork-database-config"
 version = "0.1.0"
 dependencies = [
  "serde",
@@ -1445,10 +1445,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "sdkwork-pool-sqlx"
+name = "sdkwork-database-sqlx"
 version = "0.1.0"
 dependencies = [
- "sdkwork-pool-config",
+ "sdkwork-database-config",
  "serde",
  "sqlx",
  "thiserror",
