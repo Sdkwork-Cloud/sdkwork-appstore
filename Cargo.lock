@@ -1358,7 +1358,17 @@ dependencies = [
 name = "sdkwork-appstore-api-server"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "axum",
+ "chrono",
+ "sdkwork-appstore-catalog-service",
+ "sdkwork-appstore-compliance-service",
+ "sdkwork-appstore-library-service",
+ "sdkwork-appstore-listing-service",
+ "sdkwork-appstore-market-service",
+ "sdkwork-appstore-moderation-service",
+ "sdkwork-appstore-publisher-service",
+ "sdkwork-appstore-release-service",
  "sdkwork-appstore-repository-sqlx",
  "sdkwork-appstore-service-host",
  "serde",
@@ -1369,6 +1379,7 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]

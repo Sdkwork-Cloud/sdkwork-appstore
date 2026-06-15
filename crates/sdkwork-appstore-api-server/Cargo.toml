@@ -19,6 +19,17 @@ tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+async-trait = "0.1"
 sdkwork-appstore-service-host = { path = "../sdkwork-appstore-service-host" }
 sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
+sdkwork-appstore-publisher-service = { path = "../sdkwork-appstore-publisher-service" }
+sdkwork-appstore-listing-service = { path = "../sdkwork-appstore-listing-service" }
+sdkwork-appstore-release-service = { path = "../sdkwork-appstore-release-service" }
+sdkwork-appstore-catalog-service = { path = "../sdkwork-appstore-catalog-service" }
+sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service" }
+sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
+sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
+sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }
