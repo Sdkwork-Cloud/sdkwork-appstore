@@ -161,7 +161,7 @@ Domain events use prefix `appstore.store.*` with outbox pattern (implementation 
 
 ## Verification
 
-- Schema registry â†?migration SQL static review.
+- Schema registry ï¿½?migration SQL static review.
 - OpenAPI prefix and operationId lint (implementation: `pnpm run sdk:check`).
 - Dependency boundary test: no `/app/v3/api/auth/*` routes in appstore manifests.
 - Contract test placeholders under `tests/` (implementation phase).

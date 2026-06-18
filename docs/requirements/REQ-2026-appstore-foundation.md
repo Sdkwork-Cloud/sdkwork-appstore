@@ -7,7 +7,7 @@ Specs: REQUIREMENTS_SPEC.md, DOMAIN_SPEC.md, APP_MANIFEST_SPEC.md
 
 ## Problem
 
-SDKWork needs a first-class application marketplace comparable to Apple App Store and Google Play: publisher workflows, listing metadata, multi-platform releases, discovery surfaces, user libraries, moderation, compliance disclosures, and update distribution â€?without forking IAM, comments, Drive, or commerce ownership.
+SDKWork needs a first-class application marketplace comparable to Apple App Store and Google Play: publisher workflows, listing metadata, multi-platform releases, discovery surfaces, user libraries, moderation, compliance disclosures, and update distribution ï¿½?without forking IAM, comments, Drive, or commerce ownership.
 
 ## Goals
 

@@ -8,7 +8,7 @@ Prefix lock:
 - Backend API: `/backend/v3/api`
 - Open API: `/store/v3/api`
 
-## App API â€?Catalog
+## App API ï¿½?Catalog
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ Prefix lock:
 | `appstore.catalog.charts.retrieve` | GET | `/app/v3/api/catalog/charts/{chartCode}` | `appstore.catalog.read` |
 | `appstore.catalog.listings.search` | GET | `/app/v3/api/catalog/listings/search` | `appstore.catalog.read` |
 
-## App API â€?Listings
+## App API ï¿½?Listings
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -37,7 +37,7 @@ Prefix lock:
 | `appstore.listings.regions.update` | PUT | `/app/v3/api/listings/{listingId}/regions` | `appstore.listings.write` |
 | `appstore.listings.submissions.create` | POST | `/app/v3/api/listings/{listingId}/submissions` | `appstore.listings.submit` |
 
-## App API â€?Publishers
+## App API ï¿½?Publishers
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -48,7 +48,7 @@ Prefix lock:
 | `appstore.publishers.members.invite` | POST | `/app/v3/api/publishers/{publisherId}/members` | `appstore.publishers.admin` |
 | `appstore.publishers.verifications.submit` | POST | `/app/v3/api/publishers/{publisherId}/verifications` | `appstore.publishers.verify` |
 
-## App API â€?Releases
+## App API ï¿½?Releases
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ Prefix lock:
 | `appstore.releases.rollout.update` | PUT | `/app/v3/api/releases/{releaseId}/rollout` | `appstore.releases.rollout` |
 | `appstore.releases.retire` | POST | `/app/v3/api/releases/{releaseId}/retire` | `appstore.releases.write` |
 
-## App API â€?Compliance
+## App API ï¿½?Compliance
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -68,7 +68,7 @@ Prefix lock:
 | `appstore.compliance.profile.update` | PUT | `/app/v3/api/listings/{listingId}/compliance` | `appstore.compliance.write` |
 | `appstore.compliance.permissions.update` | PUT | `/app/v3/api/listings/{listingId}/compliance/permissions` | `appstore.compliance.write` |
 
-## App API â€?Library
+## App API ï¿½?Library
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -83,7 +83,7 @@ Prefix lock:
 | `appstore.downloadGrants.create` | POST | `/app/v3/api/download_grants` | `appstore.downloads.request` |
 | `appstore.downloadGrants.consume` | POST | `/app/v3/api/download_grants/{grantId}/consume` | `appstore.downloads.consume` |
 
-## Backend API â€?Moderation
+## Backend API ï¿½?Moderation
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -92,7 +92,7 @@ Prefix lock:
 | `appstore.moderation.reviews.assign` | POST | `/backend/v3/api/moderation/reviews/{reviewId}/assign` | `appstore.moderation.assign` |
 | `appstore.moderation.decisions.create` | POST | `/backend/v3/api/moderation/reviews/{reviewId}/decisions` | `appstore.moderation.decide` |
 
-## Backend API â€?Catalog admin
+## Backend API ï¿½?Catalog admin
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -103,7 +103,7 @@ Prefix lock:
 | `appstore.catalog.categories.create` | POST | `/backend/v3/api/catalog/categories` | `appstore.catalog.admin` |
 | `appstore.catalog.categories.update` | PATCH | `/backend/v3/api/catalog/categories/{categoryId}` | `appstore.catalog.admin` |
 
-## Backend API â€?Operator listing admin
+## Backend API ï¿½?Operator listing admin
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
@@ -124,7 +124,7 @@ Prefix lock:
 | `appstore.marketReleases.list` | GET | `/backend/v3/api/market_releases` | `appstore.market_releases.read` |
 | `appstore.marketReleases.sync` | POST | `/backend/v3/api/market_releases/{marketReleaseId}/sync` | `appstore.market_releases.sync` |
 
-## Open API â€?Distribution
+## Open API ï¿½?Distribution
 
 | operationId | Method | Path | Auth |
 | --- | --- | --- | --- |
@@ -135,7 +135,7 @@ Prefix lock:
 | `appstore.catalog.public.featured.list` | GET | `/store/v3/api/catalog/featured` | none |
 | `appstore.publish.automation.submissions.create` | POST | `/store/v3/api/automation/submissions` | API key |
 
-## Comments integration (not owned â€?client calls comments SDK)
+## Comments integration (not owned ï¿½?client calls comments SDK)
 
 | Concern | Owner operation | Notes |
 | --- | --- | --- |
