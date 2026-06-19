@@ -1,0 +1,14 @@
+use sdkwork_web_core::{HttpMethod, HttpRoute, HttpRouteManifest};
+
+const HTTP_ROUTES: &[HttpRoute] = &[
+    HttpRoute::public(
+        HttpMethod::Get,
+        "/store/v3/api/catalog/featured",
+        "appstore",
+        "appstore.catalog.public.featured.list",
+    ),
+];
+
+pub fn open_route_manifest() -> HttpRouteManifest {
+    HttpRouteManifest::new(HTTP_ROUTES)
+}

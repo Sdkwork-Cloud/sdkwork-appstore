@@ -23,7 +23,11 @@ use sdkwork_appstore_repository_sqlx::repository::moderation_repository::SqlxMod
 use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPublisherRepository;
 use sdkwork_appstore_repository_sqlx::repository::release_repository::SqlxReleaseRepository;
 
+mod http_route_manifest;
 mod routes;
+mod web_bootstrap;
+
+use web_bootstrap::wrap_router_with_web_framework_from_env;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -81,18 +85,21 @@ async fn main() {
         market_service: MarketService::new(market_repo),
     };
 
-    let app = Router::new()
-        .route("/health", get(health_check))
-        .merge(routes::catalog::routes())
-        .merge(routes::listing::routes())
-        .merge(routes::publisher::routes())
-        .merge(routes::release_routes::routes())
-        .merge(routes::library::routes())
-        .merge(routes::moderation::routes())
-        .merge(routes::compliance::routes())
-        .merge(routes::market::routes())
-        .layer(CorsLayer::permissive())
-        .with_state(state);
+    let app = wrap_router_with_web_framework_from_env(
+        Router::new()
+            .route("/health", get(health_check))
+            .merge(routes::catalog::routes())
+            .merge(routes::listing::routes())
+            .merge(routes::publisher::routes())
+            .merge(routes::release_routes::routes())
+            .merge(routes::library::routes())
+            .merge(routes::moderation::routes())
+            .merge(routes::compliance::routes())
+            .merge(routes::market::routes())
+            .layer(CorsLayer::permissive())
+            .with_state(state),
+    )
+    .await;
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "18090".to_string());
     let addr = format!("0.0.0.0:{}", port);

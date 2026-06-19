@@ -11,7 +11,11 @@
   "runtime": {
     "framework": "react",
     "buildTool": "vite",
-    "typescript": true
+    "typescript": true,
+    "supportedDeploymentProfiles": [
+      "cloud"
+    ],
+    "defaultDeploymentProfile": "cloud"
   },
   "surfaces": {
     "browser": {
