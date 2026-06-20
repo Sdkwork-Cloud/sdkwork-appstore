@@ -108,6 +108,28 @@ CREATE TABLE IF NOT EXISTS appstore_app (
   privacy_policy_url TEXT,
   terms_url TEXT,
   icon_media_id TEXT,
+  icon TEXT NOT NULL DEFAULT '{}',
+  icon_resource_snapshot TEXT NOT NULL DEFAULT '',
+  resource_list TEXT NOT NULL DEFAULT '[]',
+  access_url TEXT,
+  config TEXT NOT NULL DEFAULT '{}',
+  runtime_status INTEGER NOT NULL DEFAULT 1,
+  install_skill TEXT NOT NULL DEFAULT '{}',
+  install_config TEXT NOT NULL DEFAULT '{}',
+  install_platforms TEXT NOT NULL DEFAULT '[]',
+  platforms TEXT NOT NULL DEFAULT '[]',
+  release_notes TEXT NOT NULL DEFAULT '[]',
+  package_name TEXT,
+  bundle_id TEXT,
+  store_url TEXT,
+  artifact_resource_snapshot TEXT NOT NULL DEFAULT '',
+  download_count INTEGER NOT NULL DEFAULT 0,
+  rating_avg TEXT NOT NULL DEFAULT '0',
+  rating_count INTEGER NOT NULL DEFAULT 0,
+  legacy_uuid TEXT,
+  owner_user_id TEXT,
+  project_id TEXT,
+  description TEXT,
   current_listing_id TEXT,
   current_release_id TEXT,
   latest_released_version TEXT,
@@ -738,4 +760,114 @@ CREATE INDEX IF NOT EXISTS idx_appstore_download_grant_active
 
 CREATE INDEX IF NOT EXISTS idx_appstore_install_event_listing
   ON appstore_install_event (tenant_id, listing_id, occurred_at DESC);
+
+CREATE TABLE IF NOT EXISTS appstore_app_template (
+    id BIGINT NOT NULL PRIMARY KEY,
+    uuid VARCHAR(64) NOT NULL,
+    tenant_id BIGINT NOT NULL DEFAULT 0,
+    organization_id BIGINT NOT NULL DEFAULT 0,
+    data_scope INTEGER NOT NULL DEFAULT 0,
+    status INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    version BIGINT NOT NULL DEFAULT 0,
+    deleted_at TIMESTAMPTZ,
+    deleted_by BIGINT,
+    metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+    template_no VARCHAR(64),
+    template_code VARCHAR(128),
+    template_name VARCHAR(255),
+    description TEXT,
+    category_id BIGINT,
+    category_code VARCHAR(128),
+    template_type VARCHAR(64),
+    runtime VARCHAR(128),
+    framework VARCHAR(128),
+    language VARCHAR(64),
+    icon_media_resource_id VARCHAR(128),
+    icon_object_blob_id BIGINT,
+    icon_resource_snapshot JSONB,
+    cover_media_resource_id VARCHAR(128),
+    cover_object_blob_id BIGINT,
+    cover_resource_snapshot JSONB,
+    visibility INTEGER,
+    publish_status INTEGER,
+    featured BOOLEAN,
+    sort_weight INTEGER,
+    owner_user_id BIGINT,
+    source_app_id BIGINT,
+    git_repo_url VARCHAR(1024),
+    git_ref VARCHAR(128),
+    git_sub_path VARCHAR(1024),
+    current_version_id BIGINT,
+    app_config_schema JSONB,
+    default_app_config JSONB,
+    variable_schema JSONB,
+    dependency_manifest JSONB,
+    capability_manifest JSONB,
+    published_at TIMESTAMPTZ,
+    deprecated_at TIMESTAMPTZ
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_appstore_app_template_no ON appstore_app_template (tenant_id, template_no);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_appstore_app_template_code ON appstore_app_template (tenant_id, organization_id, template_code);
+CREATE INDEX IF NOT EXISTS idx_appstore_app_template_scope_status ON appstore_app_template (tenant_id, organization_id, visibility, publish_status, status, updated_at, id);
+CREATE INDEX IF NOT EXISTS idx_appstore_app_template_category ON appstore_app_template (tenant_id, organization_id, category_id, publish_status, sort_weight, id);
+
+CREATE TABLE IF NOT EXISTS appstore_app_template_version (
+    id BIGINT NOT NULL PRIMARY KEY,
+    uuid VARCHAR(64) NOT NULL,
+    tenant_id BIGINT NOT NULL DEFAULT 0,
+    organization_id BIGINT NOT NULL DEFAULT 0,
+    data_scope INTEGER NOT NULL DEFAULT 0,
+    status INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    version BIGINT NOT NULL DEFAULT 0,
+    deleted_at TIMESTAMPTZ,
+    deleted_by BIGINT,
+    metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+    template_id BIGINT,
+    version_no VARCHAR(64),
+    artifact_id BIGINT,
+    changelog TEXT,
+    file_manifest JSONB,
+    dependency_manifest JSONB,
+    capability_manifest JSONB,
+    variable_schema JSONB,
+    app_config_schema JSONB,
+    default_app_config JSONB,
+    publish_status INTEGER,
+    published_at TIMESTAMPTZ,
+    deprecated_at TIMESTAMPTZ
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_appstore_app_template_version_no ON appstore_app_template_version (tenant_id, organization_id, template_id, version_no);
+CREATE INDEX IF NOT EXISTS idx_appstore_app_template_version_template ON appstore_app_template_version (tenant_id, organization_id, template_id, publish_status, created_at, id);
+
+CREATE TABLE IF NOT EXISTS appstore_app_template_usage (
+    id BIGINT NOT NULL PRIMARY KEY,
+    uuid VARCHAR(64) NOT NULL,
+    tenant_id BIGINT NOT NULL DEFAULT 0,
+    organization_id BIGINT NOT NULL DEFAULT 0,
+    user_id BIGINT,
+    request_id VARCHAR(128),
+    trace_id VARCHAR(128),
+    payload_hash VARCHAR(128),
+    status INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    retention_until TIMESTAMPTZ,
+    legal_hold BOOLEAN NOT NULL DEFAULT FALSE,
+    metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+    template_id BIGINT,
+    template_version_id BIGINT,
+    target_app_id BIGINT,
+    usage_type INTEGER,
+    input_snapshot JSONB,
+    output_snapshot JSONB
+);
+
+CREATE INDEX IF NOT EXISTS idx_appstore_app_template_usage_template ON appstore_app_template_usage (tenant_id, organization_id, template_id, template_version_id, created_at, id);
+CREATE INDEX IF NOT EXISTS idx_appstore_app_template_usage_target ON appstore_app_template_usage (tenant_id, organization_id, target_app_id, created_at, id);
+CREATE INDEX IF NOT EXISTS idx_appstore_app_template_usage_user ON appstore_app_template_usage (tenant_id, organization_id, user_id, created_at, id);
 

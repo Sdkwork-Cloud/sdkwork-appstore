@@ -12,7 +12,7 @@
       }
     },
     "standard": {
-      "common": [],
+      "common": ["common/002_default_publisher.sql"],
       "locales": {
         "zh-CN": []
       }

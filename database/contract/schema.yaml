@@ -1,11 +1,136 @@
 schema_version: 1
 kind: sdkwork.database.schema
 module_id: appstore
-contract_version: 0.1.0
+contract_version: 1.0.0
 owner_team: appstore-platform
 compliance_level: L2
 engines:
   - postgres
-  - sqlite
 table_prefix: appstore_
-tables: []
+tables:
+  - name: appstore_idempotency_key
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_publisher
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_publisher_member
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_publisher_verification
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_app
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_app_dependency
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_category
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_category_localization
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_tag
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_tag_localization
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_listing
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_listing_localization
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_listing_media
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_listing_category_binding
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_listing_tag_binding
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_regional_availability
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_compliance_profile
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_compliance_permission_disclosure
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_release_channel
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_release
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_release_note_localization
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_release_artifact
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_release_rollout
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_market_channel
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_market_release
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_listing_submission
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_moderation_review
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_moderation_decision
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_catalog_collection
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_catalog_collection_localization
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_catalog_collection_item
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_catalog_featured_slot
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_catalog_chart_snapshot
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_user_library_item
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_user_wishlist_item
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_entitlement
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_download_grant
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_install_event
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_listing_metric_snapshot
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_app_template
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_app_template_version
+    lifecycle_status: active
+    owner: appstore-platform
+  - name: appstore_app_template_usage
+    lifecycle_status: active
+    owner: appstore-platform
