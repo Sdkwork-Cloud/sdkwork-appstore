@@ -1,0 +1,589 @@
+tables:
+- table: appstore_app
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_app_dependency
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_app_template
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_app_template_usage
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_app_template_version
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_catalog_chart_snapshot
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_catalog_collection
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_catalog_collection_item
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_catalog_collection_localization
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_catalog_featured_slot
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_category
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_category_localization
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_compliance_permission_disclosure
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_compliance_profile
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_download_grant
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_entitlement
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_idempotency_key
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_install_event
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_listing
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_listing_category_binding
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_listing_localization
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_listing_media
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_listing_metric_snapshot
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_listing_submission
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_listing_tag_binding
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_market_channel
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_market_release
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_moderation_decision
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_moderation_review
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_publisher
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_publisher_member
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_publisher_verification
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_regional_availability
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_release
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_release_artifact
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_release_channel
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_release_note_localization
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_release_rollout
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_tag
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_tag_localization
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_user_library_item
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
+- table: appstore_user_wishlist_item
+  domain: appstore
+  profile: appstore_entity
+  compliance_level: L2
+  system_of_record: true
+  generated_by_this_project: true
+  write_owner: appstore-platform
+  common_columns: tenant_entity
+  api_surfaces:
+  - app
+  - backend
+  - worker
+  columns:
+    id: int64
