@@ -81,3 +81,10 @@ Follow `../sdkwork-specs/README.md`. Key specs for this repository:
 - `SDK_WORKSPACE_GENERATION_SPEC.md`, `SDKWORK_WORKSPACE_SPEC.md`
 - `APP_MANIFEST_SPEC.md`, `DRIVE_SPEC.md`, `MEDIA_RESOURCE_SPEC.md`
 - `IAM_LOGIN_INTEGRATION_SPEC.md`, `EVENT_SPEC.md`, `SECURITY_SPEC.md`
+
+## Documentation Canon
+
+- [docs/README.md](docs/README.md)
+- [docs/product/prd/PRD.md](docs/product/prd/PRD.md)
+- [docs/architecture/tech/TECH_ARCHITECTURE.md](docs/architecture/tech/TECH_ARCHITECTURE.md)
+
