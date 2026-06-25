@@ -35,7 +35,7 @@ Rules:
 
 | Dependency | Purpose | Consumption |
 | --- | --- | --- |
-| `sdkwork-appbase-app-sdk` | IAM session, organization context | AuthGate, TokenManager |
+| `sdkwork-iam-app-sdk` | IAM session, organization context | AuthGate, TokenManager |
 | `sdkwork-comments-app-sdk` | Reviews, ratings, favorites | Listing detail, thread binding |
 | `sdkwork-drive-app-sdk` | Upload icons, screenshots, binaries | Publisher console media flows |
 

@@ -34,7 +34,7 @@
       "purpose": "Store catalog, listings, library"
     },
     {
-      "sdkFamily": "sdkwork-appbase-app-sdk",
+      "sdkFamily": "sdkwork-iam-app-sdk",
       "purpose": "IAM session context"
     }
   ]

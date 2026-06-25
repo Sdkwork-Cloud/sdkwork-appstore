@@ -10,7 +10,7 @@
   "generatedPackages": {},
   "sdkDependencies": [
     {
-      "sdkFamily": "sdkwork-appbase-backend-sdk",
+      "sdkFamily": "sdkwork-iam-backend-sdk",
       "reason": "Operator auth and tenant administration context"
     }
   ],

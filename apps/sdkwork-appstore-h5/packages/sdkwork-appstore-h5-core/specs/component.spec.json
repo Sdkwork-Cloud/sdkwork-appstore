@@ -1,60 +1,51 @@
 {
-    "component":  {
-                      "domain":  "appstore",
-                      "type":  "react-package",
-                      "version":  "0.1.0",
-                      "root":  "apps/sdkwork-appstore-h5/packages/sdkwork-appstore-h5-core",
-                      "surface":  "app",
-                      "name":  "@sdkwork/appstore-h5-core",
-                      "capability":  "core",
-                      "languages":  [
-                                        "typescript"
-                                    ],
-                      "generated":  false,
-                      "manifests":  [
-                                        "package.json"
-                                    ],
-                      "displayName":  "sdkwork-appstore-h5-core"
-                  },
-    "contracts":  {
-                      "runtimeEntrypoints":  [
-                                                 "package.json#scripts.typecheck"
-                                             ],
-                      "sdkDependencies":  [
-
-                                          ],
-                      "dependencyApiExports":  [
-
-                                               ],
-                      "sdkClients":  [
-
-                                     ],
-                      "publicExports":  [
-                                            "."
-                                        ],
-                      "events":  [
-
-                                 ],
-                      "routeManifest":  null,
-                      "configKeys":  [
-                                         "package.json#sdkwork"
-                                     ],
-                      "dependencyApiSurfaces":  [
-
-                                                ]
-                  },
-    "kind":  "sdkwork.component.spec",
-    "schemaVersion":  1,
-    "canonicalSpecs":  [
-                           {
-                               "path":  "../../../../sdkwork-specs/COMPONENT_SPEC.md",
-                               "purpose":  "Component spec contract.",
-                               "file":  "COMPONENT_SPEC.md"
-                           }
-                       ],
-    "verification":  {
-                         "commands":  [
-                                          "pnpm --filter @@sdkwork/appstore-h5-core typecheck"
-                                      ]
-                     }
+  "component": {
+    "domain": "appstore",
+    "type": "react-package",
+    "version": "0.1.0",
+    "root": "apps/sdkwork-appstore-h5/packages/sdkwork-appstore-h5-core",
+    "surface": "app",
+    "name": "@sdkwork/appstore-h5-core",
+    "capability": "core",
+    "languages": [
+      "typescript"
+    ],
+    "generated": false,
+    "manifests": [
+      "package.json"
+    ],
+    "displayName": "sdkwork-appstore-h5-core"
+  },
+  "contracts": {
+    "runtimeEntrypoints": [
+      "package.json#scripts.typecheck"
+    ],
+    "sdkDependencies": [],
+    "dependencyApiExports": [],
+    "sdkClients": [],
+    "publicExports": [
+      "."
+    ],
+    "events": [],
+    "routeManifest": null,
+    "configKeys": [
+      "package.json#sdkwork"
+    ],
+    "dependencyApiSurfaces": [],
+    "dependencyComposition": "../../../specs/dependency.composition.json"
+  },
+  "kind": "sdkwork.component.spec",
+  "schemaVersion": 1,
+  "canonicalSpecs": [
+    {
+      "path": "../../../../sdkwork-specs/COMPONENT_SPEC.md",
+      "purpose": "Component spec contract.",
+      "file": "COMPONENT_SPEC.md"
+    }
+  ],
+  "verification": {
+    "commands": [
+      "pnpm --filter @@sdkwork/appstore-h5-core typecheck"
+    ]
+  }
 }

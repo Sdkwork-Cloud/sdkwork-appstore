@@ -10,7 +10,7 @@
   "generatedPackages": {},
   "sdkDependencies": [
     {
-      "sdkFamily": "sdkwork-appbase-app-sdk",
+      "sdkFamily": "sdkwork-iam-app-sdk",
       "reason": "IAM session and organization context"
     },
     {

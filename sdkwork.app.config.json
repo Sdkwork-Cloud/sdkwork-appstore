@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "appId": "sdkwork-appstore-h5",
+  "appName": "SDKWork App Store",
+  "appType": "h5-mobile",
+  "owner": "sdkwork-appstore",
+  "domain": "appstore",
+  "sdkFamily": "sdkwork-appstore-app-sdk",
+  "apiAuthority": "sdkwork-appstore-app-api",
+  "apiPrefix": "/app/v3/api",
+  "runtime": {
+    "framework": "react",
+    "buildTool": "vite",
+    "typescript": true,
+    "supportedDeploymentProfiles": [
+      "cloud",
+      "standalone"
+    ],
+    "defaultDeploymentProfile": "cloud"
+  },
+  "surfaces": {
+    "browser": {
+      "enabled": true,
+      "port": 3001
+    },
+    "capacitor": {
+      "enabled": false,
+      "ios": true,
+      "android": true
+    }
+  },
+  "sdkDependencies": [
+    {
+      "sdkFamily": "sdkwork-appstore-app-sdk",
+      "purpose": "Store catalog, listings, library"
+    },
+    {
+      "sdkFamily": "sdkwork-iam-app-sdk",
+      "purpose": "IAM session context"
+    }
+  ],
+  "app": {
+    "key": "sdkwork-appstore"
+  }
+}

@@ -9,7 +9,7 @@
   "generationInputSpec": "../../apis/app-api/store/openapi.yaml",
   "standardProfile": "sdkwork-appstore-app-v3",
   "sdkDependencies": [
-    "sdkwork-appbase-app-sdk",
+    "sdkwork-iam-app-sdk",
     "sdkwork-comments-app-sdk",
     "sdkwork-drive-app-sdk"
   ]

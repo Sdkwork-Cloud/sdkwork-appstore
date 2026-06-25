@@ -73,7 +73,7 @@ flowchart TB
   end
 
   subgraph deps [Dependency platforms]
-    IAM[sdkwork-appbase IAM]
+    IAM[sdkwork-iam]
     DRV[sdkwork-drive]
     CMT[sdkwork-comments]
     CMRC[sdkwork-commerce]
@@ -125,7 +125,7 @@ Operation IDs use `appstore.<resource>.<action>` vocabulary.
 | `sdkwork-appstore-app-sdk` | Store apps, publisher console (user-facing) |
 | `sdkwork-appstore-backend-sdk` | Operator admin, automation |
 
-Declared SDK dependencies: `sdkwork-appbase-app-sdk`, `sdkwork-comments-app-sdk`, `sdkwork-drive-app-sdk`.
+Declared SDK dependencies: `sdkwork-iam-app-sdk`, `sdkwork-comments-app-sdk`, `sdkwork-drive-app-sdk`.
 
 ### 7. Eventing
 
