@@ -1,3 +1,3 @@
-# Skills
+# Repository Skills
 
-Repository-local Cursor/agent skills for sdkwork-appstore.
+Add repository-local skills under `.sdkwork/skills/<skill-name>/SKILL.md`.

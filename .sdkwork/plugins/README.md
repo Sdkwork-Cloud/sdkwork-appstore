@@ -1,3 +1,3 @@
-# Plugins
+# Repository Plugins
 
-Repository-local plugins for sdkwork-appstore.
+Add repository-local plugins under `.sdkwork/plugins/<plugin-name>/.codex-plugin/plugin.json`.
