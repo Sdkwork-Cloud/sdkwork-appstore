@@ -32,7 +32,7 @@ impl AppstoreRuntimeConfig {
                 .and_then(|p| p.parse().ok())
                 .unwrap_or(18092),
             tenant_id: std::env::var("APPSTORE_TENANT_ID")
-                .unwrap_or_else(|_| "default".to_string()),
+                .unwrap_or_else(|_| "100001".to_string()),
             organization_id: std::env::var("APPSTORE_ORGANIZATION_ID").ok(),
             iam_base_url: std::env::var("APPSTORE_IAM_BASE_URL")
                 .unwrap_or_else(|_| "http://127.0.0.1:18080".to_string()),

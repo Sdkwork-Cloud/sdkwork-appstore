@@ -22,8 +22,8 @@ fn test_context_creation() {
 
 #[test]
 fn test_context_tenant_scoped() {
-    let ctx = AppstoreRequestContext::tenant_scoped("tenant-1", "req-1");
-    assert_eq!(ctx.tenant_id, "tenant-1");
+    let ctx = AppstoreRequestContext::tenant_scoped("100001", "req-1");
+    assert_eq!(ctx.tenant_id, "100001");
     assert_eq!(ctx.request_id, "req-1");
     assert!(ctx.organization_id.is_none());
     assert!(ctx.user_id.is_none());

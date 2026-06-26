@@ -23,8 +23,8 @@ async fn setup_db() -> SqlitePool {
 
 fn test_context() -> AppstoreRequestContext {
     AppstoreRequestContext {
-        tenant_id: "tenant-1".to_string(),
-        organization_id: "org-1".to_string(),
+        tenant_id: "100001".to_string(),
+        organization_id: "0".to_string(),
         user_id: "user-1".to_string(),
         request_id: "req-1".to_string(),
         trace_id: Some("trace-1".to_string()),
@@ -399,8 +399,8 @@ async fn test_publisher_tenant_isolation() {
     let repo = SqlxPublisherRepository::new(pool);
 
     let ctx1 = AppstoreRequestContext {
-        tenant_id: "tenant-a".to_string(),
-        organization_id: "org-1".to_string(),
+        tenant_id: "100001".to_string(),
+        organization_id: "0".to_string(),
         user_id: "user-1".to_string(),
         request_id: "req-1".to_string(),
         trace_id: None,
@@ -408,8 +408,8 @@ async fn test_publisher_tenant_isolation() {
     };
 
     let ctx2 = AppstoreRequestContext {
-        tenant_id: "tenant-b".to_string(),
-        organization_id: "org-1".to_string(),
+        tenant_id: "100002".to_string(),
+        organization_id: "0".to_string(),
         user_id: "user-1".to_string(),
         request_id: "req-2".to_string(),
         trace_id: None,
@@ -419,8 +419,8 @@ async fn test_publisher_tenant_isolation() {
     let now = Utc::now();
     let publisher = Publisher {
         id: PublisherId::new("pub-iso"),
-        tenant_id: "tenant-a".to_string(),
-        organization_id: "org-1".to_string(),
+        tenant_id: "100001".to_string(),
+        organization_id: "0".to_string(),
         publisher_no: "PUB-ISO".to_string(),
         publisher_type: PublisherType::Individual,
         display_name: "Tenant A Publisher".to_string(),
@@ -519,7 +519,7 @@ async fn test_category_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"#
     )
     .bind("cat-1")
-    .bind("tenant-1")
+    .bind("100001")
     .bind("productivity")
     .bind(1)
     .bind("active")
@@ -536,7 +536,7 @@ async fn test_category_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("cat-loc-1")
-    .bind("tenant-1")
+    .bind("100001")
     .bind("cat-1")
     .bind("en-US")
     .bind("Productivity")
@@ -579,7 +579,7 @@ async fn test_release_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"#
     )
     .bind("channel-1")
-    .bind("tenant-1")
+    .bind("100001")
     .bind("stable")
     .bind("production")
     .bind("active")
@@ -598,8 +598,8 @@ async fn test_release_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("release-1")
-    .bind("tenant-1")
-    .bind("org-1")
+    .bind("100001")
+    .bind("0")
     .bind("listing-1")
     .bind("REL-001")
     .bind("channel-1")
@@ -639,8 +639,8 @@ async fn test_moderation_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("review-1")
-    .bind("tenant-1")
-    .bind("org-1")
+    .bind("100001")
+    .bind("0")
     .bind("submission-1")
     .bind("REV-001")
     .bind("pending")
@@ -659,8 +659,8 @@ async fn test_moderation_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("decision-1")
-    .bind("tenant-1")
-    .bind("org-1")
+    .bind("100001")
+    .bind("0")
     .bind("review-1")
     .bind("DEC-001")
     .bind("approve")
@@ -709,8 +709,8 @@ async fn test_compliance_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("comp-1")
-    .bind("tenant-1")
-    .bind("org-1")
+    .bind("100001")
+    .bind("0")
     .bind("listing-1")
     .bind(1)
     .bind("{}")
@@ -748,7 +748,7 @@ async fn test_library_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("lib-1")
-    .bind("tenant-1")
+    .bind("100001")
     .bind("user-1")
     .bind("listing-1")
     .bind("plus-app-1")
@@ -786,7 +786,7 @@ async fn test_market_raw_sql_operations() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("channel-1")
-    .bind("tenant-1")
+    .bind("100001")
     .bind("apple_app_store")
     .bind("native")
     .bind("apple")
@@ -822,7 +822,7 @@ async fn test_catalog_collection_raw_sql() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("coll-1")
-    .bind("tenant-1")
+    .bind("100001")
     .bind("featured-apps")
     .bind("curated")
     .bind("active")
@@ -840,7 +840,7 @@ async fn test_catalog_collection_raw_sql() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("coll-loc-1")
-    .bind("tenant-1")
+    .bind("100001")
     .bind("coll-1")
     .bind("en-US")
     .bind("Featured Apps")
@@ -874,8 +874,8 @@ async fn test_unique_constraints() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("pub-uniq-1")
-    .bind("tenant-1")
-    .bind("org-1")
+    .bind("100001")
+    .bind("0")
     .bind("PUB-UNIQ")
     .bind("individual")
     .bind("Publisher 1")
@@ -899,8 +899,8 @@ async fn test_unique_constraints() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("pub-uniq-2")
-    .bind("tenant-1")
-    .bind("org-1")
+    .bind("100001")
+    .bind("0")
     .bind("PUB-UNIQ")
     .bind("individual")
     .bind("Publisher 2")

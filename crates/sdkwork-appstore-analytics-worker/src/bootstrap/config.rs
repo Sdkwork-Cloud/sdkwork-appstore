@@ -14,7 +14,7 @@ impl WorkerConfig {
             database_url: std::env::var("APPSTORE_DATABASE_URL")
                 .unwrap_or_else(|_| "sqlite:appstore.db".to_string()),
             tenant_id: std::env::var("APPSTORE_TENANT_ID")
-                .unwrap_or_else(|_| "default".to_string()),
+                .unwrap_or_else(|_| "100001".to_string()),
             metrics_interval_seconds: std::env::var("APPSTORE_METRICS_INTERVAL_SECONDS")
                 .ok()
                 .and_then(|v| v.parse().ok())

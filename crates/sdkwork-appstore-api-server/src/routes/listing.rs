@@ -23,8 +23,8 @@ pub fn routes() -> Router<AppState> {
 
 fn mock_context() -> sdkwork_appstore_listing_service::context::AppstoreRequestContext {
     sdkwork_appstore_listing_service::context::AppstoreRequestContext {
-        tenant_id: "default".to_string(),
-        organization_id: "default-org".to_string(),
+        tenant_id: "100001".to_string(),
+        organization_id: "0".to_string(),
         user_id: "anonymous".to_string(),
         request_id: uuid::Uuid::new_v4().to_string(),
         trace_id: None,
