@@ -9,28 +9,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 APP_CRATES = [
-    "sdkwork-router-catalog-app-api",
-    "sdkwork-router-compliance-app-api",
-    "sdkwork-router-library-app-api",
-    "sdkwork-router-publisher-app-api",
-    "sdkwork-router-release-app-api",
-    "sdkwork-router-listing-app-api",
+    "sdkwork-routes-catalog-app-api",
+    "sdkwork-routes-compliance-app-api",
+    "sdkwork-routes-library-app-api",
+    "sdkwork-routes-publisher-app-api",
+    "sdkwork-routes-release-app-api",
+    "sdkwork-routes-listing-app-api",
 ]
 
 BACKEND_CRATES = [
-    "sdkwork-router-catalog-backend-api",
-    "sdkwork-router-listing-backend-api",
-    "sdkwork-router-publisher-backend-api",
-    "sdkwork-router-moderation-backend-api",
-    "sdkwork-router-market-backend-api",
-    "sdkwork-router-metrics-backend-api",
+    "sdkwork-routes-catalog-backend-api",
+    "sdkwork-routes-listing-backend-api",
+    "sdkwork-routes-publisher-backend-api",
+    "sdkwork-routes-moderation-backend-api",
+    "sdkwork-routes-market-backend-api",
+    "sdkwork-routes-metrics-backend-api",
 ]
 
 OPEN_CRATES = [
-    "sdkwork-router-catalog-open-api",
-    "sdkwork-router-listing-open-api",
-    "sdkwork-router-release-open-api",
-    "sdkwork-router-automation-open-api",
+    "sdkwork-routes-catalog-open-api",
+    "sdkwork-routes-listing-open-api",
+    "sdkwork-routes-release-open-api",
+    "sdkwork-routes-automation-open-api",
 ]
 
 ROUTE_ENTRY = re.compile(

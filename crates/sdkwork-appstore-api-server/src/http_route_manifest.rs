@@ -436,7 +436,7 @@ pub fn appstore_route_manifest() -> HttpRouteManifest {
 }
 
 pub fn appstore_public_path_prefixes() -> Vec<String> {
-    vec!["/health".to_owned(), "/healthz".to_owned()]
+    sdkwork_web_bootstrap::infra_public_path_prefixes()
 }
 
 pub fn appstore_open_api_prefixes() -> Vec<String> {

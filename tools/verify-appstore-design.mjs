@@ -193,7 +193,7 @@ const routeCrates = [
 ].map(([capability, surface]) => ({
   capability,
   surface,
-  path: `crates/sdkwork-router-${capability}-${surface}`,
+  path: `crates/sdkwork-routes-${capability}-${surface}`,
 }));
 
 const backendCrates = [
@@ -212,7 +212,7 @@ const backendCrates = [
     path,
   })),
   ...routeCrates.map(({ capability, surface, path }) => ({
-    name: `sdkwork-router-${capability}-${surface}`,
+    name: `sdkwork-routes-${capability}-${surface}`,
     path,
   })),
 ];

@@ -225,7 +225,7 @@ function routeHandlerNameFor(operation) {
 
 function routeCrateNameFor(operation) {
   const routeKey = routeKeyFor(operation);
-  return `sdkwork-router-${routeKey.capability}-${routeKey.surface}`;
+  return `sdkwork-routes-${routeKey.capability}-${routeKey.surface}`;
 }
 
 function serviceCrateNameFor(operation) {
@@ -891,7 +891,7 @@ async function main() {
 
   for (const routeKey of routeCrates) {
     const [capability, surface] = routeKey.split(":");
-    const crateName = `sdkwork-router-${capability}-${surface}`;
+    const crateName = `sdkwork-routes-${capability}-${surface}`;
     const operationsForCrate = operations.filter((operation) => {
       const key = routeKeyFor(operation);
       return key.capability === capability && key.surface === surface;

@@ -29,7 +29,7 @@ It intentionally mirrors industry store separation:
                             �?HTTPS
 ┌───────────────────────────▼─────────────────────────────────�?
 �?sdkwork-appstore-api-server                                   �?
-�? mounts sdkwork-router-*-{app,backend,open}-api crates      �?
+�? mounts sdkwork-routes-*-{app,backend,open}-api crates      �?
 └───────────────────────────┬─────────────────────────────────�?
                             �?
 ┌───────────────────────────▼─────────────────────────────────�?
@@ -217,7 +217,7 @@ Sensitive operations (L3):
 | `sdkwork-appstore-compliance-service` | Compliance profiles |
 | `sdkwork-appstore-repository-sqlx` | SQLx repositories |
 | `sdkwork-appstore-analytics-worker` | Metric/chart projection |
-| `sdkwork-router-*-{surface}` | Route manifests per capability |
+| `sdkwork-routes-*-{surface}` | Route manifests per capability |
 
 ## 7. Deployment Modes
 

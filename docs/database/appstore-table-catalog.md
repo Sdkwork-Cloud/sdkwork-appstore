@@ -636,7 +636,7 @@ CREATE TABLE IF NOT EXISTS appstore_release (
 ### Indexes
 
 ```sql
-CREATE INDEX IF NOT EXISTS idx_appstore_release_update_check
+CREATE INDEX IF NOT EXISTS idx_appstore_release_update_check
   ON appstore_release (tenant_id, listing_id, release_status, published_at DESC);
 ```
 
@@ -874,7 +874,7 @@ CREATE TABLE IF NOT EXISTS appstore_moderation_review (
 ### Indexes
 
 ```sql
-CREATE INDEX IF NOT EXISTS idx_appstore_moderation_queue
+CREATE INDEX IF NOT EXISTS idx_appstore_moderation_queue
   ON appstore_moderation_review (tenant_id, review_status, priority, created_at ASC);
 ```
 
@@ -1174,7 +1174,7 @@ CREATE TABLE IF NOT EXISTS appstore_download_grant (
 ### Indexes
 
 ```sql
-CREATE INDEX IF NOT EXISTS idx_appstore_download_grant_active
+CREATE INDEX IF NOT EXISTS idx_appstore_download_grant_active
   ON appstore_download_grant (tenant_id, artifact_id, grant_status, expires_at);
 ```
 
@@ -1213,7 +1213,7 @@ CREATE TABLE IF NOT EXISTS appstore_install_event (
 ### Indexes
 
 ```sql
-CREATE INDEX IF NOT EXISTS idx_appstore_install_event_listing
+CREATE INDEX IF NOT EXISTS idx_appstore_install_event_listing
   ON appstore_install_event (tenant_id, listing_id, occurred_at DESC);
 ```
 

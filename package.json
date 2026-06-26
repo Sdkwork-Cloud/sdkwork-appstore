@@ -8,7 +8,7 @@
     "openapi:materialize": "node tools/appstore_openapi_materialize.mjs",
     "sdk:generate": "node tools/appstore_sdk_generate.mjs",
     "sdk:check": "node tools/appstore_sdk_generate.mjs",
-    "db:materialize:contract": "node tools/materialize_appstore_database_contract.mjs",
+    "db:materialize:contract": "node ../sdkwork-specs/tools/materialize-database-contract-from-baseline.mjs --root . --baseline database/ddl/baseline/postgres/0001_appstore_legacy_baseline.sql --module-id appstore --owner appstore-platform --prefixes appstore_ --engines postgres",
     "db:validate": "node ../sdkwork-specs/tools/check-database-framework-standard.mjs --root .",
     "db:plan": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . plan",
     "db:init": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . init",

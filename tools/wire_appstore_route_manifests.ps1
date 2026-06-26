@@ -83,20 +83,20 @@ fn ${testName}() {
 }
 
 $appCrates = @(
-  "sdkwork-router-catalog-app-api",
-  "sdkwork-router-compliance-app-api",
-  "sdkwork-router-library-app-api",
-  "sdkwork-router-publisher-app-api",
-  "sdkwork-router-release-app-api",
-  "sdkwork-router-listing-app-api"
+  "sdkwork-routes-catalog-app-api",
+  "sdkwork-routes-compliance-app-api",
+  "sdkwork-routes-library-app-api",
+  "sdkwork-routes-publisher-app-api",
+  "sdkwork-routes-release-app-api",
+  "sdkwork-routes-listing-app-api"
 )
 $backendCrates = @(
-  "sdkwork-router-catalog-backend-api",
-  "sdkwork-router-listing-backend-api",
-  "sdkwork-router-publisher-backend-api",
-  "sdkwork-router-moderation-backend-api",
-  "sdkwork-router-market-backend-api",
-  "sdkwork-router-metrics-backend-api"
+  "sdkwork-routes-catalog-backend-api",
+  "sdkwork-routes-listing-backend-api",
+  "sdkwork-routes-publisher-backend-api",
+  "sdkwork-routes-moderation-backend-api",
+  "sdkwork-routes-market-backend-api",
+  "sdkwork-routes-metrics-backend-api"
 )
 foreach ($c in $appCrates) { Update-Crate $c "app" }
 foreach ($c in $backendCrates) { Update-Crate $c "backend" }

@@ -1,7 +1,4 @@
-use axum::{routing::get, Json, Router};
-use serde_json::{json, Value};
-use sqlx::Pool;
-use sqlx::Sqlite;
+use axum::Router;
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::EnvFilter;
 
@@ -24,14 +21,17 @@ use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPubl
 use sdkwork_appstore_repository_sqlx::repository::release_repository::SqlxReleaseRepository;
 
 mod http_route_manifest;
+mod readiness;
 mod routes;
 mod web_bootstrap;
 
+use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
+use readiness::AppstoreSqliteReadinessCheck;
+use std::sync::Arc;
 use web_bootstrap::wrap_router_with_web_framework_from_env;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub pool: Pool<Sqlite>,
     pub publisher_service: PublisherService<SqlxPublisherRepository>,
     pub listing_service: ListingService<SqlxListingRepository>,
     pub release_service: ReleaseService<SqlxReleaseRepository>,
@@ -74,7 +74,6 @@ async fn main() {
     let market_repo = SqlxMarketRepository::new(sqlite_pool.clone());
 
     let state = AppState {
-        pool: sqlite_pool,
         publisher_service: PublisherService::new(publisher_repo),
         listing_service: ListingService::new(listing_repo),
         release_service: ReleaseService::new(release_repo),
@@ -85,9 +84,8 @@ async fn main() {
         market_service: MarketService::new(market_repo),
     };
 
-    let app = wrap_router_with_web_framework_from_env(
+    let business = wrap_router_with_web_framework_from_env(
         Router::new()
-            .route("/health", get(health_check))
             .merge(routes::catalog::routes())
             .merge(routes::listing::routes())
             .merge(routes::publisher::routes())
@@ -101,6 +99,12 @@ async fn main() {
     )
     .await;
 
+    let app = service_router(
+        business,
+        ServiceRouterConfig::default()
+            .with_readiness_check(Arc::new(AppstoreSqliteReadinessCheck::new(sqlite_pool))),
+    );
+
     let port = std::env::var("PORT").unwrap_or_else(|_| "18090".to_string());
     let addr = format!("0.0.0.0:{}", port);
 
@@ -111,12 +115,4 @@ async fn main() {
         .expect("Failed to bind");
 
     axum::serve(listener, app).await.expect("Server failed");
-}
-
-async fn health_check() -> Json<Value> {
-    Json(json!({
-        "status": "ok",
-        "service": "sdkwork-appstore-api-server",
-        "version": "0.1.0"
-    }))
 }

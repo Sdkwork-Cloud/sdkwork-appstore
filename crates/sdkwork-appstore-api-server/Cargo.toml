@@ -39,3 +39,8 @@ sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono"
 sdkwork-iam-web-adapter = { path = "../../../sdkwork-iam/crates/sdkwork-iam-web-adapter" }
 sdkwork-web-axum = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-axum" }
 sdkwork-web-core = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-core" }
+sdkwork-web-bootstrap = { workspace = true }
+
+[[bin]]
+name = "sdkwork-appstore-standalone-gateway"
+path = "src/main.rs"

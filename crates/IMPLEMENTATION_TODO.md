@@ -27,22 +27,22 @@ This file documents the implementation status of the SDKWork App Store backend.
 | `sdkwork-appstore-moderation-service` | Implemented - 4 operations |
 | `sdkwork-appstore-compliance-service` | Implemented - 3 operations |
 | `sdkwork-appstore-market-service` | Implemented - 5 operations |
-| `sdkwork-router-catalog-app-api` | Implemented - handlers + mappers |
-| `sdkwork-router-listing-app-api` | Implemented - handlers + mappers |
-| `sdkwork-router-release-app-api` | Implemented - handlers + mappers |
-| `sdkwork-router-library-app-api` | Implemented - handlers + mappers |
-| `sdkwork-router-publisher-app-api` | Implemented - handlers + mappers |
-| `sdkwork-router-compliance-app-api` | Implemented - handlers + mappers |
-| `sdkwork-router-moderation-backend-api` | Implemented - handlers + mappers |
-| `sdkwork-router-catalog-backend-api` | Implemented - handlers + mappers |
-| `sdkwork-router-listing-backend-api` | Implemented - handlers + mappers |
-| `sdkwork-router-publisher-backend-api` | Implemented - handlers + mappers |
-| `sdkwork-router-market-backend-api` | Implemented - handlers + mappers |
-| `sdkwork-router-metrics-backend-api` | Implemented - handlers + mappers |
-| `sdkwork-router-release-open-api` | Implemented - handlers + mappers |
-| `sdkwork-router-catalog-open-api` | Implemented - handlers + mappers |
-| `sdkwork-router-listing-open-api` | Implemented - handlers + mappers |
-| `sdkwork-router-automation-open-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-catalog-app-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-listing-app-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-release-app-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-library-app-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-publisher-app-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-compliance-app-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-moderation-backend-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-catalog-backend-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-listing-backend-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-publisher-backend-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-market-backend-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-metrics-backend-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-release-open-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-catalog-open-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-listing-open-api` | Implemented - handlers + mappers |
+| `sdkwork-routes-automation-open-api` | Implemented - handlers + mappers |
 
 ## First Implementation Pass (Completed)
 

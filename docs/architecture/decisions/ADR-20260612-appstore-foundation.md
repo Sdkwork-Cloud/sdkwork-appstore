@@ -97,15 +97,15 @@ Phase 1 delivers **contracts and crate map** only. Implementation mounts route c
 
 | Route crate | Surface | Capability |
 | --- | --- | --- |
-| `sdkwork-router-catalog-app-api` | app-api | catalog, search |
-| `sdkwork-router-listing-app-api` | app-api | listings, submissions |
-| `sdkwork-router-release-app-api` | app-api | releases (publisher) |
-| `sdkwork-router-library-app-api` | app-api | library, wishlist |
-| `sdkwork-router-publisher-app-api` | app-api | publisher profile |
-| `sdkwork-router-moderation-backend-api` | backend-api | moderation |
-| `sdkwork-router-catalog-backend-api` | backend-api | collections, featured |
-| `sdkwork-router-listing-backend-api` | backend-api | operator listing admin |
-| `sdkwork-router-release-open-api` | open-api | update check, artifact resolve |
+| `sdkwork-routes-catalog-app-api` | app-api | catalog, search |
+| `sdkwork-routes-listing-app-api` | app-api | listings, submissions |
+| `sdkwork-routes-release-app-api` | app-api | releases (publisher) |
+| `sdkwork-routes-library-app-api` | app-api | library, wishlist |
+| `sdkwork-routes-publisher-app-api` | app-api | publisher profile |
+| `sdkwork-routes-moderation-backend-api` | backend-api | moderation |
+| `sdkwork-routes-catalog-backend-api` | backend-api | collections, featured |
+| `sdkwork-routes-listing-backend-api` | backend-api | operator listing admin |
+| `sdkwork-routes-release-open-api` | open-api | update check, artifact resolve |
 
 ### 5. API prefix lock
 

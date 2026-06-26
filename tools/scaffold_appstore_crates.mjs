@@ -426,7 +426,7 @@ impl ${serviceType} {
 
 function routeCrate(config) {
   const { capability, surface, prefix, routes } = config;
-  const crateName = `sdkwork-router-${capability}-${surface}`;
+  const crateName = `sdkwork-routes-${capability}-${surface}`;
   const typePrefix = `${pascalCase(capability)}${pascalCase(surface)}`;
   const authority =
     surface === "app-api"
@@ -882,7 +882,7 @@ Rust implementation crates for SDKWork App Store.
 - \`sdkwork-appstore-service-host\` - in-process service composition, no HTTP routes.
 - \`sdkwork-appstore-*-service\` - business use-case services.
 - \`sdkwork-appstore-repository-sqlx\` - SQLx repository implementations for \`appstore_*\` tables.
-- \`sdkwork-router-*-{app-api,backend-api,open-api}\` - HTTP route adapters and route manifest sources.
+- \`sdkwork-routes-*-{app-api,backend-api,open-api}\` - HTTP route adapters and route manifest sources.
 - \`sdkwork-appstore-analytics-worker\` - metric and chart projection jobs.
 
 ## Crate Inventory

@@ -12,21 +12,24 @@ members = [
   "crates/sdkwork-appstore-moderation-service",
   "crates/sdkwork-appstore-compliance-service",
   "crates/sdkwork-appstore-market-service",
-  "crates/sdkwork-router-catalog-app-api",
-  "crates/sdkwork-router-listing-app-api",
-  "crates/sdkwork-router-release-app-api",
-  "crates/sdkwork-router-library-app-api",
-  "crates/sdkwork-router-publisher-app-api",
-  "crates/sdkwork-router-compliance-app-api",
-  "crates/sdkwork-router-moderation-backend-api",
-  "crates/sdkwork-router-catalog-backend-api",
-  "crates/sdkwork-router-listing-backend-api",
-  "crates/sdkwork-router-publisher-backend-api",
-  "crates/sdkwork-router-market-backend-api",
-  "crates/sdkwork-router-metrics-backend-api",
-  "crates/sdkwork-router-release-open-api",
-  "crates/sdkwork-router-catalog-open-api",
-  "crates/sdkwork-router-listing-open-api",
-  "crates/sdkwork-router-automation-open-api"
+  "crates/sdkwork-routes-catalog-app-api",
+  "crates/sdkwork-routes-listing-app-api",
+  "crates/sdkwork-routes-release-app-api",
+  "crates/sdkwork-routes-library-app-api",
+  "crates/sdkwork-routes-publisher-app-api",
+  "crates/sdkwork-routes-compliance-app-api",
+  "crates/sdkwork-routes-moderation-backend-api",
+  "crates/sdkwork-routes-catalog-backend-api",
+  "crates/sdkwork-routes-listing-backend-api",
+  "crates/sdkwork-routes-publisher-backend-api",
+  "crates/sdkwork-routes-market-backend-api",
+  "crates/sdkwork-routes-metrics-backend-api",
+  "crates/sdkwork-routes-release-open-api",
+  "crates/sdkwork-routes-catalog-open-api",
+  "crates/sdkwork-routes-listing-open-api",
+  "crates/sdkwork-routes-automation-open-api"
 ]
 resolver = "2"
+
+[workspace.dependencies]
+sdkwork-web-bootstrap = { path = "../sdkwork-web-framework/crates/sdkwork-web-bootstrap" }

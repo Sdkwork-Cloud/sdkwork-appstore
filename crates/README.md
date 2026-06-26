@@ -8,7 +8,7 @@ Rust implementation crates for SDKWork App Store.
 - `sdkwork-appstore-service-host` - in-process service composition, no HTTP routes.
 - `sdkwork-appstore-*-service` - business use-case services.
 - `sdkwork-appstore-repository-sqlx` - SQLx repository implementations for `appstore_*` tables.
-- `sdkwork-router-*-{app-api,backend-api,open-api}` - HTTP route adapters and route manifest sources.
+- `sdkwork-routes-*-{app-api,backend-api,open-api}` - HTTP route adapters and route manifest sources.
 - `sdkwork-appstore-analytics-worker` - metric and chart projection jobs.
 
 ## Integration Boundaries
@@ -44,21 +44,21 @@ not copy dependency-owned APIs or call raw HTTP to fill missing SDK methods.
 - `sdkwork-appstore-moderation-service`
 - `sdkwork-appstore-compliance-service`
 - `sdkwork-appstore-market-service`
-- `sdkwork-router-catalog-app-api`
-- `sdkwork-router-listing-app-api`
-- `sdkwork-router-release-app-api`
-- `sdkwork-router-library-app-api`
-- `sdkwork-router-publisher-app-api`
-- `sdkwork-router-compliance-app-api`
-- `sdkwork-router-moderation-backend-api`
-- `sdkwork-router-catalog-backend-api`
-- `sdkwork-router-listing-backend-api`
-- `sdkwork-router-publisher-backend-api`
-- `sdkwork-router-market-backend-api`
-- `sdkwork-router-metrics-backend-api`
-- `sdkwork-router-release-open-api`
-- `sdkwork-router-catalog-open-api`
-- `sdkwork-router-listing-open-api`
-- `sdkwork-router-automation-open-api`
+- `sdkwork-routes-catalog-app-api`
+- `sdkwork-routes-listing-app-api`
+- `sdkwork-routes-release-app-api`
+- `sdkwork-routes-library-app-api`
+- `sdkwork-routes-publisher-app-api`
+- `sdkwork-routes-compliance-app-api`
+- `sdkwork-routes-moderation-backend-api`
+- `sdkwork-routes-catalog-backend-api`
+- `sdkwork-routes-listing-backend-api`
+- `sdkwork-routes-publisher-backend-api`
+- `sdkwork-routes-market-backend-api`
+- `sdkwork-routes-metrics-backend-api`
+- `sdkwork-routes-release-open-api`
+- `sdkwork-routes-catalog-open-api`
+- `sdkwork-routes-listing-open-api`
+- `sdkwork-routes-automation-open-api`
 
 All crates are implemented with domain models, service logic, repository ports, route handlers, and integration connectors. See `IMPLEMENTATION_TODO.md` for detailed status.
