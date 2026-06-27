@@ -31,3 +31,7 @@ Thumbs.db
 
 # Package manager
 Cargo.lock
+
+# SDKWork local runtime state
+.runtime/
+**/.runtime/

@@ -28,7 +28,7 @@ It intentionally mirrors industry store separation:
 └───────────────────────────┬─────────────────────────────────�?
                             �?HTTPS
 ┌───────────────────────────▼─────────────────────────────────�?
-�?sdkwork-appstore-api-server                                   �?
+�?sdkwork-appstore-standalone-gateway                                   �?
 �? mounts sdkwork-routes-*-{app,backend,open}-api crates      �?
 └───────────────────────────┬─────────────────────────────────�?
                             �?
@@ -206,7 +206,7 @@ Sensitive operations (L3):
 
 | Crate | Responsibility |
 | --- | --- |
-| `sdkwork-appstore-api-server` | HTTP server process |
+| `sdkwork-appstore-standalone-gateway` | HTTP server process |
 | `sdkwork-appstore-service-host` | In-process service wiring |
 | `sdkwork-appstore-publisher-service` | Publisher use cases |
 | `sdkwork-appstore-listing-service` | Listing use cases |

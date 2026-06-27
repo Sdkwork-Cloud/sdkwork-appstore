@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "sdkwork.component.spec",
   "component": {
-    "name": "sdkwork-appstore-api-server",
-    "displayName": "API Server",
+    "name": "sdkwork-appstore-standalone-gateway",
+    "displayName": "Standalone Gateway",
     "version": "0.1.0",
-    "type": "rust-api-server",
-    "root": "crates/sdkwork-appstore-api-server",
+    "type": "rust-standalone-gateway",
+    "root": "crates/sdkwork-appstore-standalone-gateway",
     "domain": "appstore",
-    "capability": "api-server",
+    "capability": "standalone-gateway",
     "languages": ["rust"],
     "generated": false,
     "manifests": ["Cargo.toml"]
@@ -32,6 +32,6 @@
     "configKeys": []
   },
   "verification": {
-    "commands": ["cargo check -p sdkwork-appstore-api-server"]
+    "commands": ["cargo check -p sdkwork-appstore-standalone-gateway"]
   }
 }

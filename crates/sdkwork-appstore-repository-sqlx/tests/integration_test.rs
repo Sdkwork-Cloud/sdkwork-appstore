@@ -25,7 +25,7 @@ fn test_context() -> AppstoreRequestContext {
     AppstoreRequestContext {
         tenant_id: "100001".to_string(),
         organization_id: "0".to_string(),
-        user_id: "user-1".to_string(),
+        user_id: "1".to_string(),
         request_id: "req-1".to_string(),
         trace_id: Some("trace-1".to_string()),
         permission_scopes: vec!["appstore.publishers.*".to_string()],
@@ -401,7 +401,7 @@ async fn test_publisher_tenant_isolation() {
     let ctx1 = AppstoreRequestContext {
         tenant_id: "100001".to_string(),
         organization_id: "0".to_string(),
-        user_id: "user-1".to_string(),
+        user_id: "1".to_string(),
         request_id: "req-1".to_string(),
         trace_id: None,
         permission_scopes: vec![],
@@ -410,7 +410,7 @@ async fn test_publisher_tenant_isolation() {
     let ctx2 = AppstoreRequestContext {
         tenant_id: "100002".to_string(),
         organization_id: "0".to_string(),
-        user_id: "user-1".to_string(),
+        user_id: "1".to_string(),
         request_id: "req-2".to_string(),
         trace_id: None,
         permission_scopes: vec![],
@@ -432,7 +432,7 @@ async fn test_publisher_tenant_isolation() {
         website_url: None,
         support_email: None,
         logo_media_resource_id: None,
-        owner_user_id: "user-1".to_string(),
+        owner_user_id: "1".to_string(),
         version: 1,
         verified_at: None,
         suspended_at: None,
@@ -749,7 +749,7 @@ async fn test_library_raw_sql_operations() {
     )
     .bind("lib-1")
     .bind("100001")
-    .bind("user-1")
+    .bind("1")
     .bind("listing-1")
     .bind("plus-app-1")
     .bind("plus-key-1")
@@ -883,7 +883,7 @@ async fn test_unique_constraints() {
     .bind("unverified")
     .bind("{}")
     .bind("{}")
-    .bind("user-1")
+    .bind("1")
     .bind(1)
     .bind(now.to_rfc3339())
     .bind(now.to_rfc3339())

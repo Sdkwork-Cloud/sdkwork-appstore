@@ -576,13 +576,13 @@ pub fn problem_mapper_todo() -> &'static str {
 }
 
 function apiServerCrate() {
-  const name = "sdkwork-appstore-api-server";
+  const name = "sdkwork-appstore-standalone-gateway";
   return {
     name,
     files: {
       [`crates/${name}/Cargo.toml`]: `${cargoToml(name)}
 [[bin]]
-name = "sdkwork-appstore-api-server"
+name = "sdkwork-appstore-standalone-gateway"
 path = "src/main.rs"
 `,
       [`crates/${name}/README.md`]: crateReadme(
@@ -602,7 +602,7 @@ pub mod preflight;
 pub mod server;
 `,
       [`crates/${name}/src/main.rs`]: `fn main() {
-    println!("{}", sdkwork_appstore_api_server::server::planned_listener_name());
+    println!("{}", sdkwork_appstore_standalone_gateway::server::planned_listener_name());
 }
 `,
       [`crates/${name}/src/bootstrap/mod.rs`]: `//! API server bootstrap modules.
@@ -645,7 +645,7 @@ pub const ROUTER_TODO: &str =
       [`crates/${name}/src/server/mod.rs`]: `//! HTTP listener boundary.
 
 pub fn planned_listener_name() -> &'static str {
-    "TODO(appstore-implementation): start sdkwork-appstore-api-server listener"
+    "TODO(appstore-implementation): start sdkwork-appstore-standalone-gateway listener"
 }
 `,
       [`crates/${name}/src/preflight/mod.rs`]: `//! Startup preflight placeholders.
@@ -878,7 +878,7 @@ Rust implementation crates for SDKWork App Store.
 
 ## Planned Layers
 
-- \`sdkwork-appstore-api-server\` - HTTP process host.
+- \`sdkwork-appstore-standalone-gateway\` - HTTP process host.
 - \`sdkwork-appstore-service-host\` - in-process service composition, no HTTP routes.
 - \`sdkwork-appstore-*-service\` - business use-case services.
 - \`sdkwork-appstore-repository-sqlx\` - SQLx repository implementations for \`appstore_*\` tables.
@@ -918,7 +918,7 @@ ${crateNames.map((name) => `- TODO(appstore-implementation): complete \`${name}\
 1. TODO(appstore-implementation): define shared request context and authorization policy model.
 2. TODO(appstore-implementation): implement publisher/listing/release happy-path service tests.
 3. TODO(appstore-implementation): implement SQLx repositories for publisher, app, listing, release, and submission aggregates.
-4. TODO(appstore-implementation): mount app-api route crates in \`sdkwork-appstore-api-server\`.
+4. TODO(appstore-implementation): mount app-api route crates in \`sdkwork-appstore-standalone-gateway\`.
 5. TODO(appstore-implementation): add contract tests that compare route manifests with authored OpenAPI.
 `;
 }

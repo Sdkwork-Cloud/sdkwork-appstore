@@ -4,7 +4,7 @@ Rust implementation crates for SDKWork App Store.
 
 ## Planned Layers
 
-- `sdkwork-appstore-api-server` - HTTP process host.
+- `sdkwork-appstore-standalone-gateway` - HTTP process host.
 - `sdkwork-appstore-service-host` - in-process service composition, no HTTP routes.
 - `sdkwork-appstore-*-service` - business use-case services.
 - `sdkwork-appstore-repository-sqlx` - SQLx repository implementations for `appstore_*` tables.
@@ -32,7 +32,7 @@ not copy dependency-owned APIs or call raw HTTP to fill missing SDK methods.
 
 ## Crate Inventory
 
-- `sdkwork-appstore-api-server`
+- `sdkwork-appstore-standalone-gateway`
 - `sdkwork-appstore-service-host`
 - `sdkwork-appstore-repository-sqlx`
 - `sdkwork-appstore-analytics-worker`

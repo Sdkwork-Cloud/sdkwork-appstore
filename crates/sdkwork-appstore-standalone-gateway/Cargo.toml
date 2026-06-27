@@ -1,13 +1,14 @@
 [package]
-name = "sdkwork-appstore-api-server"
+name = "sdkwork-appstore-standalone-gateway"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
 path = "src/lib.rs"
 
+
 [[bin]]
-name = "sdkwork-appstore-api-server"
+name = "sdkwork-appstore-standalone-gateway"
 path = "src/main.rs"
 
 [dependencies]
@@ -41,6 +42,3 @@ sdkwork-web-axum = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-a
 sdkwork-web-core = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-core" }
 sdkwork-web-bootstrap = { workspace = true }
 
-[[bin]]
-name = "sdkwork-appstore-standalone-gateway"
-path = "src/main.rs"

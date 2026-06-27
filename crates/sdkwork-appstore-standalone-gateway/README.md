@@ -1,4 +1,4 @@
-# sdkwork-appstore-api-server
+# sdkwork-appstore-standalone-gateway
 
 Runnable HTTP process skeleton for mounting appstore route crates.
 

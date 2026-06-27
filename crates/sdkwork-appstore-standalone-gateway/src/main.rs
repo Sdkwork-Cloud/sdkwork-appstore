@@ -108,7 +108,7 @@ async fn main() {
     let port = std::env::var("PORT").unwrap_or_else(|_| "18090".to_string());
     let addr = format!("0.0.0.0:{}", port);
 
-    tracing::info!("Starting sdkwork-appstore-api-server on {}", addr);
+    tracing::info!("Starting sdkwork-appstore-standalone-gateway on {}", addr);
 
     let listener = tokio::net::TcpListener::bind(&addr)
         .await

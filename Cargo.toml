@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "crates/sdkwork-appstore-api-server",
+  "crates/sdkwork-appstore-standalone-gateway",
   "crates/sdkwork-appstore-service-host",
   "crates/sdkwork-appstore-repository-sqlx",
   "crates/sdkwork-appstore-analytics-worker",

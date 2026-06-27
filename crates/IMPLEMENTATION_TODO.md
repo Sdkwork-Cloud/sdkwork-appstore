@@ -15,7 +15,7 @@ This file documents the implementation status of the SDKWork App Store backend.
 
 | Crate | Status |
 |---|---|
-| `sdkwork-appstore-api-server` | Implemented - adapters, preflight, route mounting |
+| `sdkwork-appstore-standalone-gateway` | Implemented - adapters, preflight, route mounting |
 | `sdkwork-appstore-service-host` | Implemented - integration connectors, registry |
 | `sdkwork-appstore-repository-sqlx` | Implemented - all 8 aggregate repositories (publisher, listing, release, catalog, library, moderation, compliance, market) |
 | `sdkwork-appstore-analytics-worker` | Implemented - metrics/chart jobs, scheduler |

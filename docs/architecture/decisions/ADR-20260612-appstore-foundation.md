@@ -55,7 +55,7 @@ flowchart TB
   end
 
   subgraph appstore [sdkwork-appstore]
-    GW[sdkwork-appstore-api-server]
+    GW[sdkwork-appstore-standalone-gateway]
     SH[sdkwork-appstore-service-host]
     subgraph services [Domain services]
       PS[publisher-service]
