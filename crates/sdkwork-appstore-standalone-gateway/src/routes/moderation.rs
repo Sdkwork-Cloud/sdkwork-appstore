@@ -1,6 +1,7 @@
 use axum::{extract::State, routing::get, Json, Router};
-use serde_json::{json, Value};
+use serde_json::Value;
 
+use crate::http_envelope::{internal_error, success_item, trace_id_from};
 use crate::AppState;
 use sdkwork_appstore_moderation_service::service::moderation_service::ModerationOperations;
 
@@ -36,17 +37,8 @@ async fn moderation_queue_list(state: State<AppState>) -> Json<Value> {
         idempotency_key: None,
     };
     match state.moderation_service.list_queue(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Moderation queue listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -61,16 +53,7 @@ async fn moderation_review_retrieve(
             idempotency_key: None,
         };
     match state.moderation_service.retrieve_review(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Review retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }

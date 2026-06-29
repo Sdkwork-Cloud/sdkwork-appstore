@@ -40,7 +40,7 @@ We need a store backend that mirrors professional marketplace patterns (Apple Ap
 | Auth/session | sdkwork-appbase | SDK dependency; no local auth routes |
 | Reviews/ratings | sdkwork-comments | `comments_thread_id` + comments SDK |
 | Media/binaries | sdkwork-drive | `drive_node_id`, `media_resource_id` |
-| Paid apps/IAP | sdkwork-commerce | Optional `commerce_product_id`; no checkout in store API |
+| Paid apps/IAP | sdkwork-commerce (deleted) | Optional `commerce_product_id`; no checkout in store API |
 | Notifications | sdkwork-appbase / messaging | Events only in phase 1 |
 
 ### 4. Runtime topology
@@ -76,7 +76,7 @@ flowchart TB
     IAM[sdkwork-iam]
     DRV[sdkwork-drive]
     CMT[sdkwork-comments]
-    CMRC[sdkwork-commerce]
+    CMRC[sdkwork-commerce (deleted)]
   end
 
   PC --> GW

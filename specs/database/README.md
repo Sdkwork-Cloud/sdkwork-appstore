@@ -91,7 +91,7 @@ erDiagram
 | `comments_thread_id` | sdkwork-comments | Review thread binding |
 | `drive_node_id` | sdkwork-drive | Binary and media storage |
 | `media_resource_id` | drive/media | Public DTO projection |
-| `commerce_product_id` | sdkwork-commerce | Paid listing linkage (optional) |
+| `commerce_product_id` | sdkwork-commerce (deleted) | Paid listing linkage (optional) |
 
 ## Index Strategy
 

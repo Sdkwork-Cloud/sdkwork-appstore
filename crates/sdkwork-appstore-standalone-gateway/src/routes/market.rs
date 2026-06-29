@@ -1,6 +1,7 @@
 use axum::{extract::State, routing::get, Json, Router};
-use serde_json::{json, Value};
+use serde_json::Value;
 
+use crate::http_envelope::{internal_error, success_item, trace_id_from};
 use crate::AppState;
 use sdkwork_appstore_market_service::service::market_service::MarketOperations;
 
@@ -28,17 +29,8 @@ async fn market_channels_list(state: State<AppState>) -> Json<Value> {
         idempotency_key: None,
     };
     match state.market_service.list_channels(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Market channels listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -53,16 +45,7 @@ async fn market_releases_list(state: State<AppState>) -> Json<Value> {
         idempotency_key: None,
     };
     match state.market_service.list_releases(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Market releases listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }

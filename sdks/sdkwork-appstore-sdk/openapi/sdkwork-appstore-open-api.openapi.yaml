@@ -2,9 +2,10 @@ openapi: 3.1.2
 info:
   title: SDKWork App Store Open API
   version: 1.0.0
-  description: >
-    Public distribution and automation contract for update checks, artifact resolution,
-    and CI/CD publishing integrations.
+  description: 'Public distribution and automation contract for update checks, artifact
+    resolution, and CI/CD publishing integrations.
+
+    '
   x-sdkwork-owner: sdkwork-appstore
   x-sdkwork-api-authority: sdkwork-appstore-open-api
   x-sdkwork-sdk-family: sdkwork-appstore-sdk
@@ -12,138 +13,144 @@ info:
   x-sdkwork-standard-profile: sdkwork-appstore-open-v3
   x-sdkwork-audience: Update clients, CI publish automation, public catalog integrations
 servers:
-  - url: http://127.0.0.1:18092
-    description: Local sdkwork-appstore open runtime
+- url: http://127.0.0.1:18092
+  description: Local sdkwork-appstore open runtime
 tags:
-  - name: releases
-  - name: artifacts
-  - name: listings
-  - name: catalog
-  - name: automation
+- name: releases
+- name: artifacts
+- name: listings
+- name: catalog
+- name: automation
 paths:
   /store/v3/api/releases/check_update:
     post:
-      tags: [releases]
+      tags:
+      - releases
       operationId: appstore.releases.checkUpdate
       summary: Check whether a newer release is available
       security:
-        - ApiKey: []
+      - ApiKey: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReleaseCheckUpdateRequest"
+              $ref: '#/components/schemas/ReleaseCheckUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReleaseCheckUpdateResponse"
+                $ref: '#/components/schemas/ReleaseCheckUpdateResponse'
   /store/v3/api/artifacts/resolve_download:
     post:
-      tags: [artifacts]
+      tags:
+      - artifacts
       operationId: appstore.artifacts.resolveDownload
       summary: Resolve artifact download location from grant or entitlement
       security:
-        - ApiKey: []
+      - ApiKey: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ArtifactResolveDownloadRequest"
+              $ref: '#/components/schemas/ArtifactResolveDownloadRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArtifactResolveDownloadResponse"
+                $ref: '#/components/schemas/ArtifactResolveDownloadResponse'
   /store/v3/api/listings/{listingSlug}:
     get:
-      tags: [listings]
+      tags:
+      - listings
       operationId: appstore.listings.public.retrieve
       summary: Retrieve public listing by slug
       parameters:
-        - name: listingSlug
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: locale
-          in: query
-          schema:
-            type: string
+      - name: listingSlug
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: locale
+        in: query
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreApiResult"
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /store/v3/api/releases/{releaseId}:
     get:
-      tags: [releases]
+      tags:
+      - releases
       operationId: appstore.releases.public.retrieve
       summary: Retrieve public release metadata
       parameters:
-        - name: releaseId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: releaseId
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreApiResult"
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
   /store/v3/api/catalog/featured:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       operationId: appstore.catalog.public.featured.list
       summary: List public featured listings
       parameters:
-        - name: platform
-          in: query
-          schema:
-            type: string
-        - name: locale
-          in: query
-          schema:
-            type: string
+      - name: platform
+        in: query
+        schema:
+          type: string
+      - name: locale
+        in: query
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreApiResult"
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /store/v3/api/automation/submissions:
     post:
-      tags: [automation]
+      tags:
+      - automation
       operationId: appstore.publish.automation.submissions.create
       summary: Create automated publish submission
       security:
-        - ApiKey: []
+      - ApiKey: []
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AutomationSubmissionCreateRequest"
+              $ref: '#/components/schemas/AutomationSubmissionCreateRequest'
       responses:
-        "202":
+        '202':
           description: Accepted
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreApiResult"
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
 components:
   securitySchemes:
     ApiKey:
@@ -158,22 +165,13 @@ components:
       schema:
         type: string
   schemas:
-    StoreApiResult:
-      type: object
-      required: [success, code, message]
-      properties:
-        success:
-          type: boolean
-        code:
-          type: string
-        message:
-          type: string
-        data:
-          type: object
-          additionalProperties: true
     ReleaseCheckUpdateRequest:
       type: object
-      required: [plusAppKey, platform, installedVersionCode, channelCode]
+      required:
+      - plusAppKey
+      - platform
+      - installedVersionCode
+      - channelCode
       properties:
         plusAppKey:
           type: string
@@ -191,27 +189,35 @@ components:
           type: string
     ReleaseCheckUpdateResponse:
       allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
-        - type: object
-          properties:
-            data:
-              type: object
-              properties:
-                updateAvailable:
-                  type: boolean
-                releaseId:
-                  type: string
-                versionName:
-                  type: string
-                versionCode:
-                  type: string
-                mandatory:
-                  type: boolean
-                artifactId:
-                  type: string
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                type: object
+                properties:
+                  updateAvailable:
+                    type: boolean
+                  releaseId:
+                    type: string
+                  versionName:
+                    type: string
+                  versionCode:
+                    type: string
+                  mandatory:
+                    type: boolean
+                  artifactId:
+                    type: string
     ArtifactResolveDownloadRequest:
       type: object
-      required: [artifactId]
+      required:
+      - artifactId
       properties:
         artifactId:
           type: string
@@ -221,23 +227,33 @@ components:
           type: string
     ArtifactResolveDownloadResponse:
       allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
-        - type: object
-          properties:
-            data:
-              type: object
-              properties:
-                downloadUrl:
-                  type: string
-                expiresAt:
-                  type: string
-                checksumSha256:
-                  type: string
-                fileSizeBytes:
-                  type: string
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                type: object
+                properties:
+                  downloadUrl:
+                    type: string
+                  expiresAt:
+                    type: string
+                  checksumSha256:
+                    type: string
+                  fileSizeBytes:
+                    type: string
     AutomationSubmissionCreateRequest:
       type: object
-      required: [plusAppKey, submissionType, release]
+      required:
+      - plusAppKey
+      - submissionType
+      - release
       properties:
         plusAppKey:
           type: string
@@ -245,7 +261,10 @@ components:
           type: string
         release:
           type: object
-          required: [channelCode, versionName, versionCode]
+          required:
+          - channelCode
+          - versionName
+          - versionCode
           properties:
             channelCode:
               type: string
@@ -257,7 +276,12 @@ components:
           type: array
           items:
             type: object
-            required: [platform, architecture, packageFormat, driveNodeId, checksumSha256]
+            required:
+            - platform
+            - architecture
+            - packageFormat
+            - driveNodeId
+            - checksumSha256
             properties:
               platform:
                 type: string
@@ -269,3 +293,174 @@ components:
                 type: string
               checksumSha256:
                 type: string
+    SdkWorkApiResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - data
+      - traceId
+      properties:
+        code:
+          type: integer
+          format: int32
+          enum:
+          - 0
+          default: 0
+          minimum: 0
+          maximum: 0
+        data:
+          description: Operation-specific payload typed per response schema.
+        traceId:
+          type: string
+          format: uuid
+          description: Server-owned request correlation id.
+    SdkWorkResourceData:
+      type: object
+      additionalProperties: false
+      required:
+      - item
+      properties:
+        item:
+          type: object
+          additionalProperties: true
+          description: Typed domain resource for the operation.
+    SdkWorkPageData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - pageInfo
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        pageInfo:
+          $ref: '#/components/schemas/PageInfo'
+    SdkWorkCommandData:
+      type: object
+      additionalProperties: false
+      required:
+      - accepted
+      properties:
+        accepted:
+          type: boolean
+          const: true
+        resourceId:
+          type: string
+        status:
+          type: string
+    PageInfo:
+      type: object
+      additionalProperties: false
+      required:
+      - mode
+      properties:
+        mode:
+          type: string
+          enum:
+          - offset
+          - cursor
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 200
+        totalItems:
+          type: string
+          pattern: ^[0-9]+$
+        totalPages:
+          type: integer
+          minimum: 0
+        nextCursor:
+          type:
+          - string
+          - 'null'
+        hasMore:
+          type: boolean
+    SdkWorkPlatformErrorCode:
+      type: integer
+      format: int32
+      minimum: 40001
+      maximum: 79999
+      description: Platform or domain error code per API_SPEC.md 搂15.3.
+    ProblemDetail:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      - title
+      - status
+      - code
+      - traceId
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          $ref: '#/components/schemas/SdkWorkPlatformErrorCode'
+        traceId:
+          type: string
+          format: uuid
+          description: Server-owned request correlation id.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
+    FieldError:
+      type: object
+      additionalProperties: false
+      required:
+      - field
+      - message
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+        code:
+          type: integer
+          format: int32
+          minimum: 40011
+          maximum: 40099
+    SdkWorkResourceResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            $ref: '#/components/schemas/SdkWorkResourceData'
+    SdkWorkListResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            $ref: '#/components/schemas/SdkWorkPageData'
+    SdkWorkCommandResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            $ref: '#/components/schemas/SdkWorkCommandData'

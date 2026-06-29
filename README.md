@@ -20,7 +20,7 @@ It does **not** own:
 - IAM login/session (`sdkwork-appbase`)
 - PlusApp registration projection (`platform` / app manifest pipeline)
 - Comment threads, star ratings, favorites (`sdkwork-comments`)
-- Paid checkout and IAP settlement (`sdkwork-commerce`, integration only)
+- Paid checkout and IAP settlement (`sdkwork-commerce (deleted)`, integration only)
 - Binary bytes (`sdkwork-drive`)
 
 ## Standard Layout

@@ -43,7 +43,7 @@ Optional future dependency:
 
 | Dependency | Purpose |
 | --- | --- |
-| `sdkwork-commerce-app-sdk` | Paid listing purchase and IAP metadata |
+| `sdkwork-commerce (deleted)-app-sdk` | Paid listing purchase and IAP metadata |
 
 ## Client Construction
 

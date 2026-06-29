@@ -20,6 +20,7 @@ use sdkwork_appstore_repository_sqlx::repository::moderation_repository::SqlxMod
 use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPublisherRepository;
 use sdkwork_appstore_repository_sqlx::repository::release_repository::SqlxReleaseRepository;
 
+mod http_envelope;
 mod http_route_manifest;
 mod readiness;
 mod routes;

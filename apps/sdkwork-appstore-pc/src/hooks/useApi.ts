@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getStoreClient } from '@/services/storeClient';
-import type { StoreApiResult } from '@sdk/generated/server-openapi';
 
 interface UseApiOptions<T> {
   immediate?: boolean;
@@ -9,7 +8,7 @@ interface UseApiOptions<T> {
 }
 
 export function useApi<T>(
-  fetcher: () => Promise<StoreApiResult<T>>,
+  fetcher: () => Promise<T>,
   options: UseApiOptions<T> = {}
 ) {
   const { immediate = true, onSuccess, onError } = options;
@@ -22,12 +21,8 @@ export function useApi<T>(
     setError(null);
     try {
       const result = await fetcher();
-      if (result.success && result.data) {
-        setData(result.data);
-        onSuccess?.(result.data);
-      } else {
-        throw new Error(result.message || 'Request failed');
-      }
+      setData(result);
+      onSuccess?.(result);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       setError(error);
@@ -48,18 +43,18 @@ export function useApi<T>(
 
 export function useHomeFeed() {
   const client = getStoreClient();
-  return useApi(() => client.catalog.getHome() as Promise<StoreApiResult<unknown>>);
+  return useApi(() => client.catalog.getHome());
 }
 
 export function useCategories() {
   const client = getStoreClient();
-  return useApi(() => client.catalog.listCategories() as Promise<StoreApiResult<unknown>>);
+  return useApi(() => client.catalog.listCategories());
 }
 
 export function useListing(listingId: string) {
   const client = getStoreClient();
   return useApi(
-    () => client.listings.get(listingId) as Promise<StoreApiResult<unknown>>,
+    () => client.listings.get(listingId),
     { immediate: !!listingId }
   );
 }
@@ -67,17 +62,17 @@ export function useListing(listingId: string) {
 export function useSearch(query: string) {
   const client = getStoreClient();
   return useApi(
-    () => client.catalog.searchListings({ query }) as Promise<StoreApiResult<unknown>>,
+    () => client.catalog.searchListings({ query }),
     { immediate: !!query }
   );
 }
 
 export function useLibrary() {
   const client = getStoreClient();
-  return useApi(() => client.library.listItems() as Promise<StoreApiResult<unknown>>);
+  return useApi(() => client.library.listItems());
 }
 
 export function usePublisher() {
   const client = getStoreClient();
-  return useApi(() => client.publishers.getMe() as Promise<StoreApiResult<unknown>>);
+  return useApi(() => client.publishers.getMe());
 }

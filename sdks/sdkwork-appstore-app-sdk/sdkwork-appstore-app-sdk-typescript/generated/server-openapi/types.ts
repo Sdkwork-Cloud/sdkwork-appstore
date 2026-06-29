@@ -1,14 +1,32 @@
-export interface StoreApiResult<T = unknown> {
-  success: boolean;
-  code: string;
-  message: string;
-  data?: T;
+export interface SdkWorkApiResponse<T = unknown> {
+  code: 0;
+  data: T;
+  traceId: string;
+}
+
+export interface SdkWorkResourceData<T = unknown> {
+  item: T;
+}
+
+export interface SdkWorkPageData<T = unknown> {
+  items: T[];
+  pageInfo: {
+    mode: 'offset' | 'cursor';
+    page?: number;
+    pageSize?: number;
+    totalItems?: string;
+    totalPages?: number;
+    nextCursor?: string | null;
+    hasMore?: boolean;
+  };
 }
 
 export interface ProblemDetail {
   type: string;
   title: string;
   status: number;
+  code: number;
+  traceId: string;
   detail?: string;
   instance?: string;
 }
@@ -39,12 +57,18 @@ export type StorefrontVisibility = 'visible' | 'hidden' | 'featured';
 
 export type ReviewStatus = 'not_submitted' | 'pending' | 'in_review' | 'approved' | 'rejected';
 
-export type PublisherStatus = 'draft' | 'active' | 'suspended' | 'deleted';
+export type ReleaseStatus = 'draft' | 'submitted' | 'approved' | 'published' | 'archived';
 
-export type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected' | 'expired';
+export type PublisherStatus = 'pending' | 'active' | 'suspended';
 
-export type ReleaseStatus = 'draft' | 'submitted' | 'approved' | 'published' | 'retired';
+export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 
-export type ChannelStatus = 'active' | 'deprecated' | 'disabled';
+export type SdkWorkResultCode =
+  | 0
+  | 40001
+  | 40101
+  | 40401
+  | 50001;
 
-export type SubmissionStatus = 'submitted' | 'under_review' | 'approved' | 'rejected' | 'withdrawn';
+/** @deprecated Use SdkWorkApiResponse — legacy alias removed from wire format. */
+export type StoreApiResult<T = unknown> = SdkWorkApiResponse<SdkWorkResourceData<T>>;

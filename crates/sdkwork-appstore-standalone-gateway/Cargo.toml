@@ -41,4 +41,5 @@ sdkwork-iam-web-adapter = { path = "../../../sdkwork-iam/crates/sdkwork-iam-web-
 sdkwork-web-axum = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-axum" }
 sdkwork-web-core = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-core" }
 sdkwork-web-bootstrap = { workspace = true }
+sdkwork-utils-rust = { path = "../../../sdkwork-utils/packages/sdkwork-utils-rust" }
 

@@ -1,6 +1,7 @@
 use axum::{extract::State, routing::get, Json, Router};
-use serde_json::{json, Value};
+use serde_json::Value;
 
+use crate::http_envelope::{internal_error, success_item, success_page, trace_id_from};
 use crate::AppState;
 use sdkwork_appstore_release_service::service::release_service::ReleaseOperations;
 
@@ -34,17 +35,8 @@ async fn release_retrieve(
     let req =
         sdkwork_appstore_release_service::domain::commands::RetrieveReleaseRequest { release_id };
     match state.release_service.retrieve_release(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Release retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -52,12 +44,8 @@ async fn release_artifacts(
     _state: State<AppState>,
     axum::extract::Path(_release_id): axum::extract::Path<String>,
 ) -> Json<Value> {
-    Json(json!({
-        "success": true,
-        "code": "OK",
-        "message": "Artifacts listed",
-        "data": []
-    }))
+    let trace_id = uuid::Uuid::new_v4().to_string();
+    success_page(trace_id, Vec::<serde_json::Value>::new(), None, false)
 }
 
 async fn release_public(
@@ -73,16 +61,7 @@ async fn release_public(
         .retrieve_public_release(&ctx, req)
         .await
     {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Public release retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }

@@ -1,6 +1,7 @@
 use axum::{extract::State, routing::get, Json, Router};
-use serde_json::{json, Value};
+use serde_json::Value;
 
+use crate::http_envelope::{internal_error, success_item, trace_id_from};
 use crate::AppState;
 use sdkwork_appstore_compliance_service::service::compliance_service::ComplianceOperations;
 
@@ -35,16 +36,7 @@ async fn compliance_profile_retrieve(
         .retrieve_compliance_profile(&ctx, req)
         .await
     {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Compliance profile retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }

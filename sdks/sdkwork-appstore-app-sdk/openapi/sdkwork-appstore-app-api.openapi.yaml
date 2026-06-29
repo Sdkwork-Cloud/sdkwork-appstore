@@ -2,9 +2,10 @@ openapi: 3.1.2
 info:
   title: SDKWork App Store App API
   version: 1.0.0
-  description: >
-    App/client contract for SDKWork App Store catalog, listings, publishers,
+  description: 'App/client contract for SDKWork App Store catalog, listings, publishers,
     releases, compliance, library, and wishlist capabilities.
+
+    '
   x-sdkwork-owner: sdkwork-appstore
   x-sdkwork-api-authority: sdkwork-appstore-app-api
   x-sdkwork-sdk-family: sdkwork-appstore-app-sdk
@@ -12,391 +13,396 @@ info:
   x-sdkwork-standard-profile: sdkwork-appstore-app-v3
   x-sdkwork-audience: Store clients, publisher console, mobile/H5/PC apps
 servers:
-  - url: http://127.0.0.1:18090
-    description: Local sdkwork-appstore runtime
+- url: http://127.0.0.1:18090
+  description: Local sdkwork-appstore runtime
 tags:
-  - name: catalog
-    description: Storefront discovery surfaces
-  - name: listings
-    description: Store listing metadata and submissions
-  - name: publishers
-    description: Developer/publisher accounts
-  - name: releases
-    description: Version and artifact lifecycle
-  - name: compliance
-    description: Privacy and content rating disclosures
-  - name: library
-    description: Installed apps and updates
-  - name: wishlist
-    description: Saved listings
-  - name: downloadGrants
-    description: Controlled artifact download authorization
+- name: catalog
+  description: Storefront discovery surfaces
+- name: listings
+  description: Store listing metadata and submissions
+- name: publishers
+  description: Developer/publisher accounts
+- name: releases
+  description: Version and artifact lifecycle
+- name: compliance
+  description: Privacy and content rating disclosures
+- name: library
+  description: Installed apps and updates
+- name: wishlist
+  description: Saved listings
+- name: downloadGrants
+  description: Controlled artifact download authorization
 security:
-  - AuthToken: []
-    AccessToken: []
+- AuthToken: []
+  AccessToken: []
 paths:
   /app/v3/api/catalog/home:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: Retrieve storefront home feed
       operationId: appstore.catalog.home.retrieve
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreApiResult"
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
   /app/v3/api/catalog/categories:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: List store categories
       operationId: appstore.catalog.categories.list
       parameters:
-        - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
-        - name: locale
-          in: query
-          schema:
-            type: string
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      - name: locale
+        in: query
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CategoryListResponse"
+                $ref: '#/components/schemas/CategoryListResponse'
   /app/v3/api/catalog/categories/{categoryId}:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: Retrieve category detail
       operationId: appstore.catalog.categories.retrieve
       parameters:
-        - $ref: "#/components/parameters/CategoryId"
+      - $ref: '#/components/parameters/CategoryId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CategoryResponse"
+                $ref: '#/components/schemas/CategoryResponse'
   /app/v3/api/catalog/collections:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: List editorial collections
       operationId: appstore.catalog.collections.list
       parameters:
-        - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CollectionListResponse"
+                $ref: '#/components/schemas/CollectionListResponse'
   /app/v3/api/catalog/collections/{collectionId}:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: Retrieve collection detail
       operationId: appstore.catalog.collections.retrieve
       parameters:
-        - $ref: "#/components/parameters/CollectionId"
+      - $ref: '#/components/parameters/CollectionId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CollectionResponse"
+                $ref: '#/components/schemas/CollectionResponse'
   /app/v3/api/catalog/featured:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: List featured placements
       operationId: appstore.catalog.featured.list
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FeaturedListResponse"
+                $ref: '#/components/schemas/FeaturedListResponse'
   /app/v3/api/catalog/charts/{chartCode}:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: Retrieve chart rankings
       operationId: appstore.catalog.charts.retrieve
       parameters:
-        - name: chartCode
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: chartCode
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ChartResponse"
+                $ref: '#/components/schemas/ChartResponse'
   /app/v3/api/catalog/listings/search:
     get:
-      tags: [catalog]
+      tags:
+      - catalog
       summary: Search public listings
       operationId: appstore.catalog.listings.search
       parameters:
-        - name: q
-          in: query
-          schema:
-            type: string
-        - name: categoryId
-          in: query
-          schema:
-            type: string
-        - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
+      - name: q
+        in: query
+        schema:
+          type: string
+      - name: categoryId
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingSummaryListResponse"
+                $ref: '#/components/schemas/ListingSummaryListResponse'
   /app/v3/api/listings:
     post:
-      tags: [listings]
+      tags:
+      - listings
       summary: Create listing for PlusApp
       operationId: appstore.listings.create
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListingCreateRequest"
+              $ref: '#/components/schemas/ListingCreateRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingResponse"
+                $ref: '#/components/schemas/ListingResponse'
   /app/v3/api/listings/{listingId}:
     get:
-      tags: [listings]
+      tags:
+      - listings
       summary: Retrieve listing detail
       operationId: appstore.listings.retrieve
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingResponse"
+                $ref: '#/components/schemas/ListingResponse'
     patch:
-      tags: [listings]
+      tags:
+      - listings
       summary: Update listing metadata
       operationId: appstore.listings.update
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListingUpdateRequest"
+              $ref: '#/components/schemas/ListingUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingResponse"
+                $ref: '#/components/schemas/ListingResponse'
   /app/v3/api/listings/{listingId}/localizations/{locale}:
     put:
-      tags: [listings]
+      tags:
+      - listings
       summary: Upsert listing localization
       operationId: appstore.listings.localization.upsert
       parameters:
-        - $ref: "#/components/parameters/ListingId"
-        - $ref: "#/components/parameters/Locale"
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/Locale'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListingLocalizationUpsertRequest"
+              $ref: '#/components/schemas/ListingLocalizationUpsertRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingLocalizationResponse"
+                $ref: '#/components/schemas/ListingLocalizationResponse'
   /app/v3/api/listings/{listingId}/media:
     get:
-      tags: [listings]
+      tags:
+      - listings
       summary: List listing media
       operationId: appstore.listings.media.list
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingMediaListResponse"
+                $ref: '#/components/schemas/ListingMediaListResponse'
     post:
-      tags: [listings]
+      tags:
+      - listings
       summary: Attach listing media
       operationId: appstore.listings.media.attach
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListingMediaAttachRequest"
+              $ref: '#/components/schemas/ListingMediaAttachRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingMediaResponse"
+                $ref: '#/components/schemas/ListingMediaResponse'
   /app/v3/api/listings/{listingId}/media/{mediaId}:
     delete:
-      tags: [listings]
+      tags:
+      - listings
       summary: Remove listing media
       operationId: appstore.listings.media.remove
       parameters:
-        - $ref: "#/components/parameters/ListingId"
-        - name: mediaId
-          in: path
-          required: true
-          schema:
-            type: string
+      - $ref: '#/components/parameters/ListingId'
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        "204":
+        '204':
           description: Removed
   /app/v3/api/listings/{listingId}/categories:
     put:
-      tags: [listings]
+      tags:
+      - listings
       summary: Bind listing categories
       operationId: appstore.listings.categories.bind
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListingCategoryBindRequest"
+              $ref: '#/components/schemas/ListingCategoryBindRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingResponse"
+                $ref: '#/components/schemas/ListingResponse'
   /app/v3/api/listings/{listingId}/regions:
     put:
-      tags: [listings]
+      tags:
+      - listings
       summary: Update regional availability
       operationId: appstore.listings.regions.update
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RegionalAvailabilityUpdateRequest"
+              $ref: '#/components/schemas/RegionalAvailabilityUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RegionalAvailabilityListResponse"
+                $ref: '#/components/schemas/RegionalAvailabilityListResponse'
   /app/v3/api/listings/{listingId}/releases:
-    get:
-      tags: [listings]
-      summary: List releases for listing
-      operationId: appstore.listings.releases.list
+    post:
+      tags:
+      - releases
+      summary: Create release for listing
+      operationId: appstore.releases.create
       parameters:
-        - $ref: "#/components/parameters/ListingId"
-        - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseCreateRequest'
       responses:
-        "200":
-          description: Success
+        '201':
+          description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreApiResult"
+                $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/listings/{listingId}/submissions:
     post:
-      tags: [listings]
+      tags:
+      - listings
       summary: Submit listing for review
       operationId: appstore.listings.submissions.create
       parameters:
-        - $ref: "#/components/parameters/ListingId"
-        - $ref: "#/components/parameters/IdempotencyKey"
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListingSubmissionCreateRequest"
+              $ref: '#/components/schemas/ListingSubmissionCreateRequest'
       responses:
-        "202":
+        '202':
           description: Accepted
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingSubmissionResponse"
-  /app/v3/api/listings/{listingId}/releases:
-    post:
-      tags: [releases]
-      summary: Create release for listing
-      operationId: appstore.releases.create
-      parameters:
-        - $ref: "#/components/parameters/ListingId"
-        - $ref: "#/components/parameters/IdempotencyKey"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ReleaseCreateRequest"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReleaseResponse"
+                $ref: '#/components/schemas/ListingSubmissionResponse'
   /app/v3/api/publishers/me:
     get:
-      tags: [publishers]
+      tags:
+      - publishers
       summary: Retrieve current publisher profile
       operationId: appstore.publishers.me.retrieve
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PublisherResponse"
+                $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers:
     post:
-      tags: [publishers]
+      tags:
+      - publishers
       summary: Create publisher profile
       operationId: appstore.publishers.create
       requestBody:
@@ -404,304 +410,321 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PublisherCreateRequest"
+              $ref: '#/components/schemas/PublisherCreateRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PublisherResponse"
+                $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers/{publisherId}:
     patch:
-      tags: [publishers]
+      tags:
+      - publishers
       summary: Update publisher profile
       operationId: appstore.publishers.update
       parameters:
-        - $ref: "#/components/parameters/PublisherId"
+      - $ref: '#/components/parameters/PublisherId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PublisherUpdateRequest"
+              $ref: '#/components/schemas/PublisherUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PublisherResponse"
+                $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers/{publisherId}/members:
     get:
-      tags: [publishers]
+      tags:
+      - publishers
       summary: List publisher members
       operationId: appstore.publishers.members.list
       parameters:
-        - $ref: "#/components/parameters/PublisherId"
+      - $ref: '#/components/parameters/PublisherId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PublisherMemberListResponse"
+                $ref: '#/components/schemas/PublisherMemberListResponse'
     post:
-      tags: [publishers]
+      tags:
+      - publishers
       summary: Invite publisher member
       operationId: appstore.publishers.members.invite
       parameters:
-        - $ref: "#/components/parameters/PublisherId"
+      - $ref: '#/components/parameters/PublisherId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PublisherMemberInviteRequest"
+              $ref: '#/components/schemas/PublisherMemberInviteRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PublisherMemberResponse"
+                $ref: '#/components/schemas/PublisherMemberResponse'
   /app/v3/api/publishers/{publisherId}/verifications:
     post:
-      tags: [publishers]
+      tags:
+      - publishers
       summary: Submit publisher verification
       operationId: appstore.publishers.verifications.submit
       parameters:
-        - $ref: "#/components/parameters/PublisherId"
+      - $ref: '#/components/parameters/PublisherId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PublisherVerificationSubmitRequest"
+              $ref: '#/components/schemas/PublisherVerificationSubmitRequest'
       responses:
-        "202":
+        '202':
           description: Accepted
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PublisherVerificationResponse"
+                $ref: '#/components/schemas/PublisherVerificationResponse'
   /app/v3/api/releases/{releaseId}:
     get:
-      tags: [releases]
+      tags:
+      - releases
       summary: Retrieve release detail
       operationId: appstore.releases.retrieve
       parameters:
-        - $ref: "#/components/parameters/ReleaseId"
+      - $ref: '#/components/parameters/ReleaseId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReleaseResponse"
+                $ref: '#/components/schemas/ReleaseResponse'
     patch:
-      tags: [releases]
+      tags:
+      - releases
       summary: Update release metadata
       operationId: appstore.releases.update
       parameters:
-        - $ref: "#/components/parameters/ReleaseId"
+      - $ref: '#/components/parameters/ReleaseId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReleaseUpdateRequest"
+              $ref: '#/components/schemas/ReleaseUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReleaseResponse"
+                $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/releases/{releaseId}/notes/{locale}:
     put:
-      tags: [releases]
+      tags:
+      - releases
       summary: Upsert localized release notes
       operationId: appstore.releases.notes.upsert
       parameters:
-        - $ref: "#/components/parameters/ReleaseId"
-        - $ref: "#/components/parameters/Locale"
+      - $ref: '#/components/parameters/ReleaseId'
+      - $ref: '#/components/parameters/Locale'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReleaseNotesUpsertRequest"
+              $ref: '#/components/schemas/ReleaseNotesUpsertRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReleaseNotesResponse"
+                $ref: '#/components/schemas/ReleaseNotesResponse'
   /app/v3/api/releases/{releaseId}/artifacts:
     post:
-      tags: [releases]
+      tags:
+      - releases
       summary: Attach release artifact
       operationId: appstore.releases.artifacts.attach
       parameters:
-        - $ref: "#/components/parameters/ReleaseId"
+      - $ref: '#/components/parameters/ReleaseId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReleaseArtifactAttachRequest"
+              $ref: '#/components/schemas/ReleaseArtifactAttachRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReleaseArtifactResponse"
+                $ref: '#/components/schemas/ReleaseArtifactResponse'
   /app/v3/api/releases/{releaseId}/rollout:
     put:
-      tags: [releases]
+      tags:
+      - releases
       summary: Update staged rollout
       operationId: appstore.releases.rollout.update
       parameters:
-        - $ref: "#/components/parameters/ReleaseId"
+      - $ref: '#/components/parameters/ReleaseId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReleaseRolloutUpdateRequest"
+              $ref: '#/components/schemas/ReleaseRolloutUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReleaseRolloutResponse"
+                $ref: '#/components/schemas/ReleaseRolloutResponse'
   /app/v3/api/releases/{releaseId}/retire:
     post:
-      tags: [releases]
+      tags:
+      - releases
       summary: Retire release
       operationId: appstore.releases.retire
       parameters:
-        - $ref: "#/components/parameters/ReleaseId"
+      - $ref: '#/components/parameters/ReleaseId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReleaseResponse"
+                $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/listings/{listingId}/compliance:
     get:
-      tags: [compliance]
+      tags:
+      - compliance
       summary: Retrieve compliance profile
       operationId: appstore.compliance.profile.retrieve
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplianceProfileResponse"
+                $ref: '#/components/schemas/ComplianceProfileResponse'
     put:
-      tags: [compliance]
+      tags:
+      - compliance
       summary: Update compliance profile
       operationId: appstore.compliance.profile.update
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComplianceProfileUpdateRequest"
+              $ref: '#/components/schemas/ComplianceProfileUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplianceProfileResponse"
+                $ref: '#/components/schemas/ComplianceProfileResponse'
   /app/v3/api/listings/{listingId}/compliance/permissions:
     put:
-      tags: [compliance]
+      tags:
+      - compliance
       summary: Update permission disclosures
       operationId: appstore.compliance.permissions.update
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CompliancePermissionUpdateRequest"
+              $ref: '#/components/schemas/CompliancePermissionUpdateRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompliancePermissionListResponse"
+                $ref: '#/components/schemas/CompliancePermissionListResponse'
   /app/v3/api/library/items:
     get:
-      tags: [library]
+      tags:
+      - library
       summary: List library items
       operationId: appstore.library.items.list
       parameters:
-        - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LibraryItemListResponse"
+                $ref: '#/components/schemas/LibraryItemListResponse'
   /app/v3/api/library/items/{libraryItemId}:
     get:
-      tags: [library]
+      tags:
+      - library
       summary: Retrieve library item
       operationId: appstore.library.items.retrieve
       parameters:
-        - name: libraryItemId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: libraryItemId
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LibraryItemResponse"
+                $ref: '#/components/schemas/LibraryItemResponse'
   /app/v3/api/library/install:
     post:
-      tags: [library]
+      tags:
+      - library
       summary: Record install and prepare download
       operationId: appstore.library.install
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LibraryInstallRequest"
+              $ref: '#/components/schemas/LibraryInstallRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LibraryInstallResponse"
+                $ref: '#/components/schemas/LibraryInstallResponse'
   /app/v3/api/library/uninstall:
     post:
-      tags: [library]
+      tags:
+      - library
       summary: Record uninstall
       operationId: appstore.library.uninstall
       requestBody:
@@ -709,17 +732,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LibraryUninstallRequest"
+              $ref: '#/components/schemas/LibraryUninstallRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreApiResult"
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
   /app/v3/api/library/updates/check:
     post:
-      tags: [library]
+      tags:
+      - library
       summary: Check library updates
       operationId: appstore.library.updates.check
       requestBody:
@@ -727,28 +751,30 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LibraryUpdatesCheckRequest"
+              $ref: '#/components/schemas/LibraryUpdatesCheckRequest'
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LibraryUpdatesCheckResponse"
+                $ref: '#/components/schemas/LibraryUpdatesCheckResponse'
   /app/v3/api/wishlist/items:
     get:
-      tags: [wishlist]
+      tags:
+      - wishlist
       summary: List wishlist items
       operationId: appstore.wishlist.items.list
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WishlistItemListResponse"
+                $ref: '#/components/schemas/WishlistItemListResponse'
     post:
-      tags: [wishlist]
+      tags:
+      - wishlist
       summary: Add wishlist item
       operationId: appstore.wishlist.items.add
       requestBody:
@@ -756,62 +782,65 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/WishlistItemAddRequest"
+              $ref: '#/components/schemas/WishlistItemAddRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WishlistItemResponse"
+                $ref: '#/components/schemas/WishlistItemResponse'
   /app/v3/api/wishlist/items/{listingId}:
     delete:
-      tags: [wishlist]
+      tags:
+      - wishlist
       summary: Remove wishlist item
       operationId: appstore.wishlist.items.remove
       parameters:
-        - $ref: "#/components/parameters/ListingId"
+      - $ref: '#/components/parameters/ListingId'
       responses:
-        "204":
+        '204':
           description: Removed
   /app/v3/api/download_grants:
     post:
-      tags: [downloadGrants]
+      tags:
+      - downloadGrants
       summary: Create download grant
       operationId: appstore.downloadGrants.create
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DownloadGrantCreateRequest"
+              $ref: '#/components/schemas/DownloadGrantCreateRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DownloadGrantResponse"
+                $ref: '#/components/schemas/DownloadGrantResponse'
   /app/v3/api/download_grants/{grantId}/consume:
     post:
-      tags: [downloadGrants]
+      tags:
+      - downloadGrants
       summary: Consume download grant
       operationId: appstore.downloadGrants.consume
       parameters:
-        - name: grantId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: grantId
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        "200":
+        '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DownloadGrantConsumeResponse"
+                $ref: '#/components/schemas/DownloadGrantConsumeResponse'
 components:
   securitySchemes:
     AuthToken:
@@ -879,36 +908,44 @@ components:
       schema:
         type: string
   schemas:
-    StoreApiResult:
-      type: object
-      required: [success, code, message]
-      properties:
-        success:
-          type: boolean
-        code:
-          type: string
-        message:
-          type: string
-        data:
-          type: object
-          additionalProperties: true
     ProblemDetail:
       type: object
-      required: [type, title, status]
+      additionalProperties: true
+      required:
+      - type
+      - title
+      - status
+      - code
+      - traceId
       properties:
         type:
           type: string
+          format: uri-reference
         title:
           type: string
         status:
           type: integer
+          minimum: 100
+          maximum: 599
         detail:
           type: string
         instance:
           type: string
+        code:
+          $ref: '#/components/schemas/SdkWorkPlatformErrorCode'
+        traceId:
+          type: string
+          format: uuid
+          description: Server-owned request correlation id.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
     MediaResource:
       type: object
-      required: [id, kind]
+      required:
+      - id
+      - kind
       properties:
         id:
           type: string
@@ -920,7 +957,12 @@ components:
           type: string
     ListingSummary:
       type: object
-      required: [id, plusAppKey, displayName, listingSlug, pricingModel]
+      required:
+      - id
+      - plusAppKey
+      - displayName
+      - listingSlug
+      - pricingModel
       properties:
         id:
           type: string
@@ -936,40 +978,55 @@ components:
           type: string
         pricingModel:
           type: string
-          enum: [FREE, PAID, FREEMIUM, SUBSCRIPTION]
+          enum:
+          - FREE
+          - PAID
+          - FREEMIUM
+          - SUBSCRIPTION
         icon:
-          $ref: "#/components/schemas/MediaResource"
+          $ref: '#/components/schemas/MediaResource'
         averageRating:
           type: string
         ratingCount:
           type: integer
     ListingResponse:
       allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
-        - type: object
-          properties:
-            data:
-              $ref: "#/components/schemas/ListingDetail"
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ListingDetail'
     ListingDetail:
       allOf:
-        - $ref: "#/components/schemas/ListingSummary"
-        - type: object
-          properties:
-            listingStatus:
+      - $ref: '#/components/schemas/ListingSummary'
+      - type: object
+        properties:
+          listingStatus:
+            type: string
+          reviewStatus:
+            type: string
+          commentsThreadId:
+            type: string
+          currentReleaseId:
+            type: string
+          categories:
+            type: array
+            items:
               type: string
-            reviewStatus:
-              type: string
-            commentsThreadId:
-              type: string
-            currentReleaseId:
-              type: string
-            categories:
-              type: array
-              items:
-                type: string
     ListingCreateRequest:
       type: object
-      required: [plusAppId, plusAppKey, publisherId, defaultLocale]
+      required:
+      - plusAppId
+      - plusAppKey
+      - publisherId
+      - defaultLocale
       properties:
         plusAppId:
           type: string
@@ -996,39 +1053,57 @@ components:
           type: string
     ListingSummaryListResponse:
       allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
-        - type: object
-          properties:
-            data:
-              type: object
-              properties:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            additionalProperties: false
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
                 items:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/ListingSummary"
-                nextCursor:
-                  type: string
+                  $ref: '#/components/schemas/ListingSummary'
+              pageInfo:
+                type: object
+                additionalProperties: false
+                required:
+                - mode
+                - hasMore
+                properties:
+                  mode:
+                    type: string
+                    enum:
+                    - cursor
+                  nextCursor:
+                    type:
+                    - string
+                    - 'null'
+                  hasMore:
+                    type: boolean
     CategoryResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     CategoryListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     CollectionResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     CollectionListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     FeaturedListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     ChartResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     ListingLocalizationUpsertRequest:
       type: object
-      required: [displayName, shortDescription, fullDescription]
+      required:
+      - displayName
+      - shortDescription
+      - fullDescription
       properties:
         displayName:
           type: string
@@ -1043,15 +1118,20 @@ components:
           items:
             type: string
     ListingLocalizationResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     ListingMediaAttachRequest:
       type: object
-      required: [mediaRole, mediaResourceId]
+      required:
+      - mediaRole
+      - mediaResourceId
       properties:
         mediaRole:
           type: string
-          enum: [ICON, SCREENSHOT, PREVIEW_VIDEO, FEATURE_GRAPHIC]
+          enum:
+          - ICON
+          - SCREENSHOT
+          - PREVIEW_VIDEO
+          - FEATURE_GRAPHIC
         mediaResourceId:
           type: string
         platformScope:
@@ -1059,14 +1139,13 @@ components:
         locale:
           type: string
     ListingMediaResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     ListingMediaListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     ListingCategoryBindRequest:
       type: object
-      required: [categoryIds]
+      required:
+      - categoryIds
       properties:
         primaryCategoryId:
           type: string
@@ -1076,36 +1155,42 @@ components:
             type: string
     RegionalAvailabilityUpdateRequest:
       type: object
-      required: [regions]
+      required:
+      - regions
       properties:
         regions:
           type: array
           items:
             type: object
-            required: [regionCode, availabilityStatus]
+            required:
+            - regionCode
+            - availabilityStatus
             properties:
               regionCode:
                 type: string
               availabilityStatus:
                 type: string
     RegionalAvailabilityListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     ListingSubmissionCreateRequest:
       type: object
-      required: [submissionType]
+      required:
+      - submissionType
       properties:
         submissionType:
           type: string
-          enum: [INITIAL, METADATA, RELEASE]
+          enum:
+          - INITIAL
+          - METADATA
+          - RELEASE
         releaseId:
           type: string
     ListingSubmissionResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     PublisherCreateRequest:
       type: object
-      required: [displayName]
+      required:
+      - displayName
       properties:
         displayName:
           type: string
@@ -1123,25 +1208,25 @@ components:
         supportEmail:
           type: string
     PublisherResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     PublisherMemberListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     PublisherMemberInviteRequest:
       type: object
-      required: [userId, memberRole]
+      required:
+      - userId
+      - memberRole
       properties:
         userId:
           type: string
         memberRole:
           type: string
     PublisherMemberResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     PublisherVerificationSubmitRequest:
       type: object
-      required: [verificationType]
+      required:
+      - verificationType
       properties:
         verificationType:
           type: string
@@ -1149,11 +1234,13 @@ components:
           type: object
           additionalProperties: true
     PublisherVerificationResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     ReleaseCreateRequest:
       type: object
-      required: [channelCode, versionName, versionCode]
+      required:
+      - channelCode
+      - versionName
+      - versionCode
       properties:
         channelCode:
           type: string
@@ -1171,20 +1258,25 @@ components:
         releaseStatus:
           type: string
     ReleaseResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     ReleaseNotesUpsertRequest:
       type: object
-      required: [releaseNotes]
+      required:
+      - releaseNotes
       properties:
         releaseNotes:
           type: string
     ReleaseNotesResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     ReleaseArtifactAttachRequest:
       type: object
-      required: [platform, architecture, packageFormat, driveNodeId, checksumSha256, fileSizeBytes]
+      required:
+      - platform
+      - architecture
+      - packageFormat
+      - driveNodeId
+      - checksumSha256
+      - fileSizeBytes
       properties:
         platform:
           type: string
@@ -1199,25 +1291,27 @@ components:
         fileSizeBytes:
           type: string
     ReleaseArtifactResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     ReleaseRolloutUpdateRequest:
       type: object
-      required: [rolloutStrategy, targetPercentage]
+      required:
+      - rolloutStrategy
+      - targetPercentage
       properties:
         rolloutStrategy:
           type: string
-          enum: [FULL, STAGED, PAUSE]
+          enum:
+          - FULL
+          - STAGED
+          - PAUSE
         targetPercentage:
           type: integer
           minimum: 0
           maximum: 100
     ReleaseRolloutResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     ComplianceProfileResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     ComplianceProfileUpdateRequest:
       type: object
       properties:
@@ -1232,13 +1326,16 @@ components:
           additionalProperties: true
     CompliancePermissionUpdateRequest:
       type: object
-      required: [permissions]
+      required:
+      - permissions
       properties:
         permissions:
           type: array
           items:
             type: object
-            required: [permissionCode, usagePurpose]
+            required:
+            - permissionCode
+            - usagePurpose
             properties:
               permissionCode:
                 type: string
@@ -1247,17 +1344,16 @@ components:
               isRequired:
                 type: boolean
     CompliancePermissionListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     LibraryItemListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     LibraryItemResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     LibraryInstallRequest:
       type: object
-      required: [listingId, platform]
+      required:
+      - listingId
+      - platform
       properties:
         listingId:
           type: string
@@ -1268,23 +1364,27 @@ components:
         deviceId:
           type: string
     LibraryInstallResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     LibraryUninstallRequest:
       type: object
-      required: [libraryItemId]
+      required:
+      - libraryItemId
       properties:
         libraryItemId:
           type: string
     LibraryUpdatesCheckRequest:
       type: object
-      required: [items]
+      required:
+      - items
       properties:
         items:
           type: array
           items:
             type: object
-            required: [plusAppKey, platform, installedVersionCode]
+            required:
+            - plusAppKey
+            - platform
+            - installedVersionCode
             properties:
               plusAppKey:
                 type: string
@@ -1293,29 +1393,164 @@ components:
               installedVersionCode:
                 type: string
     LibraryUpdatesCheckResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     WishlistItemListResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     WishlistItemAddRequest:
       type: object
-      required: [listingId]
+      required:
+      - listingId
       properties:
         listingId:
           type: string
     WishlistItemResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkListResponse'
     DownloadGrantCreateRequest:
       type: object
-      required: [artifactId]
+      required:
+      - artifactId
       properties:
         artifactId:
           type: string
     DownloadGrantResponse:
-      allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
     DownloadGrantConsumeResponse:
+      $ref: '#/components/schemas/SdkWorkResourceResponse'
+    SdkWorkApiResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - data
+      - traceId
+      properties:
+        code:
+          type: integer
+          format: int32
+          enum:
+          - 0
+          default: 0
+          minimum: 0
+          maximum: 0
+        data:
+          description: Operation-specific payload typed per response schema.
+        traceId:
+          type: string
+          format: uuid
+          description: Server-owned request correlation id.
+    SdkWorkResourceData:
+      type: object
+      additionalProperties: false
+      required:
+      - item
+      properties:
+        item:
+          type: object
+          additionalProperties: true
+          description: Typed domain resource for the operation.
+    SdkWorkPageData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - pageInfo
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        pageInfo:
+          $ref: '#/components/schemas/PageInfo'
+    SdkWorkCommandData:
+      type: object
+      additionalProperties: false
+      required:
+      - accepted
+      properties:
+        accepted:
+          type: boolean
+          const: true
+        resourceId:
+          type: string
+        status:
+          type: string
+    PageInfo:
+      type: object
+      additionalProperties: false
+      required:
+      - mode
+      properties:
+        mode:
+          type: string
+          enum:
+          - offset
+          - cursor
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 200
+        totalItems:
+          type: string
+          pattern: ^[0-9]+$
+        totalPages:
+          type: integer
+          minimum: 0
+        nextCursor:
+          type:
+          - string
+          - 'null'
+        hasMore:
+          type: boolean
+    SdkWorkPlatformErrorCode:
+      type: integer
+      format: int32
+      minimum: 40001
+      maximum: 79999
+      description: Platform or domain error code per API_SPEC.md 搂15.3.
+    FieldError:
+      type: object
+      additionalProperties: false
+      required:
+      - field
+      - message
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+        code:
+          type: integer
+          format: int32
+          minimum: 40011
+          maximum: 40099
+    SdkWorkResourceResponse:
       allOf:
-        - $ref: "#/components/schemas/StoreApiResult"
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            $ref: '#/components/schemas/SdkWorkResourceData'
+    SdkWorkListResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            $ref: '#/components/schemas/SdkWorkPageData'
+    SdkWorkCommandResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            $ref: '#/components/schemas/SdkWorkCommandData'

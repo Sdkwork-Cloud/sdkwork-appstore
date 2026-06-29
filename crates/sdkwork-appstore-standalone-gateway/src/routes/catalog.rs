@@ -1,6 +1,7 @@
 use axum::{extract::State, routing::get, Json, Router};
-use serde_json::{json, Value};
+use serde_json::Value;
 
+use crate::http_envelope::{internal_error, success_item, success_page, trace_id_from};
 use crate::AppState;
 use sdkwork_appstore_catalog_service::service::catalog_service::CatalogOperations;
 
@@ -51,17 +52,8 @@ async fn catalog_home(state: State<AppState>) -> Json<Value> {
     let ctx = mock_context();
     let req = sdkwork_appstore_catalog_service::domain::commands::HomeRetrieveRequest::new();
     match state.catalog_service.home_retrieve(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Home feed retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -73,17 +65,13 @@ async fn catalog_categories_list(state: State<AppState>) -> Json<Value> {
         locale: None,
     };
     match state.catalog_service.categories_list(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Categories listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_page(
+            trace_id_from(&ctx.request_id),
+            result.categories,
+            result.next_cursor,
+            result.has_more,
+        ),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -97,17 +85,8 @@ async fn catalog_category_retrieve(
         locale: None,
     };
     match state.catalog_service.category_retrieve(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Category retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -119,17 +98,13 @@ async fn catalog_collections_list(state: State<AppState>) -> Json<Value> {
         audience_scope: None,
     };
     match state.catalog_service.collections_list(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Collections listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_page(
+            trace_id_from(&ctx.request_id),
+            result.collections,
+            result.next_cursor,
+            result.has_more,
+        ),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -143,17 +118,8 @@ async fn catalog_collection_retrieve(
         locale: None,
     };
     match state.catalog_service.collection_retrieve(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Collection retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -161,17 +127,8 @@ async fn catalog_featured_list(state: State<AppState>) -> Json<Value> {
     let ctx = mock_context();
     let req = sdkwork_appstore_catalog_service::domain::commands::FeaturedListRequest::new();
     match state.catalog_service.featured_list(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Featured listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -187,17 +144,8 @@ async fn catalog_charts_retrieve(
         snapshot_date: None,
     };
     match state.catalog_service.charts_retrieve(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Chart retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -210,17 +158,13 @@ async fn catalog_listings_search(state: State<AppState>) -> Json<Value> {
         limit: Some(20),
     };
     match state.catalog_service.listings_search(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Search results",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_page(
+            trace_id_from(&ctx.request_id),
+            result.listings,
+            result.next_cursor,
+            result.has_more,
+        ),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -232,16 +176,7 @@ async fn catalog_public_featured_list(state: State<AppState>) -> Json<Value> {
         limit: Some(20),
     };
     match state.catalog_service.public_featured_list(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Public featured listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }

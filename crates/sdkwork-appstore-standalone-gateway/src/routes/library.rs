@@ -1,6 +1,7 @@
 use axum::{extract::State, routing::get, Json, Router};
-use serde_json::{json, Value};
+use serde_json::Value;
 
+use crate::http_envelope::{internal_error, success_item, success_page, trace_id_from};
 use crate::AppState;
 use sdkwork_appstore_library_service::service::library_service::LibraryOperations;
 
@@ -32,17 +33,13 @@ async fn library_items_list(state: State<AppState>) -> Json<Value> {
         limit: Some(20),
     };
     match state.library_service.library_items_list(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Library items listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_page(
+            trace_id_from(&ctx.request_id),
+            result.items,
+            result.next_cursor,
+            result.has_more,
+        ),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -59,17 +56,8 @@ async fn library_item_retrieve(
         .library_items_retrieve(&ctx, req)
         .await
     {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Library item retrieved",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
 
@@ -80,16 +68,12 @@ async fn wishlist_items_list(state: State<AppState>) -> Json<Value> {
         limit: Some(20),
     };
     match state.library_service.wishlist_items_list(&ctx, req).await {
-        Ok(result) => Json(json!({
-            "success": true,
-            "code": "OK",
-            "message": "Wishlist items listed",
-            "data": serde_json::to_value(&result).unwrap_or_default()
-        })),
-        Err(e) => Json(json!({
-            "success": false,
-            "code": "ERROR",
-            "message": format!("{}", e)
-        })),
+        Ok(result) => success_page(
+            trace_id_from(&ctx.request_id),
+            result.items,
+            result.next_cursor,
+            result.has_more,
+        ),
+        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
     }
 }
