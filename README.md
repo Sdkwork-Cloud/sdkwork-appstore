@@ -1,4 +1,5 @@
 # SDKWork App Store
+repository-kind: application
 
 Professional application marketplace for the SDKWork ecosystem, aligned with industry-grade
 store patterns (Apple App Store, Google Play) while following SDKWork standards.

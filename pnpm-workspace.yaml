@@ -1,0 +1,5 @@
+packages:
+  - "apps/sdkwork-appstore-h5"
+  - "apps/sdkwork-appstore-h5/packages/*"
+  - "apps/sdkwork-appstore-pc"
+  - "apps/sdkwork-appstore-pc/packages/*"

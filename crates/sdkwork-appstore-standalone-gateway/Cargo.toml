@@ -34,12 +34,12 @@ sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service
 sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
 sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
 sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
-sdkwork-database-config = { path = "../../../sdkwork-database/crates/sdkwork-database-config" }
-sdkwork-database-sqlx = { path = "../../../sdkwork-database/crates/sdkwork-database-sqlx" }
+sdkwork-database-config = { workspace = true }
+sdkwork-database-sqlx = { workspace = true }
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }
-sdkwork-iam-web-adapter = { path = "../../../sdkwork-iam/crates/sdkwork-iam-web-adapter" }
-sdkwork-web-axum = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-axum" }
-sdkwork-web-core = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-core" }
+sdkwork-iam-web-adapter = { workspace = true }
+sdkwork-web-axum = { workspace = true }
+sdkwork-web-core = { workspace = true }
 sdkwork-web-bootstrap = { workspace = true }
-sdkwork-utils-rust = { path = "../../../sdkwork-utils/packages/sdkwork-utils-rust" }
+sdkwork-utils-rust = { workspace = true }
 

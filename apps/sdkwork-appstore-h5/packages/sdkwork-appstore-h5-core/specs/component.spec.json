@@ -20,7 +20,28 @@
     "runtimeEntrypoints": [
       "package.json#scripts.typecheck"
     ],
-    "sdkDependencies": [],
+    "sdkDependencies": [
+      {
+        "workspace": "sdkwork-appstore-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-comments-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-drive-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-iam-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      }
+    ],
     "dependencyApiExports": [],
     "sdkClients": [],
     "publicExports": [
@@ -31,8 +52,7 @@
     "configKeys": [
       "package.json#sdkwork"
     ],
-    "dependencyApiSurfaces": [],
-    "dependencyComposition": "../../../specs/dependency.composition.json"
+    "dependencyApiSurfaces": []
   },
   "kind": "sdkwork.component.spec",
   "schemaVersion": 1,
