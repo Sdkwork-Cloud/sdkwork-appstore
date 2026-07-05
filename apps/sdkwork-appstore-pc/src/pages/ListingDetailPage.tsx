@@ -24,6 +24,7 @@ import {
   formatApiError,
   installListingAndDownload,
   useDeveloperOtherListings,
+  useListingReviews,
 } from '@/hooks/useApi';
 import { getStoreClient } from '@/services/storeClient';
 import { isAuthenticated } from '@/bootstrap/iamRuntime';
@@ -34,6 +35,7 @@ import { ListingDetailSkeleton } from '@/components/listing/ListingDetailSkeleto
 import { StickyInstallBar } from '@/components/listing/StickyInstallBar';
 import { ScreenshotGallery, type MediaItem } from '@/components/listing/ScreenshotGallery';
 import { AppCard } from '@/components/cards/AppCard';
+import { ReviewCard } from '@/components/listing/ReviewCard';
 import {
   mapMediaToItem,
   mapReleaseToHistoryEntry,
@@ -69,6 +71,7 @@ interface ListingDetail {
   supportUrl?: string;
   websiteUrl?: string;
   listingId: string;
+  commentsThreadId?: string;
 }
 
 function readString(record: { [key: string]: unknown }, ...keys: string[]): string {
@@ -140,6 +143,7 @@ function mapListingToDetail(listing: unknown): ListingDetail | null {
     supportUrl: readString(record, 'support_url', 'supportUrl') || undefined,
     websiteUrl: readString(record, 'official_website_url', 'officialWebsiteUrl') || undefined,
     listingId: id,
+    commentsThreadId: readString(record, 'comments_thread_id', 'commentsThreadId') || undefined,
   };
 }
 
@@ -161,6 +165,8 @@ export function ListingDetailPage() {
 
   const app = useMemo(() => mapListingToDetail(data), [data]);
   const authed = isAuthenticated();
+  const reviewsApi = useListingReviews(app?.commentsThreadId);
+  const reviewItems = reviewsApi.data?.items ?? [];
 
   const mediaApi = useApi(
     () => getStoreClient().listings.listMedia(app?.listingId ?? ''),
@@ -564,11 +570,37 @@ export function ListingDetailPage() {
             <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
               用户评价
             </h3>
-            <EmptyState
-              icon={<ThumbsUp className="w-7 h-7" />}
-              title="暂无用户评价"
-              description="评价功能将在后续版本上线，敬请期待。"
-            />
+            {!app.commentsThreadId ? (
+              <EmptyState
+                icon={<ThumbsUp className="w-7 h-7" />}
+                title="暂无用户评价"
+                description="该应用尚未绑定评价线程。"
+              />
+            ) : reviewsApi.loading ? (
+              <div className="space-y-3">
+                {[0, 1].map((key) => (
+                  <div key={key} className="skeleton rounded-xl" style={{ height: 96 }} />
+                ))}
+              </div>
+            ) : reviewsApi.error ? (
+              <EmptyState
+                icon={<ThumbsUp className="w-7 h-7" />}
+                title="评价加载失败"
+                description={formatApiError(reviewsApi.error)}
+              />
+            ) : reviewItems.length === 0 ? (
+              <EmptyState
+                icon={<ThumbsUp className="w-7 h-7" />}
+                title="暂无用户评价"
+                description="成为首位评价者，分享你的使用体验。"
+              />
+            ) : (
+              <div className="space-y-3">
+                {reviewItems.map((comment) => (
+                  <ReviewCard key={comment.id} comment={comment} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

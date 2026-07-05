@@ -33,7 +33,7 @@ Read `../../sdkwork-specs/SOUL.md` before executing tasks in this root. Follow s
 
 - UI packages MUST use `sdkwork-appstore-app-sdk` only
 - UI packages MUST NOT use backend SDK or raw HTTP
-- SDK clients are constructed in `src/services/storeClient.ts` (app store) and `src/services/driveClient.ts` (drive uploads) and injected via hooks
+- SDK clients are constructed in `src/services/storeClient.ts` (app store), `src/services/driveClient.ts` (drive uploads), and `src/services/commentsClient.ts` (listing reviews) and injected via hooks
 
 ## Build & Run
 

@@ -41,7 +41,7 @@ export function SearchPage() {
     return {
       id: slug,
       name: String(listing.displayName ?? listing.title ?? 'Listing'),
-      developer: String(listing.developerName ?? listing.publisherId ?? 'Publisher'),
+      developer: String(listing.developerName ?? listing.publisherId ?? '开发者'),
       rating: Number(listing.rating ?? 0),
       iconColor: 'from-blue-500 to-cyan-500',
     };

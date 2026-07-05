@@ -123,7 +123,7 @@ pub struct AppstoreQueryAs<O> {
 impl AppstoreSqlxDb {
     pub fn query(&self, template: &str) -> AppstoreQuery {
         AppstoreQuery {
-            _db: self.clone(),
+            db: self.clone(),
             sql: template.to_string(),
             binds: Vec::new(),
         }

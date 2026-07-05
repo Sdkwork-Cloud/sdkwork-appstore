@@ -6,6 +6,7 @@ import { createTokenManager, type AuthTokenManager } from '@sdkwork/sdk-common';
 import { getEnvironment } from './environment';
 import { resetStoreClient } from '@/services/storeClient';
 import { resetDriveClient } from '@/services/driveClient';
+import { resetCommentsClient } from '@/services/commentsClient';
 
 const AUTH_TOKEN_KEY = 'auth-token';
 const ACCESS_TOKEN_KEY = 'access-token';
@@ -56,6 +57,7 @@ function commitStoredSession(session: {
   }
   resetStoreClient();
   resetDriveClient();
+  resetCommentsClient();
 }
 
 function clearStoredSession() {
@@ -66,6 +68,7 @@ function clearStoredSession() {
   currentUser = null;
   resetStoreClient();
   resetDriveClient();
+  resetCommentsClient();
 }
 
 export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeComposition {
@@ -107,6 +110,7 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
             appstoreTokenManager.setTokens(tokens);
             resetStoreClient();
             resetDriveClient();
+            resetCommentsClient();
           }
         },
       },
@@ -115,6 +119,7 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
       onSessionChanged: async () => {
         resetStoreClient();
         resetDriveClient();
+        resetCommentsClient();
       },
     },
   });

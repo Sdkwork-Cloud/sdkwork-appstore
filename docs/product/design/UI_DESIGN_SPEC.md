@@ -2,7 +2,7 @@
 
 Status: active  
 Owner: SDKWork maintainers  
-Updated: 2026-07-05  
+Updated: 2026-07-06  
 Authority: [PRD.md](../prd/PRD.md)、[TECH_ARCHITECTURE.md](../../architecture/tech/TECH_ARCHITECTURE.md)
 
 ## 1. 设计目标
@@ -316,4 +316,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
 - [x] 详情页 13 区块对齐 PRD（PC 全量；H5 核心区块 + 底部获取栏）
 - [x] 键盘 `/` 聚焦搜索（PC Header）
 - [x] 搜索聚焦下拉：热搜 / 历史 / 实时建议（PC Header `SearchDropdown`）
-- [x] H5 深色模式：`useTheme` + 设置页切换
+- [x] Publisher Console 包下沉（PC/H5 + `publisher-console-core`）
+- [x] IAM 账户资料：登录后拉取 + 设置页展示
+- [x] 评论区块：PC/H5 通过 `@sdkwork/comments-app-sdk` 加载 `comments_thread_id` 评价
+- [ ] 生产环境 LCP / CDN 压测（需部署环境）

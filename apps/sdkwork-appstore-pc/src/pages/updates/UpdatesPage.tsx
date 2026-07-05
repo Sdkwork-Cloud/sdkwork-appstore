@@ -78,7 +78,7 @@ function mapUpdateRow(
     currentVersion: readString(row, 'installedVersionCode', 'installed_version_code') || '—',
     newVersion: readString(row, 'latestVersionName', 'latest_version_name') || '—',
     size: formatBytes(row.fileSizeBytes ?? row.file_size_bytes),
-    releaseDate: 'Available now',
+    releaseDate: '可更新',
     iconUrl: readString(libraryRecord, 'icon_media_resource_id', 'iconMediaResourceId') || undefined,
     security: false,
     releaseId: readString(row, 'releaseId', 'release_id'),

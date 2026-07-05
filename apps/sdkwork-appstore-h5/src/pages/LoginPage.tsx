@@ -55,64 +55,87 @@ export function LoginPage() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+      <div className="w-full max-w-md card p-6 space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Sign in</h1>
-          <p className="text-sm text-gray-500">
-            Sign in with your SDKWork account to access your library and updates.
+          <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">登录</h1>
+          <p className="text-sm text-[var(--text-tertiary)]">
+            使用 SDKWork 账户登录，同步库、收藏与应用更新。
           </p>
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <div
+            className="rounded-xl px-4 py-3 text-sm"
+            style={{
+              border: '1px solid var(--danger)',
+              backgroundColor: 'var(--danger-subtle)',
+              color: 'var(--danger)',
+            }}
+            role="alert"
+          >
             {error}
           </div>
         )}
 
         <form className="space-y-3" onSubmit={handlePasswordLogin}>
-          <input
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
-            value={account}
-            onChange={(event) => setAccount(event.target.value)}
-            placeholder="Account or email"
-            autoComplete="username"
-          />
-          <input
-            type="password"
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Password"
-            autoComplete="current-password"
-          />
+          <label className="block">
+            <span className="sr-only">账号或邮箱</span>
+            <input
+              className="w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm bg-[var(--bg-surface)] text-[var(--text-primary)]"
+              value={account}
+              onChange={(event) => setAccount(event.target.value)}
+              placeholder="账号或邮箱"
+              autoComplete="username"
+            />
+          </label>
+          <label className="block">
+            <span className="sr-only">密码</span>
+            <input
+              type="password"
+              className="w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm bg-[var(--bg-surface)] text-[var(--text-primary)]"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="密码"
+              autoComplete="current-password"
+            />
+          </label>
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-full bg-blue-600 text-white py-2.5 text-sm font-medium disabled:opacity-60"
+            className="w-full rounded-full bg-[var(--accent)] text-white py-2.5 text-sm font-medium disabled:opacity-60"
           >
-            {submitting ? 'Signing in…' : 'Sign in'}
+            {submitting ? '登录中…' : '登录'}
           </button>
         </form>
 
         {import.meta.env.DEV && (
-          <form className="space-y-3 border-t border-gray-100 pt-4" onSubmit={handleDevTokenSubmit}>
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Development tokens</p>
+          <form
+            className="space-y-3 border-t pt-4"
+            style={{ borderColor: 'var(--border-subtle)' }}
+            onSubmit={handleDevTokenSubmit}
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
+              开发环境 Token
+            </p>
             <input
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm bg-[var(--bg-surface)]"
               value={authToken}
               onChange={(event) => setAuthTokenValue(event.target.value)}
               placeholder="Auth-Token"
               autoComplete="off"
             />
             <input
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm bg-[var(--bg-surface)]"
               value={accessToken}
               onChange={(event) => setAccessTokenValue(event.target.value)}
-              placeholder="Access-Token (optional)"
+              placeholder="Access-Token（可选）"
               autoComplete="off"
             />
-            <button type="submit" className="w-full rounded-full border border-gray-200 py-2.5 text-sm font-medium">
-              Continue with dev tokens
+            <button
+              type="submit"
+              className="w-full rounded-full border border-[var(--border-default)] py-2.5 text-sm font-medium text-[var(--text-primary)]"
+            >
+              使用开发 Token 继续
             </button>
           </form>
         )}

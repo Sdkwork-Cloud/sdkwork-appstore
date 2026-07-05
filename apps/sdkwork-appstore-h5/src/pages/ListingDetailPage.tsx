@@ -7,6 +7,7 @@ import {
   formatApiError,
   installListingAndDownload,
   useListingSimilar,
+  useListingReviews,
 } from '@/hooks/useApi';
 import { isAuthenticated } from '@/bootstrap/iamRuntime';
 import { getStoreClient } from '@/services/storeClient';
@@ -26,7 +27,10 @@ export function ListingDetailPage() {
 
   const row = (data ?? {}) as Record<string, unknown>;
   const listingId = readString(row, 'id', 'listingId', 'listing_id') || slug;
+  const commentsThreadId = readString(row, 'commentsThreadId', 'comments_thread_id') || undefined;
   const { data: similarData } = useListingSimilar(listingId, 6);
+  const reviewsApi = useListingReviews(commentsThreadId);
+  const reviewItems = reviewsApi.data?.items ?? [];
 
   const mediaApi = useApi(
     () => getStoreClient().listings.listMedia(listingId),
@@ -258,6 +262,30 @@ export function ListingDetailPage() {
             <p className="text-sm text-[var(--text-secondary)]">{app.whatsNew}</p>
           </section>
         ) : null}
+
+        <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <h2 className="section-title mb-3">评分与评价</h2>
+          {!commentsThreadId ? (
+            <p className="text-sm text-[var(--text-tertiary)]">该应用尚未绑定评价线程。</p>
+          ) : reviewsApi.loading ? (
+            <LoadingSpinner size="sm" />
+          ) : reviewsApi.error ? (
+            <p className="text-sm text-[var(--accent)]">{formatApiError(reviewsApi.error)}</p>
+          ) : reviewItems.length === 0 ? (
+            <p className="text-sm text-[var(--text-tertiary)]">暂无用户评价，成为首位评价者吧。</p>
+          ) : (
+            <div className="space-y-3">
+              {reviewItems.map((comment) => (
+                <div key={comment.id} className="card p-3">
+                  <p className="text-xs text-[var(--text-tertiary)] mb-1">
+                    {new Date(comment.createdAt).toLocaleDateString('zh-CN')}
+                  </p>
+                  <p className="text-sm text-[var(--text-secondary)] whitespace-pre-line">{comment.body}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {similarApps.length > 0 ? (
           <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>

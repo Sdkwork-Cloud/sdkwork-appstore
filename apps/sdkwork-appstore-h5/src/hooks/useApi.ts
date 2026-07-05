@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getStoreClient } from '@/services/storeClient';
+import { getCommentsClient } from '@/services/commentsClient';
 import { isAppStoreApiError, type AppStoreApiError } from '@sdkwork/appstore-app-sdk';
+import type { Comment, CommentsThreadSummary } from '@sdkwork/comments-app-sdk';
 
 interface UseApiOptions<T> {
   immediate?: boolean;
@@ -59,6 +61,35 @@ export function useCategories(limit = 8) {
 export function usePublicListing(listingSlug: string) {
   const client = getStoreClient();
   return useApi(() => client.store.getPublicListing(listingSlug), { immediate: !!listingSlug });
+}
+
+export interface ListingReviewsResult {
+  items: Comment[];
+  summary: CommentsThreadSummary | null;
+}
+
+export function useListingReviews(commentsThreadId: string | undefined) {
+  return useApi<ListingReviewsResult>(
+    async () => {
+      if (!commentsThreadId) {
+        return { items: [], summary: null };
+      }
+      const client = getCommentsClient();
+      const [commentsPage, summaryResponse] = await Promise.all([
+        client.comments.comments.list(commentsThreadId, {
+          page: 1,
+          pageSize: 10,
+          status: 'published',
+        }),
+        client.comments.threads.summary(commentsThreadId),
+      ]);
+      return {
+        items: commentsPage.items ?? [],
+        summary: summaryResponse.summary ?? null,
+      };
+    },
+    { immediate: !!commentsThreadId },
+  );
 }
 
 export function useSearch(query: string) {

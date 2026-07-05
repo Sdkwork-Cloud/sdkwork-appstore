@@ -13,6 +13,7 @@ Last updated: 2026-07-06
 | `sdkwork-utils` | Integrated | Rust envelope helpers; TypeScript record helpers in PC/H5 commons via `@sdkwork/utils` |
 | `sdkwork-discovery` | Deferred | HTTP-only unified-process gateway; adopt when RPC split-services land |
 | `sdkwork-drive` | Integrated | PC/H5 `@sdkwork/drive-app-sdk` upload helpers; Rust `drive_adapter` + `drive_uploader` |
+| `sdkwork-comments` | Integrated | PC/H5 `@sdkwork/comments-app-sdk` listing reviews via `comments_thread_id` |
 | `sdkwork-appbase` | Integrated | Publisher console bootstraps via appbase shell; app-sdk composition validated by check:app-sdk-consumers |
 | `sdkwork-platform` | Integrated | Platform context resolver wired in standalone gateway preflight; IAM dual-token context propagation |
 
@@ -44,7 +45,7 @@ pnpm verify
 cargo test --workspace
 ```
 
-Last verified: 2026-07-06 — `cargo test --workspace`, `pnpm check`, PC/H5 `pnpm build` all pass.
+Last verified: 2026-07-06 — PC/H5 `pnpm build`, governance checks, comments SDK integration.
 
 ## Database (SQLite + PostgreSQL)
 
@@ -58,6 +59,6 @@ Last verified: 2026-07-06 — `cargo test --workspace`, `pnpm check`, PC/H5 `pnp
 
 ## Remaining Production Items
 
-- External connectors: comments (reviews UI beyond placeholder), commerce checkout, notifications push, search federation, market_channels sync
+- External connectors: commerce checkout, notifications push, search federation, market_channels sync
 - Production LCP / CDN performance validation (requires deployed environment)
 - Optional: dedicated PostgreSQL CI matrix job (dialect code paths exist; default dev remains SQLite)

@@ -21,7 +21,7 @@ function mapLibraryRow(item: unknown, index: number): LibraryItem {
     id: String(row.id ?? row.libraryItemId ?? index),
     slug,
     name: String(row.displayName ?? row.listingId ?? 'App'),
-    developer: String(row.developerName ?? row.publisherId ?? 'Publisher'),
+    developer: String(row.developerName ?? row.publisherId ?? '开发者'),
     status:
       String(row.libraryStatus ?? 'installed') === 'update_available'
         ? 'update-available'

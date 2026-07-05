@@ -40,6 +40,10 @@
     {
       "sdkFamily": "sdkwork-drive-app-sdk",
       "purpose": "Publisher media and release artifact uploads"
+    },
+    {
+      "sdkFamily": "sdkwork-comments-app-sdk",
+      "purpose": "Listing review threads via comments_thread_id"
     }
   ]
 }

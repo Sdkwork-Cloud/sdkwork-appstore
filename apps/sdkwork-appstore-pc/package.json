@@ -23,6 +23,7 @@
     "@sdkwork/appstore-pc-listing": "workspace:*",
     "@sdkwork/appstore-pc-search": "workspace:*",
     "@sdkwork/appstore-pc-shell": "workspace:*",
+    "@sdkwork/comments-app-sdk": "workspace:*",
     "@sdkwork/auth-runtime-pc-react": "workspace:*",
     "@sdkwork/drive-app-sdk": "workspace:*",
     "@sdkwork/iam-app-sdk": "workspace:*",
