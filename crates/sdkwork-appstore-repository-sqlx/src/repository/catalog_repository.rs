@@ -54,38 +54,40 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         limit: i32,
     ) -> Result<Vec<Category>, AppstoreServiceError> {
         let rows = if let Some(cursor_id) = cursor {
-            self.db.query_as::< CategoryRow>(&format!(
-                r#"
+            self.db
+                .query_as::<CategoryRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_category
                 WHERE tenant_id = ? AND category_status != 'deleted' AND id > ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_CATEGORY_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(cursor_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    columns_csv(APPSTORE_CATEGORY_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            self.db.query_as::< CategoryRow>(&format!(
-                r#"
+            self.db
+                .query_as::<CategoryRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_category
                 WHERE tenant_id = ? AND category_status != 'deleted'
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_CATEGORY_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    columns_csv(APPSTORE_CATEGORY_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
 
         rows.into_iter()
@@ -99,19 +101,21 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         category_id: &CategoryId,
     ) -> Result<Option<Category>, AppstoreServiceError> {
-        let row = self.db.query_as::< CategoryRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CategoryRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_category
             WHERE id = ? AND tenant_id = ? AND category_status != 'deleted'
             "#,
-            columns_csv(APPSTORE_CATEGORY_COLUMNS)
-        ))
-        .bind(category_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATEGORY_COLUMNS)
+            ))
+            .bind(category_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_category_row_to_domain)
             .transpose()
@@ -123,19 +127,21 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         category_code: &str,
     ) -> Result<Option<Category>, AppstoreServiceError> {
-        let row = self.db.query_as::< CategoryRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CategoryRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_category
             WHERE category_code = ? AND tenant_id = ? AND category_status != 'deleted'
             "#,
-            columns_csv(APPSTORE_CATEGORY_COLUMNS)
-        ))
-        .bind(category_code)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATEGORY_COLUMNS)
+            ))
+            .bind(category_code)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_category_row_to_domain)
             .transpose()
@@ -147,19 +153,21 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         category_id: &CategoryId,
     ) -> Result<Vec<CategoryLocalization>, AppstoreServiceError> {
-        let rows = self.db.query_as::< CategoryLocalizationRow>(&format!(
-            r#"
+        let rows = self
+            .db
+            .query_as::<CategoryLocalizationRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_category_localization
             WHERE category_id = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_CATEGORY_LOCALIZATION_COLUMNS)
-        ))
-        .bind(category_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATEGORY_LOCALIZATION_COLUMNS)
+            ))
+            .bind(category_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_category_localization_row_to_domain)
@@ -174,27 +182,28 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<(), AppstoreServiceError> {
         let status = map_category_domain_to_row(category);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_category (
                 id, tenant_id, category_code, parent_category_id, category_level,
                 category_status, sort_order, icon_media_resource_id, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
-        )
-        .bind(category.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&category.category_code)
-        .bind(&category.parent_category_id)
-        .bind(category.category_level)
-        .bind(&status)
-        .bind(category.sort_order)
-        .bind(&category.icon_media_resource_id)
-        .bind(category.created_at)
-        .bind(category.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(category.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&category.category_code)
+            .bind(&category.parent_category_id)
+            .bind(category.category_level)
+            .bind(&status)
+            .bind(category.sort_order)
+            .bind(&category.icon_media_resource_id)
+            .bind(category.created_at)
+            .bind(category.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -206,26 +215,27 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<(), AppstoreServiceError> {
         let status = map_category_domain_to_row(category);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             UPDATE appstore_category
             SET category_code = ?, parent_category_id = ?, category_level = ?,
                 category_status = ?, sort_order = ?, icon_media_resource_id = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
-        .bind(&category.category_code)
-        .bind(&category.parent_category_id)
-        .bind(category.category_level)
-        .bind(&status)
-        .bind(category.sort_order)
-        .bind(&category.icon_media_resource_id)
-        .bind(category.updated_at)
-        .bind(category.id.as_str())
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&category.category_code)
+            .bind(&category.parent_category_id)
+            .bind(category.category_level)
+            .bind(&status)
+            .bind(category.sort_order)
+            .bind(&category.icon_media_resource_id)
+            .bind(category.updated_at)
+            .bind(category.id.as_str())
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -268,38 +278,40 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         limit: i32,
     ) -> Result<Vec<CatalogCollection>, AppstoreServiceError> {
         let rows = if let Some(cursor_id) = cursor {
-            self.db.query_as::< CatalogCollectionRow>(&format!(
-                r#"
+            self.db
+                .query_as::<CatalogCollectionRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_catalog_collection
                 WHERE tenant_id = ? AND collection_status != 'archived' AND id > ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(cursor_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            self.db.query_as::< CatalogCollectionRow>(&format!(
-                r#"
+            self.db
+                .query_as::<CatalogCollectionRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_catalog_collection
                 WHERE tenant_id = ? AND collection_status != 'archived'
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
 
         rows.into_iter()
@@ -313,19 +325,21 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<Option<CatalogCollection>, AppstoreServiceError> {
-        let row = self.db.query_as::< CatalogCollectionRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CatalogCollectionRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_collection
             WHERE id = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
-        ))
-        .bind(collection_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
+            ))
+            .bind(collection_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_collection_row_to_domain)
             .transpose()
@@ -337,19 +351,21 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_code: &str,
     ) -> Result<Option<CatalogCollection>, AppstoreServiceError> {
-        let row = self.db.query_as::< CatalogCollectionRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CatalogCollectionRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_collection
             WHERE collection_code = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
-        ))
-        .bind(collection_code)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_COLLECTION_COLUMNS)
+            ))
+            .bind(collection_code)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_collection_row_to_domain)
             .transpose()
@@ -361,19 +377,21 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<Vec<CatalogCollectionLocalization>, AppstoreServiceError> {
-        let rows = self.db.query_as::< CatalogCollectionLocalizationRow>(&format!(
-            r#"
+        let rows = self
+            .db
+            .query_as::<CatalogCollectionLocalizationRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_collection_localization
             WHERE collection_id = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_CATALOG_COLLECTION_LOCALIZATION_COLUMNS)
-        ))
-        .bind(collection_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_COLLECTION_LOCALIZATION_COLUMNS)
+            ))
+            .bind(collection_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_collection_localization_row_to_domain)
@@ -386,20 +404,22 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<Vec<CatalogCollectionItem>, AppstoreServiceError> {
-        let rows = self.db.query_as::< CatalogCollectionItemRow>(&format!(
-            r#"
+        let rows = self
+            .db
+            .query_as::<CatalogCollectionItemRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_collection_item
             WHERE collection_id = ? AND tenant_id = ?
             ORDER BY sort_order ASC
             "#,
-            columns_csv(APPSTORE_CATALOG_COLLECTION_ITEM_COLUMNS)
-        ))
-        .bind(collection_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_COLLECTION_ITEM_COLUMNS)
+            ))
+            .bind(collection_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_collection_item_row_to_domain)
@@ -415,30 +435,31 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let (collection_type, collection_status, audience_scope) =
             map_collection_domain_to_row(collection);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_catalog_collection (
                 id, tenant_id, collection_code, collection_type, collection_status,
                 audience_scope, sort_order, cover_media_resource_id, starts_at, ends_at,
                 created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
-        )
-        .bind(collection.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&collection.collection_code)
-        .bind(&collection_type)
-        .bind(&collection_status)
-        .bind(&audience_scope)
-        .bind(collection.sort_order)
-        .bind(&collection.cover_media_resource_id)
-        .bind(collection.starts_at)
-        .bind(collection.ends_at)
-        .bind(collection.created_at)
-        .bind(collection.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(collection.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&collection.collection_code)
+            .bind(&collection_type)
+            .bind(&collection_status)
+            .bind(&audience_scope)
+            .bind(collection.sort_order)
+            .bind(&collection.cover_media_resource_id)
+            .bind(collection.starts_at)
+            .bind(collection.ends_at)
+            .bind(collection.created_at)
+            .bind(collection.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -451,29 +472,30 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let (collection_type, collection_status, audience_scope) =
             map_collection_domain_to_row(collection);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             UPDATE appstore_catalog_collection
             SET collection_code = ?, collection_type = ?, collection_status = ?,
                 audience_scope = ?, sort_order = ?, cover_media_resource_id = ?,
                 starts_at = ?, ends_at = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
-        .bind(&collection.collection_code)
-        .bind(&collection_type)
-        .bind(&collection_status)
-        .bind(&audience_scope)
-        .bind(collection.sort_order)
-        .bind(&collection.cover_media_resource_id)
-        .bind(collection.starts_at)
-        .bind(collection.ends_at)
-        .bind(collection.updated_at)
-        .bind(collection.id.as_str())
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&collection.collection_code)
+            .bind(&collection_type)
+            .bind(&collection_status)
+            .bind(&audience_scope)
+            .bind(collection.sort_order)
+            .bind(&collection.cover_media_resource_id)
+            .bind(collection.starts_at)
+            .bind(collection.ends_at)
+            .bind(collection.updated_at)
+            .bind(collection.id.as_str())
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -514,17 +536,18 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<(), AppstoreServiceError> {
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             DELETE FROM appstore_catalog_collection_item
             WHERE collection_id = ? AND tenant_id = ?
             "#,
-        )
-        .bind(collection_id.as_str())
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(collection_id.as_str())
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -536,26 +559,27 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<(), AppstoreServiceError> {
         let highlight_json = map_collection_item_domain_to_row(item);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_catalog_collection_item (
                 id, tenant_id, collection_id, listing_id, sort_order,
                 highlight_json, starts_at, ends_at, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
-        )
-        .bind(&item.id)
-        .bind(&context.tenant_id)
-        .bind(item.collection_id.as_str())
-        .bind(&item.listing_id)
-        .bind(item.sort_order)
-        .bind(&highlight_json)
-        .bind(item.starts_at)
-        .bind(item.ends_at)
-        .bind(item.created_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&item.id)
+            .bind(&context.tenant_id)
+            .bind(item.collection_id.as_str())
+            .bind(&item.listing_id)
+            .bind(item.sort_order)
+            .bind(&highlight_json)
+            .bind(item.starts_at)
+            .bind(item.ends_at)
+            .bind(item.created_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -564,19 +588,21 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         &self,
         context: &AppstoreRequestContext,
     ) -> Result<Vec<CatalogFeaturedSlot>, AppstoreServiceError> {
-        let rows = self.db.query_as::< CatalogFeaturedSlotRow>(&format!(
-            r#"
+        let rows = self
+            .db
+            .query_as::<CatalogFeaturedSlotRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_featured_slot
             WHERE tenant_id = ? AND slot_status = 'active'
             ORDER BY starts_at DESC
             "#,
-            columns_csv(APPSTORE_CATALOG_FEATURED_SLOT_COLUMNS)
-        ))
-        .bind(&context.tenant_id)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_FEATURED_SLOT_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_featured_slot_row_to_domain)
@@ -589,21 +615,23 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         slot_code: &str,
     ) -> Result<Option<CatalogFeaturedSlot>, AppstoreServiceError> {
-        let row = self.db.query_as::< CatalogFeaturedSlotRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CatalogFeaturedSlotRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_featured_slot
             WHERE slot_code = ? AND tenant_id = ? AND slot_status = 'active'
             ORDER BY starts_at DESC
             LIMIT 1
             "#,
-            columns_csv(APPSTORE_CATALOG_FEATURED_SLOT_COLUMNS)
-        ))
-        .bind(slot_code)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_FEATURED_SLOT_COLUMNS)
+            ))
+            .bind(slot_code)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_featured_slot_row_to_domain)
             .transpose()
@@ -618,8 +646,9 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let (slot_status, audience_scope, platform_scope, region_scope_json) =
             map_featured_slot_domain_to_row(slot);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_catalog_featured_slot (
                 id, tenant_id, slot_code, listing_id, slot_status, audience_scope,
                 platform_scope, region_scope_json, starts_at, ends_at, created_at, updated_at
@@ -633,22 +662,22 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
                 ends_at = excluded.ends_at,
                 updated_at = excluded.updated_at
             "#,
-        )
-        .bind(slot.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&slot.slot_code)
-        .bind(&slot.listing_id)
-        .bind(&slot_status)
-        .bind(&audience_scope)
-        .bind(&platform_scope)
-        .bind(&region_scope_json)
-        .bind(slot.starts_at)
-        .bind(slot.ends_at)
-        .bind(slot.created_at)
-        .bind(slot.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(slot.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&slot.slot_code)
+            .bind(&slot.listing_id)
+            .bind(&slot_status)
+            .bind(&audience_scope)
+            .bind(&platform_scope)
+            .bind(&region_scope_json)
+            .bind(slot.starts_at)
+            .bind(slot.ends_at)
+            .bind(slot.created_at)
+            .bind(slot.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -661,23 +690,25 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         locale: &str,
         platform_scope: &str,
     ) -> Result<Option<CatalogChartSnapshot>, AppstoreServiceError> {
-        let row = self.db.query_as::< CatalogChartSnapshotRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CatalogChartSnapshotRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_chart_snapshot
             WHERE chart_code = ? AND snapshot_date = ? AND locale = ? AND platform_scope = ?
                   AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_CATALOG_CHART_SNAPSHOT_COLUMNS)
-        ))
-        .bind(chart_code)
-        .bind(snapshot_date)
-        .bind(locale)
-        .bind(platform_scope)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_CHART_SNAPSHOT_COLUMNS)
+            ))
+            .bind(chart_code)
+            .bind(snapshot_date)
+            .bind(locale)
+            .bind(platform_scope)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_chart_snapshot_row_to_domain)
             .transpose()
@@ -691,23 +722,25 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         locale: &str,
         platform_scope: &str,
     ) -> Result<Option<CatalogChartSnapshot>, AppstoreServiceError> {
-        let row = self.db.query_as::< CatalogChartSnapshotRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CatalogChartSnapshotRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_chart_snapshot
             WHERE chart_code = ? AND locale = ? AND platform_scope = ? AND tenant_id = ?
             ORDER BY snapshot_date DESC
             LIMIT 1
             "#,
-            columns_csv(APPSTORE_CATALOG_CHART_SNAPSHOT_COLUMNS)
-        ))
-        .bind(chart_code)
-        .bind(locale)
-        .bind(platform_scope)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_CHART_SNAPSHOT_COLUMNS)
+            ))
+            .bind(chart_code)
+            .bind(locale)
+            .bind(platform_scope)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_chart_snapshot_row_to_domain)
             .transpose()
@@ -749,7 +782,8 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         sql.push_str("ORDER BY l.featured_score DESC, l.rating_count DESC, l.listing_no ASC\n");
         sql.push_str("LIMIT ?\n");
 
-        let mut q = self.db.query_as::<ListingSearchRow>(&self.db.adapt_sql(&sql)).bind(&context.tenant_id);
+        let __adapted_sql = self.db.adapt_sql(&sql);
+        let mut q = self.db.query_as::<ListingSearchRow>(&__adapted_sql);
 
         if let Some(qs) = query {
             let pattern = format!("%{}%", qs);
@@ -1028,8 +1062,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let locale_filter = locale.unwrap_or("en-US");
         let pattern = format!("{}%", prefix);
 
-        let rows = self.db.query_as::< ListingSuggestionRow>(
-            r#"
+        let rows = self
+            .db
+            .query_as::<ListingSuggestionRow>(
+                r#"
             SELECT l.id AS listing_id, ll.display_name
             FROM appstore_listing l
             INNER JOIN appstore_listing_localization ll
@@ -1044,14 +1080,14 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             ORDER BY l.featured_score DESC, ll.display_name ASC
             LIMIT ?
             "#,
-        )
-        .bind(locale_filter)
-        .bind(&context.tenant_id)
-        .bind(pattern)
-        .bind(limit)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(locale_filter)
+            .bind(&context.tenant_id)
+            .bind(pattern)
+            .bind(limit)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(rows
             .into_iter()
@@ -1073,8 +1109,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let locale_filter = locale.unwrap_or("en-US");
         let pattern = format!("{}%", prefix);
 
-        let rows = self.db.query_as::< CatalogTrendingTermRow>(&format!(
-            r#"
+        let rows = self
+            .db
+            .query_as::<CatalogTrendingTermRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_trending_term
             WHERE tenant_id = ?
@@ -1088,17 +1126,17 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             ORDER BY rank ASC
             LIMIT ?
             "#,
-            columns_csv(APPSTORE_CATALOG_TRENDING_TERM_COLUMNS)
-        ))
-        .bind(&context.tenant_id)
-        .bind(locale_filter)
-        .bind(&context.tenant_id)
-        .bind(locale_filter)
-        .bind(pattern)
-        .bind(limit)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_TRENDING_TERM_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(locale_filter)
+            .bind(&context.tenant_id)
+            .bind(locale_filter)
+            .bind(pattern)
+            .bind(limit)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(rows
             .into_iter()
@@ -1118,8 +1156,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<Vec<TrendingTerm>, AppstoreServiceError> {
         let locale_filter = locale.unwrap_or("en-US");
 
-        let rows = self.db.query_as::< CatalogTrendingTermRow>(&format!(
-            r#"
+        let rows = self
+            .db
+            .query_as::<CatalogTrendingTermRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_catalog_trending_term
             WHERE tenant_id = ?
@@ -1132,16 +1172,16 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             ORDER BY rank ASC
             LIMIT ?
             "#,
-            columns_csv(APPSTORE_CATALOG_TRENDING_TERM_COLUMNS)
-        ))
-        .bind(&context.tenant_id)
-        .bind(locale_filter)
-        .bind(&context.tenant_id)
-        .bind(locale_filter)
-        .bind(limit)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_CATALOG_TRENDING_TERM_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(locale_filter)
+            .bind(&context.tenant_id)
+            .bind(locale_filter)
+            .bind(limit)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(rows
             .into_iter()
@@ -1188,22 +1228,23 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            self.db.query_as::< CatalogSearchHistoryRow>(&format!(
-                r#"
+            self.db
+                .query_as::<CatalogSearchHistoryRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_catalog_search_history
                 WHERE tenant_id = ? AND user_id = ?
                 ORDER BY created_at DESC, id DESC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_CATALOG_SEARCH_HISTORY_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(user_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    columns_csv(APPSTORE_CATALOG_SEARCH_HISTORY_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(user_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
 
         Ok(rows
@@ -1217,23 +1258,24 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         entry: &SearchHistoryEntry,
     ) -> Result<(), AppstoreServiceError> {
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_catalog_search_history (
                 id, tenant_id, user_id, query_text, filters_json, result_count, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
             "#,
-        )
-        .bind(&entry.id)
-        .bind(&context.tenant_id)
-        .bind(&entry.user_id)
-        .bind(&entry.query_text)
-        .bind(&entry.filters_json)
-        .bind(entry.result_count)
-        .bind(entry.created_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&entry.id)
+            .bind(&context.tenant_id)
+            .bind(&entry.user_id)
+            .bind(&entry.query_text)
+            .bind(&entry.filters_json)
+            .bind(entry.result_count)
+            .bind(entry.created_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -1243,17 +1285,18 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         user_id: &str,
     ) -> Result<(), AppstoreServiceError> {
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             DELETE FROM appstore_catalog_search_history
             WHERE tenant_id = ? AND user_id = ?
             "#,
-        )
-        .bind(&context.tenant_id)
-        .bind(user_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(user_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -1273,8 +1316,8 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .bind(&context.tenant_id)
             .bind(owner_user_id)
             .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         Ok(row.map(|(id,)| id))
     }
@@ -1387,10 +1430,13 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             "GROUP BY l.id, l.listing_slug, ll.display_name\nORDER BY l.id ASC\nLIMIT ?\n",
         );
 
-        let mut q =
-            self.db.query_as::<(String, String, Option<String>, i64, i64, i64, i64, i64)>(&self.db.adapt_sql(&sql))
-                .bind(&context.tenant_id)
-                .bind(publisher_id);
+        let mut q = self
+            .db
+            .query_as::<(String, String, Option<String>, i64, i64, i64, i64, i64)>(
+                &self.db.adapt_sql(&sql),
+            )
+            .bind(&context.tenant_id)
+            .bind(publisher_id);
 
         if let Some(from) = date_from {
             q = q.bind(from);
@@ -1450,8 +1496,8 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .bind(listing_id)
             .bind(publisher_id)
             .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         Ok(row.map(|(count,)| count > 0).unwrap_or(false))
     }
@@ -1490,8 +1536,8 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             )
             .bind(&context.tenant_id)
             .fetch_one(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         Ok(OperatorDashboardStats {
             listing_count: listing_count.0 as i32,

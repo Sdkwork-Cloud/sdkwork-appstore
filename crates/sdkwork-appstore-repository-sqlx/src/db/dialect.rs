@@ -36,3 +36,42 @@ pub fn adapt_sql(template: &str, dialect: AppstoreSqlDialect) -> String {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn adapt_sql_sqlite_passthrough() {
+        assert_eq!(
+            adapt_sql(
+                "SELECT * FROM appstore_listing WHERE id = ?",
+                AppstoreSqlDialect::Sqlite
+            ),
+            "SELECT * FROM appstore_listing WHERE id = ?",
+        );
+    }
+
+    #[test]
+    fn adapt_sql_postgres_rewrites_placeholders() {
+        assert_eq!(
+            adapt_sql(
+                "SELECT * FROM appstore_listing WHERE id = ? AND slug = ?",
+                AppstoreSqlDialect::Postgres,
+            ),
+            "SELECT * FROM appstore_listing WHERE id = $1 AND slug = $2",
+        );
+    }
+
+    #[test]
+    fn dialect_from_url() {
+        assert_eq!(
+            AppstoreSqlDialect::from_database_url("postgresql://localhost/appstore"),
+            AppstoreSqlDialect::Postgres,
+        );
+        assert_eq!(
+            AppstoreSqlDialect::from_database_url("sqlite://./appstore.db"),
+            AppstoreSqlDialect::Sqlite,
+        );
+    }
+}

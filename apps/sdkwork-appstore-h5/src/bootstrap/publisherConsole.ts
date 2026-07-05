@@ -2,7 +2,7 @@ import {
   configurePublisherClient,
   configurePublisherOrganizationResolver,
   configurePublisherUploads,
-} from '@sdkwork/appstore-h5-console-publisher';
+} from '@sdkwork/appstore-publisher-console-core';
 import { getStoreClient } from '@/services/storeClient';
 import { uploadListingMedia, uploadReleaseArtifact } from '@/services/driveUpload';
 import { getCurrentUser } from '@/bootstrap/iamRuntime';

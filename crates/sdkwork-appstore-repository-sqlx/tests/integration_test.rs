@@ -5,6 +5,7 @@ use sdkwork_appstore_publisher_service::context::AppstoreRequestContext;
 use sdkwork_appstore_publisher_service::domain::models::*;
 use sdkwork_appstore_publisher_service::ports::repository::PublisherRepositoryPort;
 
+use sdkwork_appstore_repository_sqlx::pool::AppstoreSqlxDb;
 use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPublisherRepository;
 
 const MIGRATION_SQL: &str =
@@ -21,6 +22,10 @@ async fn setup_db() -> SqlitePool {
     pool
 }
 
+fn appstore_db(pool: &SqlitePool) -> AppstoreSqlxDb {
+    AppstoreSqlxDb::sqlite(pool.clone())
+}
+
 fn test_context() -> AppstoreRequestContext {
     AppstoreRequestContext {
         tenant_id: "100001".to_string(),
@@ -35,7 +40,7 @@ fn test_context() -> AppstoreRequestContext {
 #[tokio::test]
 async fn test_publisher_crud() {
     let pool = setup_db().await;
-    let repo = SqlxPublisherRepository::new(pool);
+    let repo = SqlxPublisherRepository::new(appstore_db(&pool));
     let ctx = test_context();
 
     let now = Utc::now();
@@ -98,7 +103,7 @@ async fn test_publisher_crud() {
 #[tokio::test]
 async fn test_publisher_update() {
     let pool = setup_db().await;
-    let repo = SqlxPublisherRepository::new(pool);
+    let repo = SqlxPublisherRepository::new(appstore_db(&pool));
     let ctx = test_context();
 
     let now = Utc::now();
@@ -146,7 +151,7 @@ async fn test_publisher_update() {
 #[tokio::test]
 async fn test_publisher_not_found() {
     let pool = setup_db().await;
-    let repo = SqlxPublisherRepository::new(pool);
+    let repo = SqlxPublisherRepository::new(appstore_db(&pool));
     let ctx = test_context();
 
     let found = repo
@@ -159,7 +164,7 @@ async fn test_publisher_not_found() {
 #[tokio::test]
 async fn test_publisher_member_crud() {
     let pool = setup_db().await;
-    let repo = SqlxPublisherRepository::new(pool);
+    let repo = SqlxPublisherRepository::new(appstore_db(&pool));
     let ctx = test_context();
 
     let now = Utc::now();
@@ -222,7 +227,7 @@ async fn test_publisher_member_crud() {
 #[tokio::test]
 async fn test_publisher_verification_crud() {
     let pool = setup_db().await;
-    let repo = SqlxPublisherRepository::new(pool);
+    let repo = SqlxPublisherRepository::new(appstore_db(&pool));
     let ctx = test_context();
 
     let now = Utc::now();
@@ -286,7 +291,7 @@ async fn test_publisher_verification_crud() {
 #[tokio::test]
 async fn test_publisher_optimistic_lock_conflict() {
     let pool = setup_db().await;
-    let repo = SqlxPublisherRepository::new(pool);
+    let repo = SqlxPublisherRepository::new(appstore_db(&pool));
     let ctx = test_context();
 
     let now = Utc::now();
@@ -396,7 +401,7 @@ async fn test_database_indexes() {
 #[tokio::test]
 async fn test_publisher_tenant_isolation() {
     let pool = setup_db().await;
-    let repo = SqlxPublisherRepository::new(pool);
+    let repo = SqlxPublisherRepository::new(appstore_db(&pool));
 
     let ctx1 = AppstoreRequestContext {
         tenant_id: "100001".to_string(),
@@ -780,7 +785,7 @@ async fn test_library_item_scoped_to_user() {
     use sdkwork_appstore_repository_sqlx::repository::library_repository::SqlxLibraryRepository;
 
     let pool = setup_db().await;
-    let repo = SqlxLibraryRepository::new(pool.clone());
+    let repo = SqlxLibraryRepository::new(appstore_db(&pool));
     let now = Utc::now();
 
     for (id, user_id) in [("lib-owner", "user-a"), ("lib-other", "user-b")] {

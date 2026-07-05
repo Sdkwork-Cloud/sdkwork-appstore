@@ -38,7 +38,7 @@ sdkwork-appstore-database-host = { path = "../sdkwork-appstore-database-host" }
 sdkwork-appstore-routes-common = { path = "../sdkwork-appstore-routes-common" }
 sdkwork-database-config = { workspace = true }
 sdkwork-database-sqlx = { workspace = true }
-sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "postgres", "chrono"] }
 sdkwork-iam-web-adapter = { workspace = true }
 sdkwork-web-axum = { workspace = true }
 sdkwork-web-core = { workspace = true }

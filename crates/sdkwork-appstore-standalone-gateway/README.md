@@ -12,7 +12,12 @@ Unified HTTP entrypoint for the SDKWork App Store backend in standalone deployme
 ## Run
 
 ```bash
-export SDKWORK_APPSTORE_DATABASE_URL="sqlite://./.data/appstore.db"
+# SQLite (local dev)
+export APPSTORE_DATABASE_URL="sqlite://./.data/appstore.db"
+
+# PostgreSQL (production)
+# export APPSTORE_DATABASE_URL="postgresql://appstore:appstore@127.0.0.1:5432/appstore"
+
 # Optional: sdkwork-drive (artifact/media validation + download URLs)
 export APPSTORE_DRIVE_BASE_URL="http://127.0.0.1:18080"
 export APPSTORE_DRIVE_SERVICE_AUTH_TOKEN="<service-auth-token>"
@@ -44,7 +49,7 @@ Client uploads (PC/H5 publisher flows) use `@sdkwork/drive-app-sdk` with `driveA
 - File uploads go through `sdkwork-drive` (`@sdkwork/drive-app-sdk` on clients; `DriveIntegrationAdapter` on server). App Store APIs store Drive references only.
 - Set `APPSTORE_DRIVE_ENABLED=0` or omit `APPSTORE_DRIVE_BASE_URL` to run without drive validation (dev-only; not for production).
 - RPC / `sdkwork-discovery` is not required until split-service RPC deployment is introduced.
-- Standalone gateway repositories currently require SQLite (`APPSTORE_DATABASE_URL`); Postgres dialect is tracked separately.
+- Repositories auto-select SQLite or PostgreSQL from `APPSTORE_DATABASE_URL` (`sdkwork-appstore-repository-sqlx` dialect adapter).
 
 ## Verification
 

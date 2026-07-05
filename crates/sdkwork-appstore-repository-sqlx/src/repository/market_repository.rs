@@ -36,19 +36,21 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         channel_id: &MarketChannelId,
     ) -> Result<Option<MarketChannel>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = self.db.query_as::< MarketChannelRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<MarketChannelRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_market_channel
             WHERE id = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
-        ))
-        .bind(channel_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+            ))
+            .bind(channel_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_market_channel_row_to_domain)
             .transpose()
@@ -61,19 +63,21 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         channel_code: &str,
     ) -> Result<Option<MarketChannel>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = self.db.query_as::< MarketChannelRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<MarketChannelRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_market_channel
             WHERE channel_code = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
-        ))
-        .bind(channel_code)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+            ))
+            .bind(channel_code)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_market_channel_row_to_domain)
             .transpose()
@@ -90,70 +94,74 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
     {
         let rows = if let Some(cursor_id) = cursor {
             if let Some(status) = channel_status {
-                self.db.query_as::< MarketChannelRow>(&format!(
-                    r#"
+                self.db
+                    .query_as::<MarketChannelRow>(&format!(
+                        r#"
                     SELECT {}
                     FROM appstore_market_channel
                     WHERE tenant_id = ? AND channel_status = ? AND id > ?
                     ORDER BY id ASC
                     LIMIT ?
                     "#,
-                    columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
-                ))
-                .bind(&context.tenant_id)
-                .bind(status)
-                .bind(cursor_id)
-                .bind(limit)
-                .fetch_all(&self.db)
-                .await
+                        columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+                    ))
+                    .bind(&context.tenant_id)
+                    .bind(status)
+                    .bind(cursor_id)
+                    .bind(limit)
+                    .fetch_all(&self.db)
+                    .await
             } else {
-                self.db.query_as::< MarketChannelRow>(&format!(
-                    r#"
+                self.db
+                    .query_as::<MarketChannelRow>(&format!(
+                        r#"
                     SELECT {}
                     FROM appstore_market_channel
                     WHERE tenant_id = ? AND id > ?
                     ORDER BY id ASC
                     LIMIT ?
                     "#,
-                    columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
-                ))
-                .bind(&context.tenant_id)
-                .bind(cursor_id)
-                .bind(limit)
-                .fetch_all(&self.db)
-                .await
+                        columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+                    ))
+                    .bind(&context.tenant_id)
+                    .bind(cursor_id)
+                    .bind(limit)
+                    .fetch_all(&self.db)
+                    .await
             }
         } else if let Some(status) = channel_status {
-            self.db.query_as::< MarketChannelRow>(&format!(
-                r#"
+            self.db
+                .query_as::<MarketChannelRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_market_channel
                 WHERE tenant_id = ? AND channel_status = ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(status)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
+                    columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(status)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
         } else {
-            self.db.query_as::< MarketChannelRow>(&format!(
-                r#"
+            self.db
+                .query_as::<MarketChannelRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_market_channel
                 WHERE tenant_id = ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
+                    columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
         }
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -171,30 +179,31 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         let (channel_type, channel_status, api_capability_json, config_json) =
             map_market_channel_domain_to_row(channel);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_market_channel (
                 id, tenant_id, organization_id, channel_code, channel_type, provider,
                 channel_status, external_store_code, api_capability_json, config_json,
                 created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
-        )
-        .bind(channel.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(&channel.channel_code)
-        .bind(&channel_type)
-        .bind(&channel.provider)
-        .bind(&channel_status)
-        .bind(&channel.external_store_code)
-        .bind(&api_capability_json)
-        .bind(&config_json)
-        .bind(channel.created_at)
-        .bind(channel.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(channel.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(&channel.channel_code)
+            .bind(&channel_type)
+            .bind(&channel.provider)
+            .bind(&channel_status)
+            .bind(&channel.external_store_code)
+            .bind(&api_capability_json)
+            .bind(&config_json)
+            .bind(channel.created_at)
+            .bind(channel.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -207,26 +216,27 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         let (channel_type, channel_status, api_capability_json, config_json) =
             map_market_channel_domain_to_row(channel);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             UPDATE appstore_market_channel
             SET channel_type = ?, provider = ?, channel_status = ?, external_store_code = ?,
                 api_capability_json = ?, config_json = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
-        .bind(&channel_type)
-        .bind(&channel.provider)
-        .bind(&channel_status)
-        .bind(&channel.external_store_code)
-        .bind(&api_capability_json)
-        .bind(&config_json)
-        .bind(channel.updated_at)
-        .bind(channel.id.as_str())
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&channel_type)
+            .bind(&channel.provider)
+            .bind(&channel_status)
+            .bind(&channel.external_store_code)
+            .bind(&api_capability_json)
+            .bind(&config_json)
+            .bind(channel.updated_at)
+            .bind(channel.id.as_str())
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -237,19 +247,21 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         release_id: &MarketReleaseId,
     ) -> Result<Option<MarketRelease>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = self.db.query_as::< MarketReleaseRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<MarketReleaseRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_market_release
             WHERE id = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_MARKET_RELEASE_COLUMNS)
-        ))
-        .bind(release_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_MARKET_RELEASE_COLUMNS)
+            ))
+            .bind(release_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_market_release_row_to_domain)
             .transpose()
@@ -294,7 +306,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
             where_clause
         );
 
-        let mut query = self.db.query_as::< MarketReleaseRow>(&sql);
+        let mut query = self.db.query_as::<MarketReleaseRow>(&sql);
         query = query.bind(&context.tenant_id);
         if let Some(rid) = release_id {
             query = query.bind(rid);
@@ -329,31 +341,32 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         let (market_status, countries_json, external_status_json) =
             map_market_release_domain_to_row(release);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             UPDATE appstore_market_release
             SET market_status = ?, rollout_percent = ?, countries_json = ?, store_url = ?,
                 external_status_json = ?, submitted_at = ?, approved_at = ?, released_at = ?,
                 rejected_at = ?, last_synced_at = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
-        .bind(&market_status)
-        .bind(release.rollout_percent)
-        .bind(&countries_json)
-        .bind(&release.store_url)
-        .bind(&external_status_json)
-        .bind(release.submitted_at)
-        .bind(release.approved_at)
-        .bind(release.released_at)
-        .bind(release.rejected_at)
-        .bind(release.last_synced_at)
-        .bind(release.updated_at)
-        .bind(release.id.as_str())
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&market_status)
+            .bind(release.rollout_percent)
+            .bind(&countries_json)
+            .bind(&release.store_url)
+            .bind(&external_status_json)
+            .bind(release.submitted_at)
+            .bind(release.approved_at)
+            .bind(release.released_at)
+            .bind(release.rejected_at)
+            .bind(release.last_synced_at)
+            .bind(release.updated_at)
+            .bind(release.id.as_str())
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }

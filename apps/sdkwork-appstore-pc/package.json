@@ -17,6 +17,7 @@
     "@sdkwork/appstore-pc-catalog": "workspace:*",
     "@sdkwork/appstore-pc-commons": "workspace:*",
     "@sdkwork/appstore-pc-console-publisher": "workspace:*",
+    "@sdkwork/appstore-publisher-console-core": "workspace:*",
     "@sdkwork/appstore-pc-core": "workspace:*",
     "@sdkwork/appstore-pc-library": "workspace:*",
     "@sdkwork/appstore-pc-listing": "workspace:*",

@@ -250,8 +250,9 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
 
 ### 5.4 Publisher Console
 
-- PC：左侧二级导航 + 右侧表单/表格
-- H5：列表 → 详情分步；复杂表单分步向导
+- PC：`@sdkwork/appstore-pc-console-publisher`（左侧 Tab + 右侧表单/表格，zh-CN）
+- H5：`@sdkwork/appstore-h5-console-publisher`（列表 → 详情分步，zh-CN）
+- 共享逻辑：`@sdkwork/appstore-publisher-console-core`（SDK 服务与 hooks）
 - 状态色：草稿灰、审核中橙、已发布绿、拒绝红
 
 ---

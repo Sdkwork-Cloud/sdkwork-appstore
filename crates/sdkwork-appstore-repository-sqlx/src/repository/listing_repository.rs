@@ -1,5 +1,5 @@
-use chrono::Utc;
 use crate::pool::AppstoreSqlxDb;
+use chrono::Utc;
 
 use crate::db::columns::columns_csv;
 use crate::db::columns::APPSTORE_LISTING_COLUMNS;
@@ -104,32 +104,34 @@ impl ListingRepositoryPort for SqlxListingRepository {
         limit: i32,
     ) -> Result<Vec<Listing>, AppstoreServiceError> {
         let rows = if let Some(cursor_id) = cursor {
-            self.db.query_as::< ListingRow>(&format!(
-                r#"SELECT {} FROM appstore_listing
+            self.db
+                .query_as::<ListingRow>(&format!(
+                    r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND publisher_id = ? AND deleted_at IS NULL AND id > ?
                 ORDER BY id ASC LIMIT ?"#,
-                columns_csv(APPSTORE_LISTING_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(publisher_id)
-            .bind(cursor_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    columns_csv(APPSTORE_LISTING_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(publisher_id)
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            self.db.query_as::< ListingRow>(&format!(
-                r#"SELECT {} FROM appstore_listing
+            self.db
+                .query_as::<ListingRow>(&format!(
+                    r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND publisher_id = ? AND deleted_at IS NULL
                 ORDER BY id ASC LIMIT ?"#,
-                columns_csv(APPSTORE_LISTING_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(publisher_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    columns_csv(APPSTORE_LISTING_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(publisher_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
 
         rows.into_iter()
@@ -219,8 +221,10 @@ impl ListingRepositoryPort for SqlxListingRepository {
             content_rating_json,
         ) = map_listing_domain_to_row(listing);
 
-        let result = self.db.query(
-            r#"UPDATE appstore_listing SET
+        let result = self
+            .db
+            .query(
+                r#"UPDATE appstore_listing SET
                 listing_no = ?, app_id = ?, app_key = ?,
                 listing_slug = ?, pricing_model = ?, listing_status = ?,
                 storefront_visibility = ?, review_status = ?, primary_category_id = ?,
@@ -231,41 +235,41 @@ impl ListingRepositoryPort for SqlxListingRepository {
                 rating_count = ?, version = ?, submitted_at = ?, published_at = ?,
                 delisted_at = ?, deleted_at = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ? AND version = ?"#,
-        )
-        .bind(&listing.listing_no)
-        .bind(&listing.app_id)
-        .bind(&listing.app_key)
-        .bind(&listing.listing_slug)
-        .bind(&pricing_model)
-        .bind(&listing_status)
-        .bind(&storefront_visibility)
-        .bind(&review_status)
-        .bind(&listing.primary_category_id)
-        .bind(&listing.default_locale)
-        .bind(&listing.age_rating_code)
-        .bind(&content_rating_json)
-        .bind(&listing.official_website_url)
-        .bind(&listing.support_url)
-        .bind(&listing.privacy_policy_url)
-        .bind(&listing.comments_thread_id)
-        .bind(&listing.commerce_product_id)
-        .bind(&listing.current_release_id)
-        .bind(listing.featured_score)
-        .bind(listing.download_count)
-        .bind(&listing.average_rating)
-        .bind(listing.rating_count)
-        .bind(listing.version)
-        .bind(listing.submitted_at)
-        .bind(listing.published_at)
-        .bind(listing.delisted_at)
-        .bind(listing.deleted_at)
-        .bind(listing.updated_at)
-        .bind(listing.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(listing.version - 1)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&listing.listing_no)
+            .bind(&listing.app_id)
+            .bind(&listing.app_key)
+            .bind(&listing.listing_slug)
+            .bind(&pricing_model)
+            .bind(&listing_status)
+            .bind(&storefront_visibility)
+            .bind(&review_status)
+            .bind(&listing.primary_category_id)
+            .bind(&listing.default_locale)
+            .bind(&listing.age_rating_code)
+            .bind(&content_rating_json)
+            .bind(&listing.official_website_url)
+            .bind(&listing.support_url)
+            .bind(&listing.privacy_policy_url)
+            .bind(&listing.comments_thread_id)
+            .bind(&listing.commerce_product_id)
+            .bind(&listing.current_release_id)
+            .bind(listing.featured_score)
+            .bind(listing.download_count)
+            .bind(&listing.average_rating)
+            .bind(listing.rating_count)
+            .bind(listing.version)
+            .bind(listing.submitted_at)
+            .bind(listing.published_at)
+            .bind(listing.delisted_at)
+            .bind(listing.deleted_at)
+            .bind(listing.updated_at)
+            .bind(listing.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(listing.version - 1)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         if result.rows_affected() == 0 {
             return Err(AppstoreServiceError::Conflict(
@@ -282,19 +286,21 @@ impl ListingRepositoryPort for SqlxListingRepository {
         listing_id: &ListingId,
         locale: &str,
     ) -> Result<Option<ListingLocalization>, AppstoreServiceError> {
-        let row = self.db.query_as::< ListingLocalizationRow>(
-            r#"SELECT id, tenant_id, organization_id, listing_id, locale, display_name,
+        let row = self
+            .db
+            .query_as::<ListingLocalizationRow>(
+                r#"SELECT id, tenant_id, organization_id, listing_id, locale, display_name,
                 subtitle, short_description, full_description, whats_new_summary,
                 keywords_json, created_at, updated_at
             FROM appstore_listing_localization
             WHERE tenant_id = ? AND listing_id = ? AND locale = ?"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(listing_id.as_str())
-        .bind(locale)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .bind(locale)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_localization_row_to_domain)
             .transpose()
@@ -308,8 +314,9 @@ impl ListingRepositoryPort for SqlxListingRepository {
     ) -> Result<(), AppstoreServiceError> {
         let keywords_json = map_localization_domain_to_row(localization);
 
-        self.db.query(
-            r#"INSERT INTO appstore_listing_localization (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_listing_localization (
                 id, tenant_id, organization_id, listing_id, locale, display_name,
                 subtitle, short_description, full_description, whats_new_summary,
                 keywords_json, created_at, updated_at
@@ -322,23 +329,23 @@ impl ListingRepositoryPort for SqlxListingRepository {
                 whats_new_summary = excluded.whats_new_summary,
                 keywords_json = excluded.keywords_json,
                 updated_at = excluded.updated_at"#,
-        )
-        .bind(&localization.id)
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(localization.listing_id.as_str())
-        .bind(&localization.locale)
-        .bind(&localization.display_name)
-        .bind(&localization.subtitle)
-        .bind(&localization.short_description)
-        .bind(&localization.full_description)
-        .bind(&localization.whats_new_summary)
-        .bind(&keywords_json)
-        .bind(localization.created_at)
-        .bind(localization.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&localization.id)
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(localization.listing_id.as_str())
+            .bind(&localization.locale)
+            .bind(&localization.display_name)
+            .bind(&localization.subtitle)
+            .bind(&localization.short_description)
+            .bind(&localization.full_description)
+            .bind(&localization.whats_new_summary)
+            .bind(&keywords_json)
+            .bind(localization.created_at)
+            .bind(localization.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -348,18 +355,20 @@ impl ListingRepositoryPort for SqlxListingRepository {
         context: &AppstoreRequestContext,
         listing_id: &ListingId,
     ) -> Result<Vec<ListingMedia>, AppstoreServiceError> {
-        let rows = self.db.query_as::< ListingMediaRow>(
-            r#"SELECT id, tenant_id, organization_id, listing_id, media_role, media_resource_id,
+        let rows = self
+            .db
+            .query_as::<ListingMediaRow>(
+                r#"SELECT id, tenant_id, organization_id, listing_id, media_role, media_resource_id,
                 drive_node_id, platform_scope, sort_order, locale, created_at, updated_at
             FROM appstore_listing_media
             WHERE tenant_id = ? AND listing_id = ?
             ORDER BY sort_order ASC"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(listing_id.as_str())
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_media_row_to_domain)
@@ -372,17 +381,19 @@ impl ListingRepositoryPort for SqlxListingRepository {
         context: &AppstoreRequestContext,
         media_id: &str,
     ) -> Result<Option<ListingMedia>, AppstoreServiceError> {
-        let row = self.db.query_as::< ListingMediaRow>(
-            r#"SELECT id, tenant_id, organization_id, listing_id, media_role, media_resource_id,
+        let row = self
+            .db
+            .query_as::<ListingMediaRow>(
+                r#"SELECT id, tenant_id, organization_id, listing_id, media_role, media_resource_id,
                 drive_node_id, platform_scope, sort_order, locale, created_at, updated_at
             FROM appstore_listing_media
             WHERE tenant_id = ? AND id = ?"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(media_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(media_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_media_row_to_domain)
             .transpose()
@@ -396,27 +407,28 @@ impl ListingRepositoryPort for SqlxListingRepository {
     ) -> Result<(), AppstoreServiceError> {
         let media_role = map_media_domain_to_row(media);
 
-        self.db.query(
-            r#"INSERT INTO appstore_listing_media (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_listing_media (
                 id, tenant_id, organization_id, listing_id, media_role, media_resource_id,
                 drive_node_id, platform_scope, sort_order, locale, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-        )
-        .bind(&media.id)
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(media.listing_id.as_str())
-        .bind(&media_role)
-        .bind(&media.media_resource_id)
-        .bind(&media.drive_node_id)
-        .bind(&media.platform_scope)
-        .bind(media.sort_order)
-        .bind(&media.locale)
-        .bind(media.created_at)
-        .bind(media.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&media.id)
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(media.listing_id.as_str())
+            .bind(&media_role)
+            .bind(&media.media_resource_id)
+            .bind(&media.drive_node_id)
+            .bind(&media.platform_scope)
+            .bind(media.sort_order)
+            .bind(&media.locale)
+            .bind(media.created_at)
+            .bind(media.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -426,7 +438,8 @@ impl ListingRepositoryPort for SqlxListingRepository {
         context: &AppstoreRequestContext,
         media_id: &str,
     ) -> Result<(), AppstoreServiceError> {
-        self.db.query(r#"DELETE FROM appstore_listing_media WHERE tenant_id = ? AND id = ?"#)
+        self.db
+            .query(r#"DELETE FROM appstore_listing_media WHERE tenant_id = ? AND id = ?"#)
             .bind(&context.tenant_id)
             .bind(media_id)
             .execute_unified(&self.db)
@@ -441,16 +454,18 @@ impl ListingRepositoryPort for SqlxListingRepository {
         context: &AppstoreRequestContext,
         listing_id: &ListingId,
     ) -> Result<Vec<ListingCategoryBinding>, AppstoreServiceError> {
-        let rows = self.db.query_as::< ListingCategoryBindingRow>(
-            r#"SELECT id, tenant_id, listing_id, category_id, is_primary, created_at
+        let rows = self
+            .db
+            .query_as::<ListingCategoryBindingRow>(
+                r#"SELECT id, tenant_id, listing_id, category_id, is_primary, created_at
             FROM appstore_listing_category_binding
             WHERE tenant_id = ? AND listing_id = ?"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(listing_id.as_str())
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_category_binding_row_to_domain)
@@ -480,20 +495,21 @@ impl ListingRepositoryPort for SqlxListingRepository {
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         for binding in bindings {
-            self.db.query(
-                r#"INSERT INTO appstore_listing_category_binding
+            self.db
+                .query(
+                    r#"INSERT INTO appstore_listing_category_binding
                 (id, tenant_id, listing_id, category_id, is_primary, created_at)
                 VALUES (?, ?, ?, ?, ?, ?)"#,
-            )
-            .bind(&binding.id)
-            .bind(&context.tenant_id)
-            .bind(binding.listing_id.as_str())
-            .bind(&binding.category_id)
-            .bind(if binding.is_primary { 1 } else { 0 })
-            .bind(binding.created_at)
-            .execute_tx(&mut tx)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                )
+                .bind(&binding.id)
+                .bind(&context.tenant_id)
+                .bind(binding.listing_id.as_str())
+                .bind(&binding.category_id)
+                .bind(if binding.is_primary { 1 } else { 0 })
+                .bind(binding.created_at)
+                .execute_tx(&mut tx)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
         }
 
         tx.commit()
@@ -508,17 +524,19 @@ impl ListingRepositoryPort for SqlxListingRepository {
         context: &AppstoreRequestContext,
         listing_id: &ListingId,
     ) -> Result<Vec<RegionalAvailability>, AppstoreServiceError> {
-        let rows = self.db.query_as::< RegionalAvailabilityRow>(
-            r#"SELECT id, tenant_id, organization_id, listing_id, region_code,
+        let rows = self
+            .db
+            .query_as::<RegionalAvailabilityRow>(
+                r#"SELECT id, tenant_id, organization_id, listing_id, region_code,
                 availability_status, effective_at, expires_at, created_at, updated_at
             FROM appstore_regional_availability
             WHERE tenant_id = ? AND listing_id = ?"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(listing_id.as_str())
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_regional_row_to_domain)
@@ -548,25 +566,26 @@ impl ListingRepositoryPort for SqlxListingRepository {
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         for avail in availabilities {
-            self.db.query(
-                r#"INSERT INTO appstore_regional_availability
+            self.db
+                .query(
+                    r#"INSERT INTO appstore_regional_availability
                 (id, tenant_id, organization_id, listing_id, region_code,
                  availability_status, effective_at, expires_at, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-            )
-            .bind(&avail.id)
-            .bind(&context.tenant_id)
-            .bind(&context.organization_id)
-            .bind(avail.listing_id.as_str())
-            .bind(&avail.region_code)
-            .bind(&avail.availability_status)
-            .bind(avail.effective_at)
-            .bind(avail.expires_at)
-            .bind(avail.created_at)
-            .bind(avail.updated_at)
-            .execute_tx(&mut tx)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                )
+                .bind(&avail.id)
+                .bind(&context.tenant_id)
+                .bind(&context.organization_id)
+                .bind(avail.listing_id.as_str())
+                .bind(&avail.region_code)
+                .bind(&avail.availability_status)
+                .bind(avail.effective_at)
+                .bind(avail.expires_at)
+                .bind(avail.created_at)
+                .bind(avail.updated_at)
+                .execute_tx(&mut tx)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
         }
 
         tx.commit()
@@ -589,32 +608,34 @@ impl ListingRepositoryPort for SqlxListingRepository {
             published_at, retired_at, version, created_at, updated_at"#;
 
         let rows = if let Some(cursor_id) = cursor {
-            self.db.query_as::< ReleaseRow>(&format!(
-                r#"SELECT {} FROM appstore_release
+            self.db
+                .query_as::<ReleaseRow>(&format!(
+                    r#"SELECT {} FROM appstore_release
                 WHERE tenant_id = ? AND listing_id = ? AND id > ?
                 ORDER BY id ASC LIMIT ?"#,
-                release_cols
-            ))
-            .bind(&context.tenant_id)
-            .bind(listing_id.as_str())
-            .bind(cursor_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    release_cols
+                ))
+                .bind(&context.tenant_id)
+                .bind(listing_id.as_str())
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            self.db.query_as::< ReleaseRow>(&format!(
-                r#"SELECT {} FROM appstore_release
+            self.db
+                .query_as::<ReleaseRow>(&format!(
+                    r#"SELECT {} FROM appstore_release
                 WHERE tenant_id = ? AND listing_id = ?
                 ORDER BY id ASC LIMIT ?"#,
-                release_cols
-            ))
-            .bind(&context.tenant_id)
-            .bind(listing_id.as_str())
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
+                    release_cols
+                ))
+                .bind(&context.tenant_id)
+                .bind(listing_id.as_str())
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
 
         let values: Vec<serde_json::Value> = rows
@@ -656,30 +677,31 @@ impl ListingRepositoryPort for SqlxListingRepository {
         let (submission_type, submission_status, payload_snapshot_json) =
             map_submission_domain_to_row(submission);
 
-        self.db.query(
-            r#"INSERT INTO appstore_listing_submission (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_listing_submission (
                 id, tenant_id, organization_id, listing_id, release_id, submission_no,
                 submission_type, submission_status, submitted_by, submitted_at,
                 payload_snapshot_json, idempotency_key, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-        )
-        .bind(&submission.id)
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(submission.listing_id.as_str())
-        .bind(&submission.release_id)
-        .bind(&submission.submission_no)
-        .bind(&submission_type)
-        .bind(&submission_status)
-        .bind(&submission.submitted_by)
-        .bind(submission.submitted_at)
-        .bind(&payload_snapshot_json)
-        .bind(&submission.idempotency_key)
-        .bind(submission.created_at)
-        .bind(submission.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&submission.id)
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(submission.listing_id.as_str())
+            .bind(&submission.release_id)
+            .bind(&submission.submission_no)
+            .bind(&submission_type)
+            .bind(&submission_status)
+            .bind(&submission.submitted_by)
+            .bind(submission.submitted_at)
+            .bind(&payload_snapshot_json)
+            .bind(&submission.idempotency_key)
+            .bind(submission.created_at)
+            .bind(submission.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -689,18 +711,20 @@ impl ListingRepositoryPort for SqlxListingRepository {
         context: &AppstoreRequestContext,
         submission_id: &str,
     ) -> Result<Option<ListingSubmission>, AppstoreServiceError> {
-        let row = self.db.query_as::< ListingSubmissionRow>(
-            r#"SELECT id, tenant_id, organization_id, listing_id, release_id, submission_no,
+        let row = self
+            .db
+            .query_as::<ListingSubmissionRow>(
+                r#"SELECT id, tenant_id, organization_id, listing_id, release_id, submission_no,
                 submission_type, submission_status, submitted_by, submitted_at,
                 payload_snapshot_json, idempotency_key, created_at, updated_at
             FROM appstore_listing_submission
             WHERE tenant_id = ? AND id = ?"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(submission_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(submission_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_submission_row_to_domain)
             .transpose()
@@ -715,25 +739,26 @@ impl ListingRepositoryPort for SqlxListingRepository {
         let (submission_type, submission_status, payload_snapshot_json) =
             map_submission_domain_to_row(submission);
 
-        self.db.query(
-            r#"UPDATE appstore_listing_submission
+        self.db
+            .query(
+                r#"UPDATE appstore_listing_submission
             SET release_id = ?, submission_type = ?, submission_status = ?, submitted_by = ?,
                 submitted_at = ?, payload_snapshot_json = ?, idempotency_key = ?, updated_at = ?
             WHERE tenant_id = ? AND id = ?"#,
-        )
-        .bind(&submission.release_id)
-        .bind(&submission_type)
-        .bind(&submission_status)
-        .bind(&submission.submitted_by)
-        .bind(submission.submitted_at)
-        .bind(&payload_snapshot_json)
-        .bind(&submission.idempotency_key)
-        .bind(submission.updated_at)
-        .bind(&context.tenant_id)
-        .bind(&submission.id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&submission.release_id)
+            .bind(&submission_type)
+            .bind(&submission_status)
+            .bind(&submission.submitted_by)
+            .bind(submission.submitted_at)
+            .bind(&payload_snapshot_json)
+            .bind(&submission.idempotency_key)
+            .bind(submission.updated_at)
+            .bind(&context.tenant_id)
+            .bind(&submission.id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -743,19 +768,21 @@ impl ListingRepositoryPort for SqlxListingRepository {
         context: &AppstoreRequestContext,
         listing_id: &ListingId,
     ) -> Result<Vec<ListingSubmission>, AppstoreServiceError> {
-        let rows = self.db.query_as::< ListingSubmissionRow>(
-            r#"SELECT id, tenant_id, organization_id, listing_id, release_id, submission_no,
+        let rows = self
+            .db
+            .query_as::<ListingSubmissionRow>(
+                r#"SELECT id, tenant_id, organization_id, listing_id, release_id, submission_no,
                 submission_type, submission_status, submitted_by, submitted_at,
                 payload_snapshot_json, idempotency_key, created_at, updated_at
             FROM appstore_listing_submission
             WHERE tenant_id = ? AND listing_id = ?
             ORDER BY created_at DESC"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(listing_id.as_str())
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_submission_row_to_domain)
@@ -791,7 +818,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
         }
         sql.push_str(" ORDER BY id ASC LIMIT ?");
 
-        let mut query = self.db.query_as::< ListingRow>(&sql);
+        let mut query = self.db.query_as::<ListingRow>(&sql);
         query = query.bind(&context.tenant_id);
         if let Some(s) = status_filter {
             query = query.bind(s);
@@ -853,8 +880,8 @@ impl ListingRepositoryPort for SqlxListingRepository {
             .bind(&context.tenant_id)
             .bind(app_key)
             .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         Ok(row.map(
             |(
@@ -918,8 +945,9 @@ impl ListingRepositoryPort for SqlxListingRepository {
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
-        self.db.query(
-            r#"INSERT INTO appstore_app (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_app (
                 id, tenant_id, organization_id, publisher_id, app_no, app_key, app_slug,
                 display_name, default_locale, app_type, runtime_family, runtime_framework,
                 app_status, distribution_status, review_status, monetization_mode,
@@ -932,31 +960,31 @@ impl ListingRepositoryPort for SqlxListingRepository {
                 '{}', '{}', '', '[]', '{}', 1, '{}', '{}', '[]', '[]', '[]', '', '0', '{}',
                 1, ?, ?, ?, ?
             )"#,
-        )
-        .bind(&app.id)
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(&app.publisher_id)
-        .bind(&app.app_no)
-        .bind(&app.app_key)
-        .bind(&app.app_slug)
-        .bind(&app.display_name)
-        .bind(&app.default_locale)
-        .bind(&app.app_type)
-        .bind(&app.app_status)
-        .bind(&app.distribution_status)
-        .bind(&app.review_status)
-        .bind(listing.id.as_str())
-        .bind(if context.user_id.trim().is_empty() {
-            None::<String>
-        } else {
-            Some(context.user_id.clone())
-        })
-        .bind(app.created_at)
-        .bind(app.updated_at)
-        .execute_tx(&mut tx)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            )
+            .bind(&app.id)
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(&app.publisher_id)
+            .bind(&app.app_no)
+            .bind(&app.app_key)
+            .bind(&app.app_slug)
+            .bind(&app.display_name)
+            .bind(&app.default_locale)
+            .bind(&app.app_type)
+            .bind(&app.app_status)
+            .bind(&app.distribution_status)
+            .bind(&app.review_status)
+            .bind(listing.id.as_str())
+            .bind(if context.user_id.trim().is_empty() {
+                None::<String>
+            } else {
+                Some(context.user_id.clone())
+            })
+            .bind(app.created_at)
+            .bind(app.updated_at)
+            .execute_tx(&mut tx)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         self.db.query(
             r#"INSERT INTO appstore_listing (
@@ -1057,18 +1085,19 @@ impl ListingRepositoryPort for SqlxListingRepository {
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
         } else {
-            self.db.query_as::< ReleaseRow>(&format!(
-                r#"SELECT {release_cols} FROM appstore_release
+            self.db
+                .query_as::<ReleaseRow>(&format!(
+                    r#"SELECT {release_cols} FROM appstore_release
                 WHERE tenant_id = ? AND listing_id = ?
                 ORDER BY CAST(version_code AS INTEGER) DESC, id DESC
                 LIMIT ?"#
-            ))
-            .bind(&context.tenant_id)
-            .bind(listing_id.as_str())
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+                ))
+                .bind(&context.tenant_id)
+                .bind(listing_id.as_str())
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
         };
 
         Ok(rows
@@ -1113,38 +1142,40 @@ impl ListingRepositoryPort for SqlxListingRepository {
             AND deleted_at IS NULL"#;
 
         let rows = if let Some(cursor_id) = cursor {
-            self.db.query_as::< ListingRow>(&format!(
-                r#"SELECT {} FROM appstore_listing
+            self.db
+                .query_as::<ListingRow>(&format!(
+                    r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND primary_category_id = ? AND id != ?
                   AND {visible_filter} AND id > ?
                 ORDER BY featured_score DESC, rating_count DESC, id ASC
                 LIMIT ?"#,
-                columns_csv(APPSTORE_LISTING_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(primary_category_id)
-            .bind(listing_id.as_str())
-            .bind(cursor_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+                    columns_csv(APPSTORE_LISTING_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(primary_category_id)
+                .bind(listing_id.as_str())
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
         } else {
-            self.db.query_as::< ListingRow>(&format!(
-                r#"SELECT {} FROM appstore_listing
+            self.db
+                .query_as::<ListingRow>(&format!(
+                    r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND primary_category_id = ? AND id != ?
                   AND {visible_filter}
                 ORDER BY featured_score DESC, rating_count DESC, id ASC
                 LIMIT ?"#,
-                columns_csv(APPSTORE_LISTING_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(primary_category_id)
-            .bind(listing_id.as_str())
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+                    columns_csv(APPSTORE_LISTING_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(primary_category_id)
+                .bind(listing_id.as_str())
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
         };
 
         rows.into_iter()
@@ -1166,38 +1197,40 @@ impl ListingRepositoryPort for SqlxListingRepository {
             AND deleted_at IS NULL"#;
 
         let rows = if let Some(cursor_id) = cursor {
-            self.db.query_as::< ListingRow>(&format!(
-                r#"SELECT {} FROM appstore_listing
+            self.db
+                .query_as::<ListingRow>(&format!(
+                    r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND publisher_id = ? AND id != ?
                   AND {visible_filter} AND id > ?
                 ORDER BY featured_score DESC, rating_count DESC, id ASC
                 LIMIT ?"#,
-                columns_csv(APPSTORE_LISTING_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(publisher_id)
-            .bind(listing_id.as_str())
-            .bind(cursor_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+                    columns_csv(APPSTORE_LISTING_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(publisher_id)
+                .bind(listing_id.as_str())
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
         } else {
-            self.db.query_as::< ListingRow>(&format!(
-                r#"SELECT {} FROM appstore_listing
+            self.db
+                .query_as::<ListingRow>(&format!(
+                    r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND publisher_id = ? AND id != ?
                   AND {visible_filter}
                 ORDER BY featured_score DESC, rating_count DESC, id ASC
                 LIMIT ?"#,
-                columns_csv(APPSTORE_LISTING_COLUMNS)
-            ))
-            .bind(&context.tenant_id)
-            .bind(publisher_id)
-            .bind(listing_id.as_str())
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
-            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+                    columns_csv(APPSTORE_LISTING_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(publisher_id)
+                .bind(listing_id.as_str())
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
+                .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
         };
 
         rows.into_iter()
@@ -1226,8 +1259,8 @@ impl ListingRepositoryPort for SqlxListingRepository {
             .bind(&context.tenant_id)
             .bind(listing_id.as_str())
             .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         let editorial_highlight = highlight_row.and_then(|(highlight_json,)| {
             serde_json::from_str::<serde_json::Value>(&highlight_json)
@@ -1260,8 +1293,8 @@ impl ListingRepositoryPort for SqlxListingRepository {
             .bind(&context.tenant_id)
             .bind(listing_id.as_str())
             .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         let collection_editorial_note = note_row.and_then(|(description,)| description);
 

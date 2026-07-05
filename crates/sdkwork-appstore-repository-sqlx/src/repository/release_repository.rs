@@ -61,15 +61,17 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         context: &AppstoreRequestContext,
         release_id: &ReleaseId,
     ) -> Result<Option<Release>, AppstoreServiceError> {
-        let row = self.db.query_as::< ReleaseRow>(&format!(
-            r#"SELECT {} FROM appstore_release WHERE id = ? AND tenant_id = ?"#,
-            columns_csv(APPSTORE_RELEASE_COLUMNS)
-        ))
-        .bind(release_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        let row = self
+            .db
+            .query_as::<ReleaseRow>(&format!(
+                r#"SELECT {} FROM appstore_release WHERE id = ? AND tenant_id = ?"#,
+                columns_csv(APPSTORE_RELEASE_COLUMNS)
+            ))
+            .bind(release_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_release_row_to_domain)
             .transpose()
@@ -81,15 +83,17 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         context: &AppstoreRequestContext,
         release_no: &str,
     ) -> Result<Option<Release>, AppstoreServiceError> {
-        let row = self.db.query_as::< ReleaseRow>(&format!(
-            r#"SELECT {} FROM appstore_release WHERE tenant_id = ? AND release_no = ?"#,
-            columns_csv(APPSTORE_RELEASE_COLUMNS)
-        ))
-        .bind(&context.tenant_id)
-        .bind(release_no)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        let row = self
+            .db
+            .query_as::<ReleaseRow>(&format!(
+                r#"SELECT {} FROM appstore_release WHERE tenant_id = ? AND release_no = ?"#,
+                columns_csv(APPSTORE_RELEASE_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(release_no)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_release_row_to_domain)
             .transpose()
@@ -126,19 +130,21 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         listing_id: &str,
         channel_code: &str,
     ) -> Result<Option<Release>, AppstoreServiceError> {
-        let row = self.db.query_as::< ReleaseRow>(&format!(
-            r#"SELECT {} FROM appstore_release r
+        let row = self
+            .db
+            .query_as::<ReleaseRow>(&format!(
+                r#"SELECT {} FROM appstore_release r
             INNER JOIN appstore_release_channel c ON r.channel_id = c.id
             WHERE r.tenant_id = ? AND r.listing_id = ? AND c.channel_code = ?
             ORDER BY r.version DESC LIMIT 1"#,
-            columns_csv(APPSTORE_RELEASE_COLUMNS)
-        ))
-        .bind(&context.tenant_id)
-        .bind(listing_id)
-        .bind(channel_code)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_RELEASE_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(listing_id)
+            .bind(channel_code)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_release_row_to_domain)
             .transpose()
@@ -152,37 +158,38 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<(), AppstoreServiceError> {
         let (release_status, manifest_snapshot_json) = map_release_domain_to_row(release);
 
-        self.db.query(
-            r#"INSERT INTO appstore_release (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_release (
                 id, tenant_id, organization_id, listing_id, release_no, channel_id,
                 version_name, version_code, build_number, release_status, minimum_os_version,
                 release_notes_default_locale, manifest_snapshot_json, submitted_at, approved_at,
                 published_at, retired_at, version, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-        )
-        .bind(release.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(&release.listing_id)
-        .bind(&release.release_no)
-        .bind(release.channel_id.as_str())
-        .bind(&release.version_name)
-        .bind(&release.version_code)
-        .bind(&release.build_number)
-        .bind(&release_status)
-        .bind(&release.minimum_os_version)
-        .bind(&release.release_notes_default_locale)
-        .bind(&manifest_snapshot_json)
-        .bind(release.submitted_at)
-        .bind(release.approved_at)
-        .bind(release.published_at)
-        .bind(release.retired_at)
-        .bind(release.version)
-        .bind(release.created_at)
-        .bind(release.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(release.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(&release.listing_id)
+            .bind(&release.release_no)
+            .bind(release.channel_id.as_str())
+            .bind(&release.version_name)
+            .bind(&release.version_code)
+            .bind(&release.build_number)
+            .bind(&release_status)
+            .bind(&release.minimum_os_version)
+            .bind(&release.release_notes_default_locale)
+            .bind(&manifest_snapshot_json)
+            .bind(release.submitted_at)
+            .bind(release.approved_at)
+            .bind(release.published_at)
+            .bind(release.retired_at)
+            .bind(release.version)
+            .bind(release.created_at)
+            .bind(release.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -194,36 +201,38 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<(), AppstoreServiceError> {
         let (release_status, manifest_snapshot_json) = map_release_domain_to_row(release);
 
-        let result = self.db.query(
-            r#"UPDATE appstore_release SET
+        let result = self
+            .db
+            .query(
+                r#"UPDATE appstore_release SET
                 listing_id = ?, release_no = ?, channel_id = ?, version_name = ?,
                 version_code = ?, build_number = ?, release_status = ?, minimum_os_version = ?,
                 release_notes_default_locale = ?, manifest_snapshot_json = ?, submitted_at = ?,
                 approved_at = ?, published_at = ?, retired_at = ?, version = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ? AND version = ?"#,
-        )
-        .bind(&release.listing_id)
-        .bind(&release.release_no)
-        .bind(release.channel_id.as_str())
-        .bind(&release.version_name)
-        .bind(&release.version_code)
-        .bind(&release.build_number)
-        .bind(&release_status)
-        .bind(&release.minimum_os_version)
-        .bind(&release.release_notes_default_locale)
-        .bind(&manifest_snapshot_json)
-        .bind(release.submitted_at)
-        .bind(release.approved_at)
-        .bind(release.published_at)
-        .bind(release.retired_at)
-        .bind(release.version)
-        .bind(release.updated_at)
-        .bind(release.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(release.version - 1)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&release.listing_id)
+            .bind(&release.release_no)
+            .bind(release.channel_id.as_str())
+            .bind(&release.version_name)
+            .bind(&release.version_code)
+            .bind(&release.build_number)
+            .bind(&release_status)
+            .bind(&release.minimum_os_version)
+            .bind(&release.release_notes_default_locale)
+            .bind(&manifest_snapshot_json)
+            .bind(release.submitted_at)
+            .bind(release.approved_at)
+            .bind(release.published_at)
+            .bind(release.retired_at)
+            .bind(release.version)
+            .bind(release.updated_at)
+            .bind(release.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(release.version - 1)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         if result.rows_affected() == 0 {
             return Err(AppstoreServiceError::Conflict(
@@ -240,18 +249,20 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         release_id: &ReleaseId,
         locale: &str,
     ) -> Result<Option<ReleaseNoteLocalization>, AppstoreServiceError> {
-        let row = self.db.query_as::< ReleaseNoteLocalizationRow>(
-            r#"SELECT id, tenant_id, organization_id, release_id, locale, release_notes,
+        let row = self
+            .db
+            .query_as::<ReleaseNoteLocalizationRow>(
+                r#"SELECT id, tenant_id, organization_id, release_id, locale, release_notes,
                 created_at, updated_at
             FROM appstore_release_note_localization
             WHERE tenant_id = ? AND release_id = ? AND locale = ?"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(release_id.as_str())
-        .bind(locale)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&context.tenant_id)
+            .bind(release_id.as_str())
+            .bind(locale)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_release_note_row_to_domain)
             .transpose()
@@ -263,23 +274,24 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         context: &AppstoreRequestContext,
         notes: &ReleaseNoteLocalization,
     ) -> Result<(), AppstoreServiceError> {
-        self.db.query(
-            r#"INSERT INTO appstore_release_note_localization (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_release_note_localization (
                 id, tenant_id, organization_id, release_id, locale, release_notes,
                 created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"#,
-        )
-        .bind(&notes.id)
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(notes.release_id.as_str())
-        .bind(&notes.locale)
-        .bind(&notes.release_notes)
-        .bind(notes.created_at)
-        .bind(notes.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&notes.id)
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(notes.release_id.as_str())
+            .bind(&notes.locale)
+            .bind(&notes.release_notes)
+            .bind(notes.created_at)
+            .bind(notes.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -289,18 +301,19 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         context: &AppstoreRequestContext,
         notes: &ReleaseNoteLocalization,
     ) -> Result<(), AppstoreServiceError> {
-        self.db.query(
-            r#"UPDATE appstore_release_note_localization
+        self.db
+            .query(
+                r#"UPDATE appstore_release_note_localization
             SET release_notes = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?"#,
-        )
-        .bind(&notes.release_notes)
-        .bind(notes.updated_at)
-        .bind(&notes.id)
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&notes.release_notes)
+            .bind(notes.updated_at)
+            .bind(&notes.id)
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -310,15 +323,17 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         context: &AppstoreRequestContext,
         artifact_id: &ArtifactId,
     ) -> Result<Option<ReleaseArtifact>, AppstoreServiceError> {
-        let row = self.db.query_as::< ReleaseArtifactRow>(&format!(
-            r#"SELECT {} FROM appstore_release_artifact WHERE id = ? AND tenant_id = ?"#,
-            columns_csv(APPSTORE_RELEASE_ARTIFACT_COLUMNS)
-        ))
-        .bind(artifact_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        let row = self
+            .db
+            .query_as::<ReleaseArtifactRow>(&format!(
+                r#"SELECT {} FROM appstore_release_artifact WHERE id = ? AND tenant_id = ?"#,
+                columns_csv(APPSTORE_RELEASE_ARTIFACT_COLUMNS)
+            ))
+            .bind(artifact_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_artifact_row_to_domain)
             .transpose()
@@ -359,37 +374,38 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<(), AppstoreServiceError> {
         let (artifact_status, signature_snapshot_json) = map_artifact_domain_to_row(artifact);
 
-        self.db.query(
-            r#"INSERT INTO appstore_release_artifact (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_release_artifact (
                 id, tenant_id, organization_id, release_id, artifact_no, platform,
                 architecture, package_format, artifact_status, drive_node_id, media_resource_id,
                 file_size_bytes, content_type, checksum_sha256, signature_snapshot_json,
                 sbom_ref, provenance_ref, min_os_version, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-        )
-        .bind(artifact.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(artifact.release_id.as_str())
-        .bind(&artifact.artifact_no)
-        .bind(&artifact.platform)
-        .bind(&artifact.architecture)
-        .bind(&artifact.package_format)
-        .bind(&artifact_status)
-        .bind(&artifact.drive_node_id)
-        .bind(&artifact.media_resource_id)
-        .bind(&artifact.file_size_bytes)
-        .bind(&artifact.content_type)
-        .bind(&artifact.checksum_sha256)
-        .bind(&signature_snapshot_json)
-        .bind(&artifact.sbom_ref)
-        .bind(&artifact.provenance_ref)
-        .bind(&artifact.min_os_version)
-        .bind(artifact.created_at)
-        .bind(artifact.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(artifact.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(artifact.release_id.as_str())
+            .bind(&artifact.artifact_no)
+            .bind(&artifact.platform)
+            .bind(&artifact.architecture)
+            .bind(&artifact.package_format)
+            .bind(&artifact_status)
+            .bind(&artifact.drive_node_id)
+            .bind(&artifact.media_resource_id)
+            .bind(&artifact.file_size_bytes)
+            .bind(&artifact.content_type)
+            .bind(&artifact.checksum_sha256)
+            .bind(&signature_snapshot_json)
+            .bind(&artifact.sbom_ref)
+            .bind(&artifact.provenance_ref)
+            .bind(&artifact.min_os_version)
+            .bind(artifact.created_at)
+            .bind(artifact.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -399,15 +415,17 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         context: &AppstoreRequestContext,
         release_id: &ReleaseId,
     ) -> Result<Option<ReleaseRollout>, AppstoreServiceError> {
-        let row = self.db.query_as::< ReleaseRolloutRow>(&format!(
-            r#"SELECT {} FROM appstore_release_rollout WHERE tenant_id = ? AND release_id = ?"#,
-            columns_csv(APPSTORE_RELEASE_ROLLOUT_COLUMNS)
-        ))
-        .bind(&context.tenant_id)
-        .bind(release_id.as_str())
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        let row = self
+            .db
+            .query_as::<ReleaseRolloutRow>(&format!(
+                r#"SELECT {} FROM appstore_release_rollout WHERE tenant_id = ? AND release_id = ?"#,
+                columns_csv(APPSTORE_RELEASE_ROLLOUT_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(release_id.as_str())
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_rollout_row_to_domain)
             .transpose()
@@ -422,31 +440,32 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         let (rollout_strategy, rollout_status, region_filter_json, device_filter_json) =
             map_rollout_domain_to_row(rollout);
 
-        self.db.query(
-            r#"INSERT INTO appstore_release_rollout (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_release_rollout (
                 id, tenant_id, organization_id, release_id, rollout_strategy, rollout_status,
                 target_percentage, current_percentage, region_filter_json, device_filter_json,
                 started_at, completed_at, paused_at, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-        )
-        .bind(&rollout.id)
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(rollout.release_id.as_str())
-        .bind(&rollout_strategy)
-        .bind(&rollout_status)
-        .bind(rollout.target_percentage)
-        .bind(rollout.current_percentage)
-        .bind(&region_filter_json)
-        .bind(&device_filter_json)
-        .bind(rollout.started_at)
-        .bind(rollout.completed_at)
-        .bind(rollout.paused_at)
-        .bind(rollout.created_at)
-        .bind(rollout.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&rollout.id)
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(rollout.release_id.as_str())
+            .bind(&rollout_strategy)
+            .bind(&rollout_status)
+            .bind(rollout.target_percentage)
+            .bind(rollout.current_percentage)
+            .bind(&region_filter_json)
+            .bind(&device_filter_json)
+            .bind(rollout.started_at)
+            .bind(rollout.completed_at)
+            .bind(rollout.paused_at)
+            .bind(rollout.created_at)
+            .bind(rollout.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -459,28 +478,29 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         let (rollout_strategy, rollout_status, region_filter_json, device_filter_json) =
             map_rollout_domain_to_row(rollout);
 
-        self.db.query(
-            r#"UPDATE appstore_release_rollout SET
+        self.db
+            .query(
+                r#"UPDATE appstore_release_rollout SET
                 rollout_strategy = ?, rollout_status = ?, target_percentage = ?,
                 current_percentage = ?, region_filter_json = ?, device_filter_json = ?,
                 started_at = ?, completed_at = ?, paused_at = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?"#,
-        )
-        .bind(&rollout_strategy)
-        .bind(&rollout_status)
-        .bind(rollout.target_percentage)
-        .bind(rollout.current_percentage)
-        .bind(&region_filter_json)
-        .bind(&device_filter_json)
-        .bind(rollout.started_at)
-        .bind(rollout.completed_at)
-        .bind(rollout.paused_at)
-        .bind(rollout.updated_at)
-        .bind(&rollout.id)
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&rollout_strategy)
+            .bind(&rollout_status)
+            .bind(rollout.target_percentage)
+            .bind(rollout.current_percentage)
+            .bind(&region_filter_json)
+            .bind(&device_filter_json)
+            .bind(rollout.started_at)
+            .bind(rollout.completed_at)
+            .bind(rollout.paused_at)
+            .bind(rollout.updated_at)
+            .bind(&rollout.id)
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -490,15 +510,17 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         context: &AppstoreRequestContext,
         grant_id: &DownloadGrantId,
     ) -> Result<Option<DownloadGrant>, AppstoreServiceError> {
-        let row = self.db.query_as::< DownloadGrantRow>(&format!(
-            r#"SELECT {} FROM appstore_download_grant WHERE id = ? AND tenant_id = ?"#,
-            columns_csv(APPSTORE_DOWNLOAD_GRANT_COLUMNS)
-        ))
-        .bind(grant_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        let row = self
+            .db
+            .query_as::<DownloadGrantRow>(&format!(
+                r#"SELECT {} FROM appstore_download_grant WHERE id = ? AND tenant_id = ?"#,
+                columns_csv(APPSTORE_DOWNLOAD_GRANT_COLUMNS)
+            ))
+            .bind(grant_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_grant_row_to_domain)
             .transpose()
@@ -512,32 +534,33 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<(), AppstoreServiceError> {
         let (grant_status, grant_reason) = map_grant_domain_to_row(grant);
 
-        self.db.query(
-            r#"INSERT INTO appstore_download_grant (
+        self.db
+            .query(
+                r#"INSERT INTO appstore_download_grant (
                 id, tenant_id, organization_id, grant_no, listing_id, release_id,
                 artifact_id, user_id, grant_status, grant_reason, expires_at, consumed_at,
                 download_count, max_download_count, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-        )
-        .bind(grant.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(&grant.grant_no)
-        .bind(&grant.listing_id)
-        .bind(grant.release_id.as_str())
-        .bind(grant.artifact_id.as_str())
-        .bind(&grant.user_id)
-        .bind(&grant_status)
-        .bind(&grant_reason)
-        .bind(grant.expires_at)
-        .bind(grant.consumed_at)
-        .bind(grant.download_count)
-        .bind(grant.max_download_count)
-        .bind(grant.created_at)
-        .bind(grant.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(grant.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(&grant.grant_no)
+            .bind(&grant.listing_id)
+            .bind(grant.release_id.as_str())
+            .bind(grant.artifact_id.as_str())
+            .bind(&grant.user_id)
+            .bind(&grant_status)
+            .bind(&grant_reason)
+            .bind(grant.expires_at)
+            .bind(grant.consumed_at)
+            .bind(grant.download_count)
+            .bind(grant.max_download_count)
+            .bind(grant.created_at)
+            .bind(grant.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -549,24 +572,25 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<(), AppstoreServiceError> {
         let (grant_status, grant_reason) = map_grant_domain_to_row(grant);
 
-        self.db.query(
-            r#"UPDATE appstore_download_grant SET
+        self.db
+            .query(
+                r#"UPDATE appstore_download_grant SET
                 grant_status = ?, grant_reason = ?, expires_at = ?, consumed_at = ?,
                 download_count = ?, max_download_count = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?"#,
-        )
-        .bind(&grant_status)
-        .bind(&grant_reason)
-        .bind(grant.expires_at)
-        .bind(grant.consumed_at)
-        .bind(grant.download_count)
-        .bind(grant.max_download_count)
-        .bind(grant.updated_at)
-        .bind(grant.id.as_str())
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&grant_status)
+            .bind(&grant_reason)
+            .bind(grant.expires_at)
+            .bind(grant.consumed_at)
+            .bind(grant.download_count)
+            .bind(grant.max_download_count)
+            .bind(grant.updated_at)
+            .bind(grant.id.as_str())
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }

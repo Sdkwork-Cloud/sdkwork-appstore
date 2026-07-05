@@ -9,7 +9,7 @@ Last updated: 2026-07-06
 | Framework | Status | Notes |
 | --- | --- | --- |
 | `sdkwork-web-framework` | Integrated | Standalone gateway wraps Axum router; IAM + route manifest validation; `SdkWorkApiResponse` / `ProblemDetail` via `routes-common` |
-| `sdkwork-database` | Integrated (SQLite) | `sdkwork-appstore-database-host` lifecycle + `db:*` scripts; extension schema `0002` synced to `database/contract/schema.yaml` |
+| `sdkwork-database` | Integrated | SQLite + PostgreSQL via `sdkwork-appstore-database-host`; dialect placeholder adaptation in `sdkwork-appstore-repository-sqlx` |
 | `sdkwork-utils` | Integrated | Rust envelope helpers; TypeScript record helpers in PC/H5 commons via `@sdkwork/utils` |
 | `sdkwork-discovery` | Deferred | HTTP-only unified-process gateway; adopt when RPC split-services land |
 | `sdkwork-drive` | Integrated | PC/H5 `@sdkwork/drive-app-sdk` upload helpers; Rust `drive_adapter` + `drive_uploader` |
@@ -18,30 +18,22 @@ Last updated: 2026-07-06
 
 ## API Operations (95+)
 
-| Area | Status |
-| --- | --- |
-| Catalog (home, categories, collections, charts, search) | Implemented |
-| Catalog extensions (recommendations, events, search history/trending) | Implemented |
-| Listing lifecycle + extensions (similar, developer other, editorial, release history) | Implemented |
-| Compliance (profile, permissions, IAP preview) | Implemented |
-| Moderation (queue, decisions, appeals) | Implemented |
-| Analytics (publisher + operator dashboards) | Implemented |
-| Library, release, publisher, market | Implemented |
-
-Gateway Axum routes match `http_route_manifest.rs` (parity test passing).
+All catalog, listing, library, publisher, moderation, compliance, analytics, and market operations implemented end-to-end (gateway + SQLx repositories + composed SDK + PC/H5 surfaces).
 
 | Component | Status | Notes |
 | --- | --- | --- |
 | Analytics worker | Implemented | Scheduled listing metrics, chart snapshots, trending term projections |
 | App SDK composed client | Implemented | Catalog/listing extension methods in `composed/client.ts` |
-| Publisher console core | Implemented | `@sdkwork/appstore-publisher-console-core` shared service/hooks for PC + H5 |
+| Publisher console core | Implemented | `@sdkwork/appstore-publisher-console-core` shared service/hooks |
+| PC publisher UI | Implemented | `@sdkwork/appstore-pc-console-publisher` (zh-CN) |
+| H5 publisher UI | Implemented | `@sdkwork/appstore-h5-console-publisher` (zh-CN mobile) |
 
 ## Client Surfaces
 
 | Surface | Dev command | Status |
 | --- | --- | --- |
-| PC browser | `pnpm dev` (pc app root) | Publisher in `@sdkwork/appstore-pc-console-publisher`; zh-CN settings/notifications; IAM profile on login |
-| H5 mobile web | `pnpm dev` (h5 app root) | Publisher in `@sdkwork/appstore-h5-console-publisher` (zh-CN); 5-tab nav; IAM settings card |
+| PC browser | `pnpm dev` (pc app root) | zh-CN shell; IAM profile; publisher console package |
+| H5 mobile web | `pnpm dev` (h5 app root) | 5-tab nav; zh-CN publisher + settings IAM card |
 
 ## Verification
 
@@ -52,11 +44,20 @@ pnpm verify
 cargo test --workspace
 ```
 
-Last verified: PC/H5 `pnpm build` + governance checks — 2026-07-06.
+Last verified: 2026-07-06 — `cargo test --workspace`, `pnpm check`, PC/H5 `pnpm build` all pass.
+
+## Database (SQLite + PostgreSQL)
+
+| Item | Status |
+| --- | --- |
+| Dialect SQL adaptation | Implemented (`repository-sqlx/db/dialect.rs`) |
+| Unified `AppstoreSqlxDb` pool | Implemented |
+| `BindValue` reference / optional binds | Implemented (Postgres + SQLite) |
+| Gateway `APPSTORE_DATABASE_URL` | SQLite default; PostgreSQL via `postgres://` URL |
+| PostgreSQL CI matrix | Optional follow-up |
 
 ## Remaining Production Items
 
-- Postgres SQLx repository dialect + gateway pool selection (today: SQLite in standalone gateway)
-- External connectors: comments (reviews UI), commerce checkout, notifications push, search federation, market_channels sync
+- External connectors: comments (reviews UI beyond placeholder), commerce checkout, notifications push, search federation, market_channels sync
 - Production LCP / CDN performance validation (requires deployed environment)
-- PC publisher console: remaining English copy in detail forms (stats labels, listing manage sections)
+- Optional: dedicated PostgreSQL CI matrix job (dialect code paths exist; default dev remains SQLite)

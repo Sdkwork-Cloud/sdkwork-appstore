@@ -39,21 +39,23 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Option<ComplianceProfile>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let row = self.db.query_as::< ComplianceProfileRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<ComplianceProfileRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_compliance_profile
             WHERE listing_id = ? AND tenant_id = ?
             ORDER BY compliance_version DESC
             LIMIT 1
             "#,
-            columns_csv(APPSTORE_COMPLIANCE_PROFILE_COLUMNS)
-        ))
-        .bind(listing_id)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_COMPLIANCE_PROFILE_COLUMNS)
+            ))
+            .bind(listing_id)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_compliance_profile_row_to_domain)
             .transpose()
@@ -68,19 +70,21 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Option<ComplianceProfile>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let row = self.db.query_as::< ComplianceProfileRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<ComplianceProfileRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_compliance_profile
             WHERE id = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_COMPLIANCE_PROFILE_COLUMNS)
-        ))
-        .bind(profile_id.as_str())
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_COMPLIANCE_PROFILE_COLUMNS)
+            ))
+            .bind(profile_id.as_str())
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_compliance_profile_row_to_domain)
             .transpose()
@@ -100,8 +104,9 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
             compliance_status,
         ) = map_compliance_profile_domain_to_row(profile);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_compliance_profile (
                 id, tenant_id, organization_id, listing_id, compliance_version,
                 privacy_nutrition_json, content_rating_questionnaire_json, data_safety_json,
@@ -109,24 +114,24 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
                 created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
-        )
-        .bind(profile.id.as_str())
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(&profile.listing_id)
-        .bind(profile.compliance_version)
-        .bind(&privacy_nutrition_json)
-        .bind(&content_rating_questionnaire_json)
-        .bind(&data_safety_json)
-        .bind(&target_audience_json)
-        .bind(&compliance_status)
-        .bind(&profile.reviewed_by)
-        .bind(profile.reviewed_at)
-        .bind(profile.created_at)
-        .bind(profile.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(profile.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(&profile.listing_id)
+            .bind(profile.compliance_version)
+            .bind(&privacy_nutrition_json)
+            .bind(&content_rating_questionnaire_json)
+            .bind(&data_safety_json)
+            .bind(&target_audience_json)
+            .bind(&compliance_status)
+            .bind(&profile.reviewed_by)
+            .bind(profile.reviewed_at)
+            .bind(profile.created_at)
+            .bind(profile.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -144,28 +149,29 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
             compliance_status,
         ) = map_compliance_profile_domain_to_row(profile);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             UPDATE appstore_compliance_profile
             SET privacy_nutrition_json = ?, content_rating_questionnaire_json = ?,
                 data_safety_json = ?, target_audience_json = ?, compliance_status = ?,
                 reviewed_by = ?, reviewed_at = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
-        .bind(&privacy_nutrition_json)
-        .bind(&content_rating_questionnaire_json)
-        .bind(&data_safety_json)
-        .bind(&target_audience_json)
-        .bind(&compliance_status)
-        .bind(&profile.reviewed_by)
-        .bind(profile.reviewed_at)
-        .bind(profile.updated_at)
-        .bind(profile.id.as_str())
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&privacy_nutrition_json)
+            .bind(&content_rating_questionnaire_json)
+            .bind(&data_safety_json)
+            .bind(&target_audience_json)
+            .bind(&compliance_status)
+            .bind(&profile.reviewed_by)
+            .bind(profile.reviewed_at)
+            .bind(profile.updated_at)
+            .bind(profile.id.as_str())
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -178,20 +184,22 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Vec<CompliancePermissionDisclosure>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let rows = self.db.query_as::< CompliancePermissionDisclosureRow>(&format!(
-            r#"
+        let rows = self
+            .db
+            .query_as::<CompliancePermissionDisclosureRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_compliance_permission_disclosure
             WHERE listing_id = ? AND tenant_id = ?
             ORDER BY permission_code ASC
             "#,
-            columns_csv(APPSTORE_COMPLIANCE_PERMISSION_DISCLOSURE_COLUMNS)
-        ))
-        .bind(listing_id)
-        .bind(&context.tenant_id)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_COMPLIANCE_PERMISSION_DISCLOSURE_COLUMNS)
+            ))
+            .bind(listing_id)
+            .bind(&context.tenant_id)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         rows.into_iter()
             .map(map_permission_disclosure_row_to_domain)
@@ -208,20 +216,22 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Option<CompliancePermissionDisclosure>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let row = self.db.query_as::< CompliancePermissionDisclosureRow>(&format!(
-            r#"
+        let row = self
+            .db
+            .query_as::<CompliancePermissionDisclosureRow>(&format!(
+                r#"
             SELECT {}
             FROM appstore_compliance_permission_disclosure
             WHERE listing_id = ? AND permission_code = ? AND tenant_id = ?
             "#,
-            columns_csv(APPSTORE_COMPLIANCE_PERMISSION_DISCLOSURE_COLUMNS)
-        ))
-        .bind(listing_id)
-        .bind(permission_code)
-        .bind(&context.tenant_id)
-        .fetch_optional(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+                columns_csv(APPSTORE_COMPLIANCE_PERMISSION_DISCLOSURE_COLUMNS)
+            ))
+            .bind(listing_id)
+            .bind(permission_code)
+            .bind(&context.tenant_id)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         row.map(map_permission_disclosure_row_to_domain)
             .transpose()
@@ -235,27 +245,28 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
     ) -> Result<(), sdkwork_appstore_compliance_service::error::AppstoreServiceError> {
         let (is_required, disclosure_status) = map_permission_disclosure_domain_to_row(disclosure);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             INSERT INTO appstore_compliance_permission_disclosure (
                 id, tenant_id, organization_id, listing_id, permission_code, usage_purpose,
                 is_required, disclosure_status, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
-        )
-        .bind(&disclosure.id)
-        .bind(&context.tenant_id)
-        .bind(&context.organization_id)
-        .bind(&disclosure.listing_id)
-        .bind(&disclosure.permission_code)
-        .bind(&disclosure.usage_purpose)
-        .bind(is_required)
-        .bind(&disclosure_status)
-        .bind(disclosure.created_at)
-        .bind(disclosure.updated_at)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&disclosure.id)
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(&disclosure.listing_id)
+            .bind(&disclosure.permission_code)
+            .bind(&disclosure.usage_purpose)
+            .bind(is_required)
+            .bind(&disclosure_status)
+            .bind(disclosure.created_at)
+            .bind(disclosure.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -267,22 +278,23 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
     ) -> Result<(), sdkwork_appstore_compliance_service::error::AppstoreServiceError> {
         let (is_required, disclosure_status) = map_permission_disclosure_domain_to_row(disclosure);
 
-        self.db.query(
-            r#"
+        self.db
+            .query(
+                r#"
             UPDATE appstore_compliance_permission_disclosure
             SET usage_purpose = ?, is_required = ?, disclosure_status = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
-        .bind(&disclosure.usage_purpose)
-        .bind(is_required)
-        .bind(&disclosure_status)
-        .bind(disclosure.updated_at)
-        .bind(&disclosure.id)
-        .bind(&context.tenant_id)
-        .execute_unified(&self.db)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+            )
+            .bind(&disclosure.usage_purpose)
+            .bind(is_required)
+            .bind(&disclosure_status)
+            .bind(disclosure.updated_at)
+            .bind(&disclosure.id)
+            .bind(&context.tenant_id)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
     }
@@ -301,38 +313,40 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         use crate::db::rows::ListingIapItemRow;
 
         let rows = if let Some(cursor_id) = cursor {
-            self.db.query_as::< ListingIapItemRow>(&format!(
-                r#"
+            self.db
+                .query_as::<ListingIapItemRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_listing_iap_item
                 WHERE listing_id = ? AND tenant_id = ? AND id > ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_LISTING_IAP_ITEM_COLUMNS)
-            ))
-            .bind(listing_id)
-            .bind(&context.tenant_id)
-            .bind(cursor_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
+                    columns_csv(APPSTORE_LISTING_IAP_ITEM_COLUMNS)
+                ))
+                .bind(listing_id)
+                .bind(&context.tenant_id)
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
         } else {
-            self.db.query_as::< ListingIapItemRow>(&format!(
-                r#"
+            self.db
+                .query_as::<ListingIapItemRow>(&format!(
+                    r#"
                 SELECT {}
                 FROM appstore_listing_iap_item
                 WHERE listing_id = ? AND tenant_id = ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-                columns_csv(APPSTORE_LISTING_IAP_ITEM_COLUMNS)
-            ))
-            .bind(listing_id)
-            .bind(&context.tenant_id)
-            .bind(limit)
-            .fetch_all(&self.db)
-            .await
+                    columns_csv(APPSTORE_LISTING_IAP_ITEM_COLUMNS)
+                ))
+                .bind(listing_id)
+                .bind(&context.tenant_id)
+                .bind(limit)
+                .fetch_all(&self.db)
+                .await
         }
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 

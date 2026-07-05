@@ -16,6 +16,7 @@
     "@sdkwork/appstore-h5-commons": "workspace:*",
     "@sdkwork/appstore-h5-core": "workspace:*",
     "@sdkwork/appstore-h5-console-publisher": "workspace:*",
+    "@sdkwork/appstore-publisher-console-core": "workspace:*",
     "@sdkwork/appstore-h5-library": "workspace:*",
     "@sdkwork/appstore-h5-listing": "workspace:*",
     "@sdkwork/appstore-h5-search": "workspace:*",

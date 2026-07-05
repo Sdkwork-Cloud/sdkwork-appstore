@@ -3,7 +3,7 @@
 use sdkwork_database_sqlx::DatabasePool;
 use sqlx::{Pool, Postgres, Sqlite};
 
-use crate::db::dialect::{AppstoreSqlDialect, adapt_sql};
+use crate::db::dialect::{adapt_sql, AppstoreSqlDialect};
 
 #[derive(Debug, Clone)]
 pub enum AppstoreDbPool {

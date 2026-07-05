@@ -26,6 +26,8 @@ Read `../../sdkwork-specs/SOUL.md` before executing tasks in this root.
 | `sdkwork-appstore-h5-console-core` | Console shell |
 | `sdkwork-appstore-h5-console-publisher` | Publisher mobile console (`@sdkwork/appstore-h5-console-publisher`) |
 
+Shared publisher logic lives in repo-root `@sdkwork/appstore-publisher-console-core` (`packages/sdkwork-appstore-publisher-console-core`).
+
 ## Build & Run
 
 ```bash
