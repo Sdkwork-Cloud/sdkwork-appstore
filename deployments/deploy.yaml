@@ -1,0 +1,29 @@
+schemaVersion: 1
+kind: sdkwork.deploy
+application: sdkwork-appstore
+deploymentProfiles:
+  - id: standalone
+    runtimeTarget: server
+    serviceLayout: unified-process
+    processes:
+      - id: application.public-ingress
+        crate: sdkwork-appstore-standalone-gateway
+        binary: sdkwork-appstore-standalone-gateway
+    clientSurfaces:
+      - id: sdkwork-appstore-pc
+        package: apps/sdkwork-appstore-pc
+        artifact: dist
+      - id: sdkwork-appstore-h5
+        package: apps/sdkwork-appstore-h5
+        artifact: dist
+  - id: cloud
+    runtimeTarget: container
+    serviceLayout: split-services
+    gateway:
+      repository: sdkwork-api-cloud-gateway
+      configGlob: configs/sdkwork-api-cloud-gateway.appstore.*.toml
+    processes:
+      - id: application.public-ingress
+        crate: sdkwork-appstore-standalone-gateway
+        binary: sdkwork-appstore-standalone-gateway
+topologySpec: specs/topology.spec.json

@@ -1,5 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { execFileSync } from "node:child_process";
+
+const generate = process.argv.includes("--generate");
 
 const targets = [
   {
@@ -54,8 +57,15 @@ for (const target of targets) {
   const authoredOpenApi = await readFile(resolve(manifestDir, manifest.generationInputSpec), "utf8");
   const materializedOpenApi = await readFile(resolve(target.materializedOpenApiPath), "utf8");
   if (authoredOpenApi !== materializedOpenApi) {
-    throw new Error(`${target.materializedOpenApiPath} is stale; run pnpm run openapi:materialize`);
+    throw new Error(`${target.materializedOpenApiPath} is stale; run pnpm run api:materialize`);
   }
 
   console.log(`sdkgen input verified for ${target.manifestPath}`);
+}
+
+if (generate) {
+  execFileSync(process.execPath, [resolve("tools/appstore_openapi_materialize.mjs")], {
+    stdio: "inherit",
+  });
+  console.log("sdk:generate completed (OpenAPI materialized; run workspace SDK generator when wired)");
 }

@@ -34,6 +34,8 @@ sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service
 sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
 sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
 sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
+sdkwork-appstore-database-host = { path = "../sdkwork-appstore-database-host" }
+sdkwork-appstore-routes-common = { path = "../sdkwork-appstore-routes-common" }
 sdkwork-database-config = { workspace = true }
 sdkwork-database-sqlx = { workspace = true }
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }
@@ -42,4 +44,20 @@ sdkwork-web-axum = { workspace = true }
 sdkwork-web-core = { workspace = true }
 sdkwork-web-bootstrap = { workspace = true }
 sdkwork-utils-rust = { workspace = true }
+sdkwork-routes-catalog-app-api = { path = "../sdkwork-routes-catalog-app-api" }
+sdkwork-routes-catalog-backend-api = { path = "../sdkwork-routes-catalog-backend-api" }
+sdkwork-routes-catalog-open-api = { path = "../sdkwork-routes-catalog-open-api" }
+sdkwork-routes-listing-app-api = { path = "../sdkwork-routes-listing-app-api" }
+sdkwork-routes-listing-backend-api = { path = "../sdkwork-routes-listing-backend-api" }
+sdkwork-routes-listing-open-api = { path = "../sdkwork-routes-listing-open-api" }
+sdkwork-routes-library-app-api = { path = "../sdkwork-routes-library-app-api" }
+sdkwork-routes-publisher-app-api = { path = "../sdkwork-routes-publisher-app-api" }
+sdkwork-routes-publisher-backend-api = { path = "../sdkwork-routes-publisher-backend-api" }
+sdkwork-routes-release-app-api = { path = "../sdkwork-routes-release-app-api" }
+sdkwork-routes-release-open-api = { path = "../sdkwork-routes-release-open-api" }
+sdkwork-routes-compliance-app-api = { path = "../sdkwork-routes-compliance-app-api" }
+sdkwork-routes-moderation-backend-api = { path = "../sdkwork-routes-moderation-backend-api" }
+sdkwork-routes-market-backend-api = { path = "../sdkwork-routes-market-backend-api" }
+sdkwork-routes-metrics-backend-api = { path = "../sdkwork-routes-metrics-backend-api" }
+sdkwork-routes-automation-open-api = { path = "../sdkwork-routes-automation-open-api" }
 

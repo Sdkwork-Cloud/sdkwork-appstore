@@ -111,3 +111,30 @@ impl UpsertPermissionDisclosuresRequest {
         self
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListIapItemsRequest {
+    pub listing_id: String,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl ListIapItemsRequest {
+    pub fn new(listing_id: impl Into<String>) -> Self {
+        Self {
+            listing_id: listing_id.into(),
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}

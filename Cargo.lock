@@ -1618,9 +1618,21 @@ name = "sdkwork-appstore-analytics-worker"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "dotenvy",
+ "sdkwork-appstore-database-host",
+ "sdkwork-database-sqlx",
  "serde",
  "serde_json",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
 ]
+
+[[package]]
+name = "sdkwork-appstore-authorization"
+version = "0.1.0"
 
 [[package]]
 name = "sdkwork-appstore-catalog-service"
@@ -1628,6 +1640,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "sdkwork-appstore-authorization",
  "serde",
  "serde_json",
  "uuid",
@@ -1642,6 +1655,17 @@ dependencies = [
  "serde",
  "serde_json",
  "uuid",
+]
+
+[[package]]
+name = "sdkwork-appstore-database-host"
+version = "0.1.0"
+dependencies = [
+ "dotenvy",
+ "sdkwork-database-config",
+ "sdkwork-database-lifecycle",
+ "sdkwork-database-spi",
+ "sdkwork-database-sqlx",
 ]
 
 [[package]]
@@ -1672,6 +1696,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "sdkwork-appstore-authorization",
  "serde",
  "serde_json",
  "uuid",
@@ -1683,6 +1708,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "sdkwork-appstore-authorization",
  "serde",
  "serde_json",
  "uuid",
@@ -1694,6 +1720,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "sdkwork-appstore-authorization",
  "serde",
  "serde_json",
  "uuid",
@@ -1731,11 +1758,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "sdkwork-appstore-routes-common"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "sdkwork-utils-rust",
+ "sdkwork-web-core",
+ "serde",
+]
+
+[[package]]
 name = "sdkwork-appstore-service-host"
 version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "reqwest",
  "sdkwork-appstore-catalog-service",
  "sdkwork-appstore-compliance-service",
  "sdkwork-appstore-library-service",
@@ -1745,10 +1783,12 @@ dependencies = [
  "sdkwork-appstore-publisher-service",
  "sdkwork-appstore-release-service",
  "sdkwork-appstore-repository-sqlx",
+ "sdkwork-utils-rust",
  "serde",
  "serde_json",
  "sqlx",
  "tokio",
+ "uuid",
 ]
 
 [[package]]
@@ -1761,6 +1801,7 @@ dependencies = [
  "dotenvy",
  "sdkwork-appstore-catalog-service",
  "sdkwork-appstore-compliance-service",
+ "sdkwork-appstore-database-host",
  "sdkwork-appstore-library-service",
  "sdkwork-appstore-listing-service",
  "sdkwork-appstore-market-service",
@@ -1768,10 +1809,27 @@ dependencies = [
  "sdkwork-appstore-publisher-service",
  "sdkwork-appstore-release-service",
  "sdkwork-appstore-repository-sqlx",
+ "sdkwork-appstore-routes-common",
  "sdkwork-appstore-service-host",
  "sdkwork-database-config",
  "sdkwork-database-sqlx",
  "sdkwork-iam-web-adapter",
+ "sdkwork-routes-automation-open-api",
+ "sdkwork-routes-catalog-app-api",
+ "sdkwork-routes-catalog-backend-api",
+ "sdkwork-routes-catalog-open-api",
+ "sdkwork-routes-compliance-app-api",
+ "sdkwork-routes-library-app-api",
+ "sdkwork-routes-listing-app-api",
+ "sdkwork-routes-listing-backend-api",
+ "sdkwork-routes-listing-open-api",
+ "sdkwork-routes-market-backend-api",
+ "sdkwork-routes-metrics-backend-api",
+ "sdkwork-routes-moderation-backend-api",
+ "sdkwork-routes-publisher-app-api",
+ "sdkwork-routes-publisher-backend-api",
+ "sdkwork-routes-release-app-api",
+ "sdkwork-routes-release-open-api",
  "sdkwork-utils-rust",
  "sdkwork-web-axum",
  "sdkwork-web-bootstrap",
@@ -1799,6 +1857,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "sdkwork-database-history"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "sdkwork-database-config",
+ "sdkwork-database-sqlx",
+ "sha2",
+ "sqlx",
+ "thiserror",
+]
+
+[[package]]
 name = "sdkwork-database-id"
 version = "0.1.0"
 dependencies = [
@@ -1808,6 +1878,36 @@ dependencies = [
  "sqlx",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "sdkwork-database-lifecycle"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "sdkwork-database-config",
+ "sdkwork-database-history",
+ "sdkwork-database-spi",
+ "sdkwork-database-sqlx",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sdkwork-database-spi"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "regex",
+ "sdkwork-database-config",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "thiserror",
 ]
 
 [[package]]
@@ -2276,6 +2376,19 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_yaml"
+version = "0.9.34+deprecated"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47"
+dependencies = [
+ "indexmap",
+ "itoa",
+ "ryu",
+ "serde",
+ "unsafe-libyaml",
 ]
 
 [[package]]
@@ -2968,6 +3081,12 @@ dependencies = [
  "crypto-common",
  "subtle",
 ]
+
+[[package]]
+name = "unsafe-libyaml"
+version = "0.2.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861"
 
 [[package]]
 name = "untrusted"

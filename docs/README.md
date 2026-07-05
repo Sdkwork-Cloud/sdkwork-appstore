@@ -16,7 +16,9 @@
 | Document | Path |
 | --- | --- |
 | Product PRD | [product/prd/PRD.md](product/prd/PRD.md) |
+| UI/UX design spec | [product/design/UI_DESIGN_SPEC.md](product/design/UI_DESIGN_SPEC.md) |
 | Technical architecture | [architecture/tech/TECH_ARCHITECTURE.md](architecture/tech/TECH_ARCHITECTURE.md) |
+| Application architecture | [architecture/appstore-architecture.md](architecture/appstore-architecture.md) |
 
 ## Related Specs
 

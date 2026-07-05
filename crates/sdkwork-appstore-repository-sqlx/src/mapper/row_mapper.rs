@@ -4,21 +4,21 @@ use serde_json;
 
 use crate::db::rows::{
     CatalogChartSnapshotRow, CatalogCollectionItemRow, CatalogCollectionLocalizationRow,
-    CatalogCollectionRow, CatalogFeaturedSlotRow, CategoryLocalizationRow, CategoryRow,
-    CompliancePermissionDisclosureRow, ComplianceProfileRow, DownloadGrantRow, InstallEventRow,
-    ListingCategoryBindingRow, ListingLocalizationRow, ListingMediaRow, ListingMetricSnapshotRow,
-    ListingRow, ListingSearchRow, ListingSubmissionRow, MarketChannelRow, MarketReleaseRow,
-    ModerationDecisionRow, ModerationReviewRow, PublisherMemberRow, PublisherRow,
-    PublisherVerificationRow, RegionalAvailabilityRow, ReleaseArtifactRow, ReleaseChannelRow,
-    ReleaseNoteLocalizationRow, ReleaseRolloutRow, ReleaseRow, UserLibraryItemRow,
-    UserWishlistItemRow,
+    CatalogCollectionRow, CatalogFeaturedSlotRow, CatalogSearchHistoryRow, CatalogTrendingTermRow,
+    CategoryLocalizationRow, CategoryRow, CompliancePermissionDisclosureRow, ComplianceProfileRow,
+    DownloadGrantRow, InstallEventRow, ListingCategoryBindingRow, ListingLocalizationRow,
+    ListingMediaRow, ListingMetricSnapshotRow, ListingRow, ListingSearchRow, ListingSubmissionRow,
+    MarketChannelRow, MarketReleaseRow, ModerationDecisionRow, ModerationReviewRow,
+    PublisherMemberRow, PublisherRow, PublisherVerificationRow, RegionalAvailabilityRow,
+    ReleaseArtifactRow, ReleaseChannelRow, ReleaseNoteLocalizationRow, ReleaseRolloutRow,
+    ReleaseRow, UserLibraryItemRow, UserWishlistItemRow,
 };
 use sdkwork_appstore_catalog_service::domain::models::{
     AudienceScope as CatalogAudienceScope, CatalogChartSnapshot, CatalogCollection,
     CatalogCollectionItem, CatalogCollectionLocalization, CatalogFeaturedSlot, Category,
     CategoryId, CategoryLocalization, CategoryStatus, CollectionId, CollectionStatus,
     CollectionType, FeaturedSlotId, FeaturedSlotStatus, ListingMetricSnapshot, ListingSummary,
-    PlatformScope,
+    PlatformScope, SearchHistoryEntry, TrendingTerm,
 };
 use sdkwork_appstore_compliance_service::domain::models::{
     CompliancePermissionDisclosure, ComplianceProfile, ComplianceProfileId, ComplianceStatus,
@@ -205,11 +205,10 @@ pub fn map_listing_row_to_domain(row: ListingRow) -> Result<Listing, String> {
         id: ListingId::new(row.id),
         tenant_id: row.tenant_id,
         organization_id: row.organization_id,
-        app_id: row.app_id,
         publisher_id: row.publisher_id,
         listing_no: row.listing_no,
-        plus_app_id: row.plus_app_id,
-        plus_app_key: row.plus_app_key,
+        app_id: row.app_id,
+        app_key: row.app_key,
         listing_slug: row.listing_slug,
         listing_type,
         pricing_model,
@@ -760,8 +759,8 @@ pub fn map_metric_snapshot_row_to_domain(
 pub fn map_listing_search_row_to_domain(row: ListingSearchRow) -> ListingSummary {
     ListingSummary {
         id: row.id,
-        plus_app_id: row.plus_app_id,
-        plus_app_key: row.plus_app_key,
+        app_id: row.app_id,
+        app_key: row.app_key,
         display_name: row.display_name,
         subtitle: row.subtitle,
         listing_slug: row.listing_slug,
@@ -783,8 +782,7 @@ pub fn map_library_item_row_to_domain(row: UserLibraryItemRow) -> Result<UserLib
         tenant_id: row.tenant_id,
         user_id: row.user_id,
         listing_id: row.listing_id,
-        plus_app_id: row.plus_app_id,
-        plus_app_key: row.plus_app_key,
+        app_key: row.app_key,
         library_status,
         installed_release_id: row.installed_release_id,
         installed_version_code: row.installed_version_code,
@@ -1155,4 +1153,30 @@ pub fn map_market_release_domain_to_row(release: &MarketRelease) -> (String, Str
         countries_json,
         external_status_json,
     )
+}
+
+pub fn map_search_history_row_to_domain(row: CatalogSearchHistoryRow) -> SearchHistoryEntry {
+    SearchHistoryEntry {
+        id: row.id,
+        tenant_id: row.tenant_id,
+        user_id: row.user_id,
+        query_text: row.query_text,
+        filters_json: row.filters_json,
+        result_count: row.result_count,
+        created_at: row.created_at,
+    }
+}
+
+pub fn map_trending_term_row_to_domain(row: CatalogTrendingTermRow) -> TrendingTerm {
+    TrendingTerm {
+        id: row.id,
+        tenant_id: row.tenant_id,
+        term: row.term,
+        locale: row.locale,
+        rank: row.rank,
+        score: row.score,
+        snapshot_date: row.snapshot_date,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+    }
 }

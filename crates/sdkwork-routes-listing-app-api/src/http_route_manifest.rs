@@ -69,6 +69,30 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.listings.submissions.create",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/releases/history",
+        "appstore",
+        "appstore.listings.releases.history.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/similar",
+        "appstore",
+        "appstore.listings.similar.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/developer_other",
+        "appstore",
+        "appstore.listings.developerOther.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/editorial",
+        "appstore",
+        "appstore.listings.editorial.retrieve",
+    ),
 ];
 
 pub fn app_route_manifest() -> HttpRouteManifest {

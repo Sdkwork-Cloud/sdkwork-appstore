@@ -28,7 +28,7 @@ pub trait LibraryRepositoryPort: Send + Sync {
     async fn find_library_item_by_app_key_and_platform(
         &self,
         context: &AppstoreRequestContext,
-        plus_app_key: &str,
+        app_key: &str,
         platform: &str,
     ) -> AppstoreServiceResult<Option<UserLibraryItem>>;
 
@@ -111,5 +111,5 @@ pub trait LibraryRepositoryPort: Send + Sync {
         &self,
         context: &AppstoreRequestContext,
         listing_id: &str,
-    ) -> AppstoreServiceResult<Option<(String, String)>>;
+    ) -> AppstoreServiceResult<Option<String>>;
 }

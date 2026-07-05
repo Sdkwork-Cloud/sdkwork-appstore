@@ -1,6 +1,7 @@
 use crate::context::AppstoreRequestContext;
 use crate::domain::models::{
-    ModerationDecision, ModerationDecisionId, ModerationReview, ModerationReviewId,
+    ModerationAppeal, ModerationAppealId, ModerationDecision, ModerationDecisionId,
+    ModerationReview, ModerationReviewId,
 };
 use crate::error::AppstoreServiceResult;
 
@@ -54,5 +55,31 @@ pub trait ModerationRepositoryPort: Send + Sync {
         &self,
         context: &AppstoreRequestContext,
         decision: &ModerationDecision,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn find_appeal_by_id(
+        &self,
+        context: &AppstoreRequestContext,
+        appeal_id: &ModerationAppealId,
+    ) -> AppstoreServiceResult<Option<ModerationAppeal>>;
+
+    async fn list_appeals(
+        &self,
+        context: &AppstoreRequestContext,
+        status: Option<&str>,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<ModerationAppeal>>;
+
+    async fn insert_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        appeal: &ModerationAppeal,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn update_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        appeal: &ModerationAppeal,
     ) -> AppstoreServiceResult<()>;
 }

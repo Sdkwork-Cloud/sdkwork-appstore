@@ -9,10 +9,7 @@
   "generationInputSpec": "../../apis/open-api/store/openapi.yaml",
   "generatedPackages": {},
   "sdkDependencies": [
-    {
-      "sdkFamily": "sdkwork-drive-sdk",
-      "reason": "Artifact and media resolution"
-    }
+    "sdkwork-drive-sdk"
   ],
   "dependencyApiExports": [],
   "generatorName": "sdkwork-sdk-generator",
@@ -20,5 +17,7 @@
   "standardProfile": "sdkwork-appstore-open-v3",
   "fixedSdkVersion": "0.1.0",
   "ownerOnlyOperationCount": 6,
-  "managedBy": "tools/appstore_sdk_generate.mjs"
+  "managedBy": "tools/appstore_sdk_generate.mjs",
+  "packageName": "@sdkwork/appstore-sdk",
+  "transportPackageName": "sdkwork-appstore-sdk-generated-typescript"
 }

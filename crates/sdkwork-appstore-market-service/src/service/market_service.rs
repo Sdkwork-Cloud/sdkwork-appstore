@@ -1,4 +1,5 @@
 use chrono::Utc;
+use sdkwork_appstore_authorization::{missing_scope_message, scope_granted};
 use uuid::Uuid;
 
 use crate::context::AppstoreRequestContext;
@@ -61,6 +62,16 @@ impl<R> MarketService<R> {
     }
 }
 
+fn require_scope(context: &AppstoreRequestContext, required: &str) -> AppstoreServiceResult<()> {
+    if scope_granted(&context.permission_scopes, required) {
+        Ok(())
+    } else {
+        Err(AppstoreServiceError::PermissionDenied(
+            missing_scope_message(required),
+        ))
+    }
+}
+
 #[async_trait::async_trait]
 impl<R> MarketOperations for MarketService<R>
 where
@@ -71,6 +82,7 @@ where
         context: &AppstoreRequestContext,
         request: ListMarketChannelsRequest,
     ) -> AppstoreServiceResult<ListMarketChannelsResult> {
+        require_scope(context, "appstore.market_channels.read")?;
         let limit = request.limit.unwrap_or(20).min(100);
         let channels = self
             .repository
@@ -103,6 +115,7 @@ where
         context: &AppstoreRequestContext,
         request: CreateMarketChannelRequest,
     ) -> AppstoreServiceResult<CreateMarketChannelResult> {
+        require_scope(context, "appstore.market_channels.write")?;
         if request.channel_code.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
                 "Channel code is required".to_string(),
@@ -166,6 +179,7 @@ where
         context: &AppstoreRequestContext,
         request: UpdateMarketChannelRequest,
     ) -> AppstoreServiceResult<UpdateMarketChannelResult> {
+        require_scope(context, "appstore.market_channels.write")?;
         let channel_id = MarketChannelId::new(&request.market_channel_id);
 
         let mut channel = self
@@ -229,6 +243,7 @@ where
         context: &AppstoreRequestContext,
         request: ListMarketReleasesRequest,
     ) -> AppstoreServiceResult<ListMarketReleasesResult> {
+        require_scope(context, "appstore.market_releases.read")?;
         let limit = request.limit.unwrap_or(20).min(100);
         let releases = self
             .repository
@@ -263,6 +278,7 @@ where
         context: &AppstoreRequestContext,
         request: SyncMarketReleaseRequest,
     ) -> AppstoreServiceResult<SyncMarketReleaseResult> {
+        require_scope(context, "appstore.market_releases.sync")?;
         let release_id = MarketReleaseId::new(&request.market_release_id);
 
         let mut release = self

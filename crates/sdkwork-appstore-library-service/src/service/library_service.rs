@@ -133,6 +133,12 @@ where
         context: &AppstoreRequestContext,
         request: RetrieveLibraryItemRequest,
     ) -> AppstoreServiceResult<RetrieveLibraryItemResult> {
+        if context.user_id.trim().is_empty() {
+            return Err(AppstoreServiceError::PermissionDenied(
+                "Authenticated user is required".to_string(),
+            ));
+        }
+
         let library_item_id = LibraryItemId::new(&request.library_item_id);
 
         let item = self
@@ -145,6 +151,12 @@ where
                     request.library_item_id
                 ))
             })?;
+
+        if item.user_id != context.user_id {
+            return Err(AppstoreServiceError::PermissionDenied(
+                "Library item access denied".to_string(),
+            ));
+        }
 
         Ok(RetrieveLibraryItemResult::found(
             "appstore.library.items.retrieve",
@@ -196,7 +208,7 @@ where
                 .await?;
             (existing_item, false)
         } else {
-            let (plus_app_id, plus_app_key) = self
+            let app_key = self
                 .repository
                 .find_listing_info(context, &request.listing_id)
                 .await?
@@ -207,8 +219,7 @@ where
                 tenant_id: context.tenant_id.clone(),
                 user_id: context.user_id.clone(),
                 listing_id: request.listing_id.clone(),
-                plus_app_id,
-                plus_app_key,
+                app_key,
                 library_status: LibraryStatus::Installed,
                 installed_release_id: None,
                 installed_version_code: None,
@@ -359,7 +370,7 @@ where
                 .repository
                 .find_library_item_by_app_key_and_platform(
                     context,
-                    &check_item.plus_app_key,
+                    &check_item.app_key,
                     &check_item.platform,
                 )
                 .await?;
@@ -390,7 +401,7 @@ where
                         .await?;
 
                     updates.push(UpdateAvailable {
-                        plus_app_key: check_item.plus_app_key.clone(),
+                        app_key: check_item.app_key.clone(),
                         platform: check_item.platform.clone(),
                         installed_version_code: check_item.installed_version_code.clone(),
                         latest_version_code: version_code,

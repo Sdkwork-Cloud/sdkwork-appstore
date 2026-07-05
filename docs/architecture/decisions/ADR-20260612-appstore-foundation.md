@@ -29,8 +29,8 @@ We need a store backend that mirrors professional marketplace patterns (Apple Ap
 
 ### 2. Platform identity boundary
 
-- PlusApp registration remains in **platform** / manifest pipeline (`APP_MANIFEST_SPEC.md`).
-- Store listings reference `plus_app_id` and `plus_app_key` but do not duplicate manifest storage.
+- registered app registration remains in **platform** / manifest pipeline (`APP_MANIFEST_SPEC.md`).
+- Store listings reference `app_id` and `app_key` but do not duplicate manifest storage.
 - Release artifacts store a `manifest_snapshot_json` for audit, while authoritative install metadata stays manifest-driven.
 
 ### 3. Integration boundaries
@@ -140,7 +140,7 @@ Domain events use prefix `appstore.store.*` with outbox pattern (implementation 
 | Option | Why rejected |
 | --- | --- |
 | New domain `appstore` separate from `ecosystem` | Breaks DOMAIN_SPEC catalog; duplicates marketplace semantics |
-| Store listings without PlusApp anchor | Cannot align with APP_MANIFEST_SPEC and multi-surface releases |
+| Store listings without registered app anchor | Cannot align with APP_MANIFEST_SPEC and multi-surface releases |
 | Embed reviews in store tables | Violates sdkwork-comments ownership; duplicates moderation |
 | Single monolithic `store` table with JSON blobs | Fails DATABASE_SPEC query columnization and L2 isolation |
 | Open API at `/open/v3/api` | Less clear domain lock; `/store/v3/api` matches product identity |
@@ -161,7 +161,7 @@ Domain events use prefix `appstore.store.*` with outbox pattern (implementation 
 
 ## Verification
 
-- Schema registry ï¿½?migration SQL static review.
+- Schema registry ï¿?migration SQL static review.
 - OpenAPI prefix and operationId lint (implementation: `pnpm run sdk:check`).
 - Dependency boundary test: no `/app/v3/api/auth/*` routes in appstore manifests.
 - Contract test placeholders under `tests/` (implementation phase).

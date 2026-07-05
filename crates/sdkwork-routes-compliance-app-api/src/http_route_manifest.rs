@@ -21,6 +21,12 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.compliance.permissions.update",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/compliance/iap_items",
+        "appstore",
+        "appstore.compliance.iapItems.list",
+    ),
 ];
 
 pub fn app_route_manifest() -> HttpRouteManifest {

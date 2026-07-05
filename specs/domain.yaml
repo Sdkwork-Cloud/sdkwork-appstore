@@ -44,8 +44,8 @@ integration:
     responsibility: login, session, organization context
   platform:
     owner: sdkwork-appbase
-    responsibility: PlusApp registration and manifest projection
-    referenceField: plus_app_id
+    responsibility: registered app registration and manifest projection
+    referenceField: app_id
   drive:
     owner: sdkwork-drive
     responsibility: icons, screenshots, binaries, release artifacts

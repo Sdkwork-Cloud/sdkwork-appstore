@@ -20,7 +20,7 @@ pub struct LibraryItemInstalledEvent {
     pub tenant_id: String,
     pub user_id: String,
     pub listing_id: String,
-    pub plus_app_key: String,
+    pub app_key: String,
     pub platform: String,
     pub install_source: String,
     pub occurred_at: DateTime<Utc>,
@@ -32,7 +32,7 @@ pub struct LibraryItemUninstalledEvent {
     pub tenant_id: String,
     pub user_id: String,
     pub listing_id: String,
-    pub plus_app_key: String,
+    pub app_key: String,
     pub platform: String,
     pub occurred_at: DateTime<Utc>,
 }

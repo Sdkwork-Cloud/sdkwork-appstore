@@ -11,9 +11,9 @@ pub use domain::commands::{
     AdminListListingsRequest, AdminRetrieveListingRequest, AdminUpdateListingVisibilityRequest,
     AttachListingMediaRequest, BindListingCategoriesRequest, CreateListingRequest,
     CreateListingSubmissionRequest, ListListingMediaRequest, ListListingReleasesRequest,
-    ListingOperationRequest, PublicRetrieveListingRequest, RemoveListingMediaRequest,
-    RetrieveListingRequest, UpdateListingRequest, UpdateRegionalAvailabilityRequest,
-    UpsertListingLocalizationRequest,
+    ListPublisherListingsRequest, ListingOperationRequest, PublicRetrieveListingRequest,
+    RemoveListingMediaRequest, RetrieveListingRequest, UpdateListingRequest,
+    UpdateRegionalAvailabilityRequest, UpsertListingLocalizationRequest,
 };
 pub use domain::models::{
     Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia, ListingStatus,
@@ -24,9 +24,9 @@ pub use domain::results::{
     AdminListListingsResult, AdminRetrieveListingResult, AdminUpdateListingVisibilityResult,
     AttachListingMediaResult, BindListingCategoriesResult, CreateListingResult,
     CreateListingSubmissionResult, ListListingMediaResult, ListListingReleasesResult,
-    ListingOperationResult, PublicRetrieveListingResult, RemoveListingMediaResult,
-    RetrieveListingResult, UpdateListingResult, UpdateRegionalAvailabilityResult,
-    UpsertListingLocalizationResult,
+    ListPublisherListingsResult, ListingOperationResult, PublicRetrieveListingResult,
+    RemoveListingMediaResult, RetrieveListingResult, UpdateListingResult,
+    UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
 };
 pub use error::{AppstoreServiceError, AppstoreServiceResult};
 pub use ports::repository::ListingRepositoryPort;

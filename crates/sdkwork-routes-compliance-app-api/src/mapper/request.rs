@@ -1,6 +1,6 @@
 use sdkwork_appstore_compliance_service::domain::commands::{
-    PermissionDisclosureItem, RetrieveComplianceProfileRequest, UpdateComplianceProfileRequest,
-    UpsertPermissionDisclosuresRequest,
+    ListIapItemsRequest, PermissionDisclosureItem, RetrieveComplianceProfileRequest,
+    UpdateComplianceProfileRequest, UpsertPermissionDisclosuresRequest,
 };
 
 pub fn map_retrieve_compliance_profile(listing_id: String) -> RetrieveComplianceProfileRequest {
@@ -35,4 +35,19 @@ pub fn map_upsert_permission_disclosures(
     permissions: Vec<PermissionDisclosureItem>,
 ) -> UpsertPermissionDisclosuresRequest {
     UpsertPermissionDisclosuresRequest::new(listing_id, permissions)
+}
+
+pub fn map_list_iap_items(
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> ListIapItemsRequest {
+    let mut req = ListIapItemsRequest::new(listing_id);
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
 }

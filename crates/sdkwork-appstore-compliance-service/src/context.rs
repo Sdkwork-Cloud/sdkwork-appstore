@@ -6,6 +6,7 @@ pub struct AppstoreRequestContext {
     pub organization_id: Option<String>,
     pub user_id: Option<String>,
     pub request_id: String,
+    pub permission_scopes: Vec<String>,
 }
 
 impl AppstoreRequestContext {
@@ -15,6 +16,7 @@ impl AppstoreRequestContext {
             organization_id: None,
             user_id: None,
             request_id: request_id.into(),
+            permission_scopes: Vec::new(),
         }
     }
 }

@@ -4,12 +4,12 @@ import { Sidebar } from './Sidebar';
 
 export function AppShell() {
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-canvas)' }}>
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="flex-1 ml-64 pt-16">
-          <div className="max-w-7xl mx-auto px-6 py-8">
+        <main className="flex-1 ml-60 pt-16">
+          <div className="max-w-[1200px] mx-auto px-6 py-8">
             <Outlet />
           </div>
         </main>

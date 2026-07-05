@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use super::models::{
     CatalogChartSnapshot, CatalogCollection, CatalogCollectionItem, CatalogCollectionLocalization,
     CatalogFeaturedSlot, Category, CategoryLocalization, CategoryWithLocalizations,
-    CollectionWithItems, ListingMetricSnapshot, ListingSummary,
+    CollectionWithItems, ListingMetricSnapshot, ListingSummary, SearchHistoryEntry,
+    SearchSuggestion, TrendingTerm,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -344,6 +345,283 @@ impl PublicFeaturedListResult {
         Self {
             operation_id,
             slots,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RecommendationsListResult {
+    pub operation_id: &'static str,
+    pub listings: Vec<ListingSummary>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl RecommendationsListResult {
+    pub fn new(
+        operation_id: &'static str,
+        listings: Vec<ListingSummary>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            listings,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RecentlyUpdatedListResult {
+    pub operation_id: &'static str,
+    pub listings: Vec<ListingSummary>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl RecentlyUpdatedListResult {
+    pub fn new(
+        operation_id: &'static str,
+        listings: Vec<ListingSummary>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            listings,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EventsListResult {
+    pub operation_id: &'static str,
+    pub events: Vec<CollectionWithItems>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl EventsListResult {
+    pub fn new(
+        operation_id: &'static str,
+        events: Vec<CollectionWithItems>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            events,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EventRetrieveResult {
+    pub operation_id: &'static str,
+    pub event: Option<CollectionWithItems>,
+}
+
+impl EventRetrieveResult {
+    pub fn found(operation_id: &'static str, event: CollectionWithItems) -> Self {
+        Self {
+            operation_id,
+            event: Some(event),
+        }
+    }
+
+    pub fn not_found(operation_id: &'static str) -> Self {
+        Self {
+            operation_id,
+            event: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchSuggestionsListResult {
+    pub operation_id: &'static str,
+    pub suggestions: Vec<SearchSuggestion>,
+}
+
+impl SearchSuggestionsListResult {
+    pub fn new(operation_id: &'static str, suggestions: Vec<SearchSuggestion>) -> Self {
+        Self {
+            operation_id,
+            suggestions,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SearchTrendingListResult {
+    pub operation_id: &'static str,
+    pub terms: Vec<TrendingTerm>,
+}
+
+impl SearchTrendingListResult {
+    pub fn new(operation_id: &'static str, terms: Vec<TrendingTerm>) -> Self {
+        Self {
+            operation_id,
+            terms,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchHistoryListResult {
+    pub operation_id: &'static str,
+    pub entries: Vec<SearchHistoryEntry>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl SearchHistoryListResult {
+    pub fn new(
+        operation_id: &'static str,
+        entries: Vec<SearchHistoryEntry>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            entries,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchHistoryUpsertResult {
+    pub operation_id: &'static str,
+    pub entry: SearchHistoryEntry,
+}
+
+impl SearchHistoryUpsertResult {
+    pub fn upserted(operation_id: &'static str, entry: SearchHistoryEntry) -> Self {
+        Self {
+            operation_id,
+            entry,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchHistoryClearResult {
+    pub operation_id: &'static str,
+    pub accepted: bool,
+}
+
+impl SearchHistoryClearResult {
+    pub fn cleared(operation_id: &'static str) -> Self {
+        Self {
+            operation_id,
+            accepted: true,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsPublisherOverviewResult {
+    pub operation_id: &'static str,
+    pub overview: super::models::PublisherAnalyticsOverview,
+}
+
+impl AnalyticsPublisherOverviewResult {
+    pub fn new(
+        operation_id: &'static str,
+        overview: super::models::PublisherAnalyticsOverview,
+    ) -> Self {
+        Self {
+            operation_id,
+            overview,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsPublisherListingsListResult {
+    pub operation_id: &'static str,
+    pub listings: Vec<super::models::PublisherListingMetricsSummary>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl AnalyticsPublisherListingsListResult {
+    pub fn new(
+        operation_id: &'static str,
+        listings: Vec<super::models::PublisherListingMetricsSummary>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            listings,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsPublisherListingRetrieveResult {
+    pub operation_id: &'static str,
+    pub listing_id: String,
+    pub metrics: Vec<super::models::ListingMetricSnapshot>,
+}
+
+impl AnalyticsPublisherListingRetrieveResult {
+    pub fn new(
+        operation_id: &'static str,
+        listing_id: String,
+        metrics: Vec<super::models::ListingMetricSnapshot>,
+    ) -> Self {
+        Self {
+            operation_id,
+            listing_id,
+            metrics,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsOperatorDashboardResult {
+    pub operation_id: &'static str,
+    pub dashboard: super::models::OperatorDashboardStats,
+}
+
+impl AnalyticsOperatorDashboardResult {
+    pub fn new(
+        operation_id: &'static str,
+        dashboard: super::models::OperatorDashboardStats,
+    ) -> Self {
+        Self {
+            operation_id,
+            dashboard,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AnalyticsOperatorSearchResult {
+    pub operation_id: &'static str,
+    pub analytics: super::models::OperatorSearchAnalytics,
+}
+
+impl AnalyticsOperatorSearchResult {
+    pub fn new(
+        operation_id: &'static str,
+        analytics: super::models::OperatorSearchAnalytics,
+    ) -> Self {
+        Self {
+            operation_id,
+            analytics,
         }
     }
 }

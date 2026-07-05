@@ -38,7 +38,7 @@ pub fn route_handler_plans() -> &'static [RouteHandlerPlan] {
 pub async fn releases_check_update<S: ReleaseOperations>(
     service: &S,
     context: &AppstoreRequestContext,
-    plus_app_key: String,
+    app_key: String,
     platform: String,
     installed_version_code: String,
     channel_code: String,
@@ -47,7 +47,7 @@ pub async fn releases_check_update<S: ReleaseOperations>(
     region_code: Option<String>,
 ) -> Result<CheckUpdateResult, AppstoreServiceError> {
     let cmd = mapper::request::map_check_update(
-        plus_app_key,
+        app_key,
         platform,
         installed_version_code,
         channel_code,
@@ -63,9 +63,9 @@ pub async fn artifacts_resolve_download<S: ReleaseOperations>(
     context: &AppstoreRequestContext,
     artifact_id: String,
     grant_id: Option<String>,
-    plus_app_key: Option<String>,
+    app_key: Option<String>,
 ) -> Result<ResolveDownloadResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_resolve_download(artifact_id, grant_id, plus_app_key);
+    let cmd = mapper::request::map_resolve_download(artifact_id, grant_id, app_key);
     service.resolve_download(context, cmd).await
 }
 

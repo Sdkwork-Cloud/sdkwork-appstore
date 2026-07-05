@@ -15,7 +15,7 @@ SDKWork needs a first-class application marketplace comparable to Apple App Stor
 ## Goals
 
 1. Define L2 persistence and API contracts for appstore capabilities under local domain `appstore` extending standard `ecosystem`.
-2. Support PlusApp-anchored listings with manifest-aligned release artifacts across web, mobile, desktop, and mini-program surfaces.
+2. Support registered app-anchored listings with manifest-aligned release artifacts across web, mobile, desktop, and mini-program surfaces.
 3. Expose three HTTP surfaces (open, app, backend) with generated SDK families.
 4. Integrate reviews/ratings through `sdkwork-comments`, media through `sdkwork-drive`, auth through `sdkwork-appbase`.
 5. Enable staged rollout, regional availability, charts/collections, and update checks.
@@ -46,7 +46,7 @@ SDKWork needs a first-class application marketplace comparable to Apple App Stor
 
 ### Listing
 
-- Bind one listing to one PlusApp (`plus_app_id`, `plus_app_key`).
+- Bind one listing to one registered app (`app_id`, `app_key`).
 - Localize title, subtitle, descriptions, keywords per locale.
 - Attach icon, screenshots, preview video via Drive-backed media.
 - Assign categories and tags; declare regional availability.
@@ -94,7 +94,7 @@ SDKWork needs a first-class application marketplace comparable to Apple App Stor
 
 ## Acceptance Criteria
 
-- [ ] `specs/database/schema-registry.yaml` and `0001_appstore_foundation.sql` align.
+- [x] `database/contract/schema.yaml` and migration SQL align (`pnpm run db:validate`).
 - [ ] OpenAPI contracts exist for app, backend, and open surfaces with locked prefixes.
 - [ ] `docs/api/operation-catalog.md` lists every planned operationId.
 - [ ] SDK manifests trace to API authorities under `sdks/`.

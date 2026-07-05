@@ -6,25 +6,72 @@ use uuid::Uuid;
 use crate::context::AppstoreRequestContext;
 use crate::domain::commands::{
     AdminListListingsRequest, AdminRetrieveListingRequest, AdminUpdateListingVisibilityRequest,
-    AttachListingMediaRequest, BindListingCategoriesRequest, CreateListingRequest,
-    CreateListingSubmissionRequest, ListListingMediaRequest, ListListingReleasesRequest,
-    PublicRetrieveListingRequest, RemoveListingMediaRequest, RetrieveListingRequest,
-    UpdateListingRequest, UpdateRegionalAvailabilityRequest, UpsertListingLocalizationRequest,
+    ApplyModerationDecisionRequest, AttachListingMediaRequest, BindListingCategoriesRequest,
+    BootstrapPublisherAppRequest, CreateListingRequest, CreateListingSubmissionRequest,
+    ListDeveloperOtherListingsRequest, ListListingMediaRequest, ListListingReleaseHistoryRequest,
+    ListListingReleasesRequest, ListPublisherListingsRequest, ListSimilarListingsRequest,
+    PublicRetrieveListingRequest, RemoveListingMediaRequest, RetrieveListingEditorialRequest,
+    RetrieveListingRequest, UpdateListingRequest, UpdateRegionalAvailabilityRequest,
+    UpsertListingLocalizationRequest,
 };
 use crate::domain::models::{
     Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia, ListingStatus,
     ListingSubmission, ListingType, MediaRole, PricingModel, RegionalAvailability, ReviewStatus,
-    StorefrontVisibility, SubmissionStatus, SubmissionType,
+    StoreApp, StorefrontVisibility, SubmissionStatus, SubmissionType,
 };
 use crate::domain::results::{
     AdminListListingsResult, AdminRetrieveListingResult, AdminUpdateListingVisibilityResult,
-    AttachListingMediaResult, BindListingCategoriesResult, CreateListingResult,
-    CreateListingSubmissionResult, ListListingMediaResult, ListListingReleasesResult,
-    PublicRetrieveListingResult, RemoveListingMediaResult, RetrieveListingResult,
-    UpdateListingResult, UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
+    ApplyModerationDecisionResult, AttachListingMediaResult, BindListingCategoriesResult,
+    BootstrapPublisherAppResult, CreateListingResult, CreateListingSubmissionResult,
+    ListDeveloperOtherListingsResult, ListListingMediaResult, ListListingReleaseHistoryResult,
+    ListListingReleasesResult, ListPublisherListingsResult, ListSimilarListingsResult,
+    ListingEditorialContent, PublicRetrieveListingResult, RemoveListingMediaResult,
+    RetrieveListingEditorialResult, RetrieveListingResult, UpdateListingResult,
+    UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
+use crate::ports::provider::AppReference;
 use crate::ports::repository::ListingRepositoryPort;
+
+fn validate_app_binding(
+    reference: &AppReference,
+    app_id: &str,
+    app_key: &str,
+) -> AppstoreServiceResult<()> {
+    if reference.app_id != app_id {
+        return Err(AppstoreServiceError::ValidationFailed(
+            "app_id does not match platform record".to_string(),
+        ));
+    }
+    if reference.app_key != app_key {
+        return Err(AppstoreServiceError::ValidationFailed(
+            "app_key does not match platform record".to_string(),
+        ));
+    }
+    Ok(())
+}
+
+fn is_valid_app_key(app_key: &str) -> bool {
+    let trimmed = app_key.trim();
+    if trimmed.is_empty() || trimmed.len() > 64 {
+        return false;
+    }
+    let mut previous_hyphen = false;
+    for ch in trimmed.chars() {
+        if ch == '-' {
+            if previous_hyphen {
+                return false;
+            }
+            previous_hyphen = true;
+            continue;
+        }
+        previous_hyphen = false;
+        if !ch.is_ascii_lowercase() && !ch.is_ascii_digit() {
+            return false;
+        }
+    }
+    !trimmed.starts_with('-') && !trimmed.ends_with('-')
+}
 
 #[async_trait::async_trait]
 pub trait ListingOperations {
@@ -39,6 +86,12 @@ pub trait ListingOperations {
         context: &AppstoreRequestContext,
         request: CreateListingRequest,
     ) -> AppstoreServiceResult<CreateListingResult>;
+
+    async fn bootstrap_publisher_app(
+        &self,
+        context: &AppstoreRequestContext,
+        request: BootstrapPublisherAppRequest,
+    ) -> AppstoreServiceResult<BootstrapPublisherAppResult>;
 
     async fn update_listing(
         &self,
@@ -88,11 +141,23 @@ pub trait ListingOperations {
         request: ListListingReleasesRequest,
     ) -> AppstoreServiceResult<ListListingReleasesResult>;
 
+    async fn list_publisher_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListPublisherListingsRequest,
+    ) -> AppstoreServiceResult<ListPublisherListingsResult>;
+
     async fn create_submission(
         &self,
         context: &AppstoreRequestContext,
         request: CreateListingSubmissionRequest,
     ) -> AppstoreServiceResult<CreateListingSubmissionResult>;
+
+    async fn apply_moderation_decision(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ApplyModerationDecisionRequest,
+    ) -> AppstoreServiceResult<ApplyModerationDecisionResult>;
 
     async fn admin_list_listings(
         &self,
@@ -117,16 +182,83 @@ pub trait ListingOperations {
         context: &AppstoreRequestContext,
         request: PublicRetrieveListingRequest,
     ) -> AppstoreServiceResult<PublicRetrieveListingResult>;
+
+    async fn list_release_history(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListListingReleaseHistoryRequest,
+    ) -> AppstoreServiceResult<ListListingReleaseHistoryResult>;
+
+    async fn list_similar_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListSimilarListingsRequest,
+    ) -> AppstoreServiceResult<ListSimilarListingsResult>;
+
+    async fn list_developer_other_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListDeveloperOtherListingsRequest,
+    ) -> AppstoreServiceResult<ListDeveloperOtherListingsResult>;
+
+    async fn retrieve_listing_editorial(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RetrieveListingEditorialRequest,
+    ) -> AppstoreServiceResult<RetrieveListingEditorialResult>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ListingService<R> {
     repository: R,
+    platform_provider: Option<std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>>,
+    media_provider: Option<std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>>,
+    moderation_port: Option<std::sync::Arc<dyn crate::ports::moderation::SubmissionModerationPort>>,
+}
+
+impl<R: std::fmt::Debug> std::fmt::Debug for ListingService<R> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ListingService")
+            .field("repository", &self.repository)
+            .field("platform_provider", &self.platform_provider.is_some())
+            .field("media_provider", &self.media_provider.is_some())
+            .field("moderation_port", &self.moderation_port.is_some())
+            .finish()
+    }
 }
 
 impl<R> ListingService<R> {
     pub fn new(repository: R) -> Self {
-        Self { repository }
+        Self {
+            repository,
+            platform_provider: None,
+            media_provider: None,
+            moderation_port: None,
+        }
+    }
+
+    pub fn with_platform_provider(
+        mut self,
+        provider: std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>,
+    ) -> Self {
+        self.platform_provider = Some(provider);
+        self
+    }
+
+    pub fn with_media_provider(
+        mut self,
+        provider: std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>,
+    ) -> Self {
+        self.media_provider = Some(provider);
+        self
+    }
+
+    pub fn with_moderation_port(
+        mut self,
+        port: std::sync::Arc<dyn crate::ports::moderation::SubmissionModerationPort>,
+    ) -> Self {
+        self.moderation_port = Some(port);
+        self
     }
 }
 
@@ -163,14 +295,14 @@ where
         context: &AppstoreRequestContext,
         request: CreateListingRequest,
     ) -> AppstoreServiceResult<CreateListingResult> {
-        if request.plus_app_id.trim().is_empty() {
+        if request.app_id.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
-                "plus_app_id is required".to_string(),
+                "app_id is required".to_string(),
             ));
         }
-        if request.plus_app_key.trim().is_empty() {
+        if request.app_key.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
-                "plus_app_key is required".to_string(),
+                "app_key is required".to_string(),
             ));
         }
         if request.default_locale.trim().is_empty() {
@@ -179,13 +311,24 @@ where
             ));
         }
 
+        let app_id = request.app_id.trim();
+        let app_key = request.app_key.trim();
+
+        if let Some(provider) = &self.platform_provider {
+            let reference = provider
+                .resolve_app(&context.tenant_id, app_id)
+                .await
+                .map_err(AppstoreServiceError::ValidationFailed)?;
+            validate_app_binding(&reference, app_id, app_key)?;
+        }
+
         let existing = self
             .repository
-            .find_listing_by_plus_app_id(context, &request.plus_app_id)
+            .find_listing_by_app_id(context, &request.app_id)
             .await?;
         if existing.is_some() {
             return Err(AppstoreServiceError::AlreadyExists(
-                "Listing already exists for this plus_app_id".to_string(),
+                "Listing already exists for this app_id".to_string(),
             ));
         }
 
@@ -213,11 +356,10 @@ where
             id: listing_id,
             tenant_id: context.tenant_id.clone(),
             organization_id: context.organization_id.clone(),
-            app_id: None,
             publisher_id: request.publisher_id,
             listing_no,
-            plus_app_id: request.plus_app_id,
-            plus_app_key: request.plus_app_key,
+            app_id: request.app_id,
+            app_key: request.app_key,
             listing_slug,
             listing_type: ListingType::App,
             pricing_model,
@@ -251,6 +393,141 @@ where
 
         Ok(CreateListingResult::created(
             "appstore.listings.create",
+            listing,
+        ))
+    }
+
+    async fn bootstrap_publisher_app(
+        &self,
+        context: &AppstoreRequestContext,
+        request: BootstrapPublisherAppRequest,
+    ) -> AppstoreServiceResult<BootstrapPublisherAppResult> {
+        let app_key = request.app_key.trim();
+        let display_name = request.display_name.trim();
+        let default_locale = request.default_locale.trim();
+        let publisher_id = request.publisher_id.trim();
+
+        if publisher_id.is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "publisher_id is required".to_string(),
+            ));
+        }
+        if !is_valid_app_key(app_key) {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "app_key must be lower-kebab-case".to_string(),
+            ));
+        }
+        if display_name.is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "display_name is required".to_string(),
+            ));
+        }
+        if default_locale.is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "default_locale is required".to_string(),
+            ));
+        }
+
+        if self
+            .repository
+            .find_app_by_key(context, app_key)
+            .await?
+            .is_some()
+        {
+            return Err(AppstoreServiceError::AlreadyExists(
+                "app_key already exists".to_string(),
+            ));
+        }
+
+        let now = Utc::now();
+        let app_id = Uuid::new_v4().to_string();
+        let listing_id = ListingId::new(Uuid::new_v4().to_string());
+        let app_no = format!(
+            "APP-{}",
+            Uuid::new_v4()
+                .to_string()
+                .split('-')
+                .next()
+                .unwrap_or_default()
+        );
+        let listing_no = format!(
+            "LST-{}",
+            Uuid::new_v4()
+                .to_string()
+                .split('-')
+                .next()
+                .unwrap_or_default()
+        );
+        let listing_slug = request.listing_slug.unwrap_or_else(|| app_key.to_string());
+        let app_type = request.app_type.unwrap_or_else(|| "APP_REACT".to_string());
+        let pricing_model = request
+            .pricing_model
+            .and_then(|p| PricingModel::from_str(&p))
+            .unwrap_or(PricingModel::Free);
+
+        let app = StoreApp {
+            id: app_id.clone(),
+            tenant_id: context.tenant_id.clone(),
+            organization_id: context.organization_id.clone(),
+            publisher_id: publisher_id.to_string(),
+            app_no,
+            app_key: app_key.to_string(),
+            app_slug: app_key.to_string(),
+            display_name: display_name.to_string(),
+            default_locale: default_locale.to_string(),
+            app_type,
+            app_status: "draft".to_string(),
+            distribution_status: "internal".to_string(),
+            review_status: "not_submitted".to_string(),
+            current_listing_id: Some(listing_id.as_str().to_string()),
+            created_at: now,
+            updated_at: now,
+        };
+
+        let listing = Listing {
+            id: listing_id,
+            tenant_id: context.tenant_id.clone(),
+            organization_id: context.organization_id.clone(),
+            publisher_id: publisher_id.to_string(),
+            listing_no,
+            app_id,
+            app_key: app_key.to_string(),
+            listing_slug,
+            listing_type: ListingType::App,
+            pricing_model,
+            listing_status: ListingStatus::Draft,
+            storefront_visibility: StorefrontVisibility::Hidden,
+            review_status: ReviewStatus::NotSubmitted,
+            primary_category_id: None,
+            default_locale: default_locale.to_string(),
+            age_rating_code: None,
+            content_rating_json: serde_json::Value::Object(serde_json::Map::new()),
+            official_website_url: None,
+            support_url: None,
+            privacy_policy_url: None,
+            comments_thread_id: None,
+            commerce_product_id: None,
+            current_release_id: None,
+            featured_score: 0,
+            download_count: 0,
+            average_rating: None,
+            rating_count: 0,
+            version: 1,
+            submitted_at: None,
+            published_at: None,
+            delisted_at: None,
+            deleted_at: None,
+            created_at: now,
+            updated_at: now,
+        };
+
+        self.repository
+            .bootstrap_app_and_listing(context, &app, &listing)
+            .await?;
+
+        Ok(BootstrapPublisherAppResult::created(
+            "appstore.publishers.me.apps.bootstrap",
+            app,
             listing,
         ))
     }
@@ -459,6 +736,19 @@ where
             ));
         }
 
+        let media_resource_id = request.media_resource_id.trim().to_string();
+        let drive_node_id = if let Some(provider) = &self.media_provider {
+            Some(
+                provider
+                    .resolve_media_resource(&context.tenant_id, &media_resource_id)
+                    .await
+                    .map_err(AppstoreServiceError::ValidationFailed)?
+                    .drive_node_id,
+            )
+        } else {
+            None
+        };
+
         let now = Utc::now();
         let media = ListingMedia {
             id: Uuid::new_v4().to_string(),
@@ -466,8 +756,8 @@ where
             organization_id: context.organization_id.clone(),
             listing_id,
             media_role,
-            media_resource_id: request.media_resource_id,
-            drive_node_id: None,
+            media_resource_id,
+            drive_node_id,
             platform_scope: request.platform_scope.unwrap_or_else(|| "ALL".to_string()),
             sort_order: 0,
             locale: request.locale,
@@ -675,6 +965,46 @@ where
         ))
     }
 
+    async fn list_publisher_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListPublisherListingsRequest,
+    ) -> AppstoreServiceResult<ListPublisherListingsResult> {
+        if request.publisher_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "publisher_id is required".to_string(),
+            ));
+        }
+
+        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let listings = self
+            .repository
+            .find_listings_by_publisher(
+                context,
+                request.publisher_id.trim(),
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = listings.len() > limit as usize;
+        let listings: Vec<Listing> = listings.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            listings
+                .last()
+                .map(|listing| listing.id.as_str().to_string())
+        } else {
+            None
+        };
+
+        Ok(ListPublisherListingsResult::new(
+            "appstore.publishers.me.listings.list",
+            listings,
+            next_cursor,
+            has_more,
+        ))
+    }
+
     async fn create_submission(
         &self,
         context: &AppstoreRequestContext,
@@ -757,8 +1087,91 @@ where
             .insert_submission(context, &submission)
             .await?;
 
+        let mut updated_listing = listing;
+        updated_listing.review_status = ReviewStatus::Pending;
+        updated_listing.updated_at = now;
+        self.repository
+            .update_listing(context, &updated_listing)
+            .await?;
+
+        if let Some(port) = &self.moderation_port {
+            port.enqueue_submission_review(context, &submission).await?;
+        }
+
         Ok(CreateListingSubmissionResult::created(
             "appstore.listings.submissions.create",
+            submission,
+        ))
+    }
+
+    async fn apply_moderation_decision(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ApplyModerationDecisionRequest,
+    ) -> AppstoreServiceResult<ApplyModerationDecisionResult> {
+        let mut submission = self
+            .repository
+            .find_submission_by_id(context, &request.submission_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!(
+                    "Submission not found: {}",
+                    request.submission_id
+                ))
+            })?;
+
+        let listing_id = submission.listing_id.clone();
+        let mut listing = self
+            .repository
+            .find_listing_by_id(context, &listing_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!(
+                    "Listing not found: {}",
+                    listing_id.as_str()
+                ))
+            })?;
+
+        let now = Utc::now();
+        match request.decision_type.to_ascii_uppercase().as_str() {
+            "APPROVE" => {
+                submission.submission_status = SubmissionStatus::Approved;
+                listing.review_status = ReviewStatus::Approved;
+                listing.listing_status = ListingStatus::Active;
+                if listing.storefront_visibility == StorefrontVisibility::Hidden {
+                    listing.storefront_visibility = StorefrontVisibility::Visible;
+                }
+                listing.published_at = Some(now);
+                if let Some(release_id) = submission.release_id.clone() {
+                    listing.current_release_id = Some(release_id);
+                }
+            }
+            "REJECT" => {
+                submission.submission_status = SubmissionStatus::Rejected;
+                listing.review_status = ReviewStatus::Rejected;
+            }
+            "REQUEST_CHANGES" => {
+                submission.submission_status = SubmissionStatus::Rejected;
+                listing.review_status = ReviewStatus::NotSubmitted;
+            }
+            other => {
+                return Err(AppstoreServiceError::ValidationFailed(format!(
+                    "Invalid moderation decision type: {other}"
+                )));
+            }
+        }
+
+        submission.updated_at = now;
+        listing.updated_at = now;
+
+        self.repository
+            .update_submission(context, &submission)
+            .await?;
+        self.repository.update_listing(context, &listing).await?;
+
+        Ok(ApplyModerationDecisionResult::applied(
+            "appstore.listings.moderation.apply",
+            listing,
             submission,
         ))
     }
@@ -880,5 +1293,201 @@ where
                 "appstore.listings.public.retrieve",
             )),
         }
+    }
+
+    async fn list_release_history(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListListingReleaseHistoryRequest,
+    ) -> AppstoreServiceResult<ListListingReleaseHistoryResult> {
+        let listing_id = ListingId::new(&request.listing_id);
+
+        let _listing = self
+            .repository
+            .find_listing_by_id(context, &listing_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!("Listing not found: {}", request.listing_id))
+            })?;
+
+        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let releases = self
+            .repository
+            .find_release_history_by_listing(
+                context,
+                &listing_id,
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = releases.len() > limit as usize;
+        let releases: Vec<serde_json::Value> = releases.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            releases
+                .last()
+                .and_then(|r| r.get("id").and_then(|v| v.as_str()).map(|s| s.to_string()))
+        } else {
+            None
+        };
+
+        Ok(ListListingReleaseHistoryResult::new(
+            "appstore.listings.releases.history.list",
+            releases,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn list_similar_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListSimilarListingsRequest,
+    ) -> AppstoreServiceResult<ListSimilarListingsResult> {
+        let listing_id = ListingId::new(&request.listing_id);
+
+        let listing = self
+            .repository
+            .find_listing_by_id(context, &listing_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!("Listing not found: {}", request.listing_id))
+            })?;
+
+        let primary_category_id = listing.primary_category_id.as_deref().ok_or_else(|| {
+            AppstoreServiceError::ValidationFailed(
+                "Listing has no primary category for similarity lookup".to_string(),
+            )
+        })?;
+
+        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let listings = self
+            .repository
+            .find_similar_listings(
+                context,
+                &listing_id,
+                primary_category_id,
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = listings.len() > limit as usize;
+        let listings: Vec<Listing> = listings.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            listings.last().map(|l| l.id.as_str().to_string())
+        } else {
+            None
+        };
+
+        Ok(ListSimilarListingsResult::new(
+            "appstore.listings.similar.list",
+            listings,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn list_developer_other_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListDeveloperOtherListingsRequest,
+    ) -> AppstoreServiceResult<ListDeveloperOtherListingsResult> {
+        let listing_id = ListingId::new(&request.listing_id);
+
+        let listing = self
+            .repository
+            .find_listing_by_id(context, &listing_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!("Listing not found: {}", request.listing_id))
+            })?;
+
+        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let listings = self
+            .repository
+            .find_developer_other_listings(
+                context,
+                &listing_id,
+                listing.publisher_id.as_str(),
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = listings.len() > limit as usize;
+        let listings: Vec<Listing> = listings.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            listings.last().map(|l| l.id.as_str().to_string())
+        } else {
+            None
+        };
+
+        Ok(ListDeveloperOtherListingsResult::new(
+            "appstore.listings.developerOther.list",
+            listings,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn retrieve_listing_editorial(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RetrieveListingEditorialRequest,
+    ) -> AppstoreServiceResult<RetrieveListingEditorialResult> {
+        let listing_id = ListingId::new(&request.listing_id);
+
+        let listing = self
+            .repository
+            .find_listing_by_id(context, &listing_id)
+            .await?;
+
+        match listing {
+            Some(listing) => {
+                let (editorial_highlight, collection_editorial_note) = self
+                    .repository
+                    .find_listing_editorial(context, &listing_id, &listing.default_locale)
+                    .await?;
+
+                Ok(RetrieveListingEditorialResult::found(
+                    "appstore.listings.editorial.retrieve",
+                    ListingEditorialContent {
+                        editorial_highlight,
+                        collection_editorial_note,
+                    },
+                ))
+            }
+            None => Ok(RetrieveListingEditorialResult::not_found(
+                "appstore.listings.editorial.retrieve",
+            )),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ports::provider::AppReference;
+
+    fn sample_reference() -> AppReference {
+        AppReference {
+            app_id: "app-1".to_string(),
+            app_key: "key-1".to_string(),
+            display_name: "Sample App".to_string(),
+            manifest_snapshot: serde_json::Value::Null,
+        }
+    }
+
+    #[test]
+    fn validate_app_binding_accepts_matching_ids() {
+        validate_app_binding(&sample_reference(), "app-1", "key-1").expect("binding ok");
+    }
+
+    #[test]
+    fn validate_app_binding_rejects_mismatched_key() {
+        let error =
+            validate_app_binding(&sample_reference(), "app-1", "wrong-key").expect_err("mismatch");
+        assert!(matches!(error, AppstoreServiceError::ValidationFailed(_)));
     }
 }

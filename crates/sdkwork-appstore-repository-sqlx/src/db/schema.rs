@@ -40,4 +40,12 @@ pub const APPSTORE_TABLES: &[&str] = &[
     "appstore_download_grant",
     "appstore_install_event",
     "appstore_listing_metric_snapshot",
+    "appstore_app_template",
+    "appstore_app_template_usage",
+    "appstore_app_template_version",
+    "appstore_catalog_search_history",
+    "appstore_catalog_trending_term",
+    "appstore_listing_iap_item",
+    "appstore_moderation_appeal",
+    "appstore_release_beta_invite",
 ];

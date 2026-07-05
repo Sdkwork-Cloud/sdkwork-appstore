@@ -20,6 +20,15 @@ Prefix lock:
 | `appstore.catalog.featured.list` | GET | `/app/v3/api/catalog/featured` | `appstore.catalog.read` |
 | `appstore.catalog.charts.retrieve` | GET | `/app/v3/api/catalog/charts/{chartCode}` | `appstore.catalog.read` |
 | `appstore.catalog.listings.search` | GET | `/app/v3/api/catalog/listings/search` | `appstore.catalog.read` |
+| `appstore.catalog.recommendations.list` | GET | `/app/v3/api/catalog/recommendations` | `appstore.catalog.read` |
+| `appstore.catalog.recentlyUpdated.list` | GET | `/app/v3/api/catalog/recently_updated` | `appstore.catalog.read` |
+| `appstore.catalog.events.list` | GET | `/app/v3/api/catalog/events` | `appstore.catalog.read` |
+| `appstore.catalog.events.retrieve` | GET | `/app/v3/api/catalog/events/{eventId}` | `appstore.catalog.read` |
+| `appstore.catalog.search.suggestions.list` | GET | `/app/v3/api/catalog/search/suggestions` | `appstore.catalog.read` |
+| `appstore.catalog.search.trending.list` | GET | `/app/v3/api/catalog/search/trending` | `appstore.catalog.read` |
+| `appstore.catalog.search.history.list` | GET | `/app/v3/api/catalog/search/history` | `appstore.catalog.read` |
+| `appstore.catalog.search.history.upsert` | PUT | `/app/v3/api/catalog/search/history` | `appstore.catalog.read` |
+| `appstore.catalog.search.history.clear` | DELETE | `/app/v3/api/catalog/search/history` | `appstore.catalog.read` |
 
 ## App API �?Listings
 
@@ -36,12 +45,18 @@ Prefix lock:
 | `appstore.listings.categories.bind` | PUT | `/app/v3/api/listings/{listingId}/categories` | `appstore.listings.write` |
 | `appstore.listings.regions.update` | PUT | `/app/v3/api/listings/{listingId}/regions` | `appstore.listings.write` |
 | `appstore.listings.submissions.create` | POST | `/app/v3/api/listings/{listingId}/submissions` | `appstore.listings.submit` |
+| `appstore.listings.releases.history.list` | GET | `/app/v3/api/listings/{listingId}/releases/history` | `appstore.listings.read` |
+| `appstore.listings.similar.list` | GET | `/app/v3/api/listings/{listingId}/similar` | `appstore.listings.read` |
+| `appstore.listings.developerOther.list` | GET | `/app/v3/api/listings/{listingId}/developer_other` | `appstore.listings.read` |
+| `appstore.listings.editorial.retrieve` | GET | `/app/v3/api/listings/{listingId}/editorial` | `appstore.listings.read` |
 
 ## App API �?Publishers
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
 | `appstore.publishers.me.retrieve` | GET | `/app/v3/api/publishers/me` | `appstore.publishers.read` |
+| `appstore.publishers.me.listings.list` | GET | `/app/v3/api/publishers/me/listings` | `appstore.publishers.read` |
+| `appstore.publishers.me.apps.bootstrap` | POST | `/app/v3/api/publishers/me/apps` | `appstore.publishers.write` |
 | `appstore.publishers.create` | POST | `/app/v3/api/publishers` | `appstore.publishers.write` |
 | `appstore.publishers.update` | PATCH | `/app/v3/api/publishers/{publisherId}` | `appstore.publishers.write` |
 | `appstore.publishers.members.list` | GET | `/app/v3/api/publishers/{publisherId}/members` | `appstore.publishers.read` |
@@ -67,6 +82,7 @@ Prefix lock:
 | `appstore.compliance.profile.retrieve` | GET | `/app/v3/api/listings/{listingId}/compliance` | `appstore.compliance.read` |
 | `appstore.compliance.profile.update` | PUT | `/app/v3/api/listings/{listingId}/compliance` | `appstore.compliance.write` |
 | `appstore.compliance.permissions.update` | PUT | `/app/v3/api/listings/{listingId}/compliance/permissions` | `appstore.compliance.write` |
+| `appstore.compliance.iapItems.list` | GET | `/app/v3/api/listings/{listingId}/compliance/iap_items` | `appstore.compliance.read` |
 
 ## App API �?Library
 
@@ -91,6 +107,10 @@ Prefix lock:
 | `appstore.moderation.reviews.retrieve` | GET | `/backend/v3/api/moderation/reviews/{reviewId}` | `appstore.moderation.read` |
 | `appstore.moderation.reviews.assign` | POST | `/backend/v3/api/moderation/reviews/{reviewId}/assign` | `appstore.moderation.assign` |
 | `appstore.moderation.decisions.create` | POST | `/backend/v3/api/moderation/reviews/{reviewId}/decisions` | `appstore.moderation.decide` |
+| `appstore.moderation.appeals.create` | POST | `/backend/v3/api/moderation/appeals` | `appstore.moderation.appeal` |
+| `appstore.moderation.appeals.list` | GET | `/backend/v3/api/moderation/appeals` | `appstore.moderation.read` |
+| `appstore.moderation.appeals.retrieve` | GET | `/backend/v3/api/moderation/appeals/{appealId}` | `appstore.moderation.read` |
+| `appstore.moderation.appeals.decide` | POST | `/backend/v3/api/moderation/appeals/{appealId}/decide` | `appstore.moderation.decide` |
 
 ## Backend API �?Catalog admin
 
@@ -112,6 +132,11 @@ Prefix lock:
 | `appstore.listings.admin.visibility.update` | PATCH | `/backend/v3/api/listings/{listingId}/visibility` | `appstore.listings.admin` |
 | `appstore.publishers.admin.verify` | POST | `/backend/v3/api/publishers/{publisherId}/verify` | `appstore.publishers.admin` |
 | `appstore.metrics.listings.retrieve` | GET | `/backend/v3/api/metrics/listings/{listingId}` | `appstore.metrics.read` |
+| `appstore.analytics.publisher.overview.retrieve` | GET | `/backend/v3/api/analytics/publisher/overview` | `appstore.analytics.publisher` |
+| `appstore.analytics.publisher.listings.list` | GET | `/backend/v3/api/analytics/publisher/listings` | `appstore.analytics.publisher` |
+| `appstore.analytics.publisher.listings.retrieve` | GET | `/backend/v3/api/analytics/publisher/listings/{listingId}` | `appstore.analytics.publisher` |
+| `appstore.analytics.operator.dashboard.retrieve` | GET | `/backend/v3/api/analytics/operator/dashboard` | `appstore.analytics.operator` |
+| `appstore.analytics.operator.search.retrieve` | GET | `/backend/v3/api/analytics/operator/search` | `appstore.analytics.operator` |
 
 
 ## Backend API - Market channels

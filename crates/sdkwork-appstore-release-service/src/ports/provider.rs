@@ -11,7 +11,7 @@ pub struct ArtifactUploadResult {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlatformManifest {
-    pub plus_app_id: String,
+    pub app_id: String,
     pub runtime_family: String,
     pub runtime_framework: String,
     pub manifest_snapshot: serde_json::Value,
@@ -31,7 +31,7 @@ pub trait ReleaseProviderPort: Send + Sync {
     async fn resolve_platform_manifest(
         &self,
         tenant_id: &str,
-        plus_app_id: &str,
+        app_id: &str,
     ) -> Result<PlatformManifest, String>;
 
     async fn generate_download_url(
@@ -47,4 +47,7 @@ pub trait ReleaseProviderPort: Send + Sync {
         artifact_id: &str,
         signature: &str,
     ) -> Result<bool, String>;
+
+    async fn validate_drive_node(&self, tenant_id: &str, drive_node_id: &str)
+        -> Result<(), String>;
 }

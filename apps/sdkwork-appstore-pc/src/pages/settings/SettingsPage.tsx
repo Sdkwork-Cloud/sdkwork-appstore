@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   User,
   Bell,
@@ -15,31 +16,36 @@ import {
   ChevronRight,
   Check,
 } from 'lucide-react';
+import { fetchCurrentIamUser, getCurrentUser, type IamUser } from '@/bootstrap/iamRuntime';
+import { isAuthenticated } from '@/services/storeClient';
+import { LoadingSpinner } from '@sdkwork/appstore-pc-commons';
+import { useTheme } from '@/hooks/useTheme';
 
 interface SettingSection {
   id: string;
   label: string;
-  icon: any;
+  icon: typeof Monitor;
 }
 
 const sections: SettingSection[] = [
-  { id: 'general', label: 'General', icon: Monitor },
-  { id: 'account', label: 'Account', icon: User },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'privacy', label: 'Privacy & Security', icon: Shield },
-  { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'language', label: 'Language & Region', icon: Globe },
-  { id: 'downloads', label: 'Downloads', icon: Download },
-  { id: 'storage', label: 'Storage', icon: HardDrive },
-  { id: 'accessibility', label: 'Accessibility', icon: Accessibility },
-  { id: 'shortcuts', label: 'Keyboard Shortcuts', icon: Keyboard },
+  { id: 'general', label: '通用', icon: Monitor },
+  { id: 'account', label: '账户', icon: User },
+  { id: 'notifications', label: '通知', icon: Bell },
+  { id: 'privacy', label: '隐私与安全', icon: Shield },
+  { id: 'appearance', label: '外观', icon: Palette },
+  { id: 'language', label: '语言与地区', icon: Globe },
+  { id: 'downloads', label: '下载', icon: Download },
+  { id: 'storage', label: '存储', icon: HardDrive },
+  { id: 'accessibility', label: '无障碍', icon: Accessibility },
+  { id: 'shortcuts', label: '键盘快捷键', icon: Keyboard },
 ];
 
 export function SettingsPage() {
   const [activeSection, setActiveSection] = useState('general');
+  const { theme, setTheme } = useTheme();
+  const [iamUser, setIamUser] = useState<IamUser | null>(getCurrentUser());
+  const [accountLoading, setAccountLoading] = useState(false);
   const [settings, setSettings] = useState({
-    theme: 'system',
-    language: 'en',
     autoUpdate: true,
     downloadOverWifi: true,
     notifications: true,
@@ -52,24 +58,52 @@ export function SettingsPage() {
     personalizedAds: false,
   });
 
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      setIamUser(null);
+      return;
+    }
+    let cancelled = false;
+    setAccountLoading(true);
+    void fetchCurrentIamUser()
+      .then((user) => {
+        if (!cancelled) {
+          setIamUser(user);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setAccountLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const toggleSetting = (key: keyof typeof settings) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const displayInitial =
+    iamUser?.displayName?.trim()?.[0]?.toUpperCase() ||
+    iamUser?.email?.trim()?.[0]?.toUpperCase() ||
+    '?';
 
   return (
     <div className="flex gap-8">
-      {/* Sidebar */}
       <div className="w-64 flex-shrink-0">
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
+        <h1 className="text-2xl font-bold mb-6 text-[var(--text-primary)]">设置</h1>
         <nav className="space-y-1">
-          {sections.map(section => (
+          {sections.map((section) => (
             <button
               key={section.id}
+              type="button"
               onClick={() => setActiveSection(section.id)}
               className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                 activeSection === section.id
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-[var(--accent-subtle)] text-[var(--accent)]'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-canvas)]'
               }`}
             >
               <section.icon className="w-5 h-5" />
@@ -79,28 +113,26 @@ export function SettingsPage() {
         </nav>
       </div>
 
-      {/* Content */}
       <div className="flex-1">
         {activeSection === 'general' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">General</h2>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">通用</h2>
+            <div className="card divide-y divide-[var(--border-subtle)]">
               <ToggleRow
-                label="Auto-update apps"
-                description="Automatically update apps when new versions are available"
+                label="自动更新应用"
+                description="有新版本时自动更新已安装应用"
                 enabled={settings.autoUpdate}
                 onToggle={() => toggleSetting('autoUpdate')}
               />
               <ToggleRow
-                label="Download over Wi-Fi only"
-                description="Only download apps when connected to Wi-Fi"
+                label="仅 Wi-Fi 下载"
+                description="仅在连接 Wi-Fi 时下载应用"
                 enabled={settings.downloadOverWifi}
                 onToggle={() => toggleSetting('downloadOverWifi')}
               />
               <ToggleRow
-                label="Usage analytics"
-                description="Help improve the store by sharing anonymous usage data"
+                label="使用情况分析"
+                description="分享匿名使用数据以帮助改进应用商店"
                 enabled={settings.analytics}
                 onToggle={() => toggleSetting('analytics')}
               />
@@ -110,93 +142,118 @@ export function SettingsPage() {
 
         {activeSection === 'account' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Account</h2>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">账户</h2>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">J</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">John Doe</h3>
-                  <p className="text-gray-500">john@example.com</p>
-                  <button className="text-blue-500 text-sm mt-1">Edit profile</button>
-                </div>
+            {!isAuthenticated() ? (
+              <div className="card p-8 text-center">
+                <p className="text-[var(--text-secondary)] mb-4">登录 SDKWork 账户以查看个人资料与组织信息。</p>
+                <Link
+                  to="/login"
+                  className="inline-flex px-6 py-2.5 bg-[var(--accent)] text-[var(--text-inverse)] rounded-full text-sm font-medium hover:opacity-90"
+                >
+                  前往登录
+                </Link>
               </div>
-
-              <div className="space-y-4">
-                <SettingRow label="Email" value="john@example.com" />
-                <SettingRow label="Phone" value="+1 (555) 123-4567" />
-                <SettingRow label="Country" value="United States" />
-                <SettingRow label="Member since" value="January 2024" />
+            ) : accountLoading ? (
+              <div className="flex justify-center py-16">
+                <LoadingSpinner />
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="card p-6">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center"
+                      style={{
+                        background: 'linear-gradient(135deg, var(--accent), var(--accent-active))',
+                      }}
+                    >
+                      <span className="text-3xl font-bold" style={{ color: 'var(--text-inverse)' }}>
+                        {displayInitial}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                        {iamUser?.displayName || 'SDKWork 用户'}
+                      </h3>
+                      <p className="text-[var(--text-tertiary)]">{iamUser?.email || '未绑定邮箱'}</p>
+                    </div>
+                  </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
-              <ToggleRow
-                label="Two-factor authentication"
-                description="Add an extra layer of security to your account"
-                enabled={settings.twoFactor}
-                onToggle={() => toggleSetting('twoFactor')}
-              />
-              <ToggleRow
-                label="Biometric login"
-                description="Use fingerprint or face recognition to sign in"
-                enabled={settings.biometric}
-                onToggle={() => toggleSetting('biometric')}
-              />
-            </div>
+                  <div className="space-y-4">
+                    <SettingRow label="用户 ID" value={iamUser?.userId || '—'} />
+                    <SettingRow label="邮箱" value={iamUser?.email || '—'} />
+                    <SettingRow label="组织 ID" value={iamUser?.organizationId || '—'} />
+                  </div>
+                </div>
+
+                <div className="card divide-y divide-[var(--border-subtle)]">
+                  <ToggleRow
+                    label="双因素认证"
+                    description="为账户增加一层安全保护（IAM 控制台配置）"
+                    enabled={settings.twoFactor}
+                    onToggle={() => toggleSetting('twoFactor')}
+                  />
+                  <ToggleRow
+                    label="生物识别登录"
+                    description="使用指纹或面容识别登录（宿主能力接入后启用）"
+                    enabled={settings.biometric}
+                    onToggle={() => toggleSetting('biometric')}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
 
         {activeSection === 'notifications' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Notifications</h2>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">通知</h2>
+            <div className="card divide-y divide-[var(--border-subtle)]">
               <ToggleRow
-                label="Enable notifications"
-                description="Receive notifications about app updates and promotions"
+                label="启用通知"
+                description="接收应用更新与活动通知"
                 enabled={settings.notifications}
                 onToggle={() => toggleSetting('notifications')}
               />
               <ToggleRow
-                label="Push notifications"
-                description="Receive push notifications on this device"
+                label="推送通知"
+                description="在本设备接收推送通知"
                 enabled={settings.pushNotifications}
                 onToggle={() => toggleSetting('pushNotifications')}
               />
               <ToggleRow
-                label="Email notifications"
-                description="Receive email notifications about your account"
+                label="邮件通知"
+                description="接收账户相关邮件通知"
                 enabled={settings.emailNotifications}
                 onToggle={() => toggleSetting('emailNotifications')}
               />
               <ToggleRow
-                label="Review reminders"
-                description="Get reminded to review apps you've downloaded"
+                label="评价提醒"
+                description="提醒你对已下载应用进行评价"
                 enabled={settings.reviewReminders}
                 onToggle={() => toggleSetting('reviewReminders')}
               />
             </div>
+            <p className="text-sm text-[var(--text-tertiary)]">
+              通知列表在「消息」页展示；推送通道接入后将与此处偏好同步。
+            </p>
           </div>
         )}
 
         {activeSection === 'privacy' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Privacy & Security</h2>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
-              <ClickableRow label="Privacy policy" description="Read our privacy policy" />
-              <ClickableRow label="Terms of service" description="Read our terms of service" />
-              <ClickableRow label="Data export" description="Download a copy of your data" />
-              <ClickableRow label="Delete account" description="Permanently delete your account and data" danger />
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">隐私与安全</h2>
+            <div className="card divide-y divide-[var(--border-subtle)]">
+              <ClickableRow label="隐私政策" description="阅读隐私政策" />
+              <ClickableRow label="服务条款" description="阅读服务条款" />
+              <ClickableRow label="导出数据" description="下载你的数据副本" />
+              <ClickableRow label="删除账户" description="永久删除账户与数据" danger />
             </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
+            <div className="card divide-y divide-[var(--border-subtle)]">
               <ToggleRow
-                label="Personalized recommendations"
-                description="Get app recommendations based on your activity"
+                label="个性化推荐"
+                description="根据你的活动推荐应用"
                 enabled={settings.personalizedAds}
                 onToggle={() => toggleSetting('personalizedAds')}
               />
@@ -206,68 +263,70 @@ export function SettingsPage() {
 
         {activeSection === 'appearance' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Appearance</h2>
-
-            <div className="bg-white rounded-2xl p-6 border border-gray-100">
-              <h3 className="font-semibold mb-4">Theme</h3>
-              <div className="grid grid-cols-3 gap-4">
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">外观</h2>
+            <div className="card p-6">
+              <h3 className="font-semibold mb-4 text-[var(--text-primary)]">主题</h3>
+              <div className="grid grid-cols-2 gap-4 max-w-md">
                 {[
-                  { id: 'light', label: 'Light', icon: Sun },
-                  { id: 'dark', label: 'Dark', icon: Moon },
-                  { id: 'system', label: 'System', icon: Monitor },
-                ].map(theme => (
+                  { id: 'light' as const, label: '浅色', icon: Sun },
+                  { id: 'dark' as const, label: '深色', icon: Moon },
+                ].map((option) => (
                   <button
-                    key={theme.id}
-                    onClick={() => setSettings(prev => ({ ...prev, theme: theme.id }))}
+                    key={option.id}
+                    type="button"
+                    onClick={() => setTheme(option.id)}
                     className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-colors ${
-                      settings.theme === theme.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                      theme === option.id
+                        ? 'border-[var(--accent)] bg-[var(--accent-subtle)]'
+                        : 'border-[var(--border-default)] hover:border-[var(--border-strong)]'
                     }`}
                   >
-                    <theme.icon className={`w-8 h-8 ${settings.theme === theme.id ? 'text-blue-500' : 'text-gray-500'}`} />
-                    <span className={`font-medium ${settings.theme === theme.id ? 'text-blue-600' : 'text-gray-700'}`}>
-                      {theme.label}
+                    <option.icon
+                      className="w-8 h-8"
+                      style={{ color: theme === option.id ? 'var(--accent)' : 'var(--text-tertiary)' }}
+                    />
+                    <span
+                      className="font-medium"
+                      style={{ color: theme === option.id ? 'var(--accent)' : 'var(--text-primary)' }}
+                    >
+                      {option.label}
                     </span>
-                    {settings.theme === theme.id && (
-                      <Check className="w-5 h-5 text-blue-500" />
-                    )}
+                    {theme === option.id && <Check className="w-5 h-5 text-[var(--accent)]" />}
                   </button>
                 ))}
               </div>
+              <p className="mt-4 text-sm text-[var(--text-tertiary)]">也可在顶栏快速切换深色模式。</p>
             </div>
           </div>
         )}
 
         {activeSection === 'language' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Language & Region</h2>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
-              <ClickableRow label="Language" value="English (US)" />
-              <ClickableRow label="Region" value="United States" />
-              <ClickableRow label="Date format" value="MM/DD/YYYY" />
-              <ClickableRow label="Time format" value="12-hour" />
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">语言与地区</h2>
+            <div className="card divide-y divide-[var(--border-subtle)]">
+              <ClickableRow label="界面语言" value="简体中文" />
+              <ClickableRow label="地区" value="中国大陆" />
+              <ClickableRow label="日期格式" value="YYYY-MM-DD" />
+              <ClickableRow label="时间格式" value="24 小时制" />
             </div>
           </div>
         )}
 
         {activeSection === 'downloads' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Downloads</h2>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
-              <ClickableRow label="Download location" value="C:\Users\John\Downloads\SDKWork" />
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">下载</h2>
+            <div className="card divide-y divide-[var(--border-subtle)]">
+              <ClickableRow label="下载位置" value="由宿主/浏览器管理" />
               <ToggleRow
-                label="Auto-install after download"
-                description="Automatically install apps after downloading"
+                label="下载后自动安装"
+                description="下载完成后自动安装（桌面宿主能力）"
                 enabled={false}
                 onToggle={() => {}}
               />
               <ToggleRow
-                label="Download queue"
-                description="Queue downloads when multiple apps are being downloaded"
-                enabled={true}
+                label="下载队列"
+                description="多个应用同时下载时排队"
+                enabled
                 onToggle={() => {}}
               />
             </div>
@@ -276,75 +335,36 @@ export function SettingsPage() {
 
         {activeSection === 'storage' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Storage</h2>
-
-            <div className="bg-white rounded-2xl p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-semibold">Storage used</span>
-                <span className="text-gray-500">2.4 GB of 50 GB</span>
-              </div>
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden mb-6">
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: '4.8%' }} />
-              </div>
-
-              <div className="space-y-4">
-                <StorageRow label="Apps" size="1.8 GB" percentage={75} />
-                <StorageRow label="Cache" size="450 MB" percentage={18} />
-                <StorageRow label="Downloads" size="150 MB" percentage={6} />
-              </div>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">存储</h2>
+            <div className="card p-6">
+              <p className="text-[var(--text-secondary)]">
+                本地缓存与已安装应用占用将在桌面宿主接入后在此展示。Web 版暂不统计本地磁盘用量。
+              </p>
             </div>
-
-            <button className="px-6 py-2.5 bg-red-50 text-red-600 rounded-full text-sm font-medium hover:bg-red-100">
-              Clear Cache
-            </button>
           </div>
         )}
 
         {activeSection === 'accessibility' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Accessibility</h2>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
-              <ToggleRow
-                label="High contrast"
-                description="Increase contrast for better visibility"
-                enabled={false}
-                onToggle={() => {}}
-              />
-              <ToggleRow
-                label="Reduce motion"
-                description="Minimize animations and transitions"
-                enabled={false}
-                onToggle={() => {}}
-              />
-              <ToggleRow
-                label="Large text"
-                description="Increase text size throughout the app"
-                enabled={false}
-                onToggle={() => {}}
-              />
-              <ToggleRow
-                label="Screen reader support"
-                description="Optimize for screen readers"
-                enabled={false}
-                onToggle={() => {}}
-              />
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">无障碍</h2>
+            <div className="card divide-y divide-[var(--border-subtle)]">
+              <ToggleRow label="高对比度" description="提高界面对比度" enabled={false} onToggle={() => {}} />
+              <ToggleRow label="减少动效" description="减少动画与过渡效果" enabled={false} onToggle={() => {}} />
+              <ToggleRow label="大号文字" description="增大全局文字尺寸" enabled={false} onToggle={() => {}} />
+              <ToggleRow label="屏幕阅读器优化" description="针对读屏软件优化" enabled={false} onToggle={() => {}} />
             </div>
           </div>
         )}
 
         {activeSection === 'shortcuts' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold">Keyboard Shortcuts</h2>
-
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100">
-              <ShortcutRow action="Search" shortcut="⌘ K" />
-              <ShortcutRow action="Home" shortcut="⌘ 1" />
-              <ShortcutRow action="Library" shortcut="⌘ 2" />
-              <ShortcutRow action="Settings" shortcut="⌘ ," />
-              <ShortcutRow action="Refresh" shortcut="⌘ R" />
-              <ShortcutRow action="Back" shortcut="⌘ [" />
-              <ShortcutRow action="Forward" shortcut="⌘ ]" />
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">键盘快捷键</h2>
+            <div className="card divide-y divide-[var(--border-subtle)]">
+              <ShortcutRow action="搜索" shortcut="Ctrl K" />
+              <ShortcutRow action="首页" shortcut="Ctrl 1" />
+              <ShortcutRow action="库" shortcut="Ctrl 2" />
+              <ShortcutRow action="设置" shortcut="Ctrl ," />
+              <ShortcutRow action="刷新" shortcut="Ctrl R" />
             </div>
           </div>
         )}
@@ -353,7 +373,12 @@ export function SettingsPage() {
   );
 }
 
-function ToggleRow({ label, description, enabled, onToggle }: {
+function ToggleRow({
+  label,
+  description,
+  enabled,
+  onToggle,
+}: {
   label: string;
   description: string;
   enabled: boolean;
@@ -362,14 +387,17 @@ function ToggleRow({ label, description, enabled, onToggle }: {
   return (
     <div className="flex items-center justify-between px-6 py-4">
       <div>
-        <p className="font-medium text-gray-900">{label}</p>
-        <p className="text-sm text-gray-500">{description}</p>
+        <p className="font-medium text-[var(--text-primary)]">{label}</p>
+        <p className="text-sm text-[var(--text-tertiary)]">{description}</p>
       </div>
       <button
+        type="button"
         onClick={onToggle}
-        className={`w-12 h-7 rounded-full transition-colors ${enabled ? 'bg-blue-500' : 'bg-gray-200'}`}
+        className={`w-12 h-7 rounded-full transition-colors ${enabled ? 'bg-[var(--accent)]' : 'bg-[var(--border-strong)]'}`}
       >
-        <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+        <div
+          className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
+        />
       </button>
     </div>
   );
@@ -378,49 +406,47 @@ function ToggleRow({ label, description, enabled, onToggle }: {
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-3">
-      <span className="text-gray-500">{label}</span>
-      <span className="font-medium text-gray-900">{value}</span>
+      <span className="text-[var(--text-tertiary)]">{label}</span>
+      <span className="font-medium text-[var(--text-primary)]">{value}</span>
     </div>
   );
 }
 
-function ClickableRow({ label, description, value, danger }: {
+function ClickableRow({
+  label,
+  description,
+  value,
+  danger,
+}: {
   label: string;
   description?: string;
   value?: string;
   danger?: boolean;
 }) {
   return (
-    <button className="flex items-center justify-between w-full px-6 py-4 hover:bg-gray-50 transition-colors text-left">
+    <button
+      type="button"
+      className="flex items-center justify-between w-full px-6 py-4 hover:bg-[var(--bg-canvas)] transition-colors text-left"
+    >
       <div>
-        <p className={`font-medium ${danger ? 'text-red-600' : 'text-gray-900'}`}>{label}</p>
-        {description && <p className="text-sm text-gray-500">{description}</p>}
+        <p className={`font-medium ${danger ? 'text-[var(--danger)]' : 'text-[var(--text-primary)]'}`}>{label}</p>
+        {description && <p className="text-sm text-[var(--text-tertiary)]">{description}</p>}
       </div>
       <div className="flex items-center gap-2">
-        {value && <span className="text-gray-500">{value}</span>}
-        <ChevronRight className="w-5 h-5 text-gray-400" />
+        {value && <span className="text-[var(--text-tertiary)]">{value}</span>}
+        <ChevronRight className="w-5 h-5 text-[var(--text-tertiary)]" />
       </div>
     </button>
-  );
-}
-
-function StorageRow({ label, size, percentage }: { label: string; size: string; percentage: number }) {
-  return (
-    <div className="flex items-center gap-4">
-      <span className="text-gray-700 w-24">{label}</span>
-      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${percentage}%` }} />
-      </div>
-      <span className="text-gray-500 w-20 text-right">{size}</span>
-    </div>
   );
 }
 
 function ShortcutRow({ action, shortcut }: { action: string; shortcut: string }) {
   return (
     <div className="flex items-center justify-between px-6 py-4">
-      <span className="text-gray-700">{action}</span>
-      <kbd className="px-3 py-1.5 bg-gray-100 rounded-lg text-sm font-mono text-gray-700">{shortcut}</kbd>
+      <span className="text-[var(--text-secondary)]">{action}</span>
+      <kbd className="px-3 py-1.5 bg-[var(--bg-canvas)] rounded-lg text-sm font-mono text-[var(--text-secondary)]">
+        {shortcut}
+      </kbd>
     </div>
   );
 }

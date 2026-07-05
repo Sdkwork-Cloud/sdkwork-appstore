@@ -2,8 +2,8 @@ import { StoreApiResult, MediaResource, PricingModel, ListingStatus, StorefrontV
 
 export interface ListingSummary {
   id: string;
-  plusAppId?: string;
-  plusAppKey: string;
+  appId?: string;
+  appKey: string;
   displayName: string;
   subtitle?: string;
   listingSlug: string;
@@ -76,8 +76,8 @@ export interface ListingSubmission {
 export type SubmissionStatus = 'submitted' | 'under_review' | 'approved' | 'rejected' | 'withdrawn';
 
 export interface ListingCreateRequest {
-  plusAppId: string;
-  plusAppKey: string;
+  appId: string;
+  appKey: string;
   publisherId: string;
   listingSlug?: string;
   pricingModel?: PricingModel;

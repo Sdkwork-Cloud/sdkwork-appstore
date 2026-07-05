@@ -5,37 +5,52 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "@sdkwork/appstore-pc-core": "workspace:*",
-    "@sdkwork/appstore-pc-commons": "workspace:*",
-    "@sdkwork/appstore-pc-shell": "workspace:*",
+    "@sdkwork/appstore-app-sdk": "workspace:*",
     "@sdkwork/appstore-pc-catalog": "workspace:*",
-    "@sdkwork/appstore-pc-listing": "workspace:*",
-    "@sdkwork/appstore-pc-library": "workspace:*",
-    "@sdkwork/appstore-pc-search": "workspace:*",
+    "@sdkwork/appstore-pc-commons": "workspace:*",
     "@sdkwork/appstore-pc-console-publisher": "workspace:*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0",
-    "zustand": "^4.5.4",
-    "lucide-react": "^0.424.0",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.4.0"
+    "@sdkwork/appstore-pc-core": "workspace:*",
+    "@sdkwork/appstore-pc-library": "workspace:*",
+    "@sdkwork/appstore-pc-listing": "workspace:*",
+    "@sdkwork/appstore-pc-search": "workspace:*",
+    "@sdkwork/appstore-pc-shell": "workspace:*",
+    "@sdkwork/auth-runtime-pc-react": "workspace:*",
+    "@sdkwork/drive-app-sdk": "workspace:*",
+    "@sdkwork/iam-app-sdk": "workspace:*",
+    "@sdkwork/iam-runtime": "workspace:*",
+    "@sdkwork/sdk-common": "workspace:*",
+    "@sdkwork/utils": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "clsx": "catalog:",
+    "lucide-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router-dom": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tailwindcss": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.40",
-    "tailwindcss": "^3.4.7",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.0",
-    "vitest": "^2.0.0"
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
   }
 }

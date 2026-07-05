@@ -25,7 +25,7 @@ pub fn route_handler_plans() -> &'static [RouteHandlerPlan] {
 pub async fn publish_automation_submissions_create<S: ReleaseOperations>(
     service: &S,
     context: &AppstoreRequestContext,
-    plus_app_key: String,
+    app_key: String,
     submission_type: String,
     channel_code: String,
     version_name: String,
@@ -33,7 +33,7 @@ pub async fn publish_automation_submissions_create<S: ReleaseOperations>(
     artifacts: Vec<AutomationArtifactSpec>,
 ) -> Result<AutomationSubmissionResult, AppstoreServiceError> {
     let cmd = mapper::request::map_automation_submission_create(
-        plus_app_key,
+        app_key,
         submission_type,
         channel_code,
         version_name,

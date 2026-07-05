@@ -127,9 +127,9 @@ pub trait ReleaseRepositoryPort: Send + Sync {
         grant: &DownloadGrant,
     ) -> AppstoreServiceResult<()>;
 
-    async fn find_listing_by_plus_app_key(
+    async fn find_listing_by_app_key(
         &self,
         context: &AppstoreRequestContext,
-        plus_app_key: &str,
+        app_key: &str,
     ) -> AppstoreServiceResult<Option<String>>;
 }

@@ -37,6 +37,10 @@
     {
       "sdkFamily": "sdkwork-iam-app-sdk",
       "purpose": "IAM session context"
+    },
+    {
+      "sdkFamily": "sdkwork-drive-app-sdk",
+      "purpose": "Listing media and release artifact uploads"
     }
   ],
   "app": {

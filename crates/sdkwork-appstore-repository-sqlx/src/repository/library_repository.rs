@@ -1,5 +1,9 @@
 use sqlx::{Pool, Sqlite};
 
+use crate::db::columns::{
+    columns_csv, APPSTORE_DOWNLOAD_GRANT_COLUMNS, APPSTORE_USER_LIBRARY_ITEM_COLUMNS,
+    APPSTORE_USER_WISHLIST_ITEM_COLUMNS,
+};
 use crate::db::rows::{
     DownloadGrantRow, ReleaseArtifactRow, ReleaseRow, UserLibraryItemRow, UserWishlistItemRow,
 };
@@ -28,21 +32,6 @@ impl SqlxLibraryRepository {
     }
 }
 
-const LIBRARY_ITEM_COLUMNS: &str = r#"id, tenant_id, user_id, listing_id, plus_app_id, plus_app_key,
-    library_status, installed_release_id, installed_version_code, install_source, platform,
-    architecture, device_id, last_checked_at, installed_at, updated_at, removed_at, created_at"#;
-
-const WISHLIST_ITEM_COLUMNS: &str =
-    r#"id, tenant_id, user_id, listing_id, wishlist_status, created_at, updated_at"#;
-
-const _INSTALL_EVENT_COLUMNS: &str = r#"id, tenant_id, organization_id, event_no, listing_id,
-    release_id, artifact_id, user_id, device_id, event_type, platform, architecture, event_status,
-    source_channel, client_version, region_code, payload_snapshot_json, occurred_at, created_at"#;
-
-const GRANT_COLUMNS: &str = r#"id, tenant_id, organization_id, grant_no, listing_id, release_id,
-    artifact_id, user_id, grant_status, grant_reason, expires_at, consumed_at, download_count,
-    max_download_count, created_at, updated_at"#;
-
 #[async_trait::async_trait]
 impl LibraryRepositoryPort for SqlxLibraryRepository {
     async fn find_library_items_by_user(
@@ -56,7 +45,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
                 r#"SELECT {} FROM appstore_user_library_item
                 WHERE tenant_id = ? AND user_id = ? AND id > ?
                 ORDER BY id ASC LIMIT ?"#,
-                LIBRARY_ITEM_COLUMNS
+                columns_csv(APPSTORE_USER_LIBRARY_ITEM_COLUMNS)
             ))
             .bind(&context.tenant_id)
             .bind(&context.user_id)
@@ -70,7 +59,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
                 r#"SELECT {} FROM appstore_user_library_item
                 WHERE tenant_id = ? AND user_id = ?
                 ORDER BY id ASC LIMIT ?"#,
-                LIBRARY_ITEM_COLUMNS
+                columns_csv(APPSTORE_USER_LIBRARY_ITEM_COLUMNS)
             ))
             .bind(&context.tenant_id)
             .bind(&context.user_id)
@@ -92,11 +81,12 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
         library_item_id: &LibraryItemId,
     ) -> Result<Option<UserLibraryItem>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, UserLibraryItemRow>(&format!(
-            r#"SELECT {} FROM appstore_user_library_item WHERE id = ? AND tenant_id = ?"#,
-            LIBRARY_ITEM_COLUMNS
+            r#"SELECT {} FROM appstore_user_library_item WHERE id = ? AND tenant_id = ? AND user_id = ?"#,
+            columns_csv(APPSTORE_USER_LIBRARY_ITEM_COLUMNS)
         ))
         .bind(library_item_id.as_str())
         .bind(&context.tenant_id)
+        .bind(&context.user_id)
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
@@ -114,7 +104,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
         let row = sqlx::query_as::<_, UserLibraryItemRow>(&format!(
             r#"SELECT {} FROM appstore_user_library_item
             WHERE tenant_id = ? AND user_id = ? AND listing_id = ?"#,
-            LIBRARY_ITEM_COLUMNS
+            columns_csv(APPSTORE_USER_LIBRARY_ITEM_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(&context.user_id)
@@ -131,17 +121,17 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
     async fn find_library_item_by_app_key_and_platform(
         &self,
         context: &AppstoreRequestContext,
-        plus_app_key: &str,
+        app_key: &str,
         platform: &str,
     ) -> Result<Option<UserLibraryItem>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, UserLibraryItemRow>(&format!(
             r#"SELECT {} FROM appstore_user_library_item
-            WHERE tenant_id = ? AND user_id = ? AND plus_app_key = ? AND platform = ?"#,
-            LIBRARY_ITEM_COLUMNS
+            WHERE tenant_id = ? AND user_id = ? AND app_key = ? AND platform = ?"#,
+            columns_csv(APPSTORE_USER_LIBRARY_ITEM_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(&context.user_id)
-        .bind(plus_app_key)
+        .bind(app_key)
         .bind(platform)
         .fetch_optional(&self.pool)
         .await
@@ -161,18 +151,17 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
 
         sqlx::query(
             r#"INSERT INTO appstore_user_library_item (
-                id, tenant_id, user_id, listing_id, plus_app_id, plus_app_key,
+                id, tenant_id, user_id, listing_id, app_key,
                 library_status, installed_release_id, installed_version_code, install_source,
                 platform, architecture, device_id, last_checked_at, installed_at, updated_at,
                 removed_at, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
         )
         .bind(item.id.as_str())
         .bind(&context.tenant_id)
         .bind(&context.user_id)
         .bind(&item.listing_id)
-        .bind(&item.plus_app_id)
-        .bind(&item.plus_app_key)
+        .bind(&item.app_key)
         .bind(&library_status)
         .bind(&item.installed_release_id)
         .bind(&item.installed_version_code)
@@ -201,15 +190,14 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
 
         sqlx::query(
             r#"UPDATE appstore_user_library_item SET
-                listing_id = ?, plus_app_id = ?, plus_app_key = ?, library_status = ?,
+                listing_id = ?, app_key = ?, library_status = ?,
                 installed_release_id = ?, installed_version_code = ?, install_source = ?,
                 platform = ?, architecture = ?, device_id = ?, last_checked_at = ?,
                 installed_at = ?, updated_at = ?, removed_at = ?
             WHERE id = ? AND tenant_id = ?"#,
         )
         .bind(&item.listing_id)
-        .bind(&item.plus_app_id)
-        .bind(&item.plus_app_key)
+        .bind(&item.app_key)
         .bind(&library_status)
         .bind(&item.installed_release_id)
         .bind(&item.installed_version_code)
@@ -241,7 +229,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
                 r#"SELECT {} FROM appstore_user_wishlist_item
                 WHERE tenant_id = ? AND user_id = ? AND id > ?
                 ORDER BY id ASC LIMIT ?"#,
-                WISHLIST_ITEM_COLUMNS
+                columns_csv(APPSTORE_USER_WISHLIST_ITEM_COLUMNS)
             ))
             .bind(&context.tenant_id)
             .bind(&context.user_id)
@@ -255,7 +243,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
                 r#"SELECT {} FROM appstore_user_wishlist_item
                 WHERE tenant_id = ? AND user_id = ?
                 ORDER BY id ASC LIMIT ?"#,
-                WISHLIST_ITEM_COLUMNS
+                columns_csv(APPSTORE_USER_WISHLIST_ITEM_COLUMNS)
             ))
             .bind(&context.tenant_id)
             .bind(&context.user_id)
@@ -279,7 +267,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
         let row = sqlx::query_as::<_, UserWishlistItemRow>(&format!(
             r#"SELECT {} FROM appstore_user_wishlist_item
             WHERE tenant_id = ? AND user_id = ? AND listing_id = ?"#,
-            WISHLIST_ITEM_COLUMNS
+            columns_csv(APPSTORE_USER_WISHLIST_ITEM_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(&context.user_id)
@@ -391,7 +379,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
     ) -> Result<Option<DownloadGrant>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, DownloadGrantRow>(&format!(
             r#"SELECT {} FROM appstore_download_grant WHERE id = ? AND tenant_id = ?"#,
-            GRANT_COLUMNS
+            columns_csv(APPSTORE_DOWNLOAD_GRANT_COLUMNS)
         ))
         .bind(grant_id)
         .bind(&context.tenant_id)
@@ -552,9 +540,9 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
         &self,
         context: &AppstoreRequestContext,
         listing_id: &str,
-    ) -> Result<Option<(String, String)>, AppstoreServiceError> {
-        let row: Option<(String, String)> = sqlx::query_as(
-            "SELECT plus_app_id, plus_app_key FROM appstore_listing WHERE tenant_id = ? AND id = ? AND deleted_at IS NULL"
+    ) -> Result<Option<String>, AppstoreServiceError> {
+        let row: Option<(String,)> = sqlx::query_as(
+            "SELECT app_key FROM appstore_listing WHERE tenant_id = ? AND id = ? AND deleted_at IS NULL"
         )
         .bind(&context.tenant_id)
         .bind(listing_id)
@@ -562,6 +550,6 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
-        Ok(row)
+        Ok(row.map(|(app_key,)| app_key))
     }
 }

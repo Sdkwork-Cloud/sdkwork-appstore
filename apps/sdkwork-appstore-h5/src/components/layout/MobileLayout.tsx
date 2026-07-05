@@ -1,43 +1,52 @@
-import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Search, Download, Heart, User, Bell, Settings } from 'lucide-react';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Compass, Grid3X3, Gamepad2, Search, Download } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const tabs = [
-  { path: '/', icon: Home, label: 'Home' },
-  { path: '/search', icon: Search, label: 'Search' },
-  { path: '/library', icon: Download, label: 'Library' },
-  { path: '/notifications', icon: Bell, label: 'Alerts' },
-  { path: '/settings', icon: User, label: 'Profile' },
+  { path: '/', icon: Compass, label: '发现', end: true },
+  { path: '/browse/apps', icon: Grid3X3, label: '应用' },
+  { path: '/browse/games', icon: Gamepad2, label: '游戏' },
+  { path: '/search', icon: Search, label: '搜索' },
+  { path: '/library', icon: Download, label: '库' },
 ];
 
+const HIDE_TAB_PATHS = ['/app/', '/login', '/publisher'];
+
 export function MobileLayout() {
+  const { pathname } = useLocation();
+  const hideTabBar = HIDE_TAB_PATHS.some((prefix) => pathname.startsWith(prefix));
+
   return (
-    <div className="min-h-screen bg-[#f5f5f7] pb-20">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: 'var(--bg-canvas)', paddingBottom: hideTabBar ? 0 : '4.5rem' }}
+    >
       <main>
         <Outlet />
       </main>
 
-      {/* Tab Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-200 z-50">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
-          {tabs.map((tab) => (
-            <NavLink
-              key={tab.path}
-              to={tab.path}
-              end={tab.path === '/'}
-              className={({ isActive }) =>
-                clsx(
-                  'flex flex-col items-center gap-1 py-2 px-3 text-xs transition-colors',
-                  isActive ? 'text-blue-500' : 'text-gray-400'
-                )
-              }
-            >
-              <tab.icon className="w-6 h-6" />
-              <span>{tab.label}</span>
-            </NavLink>
-          ))}
-        </div>
-      </nav>
+      {!hideTabBar ? (
+        <nav className="tab-bar" aria-label="主导航">
+          <div className="flex items-stretch justify-around h-16 max-w-lg mx-auto px-1">
+            {tabs.map((tab) => (
+              <NavLink
+                key={tab.path}
+                to={tab.path}
+                end={tab.end}
+                className={({ isActive }) =>
+                  clsx(
+                    'flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium transition-colors min-w-0',
+                    isActive ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]',
+                  )
+                }
+              >
+                <tab.icon className="w-6 h-6 flex-shrink-0" strokeWidth={1.75} />
+                <span className="truncate max-w-full px-0.5">{tab.label}</span>
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+      ) : null}
     </div>
   );
 }

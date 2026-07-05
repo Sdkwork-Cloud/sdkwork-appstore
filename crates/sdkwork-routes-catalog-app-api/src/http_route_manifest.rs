@@ -51,6 +51,60 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.catalog.listings.search",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/recommendations",
+        "appstore",
+        "appstore.catalog.recommendations.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/recently_updated",
+        "appstore",
+        "appstore.catalog.recentlyUpdated.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/events",
+        "appstore",
+        "appstore.catalog.events.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/events/{eventId}",
+        "appstore",
+        "appstore.catalog.events.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/search/suggestions",
+        "appstore",
+        "appstore.catalog.search.suggestions.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/search/trending",
+        "appstore",
+        "appstore.catalog.search.trending.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/search/history",
+        "appstore",
+        "appstore.catalog.search.history.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Put,
+        "/app/v3/api/catalog/search/history",
+        "appstore",
+        "appstore.catalog.search.history.upsert",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/app/v3/api/catalog/search/history",
+        "appstore",
+        "appstore.catalog.search.history.clear",
+    ),
 ];
 
 pub fn app_route_manifest() -> HttpRouteManifest {

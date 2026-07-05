@@ -68,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CategoryListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/catalog/categories/{categoryId}:
     get:
       tags:
@@ -83,7 +83,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CategoryResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/CategoryResponse'
   /app/v3/api/catalog/collections:
     get:
       tags:
@@ -99,7 +111,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/catalog/collections/{collectionId}:
     get:
       tags:
@@ -114,7 +126,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectionResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/CollectionResponse'
   /app/v3/api/catalog/featured:
     get:
       tags:
@@ -127,7 +151,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeaturedListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/catalog/charts/{chartCode}:
     get:
       tags:
@@ -146,7 +170,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChartResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ChartResponse'
   /app/v3/api/catalog/listings/search:
     get:
       tags:
@@ -170,12 +206,179 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingSummaryListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/catalog/recommendations:
+    get:
+      tags:
+      - catalog
+      summary: List recommended listings
+      operationId: appstore.catalog.recommendations.list
+      parameters:
+      - name: locale
+        in: query
+        schema:
+          type: string
+      - name: platform
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/catalog/recently_updated:
+    get:
+      tags:
+      - catalog
+      summary: List recently updated listings
+      operationId: appstore.catalog.recentlyUpdated.list
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      - name: locale
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/catalog/events:
+    get:
+      tags:
+      - catalog
+      summary: List catalog events
+      operationId: appstore.catalog.events.list
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      - name: status
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/catalog/events/{eventId}:
+    get:
+      tags:
+      - catalog
+      summary: Retrieve catalog event detail
+      operationId: appstore.catalog.events.retrieve
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
+  /app/v3/api/catalog/search/suggestions:
+    get:
+      tags:
+      - catalog
+      summary: List search suggestions
+      operationId: appstore.catalog.search.suggestions.list
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: locale
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/catalog/search/trending:
+    get:
+      tags:
+      - catalog
+      summary: List trending search terms
+      operationId: appstore.catalog.search.trending.list
+      parameters:
+      - name: locale
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/catalog/search/history:
+    get:
+      tags:
+      - catalog
+      summary: List search history
+      operationId: appstore.catalog.search.history.list
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+    put:
+      tags:
+      - catalog
+      summary: Upsert search history entry
+      operationId: appstore.catalog.search.history.upsert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchHistoryUpsertRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkApiResponse'
+    delete:
+      tags:
+      - catalog
+      summary: Clear search history
+      operationId: appstore.catalog.search.history.clear
+      responses:
+        '204':
+          description: Removed
   /app/v3/api/listings:
     post:
       tags:
       - listings
-      summary: Create listing for PlusApp
+      summary: Create listing for registered app
       operationId: appstore.listings.create
       parameters:
       - $ref: '#/components/parameters/IdempotencyKey'
@@ -191,7 +394,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/listings/{listingId}:
     get:
       tags:
@@ -206,7 +409,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
     patch:
       tags:
       - listings
@@ -226,7 +429,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/listings/{listingId}/localizations/{locale}:
     put:
       tags:
@@ -248,7 +451,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingLocalizationResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/listings/{listingId}/media:
     get:
       tags:
@@ -263,7 +466,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingMediaListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
     post:
       tags:
       - listings
@@ -283,7 +486,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingMediaResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/listings/{listingId}/media/{mediaId}:
     delete:
       tags:
@@ -320,7 +523,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/listings/{listingId}/regions:
     put:
       tags:
@@ -341,8 +544,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegionalAvailabilityListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/listings/{listingId}/releases:
+    get:
+      tags:
+      - listings
+      summary: List releases for listing
+      operationId: appstore.listings.releases.list
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
     post:
       tags:
       - releases
@@ -363,7 +582,85 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseResponse'
+  /app/v3/api/listings/{listingId}/releases/history:
+    get:
+      tags:
+      - listings
+      summary: List release history for listing
+      operationId: appstore.listings.releases.history.list
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/listings/{listingId}/similar:
+    get:
+      tags:
+      - listings
+      summary: List similar listings
+      operationId: appstore.listings.similar.list
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/listings/{listingId}/developer_other:
+    get:
+      tags:
+      - listings
+      summary: List other listings from the same developer
+      operationId: appstore.listings.developerOther.list
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/listings/{listingId}/editorial:
+    get:
+      tags:
+      - listings
+      summary: Retrieve listing editorial content
+      operationId: appstore.listings.editorial.retrieve
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
   /app/v3/api/listings/{listingId}/submissions:
     post:
       tags:
@@ -385,7 +682,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListingSubmissionResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/publishers/me:
     get:
       tags:
@@ -398,7 +695,68 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PublisherResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/PublisherResponse'
+  /app/v3/api/publishers/me/listings:
+    get:
+      tags:
+      - publishers
+      summary: List listings owned by the current publisher
+      operationId: appstore.publishers.me.listings.list
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /app/v3/api/publishers/me/apps:
+    post:
+      tags:
+      - publishers
+      summary: Bootstrap appstore_app and draft listing for the current publisher
+      operationId: appstore.publishers.me.apps.bootstrap
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublisherAppBootstrapRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/PublisherAppBootstrapResponse'
   /app/v3/api/publishers:
     post:
       tags:
@@ -417,7 +775,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PublisherResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers/{publisherId}:
     patch:
       tags:
@@ -438,7 +808,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PublisherResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers/{publisherId}/members:
     get:
       tags:
@@ -453,7 +835,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PublisherMemberListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
     post:
       tags:
       - publishers
@@ -473,7 +855,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PublisherMemberResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/PublisherMemberResponse'
   /app/v3/api/publishers/{publisherId}/verifications:
     post:
       tags:
@@ -494,7 +888,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PublisherVerificationResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/PublisherVerificationResponse'
   /app/v3/api/releases/{releaseId}:
     get:
       tags:
@@ -509,7 +915,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseResponse'
     patch:
       tags:
       - releases
@@ -529,7 +947,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/releases/{releaseId}/notes/{locale}:
     put:
       tags:
@@ -551,7 +981,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseNotesResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseNotesResponse'
   /app/v3/api/releases/{releaseId}/artifacts:
     post:
       tags:
@@ -572,7 +1014,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseArtifactResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseArtifactResponse'
   /app/v3/api/releases/{releaseId}/rollout:
     put:
       tags:
@@ -593,7 +1047,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseRolloutResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseRolloutResponse'
   /app/v3/api/releases/{releaseId}/retire:
     post:
       tags:
@@ -608,7 +1074,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/listings/{listingId}/compliance:
     get:
       tags:
@@ -623,7 +1101,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ComplianceProfileResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ComplianceProfileResponse'
     put:
       tags:
       - compliance
@@ -643,7 +1133,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ComplianceProfileResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ComplianceProfileResponse'
   /app/v3/api/listings/{listingId}/compliance/permissions:
     put:
       tags:
@@ -664,7 +1166,36 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CompliancePermissionListResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/CompliancePermissionListResponse'
+  /app/v3/api/listings/{listingId}/compliance/iap_items:
+    get:
+      tags:
+      - compliance
+      summary: List in-app purchase items for compliance
+      operationId: appstore.compliance.iapItems.list
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/library/items:
     get:
       tags:
@@ -680,7 +1211,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LibraryItemListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/library/items/{libraryItemId}:
     get:
       tags:
@@ -699,7 +1230,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LibraryItemResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/LibraryItemResponse'
   /app/v3/api/library/install:
     post:
       tags:
@@ -720,7 +1263,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LibraryInstallResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/LibraryInstallResponse'
   /app/v3/api/library/uninstall:
     post:
       tags:
@@ -758,7 +1313,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LibraryUpdatesCheckResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/wishlist/items:
     get:
       tags:
@@ -771,7 +1326,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WishlistItemListResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
     post:
       tags:
       - wishlist
@@ -789,7 +1344,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WishlistItemResponse'
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /app/v3/api/wishlist/items/{listingId}:
     delete:
       tags:
@@ -821,7 +1376,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DownloadGrantResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/DownloadGrantResponse'
   /app/v3/api/download_grants/{grantId}/consume:
     post:
       tags:
@@ -840,7 +1407,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DownloadGrantConsumeResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/DownloadGrantConsumeResponse'
 components:
   securitySchemes:
     AuthToken:
@@ -959,16 +1538,16 @@ components:
       type: object
       required:
       - id
-      - plusAppKey
+      - appKey
       - displayName
       - listingSlug
       - pricingModel
       properties:
         id:
           type: string
-        plusAppId:
+        appId:
           type: string
-        plusAppKey:
+        appKey:
           type: string
         displayName:
           type: string
@@ -1023,14 +1602,14 @@ components:
     ListingCreateRequest:
       type: object
       required:
-      - plusAppId
-      - plusAppKey
+      - appId
+      - appKey
       - publisherId
       - defaultLocale
       properties:
-        plusAppId:
+        appId:
           type: string
-        plusAppKey:
+        appKey:
           type: string
         publisherId:
           type: string
@@ -1039,6 +1618,60 @@ components:
         pricingModel:
           type: string
         defaultLocale:
+          type: string
+    PublisherAppBootstrapRequest:
+      type: object
+      required:
+      - appKey
+      - displayName
+      - defaultLocale
+      properties:
+        appKey:
+          type: string
+        displayName:
+          type: string
+        defaultLocale:
+          type: string
+        appType:
+          type: string
+        listingSlug:
+          type: string
+        pricingModel:
+          type: string
+    PublisherAppBootstrapResponse:
+      type: object
+      required:
+      - app
+      - listing
+      properties:
+        app:
+          $ref: '#/components/schemas/StoreAppSummary'
+        listing:
+          $ref: '#/components/schemas/ListingSummary'
+    StoreAppSummary:
+      type: object
+      required:
+      - id
+      - appKey
+      - displayName
+      properties:
+        id:
+          type: string
+        appKey:
+          type: string
+        appSlug:
+          type: string
+        displayName:
+          type: string
+        defaultLocale:
+          type: string
+        appType:
+          type: string
+        appStatus:
+          type: string
+        publisherId:
+          type: string
+        currentListingId:
           type: string
     ListingUpdateRequest:
       type: object
@@ -1141,6 +1774,8 @@ components:
     ListingMediaResponse:
       $ref: '#/components/schemas/SdkWorkListResponse'
     ListingMediaListResponse:
+      $ref: '#/components/schemas/SdkWorkListResponse'
+    ListingReleaseListResponse:
       $ref: '#/components/schemas/SdkWorkListResponse'
     ListingCategoryBindRequest:
       type: object
@@ -1382,11 +2017,11 @@ components:
           items:
             type: object
             required:
-            - plusAppKey
+            - appKey
             - platform
             - installedVersionCode
             properties:
-              plusAppKey:
+              appKey:
                 type: string
               platform:
                 type: string
@@ -1416,6 +2051,15 @@ components:
       $ref: '#/components/schemas/SdkWorkResourceResponse'
     DownloadGrantConsumeResponse:
       $ref: '#/components/schemas/SdkWorkResourceResponse'
+    SearchHistoryUpsertRequest:
+      type: object
+      required:
+      - query_text
+      properties:
+        query_text:
+          type: string
+        filters_json:
+          type: string
     SdkWorkApiResponse:
       type: object
       additionalProperties: false

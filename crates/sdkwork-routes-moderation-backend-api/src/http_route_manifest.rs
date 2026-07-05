@@ -27,6 +27,30 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.moderation.decisions.create",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/moderation/appeals",
+        "appstore",
+        "appstore.moderation.appeals.create",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/moderation/appeals",
+        "appstore",
+        "appstore.moderation.appeals.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/moderation/appeals/{appealId}",
+        "appstore",
+        "appstore.moderation.appeals.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/moderation/appeals/{appealId}/decide",
+        "appstore",
+        "appstore.moderation.appeals.decide",
+    ),
 ];
 
 pub fn backend_route_manifest() -> HttpRouteManifest {

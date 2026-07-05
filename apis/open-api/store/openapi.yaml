@@ -42,7 +42,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseCheckUpdateResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ReleaseCheckUpdateResponse'
   /store/v3/api/artifacts/resolve_download:
     post:
       tags:
@@ -63,7 +75,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArtifactResolveDownloadResponse'
+                allOf:
+                - $ref: '#/components/schemas/SdkWorkApiResponse'
+                - type: object
+                  required:
+                  - data
+                  properties:
+                    data:
+                      type: object
+                      required:
+                      - item
+                      properties:
+                        item:
+                          $ref: '#/components/schemas/ArtifactResolveDownloadResponse'
   /store/v3/api/listings/{listingSlug}:
     get:
       tags:
@@ -168,12 +192,12 @@ components:
     ReleaseCheckUpdateRequest:
       type: object
       required:
-      - plusAppKey
+      - appKey
       - platform
       - installedVersionCode
       - channelCode
       properties:
-        plusAppKey:
+        appKey:
           type: string
         platform:
           type: string
@@ -223,7 +247,7 @@ components:
           type: string
         grantId:
           type: string
-        plusAppKey:
+        appKey:
           type: string
     ArtifactResolveDownloadResponse:
       allOf:
@@ -251,11 +275,11 @@ components:
     AutomationSubmissionCreateRequest:
       type: object
       required:
-      - plusAppKey
+      - appKey
       - submissionType
       - release
       properties:
-        plusAppKey:
+        appKey:
           type: string
         submissionType:
           type: string

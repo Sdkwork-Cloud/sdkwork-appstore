@@ -11,6 +11,7 @@ fn test_context() -> AppstoreRequestContext {
         organization_id: Some("test-org".to_string()),
         user_id: Some("test-user".to_string()),
         request_id: "test-request".to_string(),
+        permission_scopes: vec![],
     }
 }
 
@@ -39,6 +40,7 @@ fn test_context_minimal() {
         organization_id: None,
         user_id: None,
         request_id: "r".to_string(),
+        permission_scopes: vec![],
     };
     assert!(ctx.organization_id.is_none());
     assert!(ctx.user_id.is_none());

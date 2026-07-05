@@ -1,6 +1,10 @@
 use sqlx::{Pool, Sqlite};
 
-use crate::db::rows::{ModerationDecisionRow, ModerationReviewRow};
+use crate::db::columns::{
+    columns_csv, APPSTORE_MODERATION_APPEAL_COLUMNS, APPSTORE_MODERATION_DECISION_COLUMNS,
+    APPSTORE_MODERATION_REVIEW_COLUMNS,
+};
+use crate::db::rows::{ModerationAppealRow, ModerationDecisionRow, ModerationReviewRow};
 use crate::mapper::row_mapper::{
     map_moderation_decision_domain_to_row, map_moderation_decision_row_to_domain,
     map_moderation_review_domain_to_row, map_moderation_review_row_to_domain,
@@ -8,7 +12,8 @@ use crate::mapper::row_mapper::{
 
 use sdkwork_appstore_moderation_service::context::AppstoreRequestContext;
 use sdkwork_appstore_moderation_service::domain::models::{
-    ModerationDecision, ModerationDecisionId, ModerationReview, ModerationReviewId,
+    AppealStatus, ModerationAppeal, ModerationAppealId, ModerationDecision, ModerationDecisionId,
+    ModerationReview, ModerationReviewId,
 };
 use sdkwork_appstore_moderation_service::error::AppstoreServiceError;
 
@@ -23,6 +28,29 @@ impl SqlxModerationRepository {
     }
 }
 
+fn map_appeal_row_to_domain(row: ModerationAppealRow) -> Result<ModerationAppeal, String> {
+    let appeal_status = AppealStatus::from_str(&row.appeal_status)
+        .ok_or_else(|| format!("Invalid appeal status: {}", row.appeal_status))?;
+
+    Ok(ModerationAppeal {
+        id: ModerationAppealId::new(row.id),
+        tenant_id: row.tenant_id,
+        organization_id: row.organization_id,
+        decision_id: row.decision_id,
+        review_id: row.review_id,
+        appeal_no: row.appeal_no,
+        appellant_user_id: row.appellant_user_id,
+        appeal_reason: row.appeal_reason,
+        appeal_status,
+        decided_by: row.decided_by,
+        decision_note: row.decision_note,
+        submitted_at: row.submitted_at,
+        decided_at: row.decided_at,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+    })
+}
+
 #[async_trait::async_trait]
 impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositoryPort
     for SqlxModerationRepository
@@ -35,15 +63,14 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Option<ModerationReview>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ModerationReviewRow>(
+        let row = sqlx::query_as::<_, ModerationReviewRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, submission_id, review_no, review_status,
-                   priority, assigned_to, queue_code, sla_due_at, started_at, completed_at,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_moderation_review
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_MODERATION_REVIEW_COLUMNS)
+        ))
         .bind(review_id.as_str())
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -63,15 +90,14 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Option<ModerationReview>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ModerationReviewRow>(
+        let row = sqlx::query_as::<_, ModerationReviewRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, submission_id, review_no, review_status,
-                   priority, assigned_to, queue_code, sla_due_at, started_at, completed_at,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_moderation_review
             WHERE submission_id = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_MODERATION_REVIEW_COLUMNS)
+        ))
         .bind(submission_id)
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -95,17 +121,16 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
     > {
         let rows = if let Some(cursor_id) = cursor {
             if let Some(status) = review_status {
-                sqlx::query_as::<_, ModerationReviewRow>(
+                sqlx::query_as::<_, ModerationReviewRow>(&format!(
                     r#"
-                    SELECT id, tenant_id, organization_id, submission_id, review_no, review_status,
-                           priority, assigned_to, queue_code, sla_due_at, started_at, completed_at,
-                           created_at, updated_at
+                    SELECT {}
                     FROM appstore_moderation_review
                     WHERE tenant_id = ? AND review_status = ? AND id > ?
                     ORDER BY id ASC
                     LIMIT ?
                     "#,
-                )
+                    columns_csv(APPSTORE_MODERATION_REVIEW_COLUMNS)
+                ))
                 .bind(&context.tenant_id)
                 .bind(status)
                 .bind(cursor_id)
@@ -113,17 +138,16 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
                 .fetch_all(&self.pool)
                 .await
             } else {
-                sqlx::query_as::<_, ModerationReviewRow>(
+                sqlx::query_as::<_, ModerationReviewRow>(&format!(
                     r#"
-                    SELECT id, tenant_id, organization_id, submission_id, review_no, review_status,
-                           priority, assigned_to, queue_code, sla_due_at, started_at, completed_at,
-                           created_at, updated_at
+                    SELECT {}
                     FROM appstore_moderation_review
                     WHERE tenant_id = ? AND id > ?
                     ORDER BY id ASC
                     LIMIT ?
                     "#,
-                )
+                    columns_csv(APPSTORE_MODERATION_REVIEW_COLUMNS)
+                ))
                 .bind(&context.tenant_id)
                 .bind(cursor_id)
                 .bind(limit)
@@ -131,34 +155,32 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
                 .await
             }
         } else if let Some(status) = review_status {
-            sqlx::query_as::<_, ModerationReviewRow>(
+            sqlx::query_as::<_, ModerationReviewRow>(&format!(
                 r#"
-                SELECT id, tenant_id, organization_id, submission_id, review_no, review_status,
-                       priority, assigned_to, queue_code, sla_due_at, started_at, completed_at,
-                       created_at, updated_at
+                SELECT {}
                 FROM appstore_moderation_review
                 WHERE tenant_id = ? AND review_status = ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-            )
+                columns_csv(APPSTORE_MODERATION_REVIEW_COLUMNS)
+            ))
             .bind(&context.tenant_id)
             .bind(status)
             .bind(limit)
             .fetch_all(&self.pool)
             .await
         } else {
-            sqlx::query_as::<_, ModerationReviewRow>(
+            sqlx::query_as::<_, ModerationReviewRow>(&format!(
                 r#"
-                SELECT id, tenant_id, organization_id, submission_id, review_no, review_status,
-                       priority, assigned_to, queue_code, sla_due_at, started_at, completed_at,
-                       created_at, updated_at
+                SELECT {}
                 FROM appstore_moderation_review
                 WHERE tenant_id = ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-            )
+                columns_csv(APPSTORE_MODERATION_REVIEW_COLUMNS)
+            ))
             .bind(&context.tenant_id)
             .bind(limit)
             .fetch_all(&self.pool)
@@ -249,15 +271,14 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Option<ModerationDecision>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ModerationDecisionRow>(
+        let row = sqlx::query_as::<_, ModerationDecisionRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, review_id, decision_no, decision_type,
-                   decision_status, reason_code, reason_detail, policy_reference, decided_by,
-                   decided_at, payload_snapshot_json, created_at
+            SELECT {}
             FROM appstore_moderation_decision
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_MODERATION_DECISION_COLUMNS)
+        ))
         .bind(decision_id.as_str())
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -277,16 +298,15 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Vec<ModerationDecision>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let rows = sqlx::query_as::<_, ModerationDecisionRow>(
+        let rows = sqlx::query_as::<_, ModerationDecisionRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, review_id, decision_no, decision_type,
-                   decision_status, reason_code, reason_detail, policy_reference, decided_by,
-                   decided_at, payload_snapshot_json, created_at
+            SELECT {}
             FROM appstore_moderation_decision
             WHERE review_id = ? AND tenant_id = ?
             ORDER BY created_at ASC
             "#,
-        )
+            columns_csv(APPSTORE_MODERATION_DECISION_COLUMNS)
+        ))
         .bind(review_id.as_str())
         .bind(&context.tenant_id)
         .fetch_all(&self.pool)
@@ -333,6 +353,181 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         .execute(&self.pool)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+
+        Ok(())
+    }
+
+    async fn find_appeal_by_id(
+        &self,
+        context: &AppstoreRequestContext,
+        appeal_id: &ModerationAppealId,
+    ) -> Result<
+        Option<ModerationAppeal>,
+        sdkwork_appstore_moderation_service::error::AppstoreServiceError,
+    > {
+        let row = sqlx::query_as::<_, ModerationAppealRow>(&format!(
+            r#"
+            SELECT {}
+            FROM appstore_moderation_appeal
+            WHERE id = ? AND tenant_id = ?
+            "#,
+            columns_csv(APPSTORE_MODERATION_APPEAL_COLUMNS)
+        ))
+        .bind(appeal_id.as_str())
+        .bind(&context.tenant_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        row.map(map_appeal_row_to_domain)
+            .transpose()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn list_appeals(
+        &self,
+        context: &AppstoreRequestContext,
+        status: Option<&str>,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> Result<
+        Vec<ModerationAppeal>,
+        sdkwork_appstore_moderation_service::error::AppstoreServiceError,
+    > {
+        let rows = if let Some(cursor_id) = cursor {
+            if let Some(status) = status {
+                sqlx::query_as::<_, ModerationAppealRow>(&format!(
+                    r#"
+                    SELECT {}
+                    FROM appstore_moderation_appeal
+                    WHERE tenant_id = ? AND appeal_status = ? AND id > ?
+                    ORDER BY id ASC
+                    LIMIT ?
+                    "#,
+                    columns_csv(APPSTORE_MODERATION_APPEAL_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(status)
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.pool)
+                .await
+            } else {
+                sqlx::query_as::<_, ModerationAppealRow>(&format!(
+                    r#"
+                    SELECT {}
+                    FROM appstore_moderation_appeal
+                    WHERE tenant_id = ? AND id > ?
+                    ORDER BY id ASC
+                    LIMIT ?
+                    "#,
+                    columns_csv(APPSTORE_MODERATION_APPEAL_COLUMNS)
+                ))
+                .bind(&context.tenant_id)
+                .bind(cursor_id)
+                .bind(limit)
+                .fetch_all(&self.pool)
+                .await
+            }
+        } else if let Some(status) = status {
+            sqlx::query_as::<_, ModerationAppealRow>(&format!(
+                r#"
+                SELECT {}
+                FROM appstore_moderation_appeal
+                WHERE tenant_id = ? AND appeal_status = ?
+                ORDER BY submitted_at DESC, id ASC
+                LIMIT ?
+                "#,
+                columns_csv(APPSTORE_MODERATION_APPEAL_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(status)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+        } else {
+            sqlx::query_as::<_, ModerationAppealRow>(&format!(
+                r#"
+                SELECT {}
+                FROM appstore_moderation_appeal
+                WHERE tenant_id = ?
+                ORDER BY submitted_at DESC, id ASC
+                LIMIT ?
+                "#,
+                columns_csv(APPSTORE_MODERATION_APPEAL_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+        }
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        rows.into_iter()
+            .map(map_appeal_row_to_domain)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn insert_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        appeal: &ModerationAppeal,
+    ) -> Result<(), sdkwork_appstore_moderation_service::error::AppstoreServiceError> {
+        sqlx::query(
+            r#"
+            INSERT INTO appstore_moderation_appeal (
+                id, tenant_id, organization_id, decision_id, review_id, appeal_no,
+                appellant_user_id, appeal_reason, appeal_status, decided_by, decision_note,
+                submitted_at, decided_at, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            "#,
+        )
+        .bind(appeal.id.as_str())
+        .bind(&context.tenant_id)
+        .bind(&context.organization_id)
+        .bind(&appeal.decision_id)
+        .bind(&appeal.review_id)
+        .bind(&appeal.appeal_no)
+        .bind(&appeal.appellant_user_id)
+        .bind(&appeal.appeal_reason)
+        .bind(appeal.appeal_status.as_str())
+        .bind(&appeal.decided_by)
+        .bind(&appeal.decision_note)
+        .bind(appeal.submitted_at)
+        .bind(appeal.decided_at)
+        .bind(appeal.created_at)
+        .bind(appeal.updated_at)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        Ok(())
+    }
+
+    async fn update_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        appeal: &ModerationAppeal,
+    ) -> Result<(), sdkwork_appstore_moderation_service::error::AppstoreServiceError> {
+        sqlx::query(
+            r#"
+            UPDATE appstore_moderation_appeal
+            SET appeal_status = ?, decided_by = ?, decision_note = ?,
+                decided_at = ?, updated_at = ?
+            WHERE id = ? AND tenant_id = ?
+            "#,
+        )
+        .bind(appeal.appeal_status.as_str())
+        .bind(&appeal.decided_by)
+        .bind(&appeal.decision_note)
+        .bind(appeal.decided_at)
+        .bind(appeal.updated_at)
+        .bind(appeal.id.as_str())
+        .bind(&context.tenant_id)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
         Ok(())
     }

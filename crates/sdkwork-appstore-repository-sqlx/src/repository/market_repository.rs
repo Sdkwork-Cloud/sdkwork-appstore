@@ -1,5 +1,8 @@
 use sqlx::{Pool, Sqlite};
 
+use crate::db::columns::{
+    columns_csv, APPSTORE_MARKET_CHANNEL_COLUMNS, APPSTORE_MARKET_RELEASE_COLUMNS,
+};
 use crate::db::rows::{MarketChannelRow, MarketReleaseRow};
 use crate::mapper::row_mapper::{
     map_market_channel_domain_to_row, map_market_channel_row_to_domain,
@@ -33,15 +36,14 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         channel_id: &MarketChannelId,
     ) -> Result<Option<MarketChannel>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, MarketChannelRow>(
+        let row = sqlx::query_as::<_, MarketChannelRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, channel_code, channel_type, provider,
-                   channel_status, external_store_code, api_capability_json, config_json,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_market_channel
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+        ))
         .bind(channel_id.as_str())
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -59,15 +61,14 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         channel_code: &str,
     ) -> Result<Option<MarketChannel>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, MarketChannelRow>(
+        let row = sqlx::query_as::<_, MarketChannelRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, channel_code, channel_type, provider,
-                   channel_status, external_store_code, api_capability_json, config_json,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_market_channel
             WHERE channel_code = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+        ))
         .bind(channel_code)
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -89,17 +90,16 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
     {
         let rows = if let Some(cursor_id) = cursor {
             if let Some(status) = channel_status {
-                sqlx::query_as::<_, MarketChannelRow>(
+                sqlx::query_as::<_, MarketChannelRow>(&format!(
                     r#"
-                    SELECT id, tenant_id, organization_id, channel_code, channel_type, provider,
-                           channel_status, external_store_code, api_capability_json, config_json,
-                           created_at, updated_at
+                    SELECT {}
                     FROM appstore_market_channel
                     WHERE tenant_id = ? AND channel_status = ? AND id > ?
                     ORDER BY id ASC
                     LIMIT ?
                     "#,
-                )
+                    columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+                ))
                 .bind(&context.tenant_id)
                 .bind(status)
                 .bind(cursor_id)
@@ -107,17 +107,16 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
                 .fetch_all(&self.pool)
                 .await
             } else {
-                sqlx::query_as::<_, MarketChannelRow>(
+                sqlx::query_as::<_, MarketChannelRow>(&format!(
                     r#"
-                    SELECT id, tenant_id, organization_id, channel_code, channel_type, provider,
-                           channel_status, external_store_code, api_capability_json, config_json,
-                           created_at, updated_at
+                    SELECT {}
                     FROM appstore_market_channel
                     WHERE tenant_id = ? AND id > ?
                     ORDER BY id ASC
                     LIMIT ?
                     "#,
-                )
+                    columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+                ))
                 .bind(&context.tenant_id)
                 .bind(cursor_id)
                 .bind(limit)
@@ -125,34 +124,32 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
                 .await
             }
         } else if let Some(status) = channel_status {
-            sqlx::query_as::<_, MarketChannelRow>(
+            sqlx::query_as::<_, MarketChannelRow>(&format!(
                 r#"
-                SELECT id, tenant_id, organization_id, channel_code, channel_type, provider,
-                       channel_status, external_store_code, api_capability_json, config_json,
-                       created_at, updated_at
+                SELECT {}
                 FROM appstore_market_channel
                 WHERE tenant_id = ? AND channel_status = ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-            )
+                columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+            ))
             .bind(&context.tenant_id)
             .bind(status)
             .bind(limit)
             .fetch_all(&self.pool)
             .await
         } else {
-            sqlx::query_as::<_, MarketChannelRow>(
+            sqlx::query_as::<_, MarketChannelRow>(&format!(
                 r#"
-                SELECT id, tenant_id, organization_id, channel_code, channel_type, provider,
-                       channel_status, external_store_code, api_capability_json, config_json,
-                       created_at, updated_at
+                SELECT {}
                 FROM appstore_market_channel
                 WHERE tenant_id = ?
                 ORDER BY id ASC
                 LIMIT ?
                 "#,
-            )
+                columns_csv(APPSTORE_MARKET_CHANNEL_COLUMNS)
+            ))
             .bind(&context.tenant_id)
             .bind(limit)
             .fetch_all(&self.pool)
@@ -240,17 +237,14 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         release_id: &MarketReleaseId,
     ) -> Result<Option<MarketRelease>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, MarketReleaseRow>(
+        let row = sqlx::query_as::<_, MarketReleaseRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, app_id, listing_id, release_id, channel_id,
-                   market_release_no, external_app_id, external_release_id, external_track,
-                   market_status, rollout_percent, countries_json, store_url, external_status_json,
-                   submitted_at, approved_at, released_at, rejected_at, last_synced_at,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_market_release
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_MARKET_RELEASE_COLUMNS)
+        ))
         .bind(release_id.as_str())
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -290,16 +284,13 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         let where_clause = conditions.join(" AND ");
         let sql = format!(
             r#"
-            SELECT id, tenant_id, organization_id, app_id, listing_id, release_id, channel_id,
-                   market_release_no, external_app_id, external_release_id, external_track,
-                   market_status, rollout_percent, countries_json, store_url, external_status_json,
-                   submitted_at, approved_at, released_at, rejected_at, last_synced_at,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_market_release
             WHERE {}
             ORDER BY id ASC
             LIMIT ?
             "#,
+            columns_csv(APPSTORE_MARKET_RELEASE_COLUMNS),
             where_clause
         );
 

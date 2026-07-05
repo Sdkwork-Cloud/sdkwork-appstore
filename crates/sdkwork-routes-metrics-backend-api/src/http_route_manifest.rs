@@ -9,6 +9,36 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.metrics.listings.retrieve",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/publisher/overview",
+        "appstore",
+        "appstore.analytics.publisher.overview.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/publisher/listings",
+        "appstore",
+        "appstore.analytics.publisher.listings.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/publisher/listings/{listingId}",
+        "appstore",
+        "appstore.analytics.publisher.listings.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/operator/dashboard",
+        "appstore",
+        "appstore.analytics.operator.dashboard.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/operator/search",
+        "appstore",
+        "appstore.analytics.operator.search.retrieve",
+    ),
 ];
 
 pub fn backend_route_manifest() -> HttpRouteManifest {

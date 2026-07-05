@@ -1,5 +1,8 @@
+use chrono::Utc;
 use sqlx::{Pool, Sqlite};
 
+use crate::db::columns::columns_csv;
+use crate::db::columns::APPSTORE_LISTING_COLUMNS;
 use crate::db::rows::{
     ListingCategoryBindingRow, ListingLocalizationRow, ListingMediaRow, ListingRow,
     ListingSubmissionRow, RegionalAvailabilityRow, ReleaseRow,
@@ -14,7 +17,7 @@ use crate::mapper::row_mapper::{
 use sdkwork_appstore_listing_service::context::AppstoreRequestContext;
 use sdkwork_appstore_listing_service::domain::models::{
     Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia,
-    ListingSubmission, RegionalAvailability,
+    ListingSubmission, RegionalAvailability, StoreApp,
 };
 use sdkwork_appstore_listing_service::error::AppstoreServiceError;
 use sdkwork_appstore_listing_service::ports::repository::ListingRepositoryPort;
@@ -30,13 +33,6 @@ impl SqlxListingRepository {
     }
 }
 
-const LISTING_COLUMNS: &str = r#"id, tenant_id, organization_id, app_id, publisher_id, listing_no,
-    plus_app_id, plus_app_key, listing_slug, listing_type, pricing_model, listing_status,
-    storefront_visibility, review_status, primary_category_id, default_locale, age_rating_code,
-    content_rating_json, official_website_url, support_url, privacy_policy_url, comments_thread_id,
-    commerce_product_id, current_release_id, featured_score, download_count, average_rating,
-    rating_count, version, submitted_at, published_at, delisted_at, deleted_at, created_at, updated_at"#;
-
 #[async_trait::async_trait]
 impl ListingRepositoryPort for SqlxListingRepository {
     async fn find_listing_by_id(
@@ -46,7 +42,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
     ) -> Result<Option<Listing>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ListingRow>(&format!(
             r#"SELECT {} FROM appstore_listing WHERE id = ? AND tenant_id = ? AND deleted_at IS NULL"#,
-            LISTING_COLUMNS
+            columns_csv(APPSTORE_LISTING_COLUMNS)
         ))
         .bind(listing_id.as_str())
         .bind(&context.tenant_id)
@@ -67,7 +63,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
     ) -> Result<Option<Listing>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ListingRow>(&format!(
             r#"SELECT {} FROM appstore_listing WHERE tenant_id = ? AND listing_slug = ? AND deleted_at IS NULL"#,
-            LISTING_COLUMNS
+            columns_csv(APPSTORE_LISTING_COLUMNS)
         ))
         .bind(tenant_id)
         .bind(listing_slug)
@@ -80,17 +76,17 @@ impl ListingRepositoryPort for SqlxListingRepository {
             .map_err(AppstoreServiceError::Internal)
     }
 
-    async fn find_listing_by_plus_app_id(
+    async fn find_listing_by_app_id(
         &self,
         context: &AppstoreRequestContext,
-        plus_app_id: &str,
+        app_id: &str,
     ) -> Result<Option<Listing>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ListingRow>(&format!(
-            r#"SELECT {} FROM appstore_listing WHERE tenant_id = ? AND plus_app_id = ? AND deleted_at IS NULL"#,
-            LISTING_COLUMNS
+            r#"SELECT {} FROM appstore_listing WHERE tenant_id = ? AND app_id = ? AND deleted_at IS NULL"#,
+            columns_csv(APPSTORE_LISTING_COLUMNS)
         ))
         .bind(&context.tenant_id)
-        .bind(plus_app_id)
+        .bind(app_id)
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
@@ -112,7 +108,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
                 r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND publisher_id = ? AND deleted_at IS NULL AND id > ?
                 ORDER BY id ASC LIMIT ?"#,
-                LISTING_COLUMNS
+                columns_csv(APPSTORE_LISTING_COLUMNS)
             ))
             .bind(&context.tenant_id)
             .bind(publisher_id)
@@ -126,7 +122,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
                 r#"SELECT {} FROM appstore_listing
                 WHERE tenant_id = ? AND publisher_id = ? AND deleted_at IS NULL
                 ORDER BY id ASC LIMIT ?"#,
-                LISTING_COLUMNS
+                columns_csv(APPSTORE_LISTING_COLUMNS)
             ))
             .bind(&context.tenant_id)
             .bind(publisher_id)
@@ -159,14 +155,14 @@ impl ListingRepositoryPort for SqlxListingRepository {
         sqlx::query(
             r#"INSERT INTO appstore_listing (
                 id, tenant_id, organization_id, app_id, publisher_id, listing_no,
-                plus_app_id, plus_app_key, listing_slug, listing_type, pricing_model,
+                app_key, listing_slug, listing_type, pricing_model,
                 listing_status, storefront_visibility, review_status, primary_category_id,
                 default_locale, age_rating_code, content_rating_json, official_website_url,
                 support_url, privacy_policy_url, comments_thread_id, commerce_product_id,
                 current_release_id, featured_score, download_count, average_rating,
                 rating_count, version, submitted_at, published_at, delisted_at, deleted_at,
                 created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
         )
         .bind(listing.id.as_str())
         .bind(&context.tenant_id)
@@ -174,8 +170,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
         .bind(&listing.app_id)
         .bind(&listing.publisher_id)
         .bind(&listing.listing_no)
-        .bind(&listing.plus_app_id)
-        .bind(&listing.plus_app_key)
+        .bind(&listing.app_key)
         .bind(&listing.listing_slug)
         .bind(&listing_type)
         .bind(&pricing_model)
@@ -226,7 +221,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
 
         let result = sqlx::query(
             r#"UPDATE appstore_listing SET
-                app_id = ?, listing_no = ?, plus_app_id = ?, plus_app_key = ?,
+                listing_no = ?, app_id = ?, app_key = ?,
                 listing_slug = ?, pricing_model = ?, listing_status = ?,
                 storefront_visibility = ?, review_status = ?, primary_category_id = ?,
                 default_locale = ?, age_rating_code = ?, content_rating_json = ?,
@@ -237,10 +232,9 @@ impl ListingRepositoryPort for SqlxListingRepository {
                 delisted_at = ?, deleted_at = ?, updated_at = ?
             WHERE id = ? AND tenant_id = ? AND version = ?"#,
         )
-        .bind(&listing.app_id)
         .bind(&listing.listing_no)
-        .bind(&listing.plus_app_id)
-        .bind(&listing.plus_app_key)
+        .bind(&listing.app_id)
+        .bind(&listing.app_key)
         .bind(&listing.listing_slug)
         .bind(&pricing_model)
         .bind(&listing_status)
@@ -690,6 +684,60 @@ impl ListingRepositoryPort for SqlxListingRepository {
         Ok(())
     }
 
+    async fn find_submission_by_id(
+        &self,
+        context: &AppstoreRequestContext,
+        submission_id: &str,
+    ) -> Result<Option<ListingSubmission>, AppstoreServiceError> {
+        let row = sqlx::query_as::<_, ListingSubmissionRow>(
+            r#"SELECT id, tenant_id, organization_id, listing_id, release_id, submission_no,
+                submission_type, submission_status, submitted_by, submitted_at,
+                payload_snapshot_json, idempotency_key, created_at, updated_at
+            FROM appstore_listing_submission
+            WHERE tenant_id = ? AND id = ?"#,
+        )
+        .bind(&context.tenant_id)
+        .bind(submission_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+
+        row.map(map_submission_row_to_domain)
+            .transpose()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn update_submission(
+        &self,
+        context: &AppstoreRequestContext,
+        submission: &ListingSubmission,
+    ) -> Result<(), AppstoreServiceError> {
+        let (submission_type, submission_status, payload_snapshot_json) =
+            map_submission_domain_to_row(submission);
+
+        sqlx::query(
+            r#"UPDATE appstore_listing_submission
+            SET release_id = ?, submission_type = ?, submission_status = ?, submitted_by = ?,
+                submitted_at = ?, payload_snapshot_json = ?, idempotency_key = ?, updated_at = ?
+            WHERE tenant_id = ? AND id = ?"#,
+        )
+        .bind(&submission.release_id)
+        .bind(&submission_type)
+        .bind(&submission_status)
+        .bind(&submission.submitted_by)
+        .bind(submission.submitted_at)
+        .bind(&payload_snapshot_json)
+        .bind(&submission.idempotency_key)
+        .bind(submission.updated_at)
+        .bind(&context.tenant_id)
+        .bind(&submission.id)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+
+        Ok(())
+    }
+
     async fn find_submissions_by_listing(
         &self,
         context: &AppstoreRequestContext,
@@ -726,7 +774,7 @@ impl ListingRepositoryPort for SqlxListingRepository {
     ) -> Result<Vec<Listing>, AppstoreServiceError> {
         let mut sql = format!(
             r#"SELECT {} FROM appstore_listing WHERE tenant_id = ? AND deleted_at IS NULL"#,
-            LISTING_COLUMNS
+            columns_csv(APPSTORE_LISTING_COLUMNS)
         );
 
         if status_filter.is_some() {
@@ -768,5 +816,452 @@ impl ListingRepositoryPort for SqlxListingRepository {
             .map(map_listing_row_to_domain)
             .collect::<Result<Vec<_>, _>>()
             .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn find_app_by_key(
+        &self,
+        context: &AppstoreRequestContext,
+        app_key: &str,
+    ) -> Result<Option<StoreApp>, AppstoreServiceError> {
+        let row = sqlx::query_as::<
+            _,
+            (
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                String,
+                Option<String>,
+                String,
+                String,
+            ),
+        >(
+            r#"SELECT id, tenant_id, organization_id, publisher_id, app_no, app_key, app_slug,
+                display_name, default_locale, app_type, app_status, distribution_status,
+                review_status, current_listing_id, created_at, updated_at
+            FROM appstore_app
+            WHERE tenant_id = ? AND app_key = ? AND deleted_at IS NULL
+            LIMIT 1"#,
+        )
+        .bind(&context.tenant_id)
+        .bind(app_key)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        Ok(row.map(
+            |(
+                id,
+                tenant_id,
+                organization_id,
+                publisher_id,
+                app_no,
+                app_key,
+                app_slug,
+                display_name,
+                default_locale,
+                app_type,
+                app_status,
+                distribution_status,
+                review_status,
+                current_listing_id,
+                created_at,
+                updated_at,
+            )| {
+                StoreApp {
+                    id,
+                    tenant_id,
+                    organization_id,
+                    publisher_id,
+                    app_no,
+                    app_key,
+                    app_slug,
+                    display_name,
+                    default_locale,
+                    app_type,
+                    app_status,
+                    distribution_status,
+                    review_status,
+                    current_listing_id,
+                    created_at: created_at.parse().unwrap_or_else(|_| Utc::now()),
+                    updated_at: updated_at.parse().unwrap_or_else(|_| Utc::now()),
+                }
+            },
+        ))
+    }
+
+    async fn bootstrap_app_and_listing(
+        &self,
+        context: &AppstoreRequestContext,
+        app: &StoreApp,
+        listing: &Listing,
+    ) -> Result<(), AppstoreServiceError> {
+        let (
+            listing_type,
+            pricing_model,
+            listing_status,
+            storefront_visibility,
+            review_status,
+            content_rating_json,
+        ) = map_listing_domain_to_row(listing);
+
+        let mut tx = self
+            .pool
+            .begin()
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        sqlx::query(
+            r#"INSERT INTO appstore_app (
+                id, tenant_id, organization_id, publisher_id, app_no, app_key, app_slug,
+                display_name, default_locale, app_type, runtime_family, runtime_framework,
+                app_status, distribution_status, review_status, monetization_mode,
+                content_rating_json, icon, icon_resource_snapshot, resource_list, config,
+                runtime_status, install_skill, install_config, install_platforms, platforms,
+                release_notes, artifact_resource_snapshot, rating_avg, manifest_snapshot_json,
+                version, current_listing_id, owner_user_id, created_at, updated_at
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'WEB', 'REACT', ?, ?, ?, 'free',
+                '{}', '{}', '', '[]', '{}', 1, '{}', '{}', '[]', '[]', '[]', '', '0', '{}',
+                1, ?, ?, ?, ?
+            )"#,
+        )
+        .bind(&app.id)
+        .bind(&context.tenant_id)
+        .bind(&context.organization_id)
+        .bind(&app.publisher_id)
+        .bind(&app.app_no)
+        .bind(&app.app_key)
+        .bind(&app.app_slug)
+        .bind(&app.display_name)
+        .bind(&app.default_locale)
+        .bind(&app.app_type)
+        .bind(&app.app_status)
+        .bind(&app.distribution_status)
+        .bind(&app.review_status)
+        .bind(listing.id.as_str())
+        .bind(if context.user_id.trim().is_empty() {
+            None::<String>
+        } else {
+            Some(context.user_id.clone())
+        })
+        .bind(app.created_at)
+        .bind(app.updated_at)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        sqlx::query(
+            r#"INSERT INTO appstore_listing (
+                id, tenant_id, organization_id, app_id, publisher_id, listing_no,
+                app_key, listing_slug, listing_type, pricing_model,
+                listing_status, storefront_visibility, review_status, primary_category_id,
+                default_locale, age_rating_code, content_rating_json, official_website_url,
+                support_url, privacy_policy_url, comments_thread_id, commerce_product_id,
+                current_release_id, featured_score, download_count, average_rating,
+                rating_count, version, submitted_at, published_at, delisted_at, deleted_at,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+        )
+        .bind(listing.id.as_str())
+        .bind(&context.tenant_id)
+        .bind(&context.organization_id)
+        .bind(&listing.app_id)
+        .bind(&listing.publisher_id)
+        .bind(&listing.listing_no)
+        .bind(&listing.app_key)
+        .bind(&listing.listing_slug)
+        .bind(&listing_type)
+        .bind(&pricing_model)
+        .bind(&listing_status)
+        .bind(&storefront_visibility)
+        .bind(&review_status)
+        .bind(&listing.primary_category_id)
+        .bind(&listing.default_locale)
+        .bind(&listing.age_rating_code)
+        .bind(&content_rating_json)
+        .bind(&listing.official_website_url)
+        .bind(&listing.support_url)
+        .bind(&listing.privacy_policy_url)
+        .bind(&listing.comments_thread_id)
+        .bind(&listing.commerce_product_id)
+        .bind(&listing.current_release_id)
+        .bind(listing.featured_score)
+        .bind(listing.download_count)
+        .bind(&listing.average_rating)
+        .bind(listing.rating_count)
+        .bind(listing.version)
+        .bind(listing.submitted_at)
+        .bind(listing.published_at)
+        .bind(listing.delisted_at)
+        .bind(listing.deleted_at)
+        .bind(listing.created_at)
+        .bind(listing.updated_at)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        tx.commit()
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        Ok(())
+    }
+
+    async fn find_release_history_by_listing(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> Result<Vec<serde_json::Value>, AppstoreServiceError> {
+        let release_cols = r#"id, tenant_id, organization_id, listing_id, release_no, channel_id,
+            version_name, version_code, build_number, release_status, minimum_os_version,
+            release_notes_default_locale, manifest_snapshot_json, submitted_at, approved_at,
+            published_at, retired_at, version, created_at, updated_at"#;
+
+        let rows = if let Some(cursor_id) = cursor {
+            sqlx::query_as::<_, ReleaseRow>(&format!(
+                r#"SELECT {release_cols} FROM appstore_release r
+                WHERE r.tenant_id = ? AND r.listing_id = ?
+                  AND (
+                    CAST(r.version_code AS INTEGER) < (
+                        SELECT CAST(version_code AS INTEGER) FROM appstore_release WHERE id = ? AND tenant_id = ?
+                    )
+                    OR (
+                        CAST(r.version_code AS INTEGER) = (
+                            SELECT CAST(version_code AS INTEGER) FROM appstore_release WHERE id = ? AND tenant_id = ?
+                        )
+                        AND r.id < ?
+                    )
+                  )
+                ORDER BY CAST(r.version_code AS INTEGER) DESC, r.id DESC
+                LIMIT ?"#
+            ))
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .bind(cursor_id)
+            .bind(&context.tenant_id)
+            .bind(cursor_id)
+            .bind(&context.tenant_id)
+            .bind(cursor_id)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+        } else {
+            sqlx::query_as::<_, ReleaseRow>(&format!(
+                r#"SELECT {release_cols} FROM appstore_release
+                WHERE tenant_id = ? AND listing_id = ?
+                ORDER BY CAST(version_code AS INTEGER) DESC, id DESC
+                LIMIT ?"#
+            ))
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+        };
+
+        Ok(rows
+            .into_iter()
+            .map(|r| {
+                serde_json::json!({
+                    "id": r.id,
+                    "tenant_id": r.tenant_id,
+                    "organization_id": r.organization_id,
+                    "listing_id": r.listing_id,
+                    "release_no": r.release_no,
+                    "channel_id": r.channel_id,
+                    "version_name": r.version_name,
+                    "version_code": r.version_code,
+                    "build_number": r.build_number,
+                    "release_status": r.release_status,
+                    "minimum_os_version": r.minimum_os_version,
+                    "release_notes_default_locale": r.release_notes_default_locale,
+                    "manifest_snapshot_json": r.manifest_snapshot_json,
+                    "submitted_at": r.submitted_at,
+                    "approved_at": r.approved_at,
+                    "published_at": r.published_at,
+                    "retired_at": r.retired_at,
+                    "version": r.version,
+                    "created_at": r.created_at,
+                    "updated_at": r.updated_at,
+                })
+            })
+            .collect())
+    }
+
+    async fn find_similar_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        primary_category_id: &str,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> Result<Vec<Listing>, AppstoreServiceError> {
+        let visible_filter = r#"listing_status = 'active'
+            AND storefront_visibility IN ('visible', 'featured')
+            AND deleted_at IS NULL"#;
+
+        let rows = if let Some(cursor_id) = cursor {
+            sqlx::query_as::<_, ListingRow>(&format!(
+                r#"SELECT {} FROM appstore_listing
+                WHERE tenant_id = ? AND primary_category_id = ? AND id != ?
+                  AND {visible_filter} AND id > ?
+                ORDER BY featured_score DESC, rating_count DESC, id ASC
+                LIMIT ?"#,
+                columns_csv(APPSTORE_LISTING_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(primary_category_id)
+            .bind(listing_id.as_str())
+            .bind(cursor_id)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+        } else {
+            sqlx::query_as::<_, ListingRow>(&format!(
+                r#"SELECT {} FROM appstore_listing
+                WHERE tenant_id = ? AND primary_category_id = ? AND id != ?
+                  AND {visible_filter}
+                ORDER BY featured_score DESC, rating_count DESC, id ASC
+                LIMIT ?"#,
+                columns_csv(APPSTORE_LISTING_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(primary_category_id)
+            .bind(listing_id.as_str())
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+        };
+
+        rows.into_iter()
+            .map(map_listing_row_to_domain)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn find_developer_other_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        publisher_id: &str,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> Result<Vec<Listing>, AppstoreServiceError> {
+        let visible_filter = r#"listing_status = 'active'
+            AND storefront_visibility IN ('visible', 'featured')
+            AND deleted_at IS NULL"#;
+
+        let rows = if let Some(cursor_id) = cursor {
+            sqlx::query_as::<_, ListingRow>(&format!(
+                r#"SELECT {} FROM appstore_listing
+                WHERE tenant_id = ? AND publisher_id = ? AND id != ?
+                  AND {visible_filter} AND id > ?
+                ORDER BY featured_score DESC, rating_count DESC, id ASC
+                LIMIT ?"#,
+                columns_csv(APPSTORE_LISTING_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(publisher_id)
+            .bind(listing_id.as_str())
+            .bind(cursor_id)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+        } else {
+            sqlx::query_as::<_, ListingRow>(&format!(
+                r#"SELECT {} FROM appstore_listing
+                WHERE tenant_id = ? AND publisher_id = ? AND id != ?
+                  AND {visible_filter}
+                ORDER BY featured_score DESC, rating_count DESC, id ASC
+                LIMIT ?"#,
+                columns_csv(APPSTORE_LISTING_COLUMNS)
+            ))
+            .bind(&context.tenant_id)
+            .bind(publisher_id)
+            .bind(listing_id.as_str())
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?
+        };
+
+        rows.into_iter()
+            .map(map_listing_row_to_domain)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn find_listing_editorial(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        default_locale: &str,
+    ) -> Result<(Option<String>, Option<String>), AppstoreServiceError> {
+        let highlight_row: Option<(String,)> = sqlx::query_as(
+            r#"SELECT ci.highlight_json FROM appstore_catalog_collection_item ci
+               INNER JOIN appstore_catalog_collection c
+                 ON c.id = ci.collection_id AND c.tenant_id = ci.tenant_id
+               WHERE ci.tenant_id = ? AND ci.listing_id = ?
+                 AND c.collection_type = 'editorial'
+               ORDER BY ci.sort_order ASC
+               LIMIT 1"#,
+        )
+        .bind(&context.tenant_id)
+        .bind(listing_id.as_str())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        let editorial_highlight = highlight_row.and_then(|(highlight_json,)| {
+            serde_json::from_str::<serde_json::Value>(&highlight_json)
+                .ok()
+                .and_then(|value| {
+                    value
+                        .get("editorial_highlight")
+                        .or_else(|| value.get("editorialHighlight"))
+                        .and_then(|v| v.as_str())
+                        .map(str::to_owned)
+                })
+        });
+
+        let note_row: Option<(Option<String>,)> = sqlx::query_as(
+            r#"SELECT cl.description FROM appstore_catalog_collection_item ci
+               INNER JOIN appstore_catalog_collection c
+                 ON c.id = ci.collection_id AND c.tenant_id = ci.tenant_id
+               LEFT JOIN appstore_catalog_collection_localization cl
+                 ON cl.collection_id = ci.collection_id
+                AND cl.tenant_id = ci.tenant_id
+                AND cl.locale = ?
+               WHERE ci.tenant_id = ? AND ci.listing_id = ?
+                 AND c.collection_type = 'editorial'
+               ORDER BY ci.sort_order ASC
+               LIMIT 1"#,
+        )
+        .bind(default_locale)
+        .bind(&context.tenant_id)
+        .bind(listing_id.as_str())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        let collection_editorial_note = note_row.and_then(|(description,)| description);
+
+        Ok((editorial_highlight, collection_editorial_note))
     }
 }

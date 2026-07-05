@@ -1,13 +1,17 @@
 export interface RuntimeEnvironment {
   name: 'development' | 'test' | 'staging' | 'production';
   appstoreAppApiBaseUrl: string;
+  appstoreOpenApiBaseUrl: string;
   appbaseBaseUrl: string;
+  driveAppApiBaseUrl: string;
 }
 
 const defaultEnvironment: RuntimeEnvironment = {
   name: 'development',
   appstoreAppApiBaseUrl: 'http://127.0.0.1:18090',
+  appstoreOpenApiBaseUrl: 'http://127.0.0.1:18092',
   appbaseBaseUrl: 'http://127.0.0.1:18080',
+  driveAppApiBaseUrl: 'http://127.0.0.1:18080',
 };
 
 let currentEnvironment: RuntimeEnvironment = defaultEnvironment;

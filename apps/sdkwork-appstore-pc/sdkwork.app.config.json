@@ -35,6 +35,10 @@
     {
       "sdkFamily": "sdkwork-iam-app-sdk",
       "purpose": "IAM session, organization context"
+    },
+    {
+      "sdkFamily": "sdkwork-drive-app-sdk",
+      "purpose": "Publisher media and release artifact uploads"
     }
   ],
   "environments": {

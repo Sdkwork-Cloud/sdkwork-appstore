@@ -1,0 +1,15 @@
+[package]
+name = "sdkwork-appstore-database-host"
+version = "0.1.0"
+edition = "2021"
+description = "SDKWork App Store database lifecycle bootstrap."
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+dotenvy = "0.15"
+sdkwork-database-config = { workspace = true }
+sdkwork-database-lifecycle = { workspace = true }
+sdkwork-database-spi = { workspace = true }
+sdkwork-database-sqlx = { workspace = true }

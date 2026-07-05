@@ -1,204 +1,332 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Star, Download, Share2, Heart, Shield, ChevronRight } from 'lucide-react';
 import {
-  ArrowLeft,
-  Star,
-  Download,
-  Share2,
-  Heart,
-  Shield,
-  Globe,
-  Clock,
-  ChevronRight,
-  MoreHorizontal,
-  Flag,
-  ThumbsUp,
-} from 'lucide-react';
+  usePublicListing,
+  useApi,
+  formatApiError,
+  installListingAndDownload,
+  useListingSimilar,
+} from '@/hooks/useApi';
+import { isAuthenticated } from '@/bootstrap/iamRuntime';
+import { getStoreClient } from '@/services/storeClient';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { readRecordString as readString } from '@sdkwork/appstore-h5-commons';
 
 export function ListingDetailPage() {
   const { listingSlug } = useParams<{ listingSlug: string }>();
   const navigate = useNavigate();
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const slug = listingSlug ?? '';
+  const { data, loading, error } = usePublicListing(slug);
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [installing, setInstalling] = useState(false);
+  const [installed, setInstalled] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
+  const row = (data ?? {}) as Record<string, unknown>;
+  const listingId = readString(row, 'id', 'listingId', 'listing_id') || slug;
+  const { data: similarData } = useListingSimilar(listingId, 6);
+
+  const mediaApi = useApi(
+    () => getStoreClient().listings.listMedia(listingId),
+    { immediate: false },
+  );
+
+  useEffect(() => {
+    if (listingId && isAuthenticated()) {
+      void mediaApi.execute();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listingId]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  const appKey = readString(row, 'appKey', 'app_key');
   const app = {
-    name: 'Amazing Productivity',
-    subtitle: 'Get things done faster',
-    developer: 'SDKWork Technologies',
-    rating: 4.7,
-    ratingCount: 12500,
-    ageRating: '4+',
-    downloads: '100K+',
-    pricingModel: 'FREE',
-    category: 'Productivity',
-    version: '2.5.1',
-    size: '45.2 MB',
-    description: 'This amazing productivity app helps you organize your work and life. With powerful features like task management, calendar integration, and team collaboration, you will be able to get more done in less time.',
-    whatsNew: 'Fixed sync issues. Improved performance. Added dark mode support.',
+    name: readString(row, 'displayName', 'display_name', 'title') || slug || '应用',
+    subtitle: readString(row, 'subtitle', 'tagline'),
+    developer: readString(row, 'developerName', 'publisherName') || '开发者',
+    rating: Number(row.averageRating ?? row.rating ?? 0),
+    ratingCount: Number(row.ratingCount ?? row.rating_count ?? 0),
+    pricingModel: readString(row, 'pricingModel', 'pricing_model') || 'FREE',
+    category: readString(row, 'categoryCode', 'category') || '通用',
+    version: readString(row, 'versionName', 'version') || '—',
+    description:
+      readString(row, 'description', 'shortDescription', 'summary') ||
+      '应用详情将在本地化内容发布后展示。',
+    whatsNew: readString(row, 'whatsNew', 'whats_new_summary', 'releaseNotes') || '',
+    privacyUrl: readString(row, 'privacyPolicyUrl', 'privacy_policy_url'),
   };
+
+  const similarApps = (similarData?.items ?? []).map((item, index) => {
+    const sim = item as Record<string, unknown>;
+    const id = String(sim.listingSlug ?? sim.id ?? index);
+    return {
+      id,
+      name: String(sim.displayName ?? sim.display_name ?? '应用'),
+    };
+  }).filter((s) => s.id !== slug && s.id !== listingId);
+
+  async function handleGetOrInstall() {
+    if (!isAuthenticated()) {
+      navigate('/login', { state: { from: { pathname: `/app/${slug}` } } });
+      return;
+    }
+    setInstalling(true);
+    setActionError(null);
+    try {
+      const result = await installListingAndDownload({
+        listingId,
+        platform: 'ANDROID',
+        appKey: appKey || undefined,
+      });
+      setInstalled(true);
+      if (result.downloadUrl) {
+        window.open(result.downloadUrl, '_blank', 'noopener,noreferrer');
+      }
+    } catch (err) {
+      setActionError(formatApiError(err instanceof Error ? err : new Error(String(err))));
+    } finally {
+      setInstalling(false);
+    }
+  }
+
+  async function handleWishlistToggle() {
+    if (!isAuthenticated()) {
+      navigate('/login', { state: { from: { pathname: `/app/${slug}` } } });
+      return;
+    }
+    setActionError(null);
+    try {
+      const client = getStoreClient();
+      if (isWishlisted) {
+        await client.wishlist.removeItem(listingId);
+        setIsWishlisted(false);
+      } else {
+        await client.wishlist.addItem(listingId);
+        setIsWishlisted(true);
+      }
+    } catch (err) {
+      setActionError(formatApiError(err instanceof Error ? err : new Error(String(err))));
+    }
+  }
+
+  const priceLabel = app.pricingModel === 'FREE' || app.pricingModel === 'FREEMIUM' ? '免费' : '付费';
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100">
+      <header className="page-header">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center">
-            <ArrowLeft className="w-6 h-6" />
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full"
+            style={{ color: 'var(--text-primary)' }}
+            aria-label="返回"
+          >
+            <ArrowLeft className="h-6 w-6" />
           </button>
           <div className="flex items-center gap-1">
-            <button className="w-10 h-10 flex items-center justify-center">
-              <Share2 className="w-5 h-5" />
+            <button
+              type="button"
+              className="flex h-10 w-10 items-center justify-center"
+              aria-label="分享"
+              onClick={() => {
+                if (navigator.share) {
+                  void navigator.share({ title: app.name, url: window.location.href });
+                }
+              }}
+            >
+              <Share2 className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} />
             </button>
-            <button onClick={() => setIsWishlisted(!isWishlisted)} className="w-10 h-10 flex items-center justify-center">
-              <Heart className={`w-5 h-5 ${isWishlisted ? 'text-red-500 fill-current' : ''}`} />
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center">
-              <MoreHorizontal className="w-5 h-5" />
+            <button
+              type="button"
+              onClick={() => void handleWishlistToggle()}
+              className="flex h-10 w-10 items-center justify-center"
+              aria-label={isWishlisted ? '取消收藏' : '收藏'}
+            >
+              <Heart
+                className={`h-5 w-5 ${isWishlisted ? 'fill-[var(--danger)] text-[var(--danger)]' : ''}`}
+                style={{ color: isWishlisted ? undefined : 'var(--text-secondary)' }}
+              />
             </button>
           </div>
         </div>
       </header>
 
-      <div className="pt-14 pb-24">
-        {/* App Info */}
+      {(error || actionError) && (
+        <div
+          className="mx-4 mt-2 rounded-xl px-4 py-3 text-sm"
+          style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
+        >
+          {error ? formatApiError(error) : actionError}
+        </div>
+      )}
+
+      <div className="pb-28 pt-2">
         <section className="px-4 py-4">
           <div className="flex gap-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center flex-shrink-0">
-              <span className="text-3xl font-bold text-white">{app.name[0]}</span>
+            <div
+              className="app-icon flex h-20 w-20 flex-shrink-0 items-center justify-center text-3xl font-bold text-white"
+              style={{ background: 'linear-gradient(135deg, var(--accent), #5856d6)' }}
+            >
+              {app.name[0]?.toUpperCase() ?? 'A'}
             </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-bold">{app.name}</h1>
-              <p className="text-sm text-gray-500">{app.subtitle}</p>
-              <Link to="#" className="text-sm text-blue-500">{app.developer}</Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats */}
-        <section className="px-4 pb-4">
-          <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
-            <div className="text-center">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span className="font-bold text-sm">{app.rating}</span>
-              </div>
-              <span className="text-xs text-gray-400">{(app.ratingCount / 1000).toFixed(1)}K</span>
-            </div>
-            <div className="w-px h-8 bg-gray-200" />
-            <div className="text-center">
-              <span className="text-xs px-2 py-0.5 bg-gray-200 rounded-full">{app.ageRating}</span>
-            </div>
-            <div className="w-px h-8 bg-gray-200" />
-            <div className="text-center">
-              <Download className="w-4 h-4 mx-auto text-gray-500" />
-              <span className="text-xs text-gray-500">{app.downloads}</span>
-            </div>
-            <div className="w-px h-8 bg-gray-200" />
-            <div className="text-center">
-              <span className="text-xs font-medium text-blue-500">
-                {app.pricingModel === 'FREE' ? 'Free' : `$${app.pricingModel}`}
-              </span>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg font-bold text-[var(--text-primary)]">{app.name}</h1>
+              {app.subtitle ? (
+                <p className="text-sm text-[var(--text-secondary)]">{app.subtitle}</p>
+              ) : null}
+              <p className="text-sm font-medium text-[var(--accent)]">{app.developer}</p>
             </div>
           </div>
         </section>
 
-        {/* Action Buttons */}
-        <section className="px-4 pb-4">
-          <div className="flex gap-3">
-            <button className="flex-1 py-3 bg-blue-500 text-white rounded-full font-semibold active:bg-blue-600">
-              {app.pricingModel === 'FREE' ? 'Get' : 'Buy'}
+        <section className="mx-4 mb-4 grid grid-cols-3 gap-2 rounded-xl p-3" style={{ backgroundColor: 'var(--bg-muted)' }}>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1">
+              <Star className="h-4 w-4 fill-[var(--star)] text-[var(--star)]" />
+              <span className="text-sm font-bold">{app.rating > 0 ? app.rating.toFixed(1) : '—'}</span>
+            </div>
+            <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">评分</p>
+          </div>
+          <div className="text-center border-x" style={{ borderColor: 'var(--border-subtle)' }}>
+            <p className="text-sm font-bold text-[var(--accent)]">{priceLabel}</p>
+            <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">价格</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-bold text-[var(--text-primary)]">{app.category}</p>
+            <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">分类</p>
+          </div>
+        </section>
+
+        <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <h2 className="section-title mb-3">截图与预览</h2>
+          {isAuthenticated() && (mediaApi.data?.items?.length ?? 0) > 0 ? (
+            <div className="scroll-x flex gap-3">
+              {(mediaApi.data?.items ?? []).map((item, index) => {
+                const media = item as Record<string, unknown>;
+                const url = readString(media, 'mediaUrl', 'media_url', 'url');
+                return (
+                  <div
+                    key={String(media.id ?? index)}
+                    className="skeleton h-48 w-28 flex-shrink-0 rounded-xl"
+                    style={url ? { backgroundImage: `url(${url})`, backgroundSize: 'cover' } : undefined}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-[var(--text-tertiary)]">
+              {isAuthenticated() ? '暂无截图' : '登录后查看截图与预览'}
+            </p>
+          )}
+        </section>
+
+        <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <h2 className="section-title mb-2">应用介绍</h2>
+          <div className={`relative ${!showFullDesc ? 'max-h-24 overflow-hidden' : ''}`}>
+            <p className="text-sm leading-relaxed text-[var(--text-secondary)]">{app.description}</p>
+            {!showFullDesc ? (
+              <div
+                className="absolute bottom-0 left-0 right-0 h-10"
+                style={{ background: 'linear-gradient(to top, var(--bg-canvas), transparent)' }}
+              />
+            ) : null}
+          </div>
+          {app.description.length > 100 ? (
+            <button
+              type="button"
+              onClick={() => setShowFullDesc(!showFullDesc)}
+              className="mt-2 text-sm font-medium text-[var(--accent)]"
+            >
+              {showFullDesc ? '收起' : '展开全部'}
             </button>
-            <button className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-              <Share2 className="w-5 h-5" />
-            </button>
-          </div>
+          ) : null}
         </section>
 
-        {/* Screenshots */}
-        <section className="pb-4">
-          <div className="flex gap-3 overflow-x-auto px-4 pb-2">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="w-40 h-72 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex-shrink-0 flex items-center justify-center">
-                <span className="text-gray-400 text-sm">Screenshot {i}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+        {app.whatsNew ? (
+          <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+            <h2 className="section-title mb-2">新功能</h2>
+            <p className="text-sm text-[var(--text-secondary)]">{app.whatsNew}</p>
+          </section>
+        ) : null}
 
-        {/* Description */}
-        <section className="px-4 py-4">
-          <h2 className="font-bold mb-2">Description</h2>
-          <div className={`relative ${!showFullDesc ? 'max-h-20 overflow-hidden' : ''}`}>
-            <p className="text-sm text-gray-600 leading-relaxed">{app.description}</p>
-            {!showFullDesc && (
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent" />
-            )}
-          </div>
-          <button onClick={() => setShowFullDesc(!showFullDesc)} className="text-sm text-blue-500 mt-1">
-            {showFullDesc ? 'Less' : 'More'}
-          </button>
-        </section>
-
-        {/* What's New */}
-        <section className="px-4 py-4 border-t border-gray-100">
-          <h2 className="font-bold mb-2">What's New</h2>
-          <p className="text-sm text-gray-600">{app.whatsNew}</p>
-        </section>
-
-        {/* Information */}
-        <section className="px-4 py-4 border-t border-gray-100">
-          <h2 className="font-bold mb-3">Information</h2>
-          <div className="space-y-3">
-            <InfoRow label="Developer" value={app.developer} />
-            <InfoRow label="Category" value={app.category} />
-            <InfoRow label="Version" value={app.version} />
-            <InfoRow label="Size" value={app.size} />
-            <InfoRow label="Compatibility" value="All devices" />
-            <InfoRow label="Languages" value="English, Chinese" />
-          </div>
-        </section>
-
-        {/* Reviews */}
-        <section className="px-4 py-4 border-t border-gray-100">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold">Reviews</h2>
-            <button className="text-sm text-blue-500">See All</button>
-          </div>
-          <div className="space-y-4">
-            {[
-              { user: 'Alex', rating: 5, text: 'Amazing app! Highly recommended.', time: '2d ago' },
-              { user: 'Sarah', rating: 4, text: 'Great app, would love more features.', time: '1w ago' },
-            ].map((review, i) => (
-              <div key={i} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold text-white">{review.user[0]}</span>
+        {similarApps.length > 0 ? (
+          <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+            <h2 className="section-title mb-3">相似应用</h2>
+            <div className="scroll-x flex gap-3">
+              {similarApps.map((sim) => (
+                <Link
+                  key={sim.id}
+                  to={`/app/${sim.id}`}
+                  className="card card-press min-w-[120px] flex-shrink-0 p-3 text-center"
+                >
+                  <div
+                    className="app-icon mx-auto mb-2 flex h-14 w-14 items-center justify-center font-bold text-white"
+                    style={{ background: 'linear-gradient(135deg, var(--accent), #5856d6)' }}
+                  >
+                    {sim.name[0]}
                   </div>
-                  <span className="font-medium text-sm">{review.user}</span>
-                  <div className="flex items-center gap-0.5 ml-auto">
-                    {Array.from({ length: 5 }, (_, j) => (
-                      <Star key={j} className={`w-3 h-3 ${j < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600">{review.text}</p>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-xs text-gray-400">{review.time}</span>
-                  <button className="flex items-center gap-1 text-xs text-gray-400">
-                    <ThumbsUp className="w-3 h-3" /> Helpful
-                  </button>
-                </div>
-              </div>
-            ))}
+                  <p className="truncate text-xs font-semibold">{sim.name}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <h2 className="section-title mb-3">信息</h2>
+          <div className="card divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+            <InfoRow label="开发者" value={app.developer} />
+            <InfoRow label="分类" value={app.category} />
+            <InfoRow label="版本" value={app.version} />
+          </div>
+        </section>
+
+        <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div className="card flex gap-3 p-4">
+            <Shield className="h-6 w-6 flex-shrink-0 text-[var(--accent)]" />
+            <div>
+              <h3 className="text-sm font-semibold">隐私与安全</h3>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                查看开发者提供的隐私实践说明。
+              </p>
+              {app.privacyUrl ? (
+                <a href={app.privacyUrl} className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)]">
+                  隐私政策
+                  <ChevronRight className="h-3 w-3" />
+                </a>
+              ) : null}
+            </div>
           </div>
         </section>
       </div>
 
-      {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200 p-4 z-50">
-        <button className="w-full py-3 bg-blue-500 text-white rounded-full font-semibold flex items-center justify-center gap-2 active:bg-blue-600">
-          <Download className="w-5 h-5" />
-          Install
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 border-t p-4"
+        style={{
+          backgroundColor: 'color-mix(in srgb, var(--bg-surface) 92%, transparent)',
+          backdropFilter: 'blur(16px)',
+          borderColor: 'var(--border-subtle)',
+          paddingBottom: 'max(1rem, var(--safe-area-bottom))',
+        }}
+      >
+        <button
+          type="button"
+          disabled={installing}
+          onClick={() => void handleGetOrInstall()}
+          className="btn-primary w-full"
+        >
+          <Download className="h-5 w-5" />
+          {installed ? '已安装' : installing ? '安装中…' : app.pricingModel === 'FREE' ? '获取' : '购买'}
         </button>
       </div>
     </div>
@@ -207,9 +335,9 @@ export function ListingDetailPage() {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-medium text-gray-900">{value}</span>
+    <div className="flex items-center justify-between px-4 py-3">
+      <span className="text-sm text-[var(--text-tertiary)]">{label}</span>
+      <span className="text-sm font-medium text-[var(--text-primary)]">{value}</span>
     </div>
   );
 }

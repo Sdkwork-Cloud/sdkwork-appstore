@@ -85,3 +85,27 @@ impl UpsertPermissionDisclosuresResult {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListIapItemsResult {
+    pub operation_id: &'static str,
+    pub items: Vec<super::models::ListingIapItem>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl ListIapItemsResult {
+    pub fn new(
+        operation_id: &'static str,
+        items: Vec<super::models::ListingIapItem>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            items,
+            next_cursor,
+            has_more,
+        }
+    }
+}

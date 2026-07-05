@@ -12,5 +12,5 @@ pub const CAPABILITY: IntegrationCapability = IntegrationCapability {
     purpose: "icons, screenshots, binaries, release artifacts",
     surfaces: &[IntegrationSurface::AppApi, IntegrationSurface::ServicePort],
     required: true,
-    todo: "",
+    todo: "Service adapter uses sdkwork-drive uploader + assets app-api; set APPSTORE_DRIVE_BASE_URL and service tokens.",
 };

@@ -53,7 +53,7 @@ erDiagram
 | `appstore_app_dependency` | relation | app-service | App dependency and compatibility metadata |
 | `appstore_category` | master | catalog-service | Store taxonomy node |
 | `appstore_tag` | master | catalog-service | Faceted tag dictionary |
-| `appstore_listing` | master | listing-service | Store listing bound to PlusApp |
+| `appstore_listing` | master | listing-service | Store listing bound to registered app |
 | `appstore_listing_localization` | master | listing-service | Locale-specific listing copy |
 | `appstore_listing_media` | master | listing-service | Icon/screenshot/video references |
 | `appstore_listing_category_binding` | relation | listing-service | Listing-to-category mapping |
@@ -86,8 +86,8 @@ erDiagram
 
 | Field | External owner | Rule |
 | --- | --- | --- |
-| `plus_app_id` | platform / PlusApp | Stable app registration identity |
-| `plus_app_key` | platform manifest | Immutable `app.key` from manifest |
+| `app_id` | platform / registered app | Stable app registration identity |
+| `app_key` | platform manifest | Immutable `app.key` from manifest |
 | `comments_thread_id` | sdkwork-comments | Review thread binding |
 | `drive_node_id` | sdkwork-drive | Binary and media storage |
 | `media_resource_id` | drive/media | Public DTO projection |
@@ -98,7 +98,7 @@ erDiagram
 - All tenant-scoped list queries: `(tenant_id, organization_id, <status or sort>, created_at DESC)`
 - Public catalog browse: `(tenant_id, listing_status, storefront_visibility, published_at DESC)`
 - User library: `(tenant_id, user_id, library_status, updated_at DESC)`
-- Update check: `(tenant_id, plus_app_key, channel_code, platform, architecture)`
+- Update check: `(tenant_id, app_key, channel_code, platform, architecture)`
 - Moderation queue: `(tenant_id, review_status, priority, submitted_at ASC)`
 
 ## Migration Source

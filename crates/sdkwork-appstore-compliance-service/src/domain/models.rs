@@ -119,3 +119,21 @@ pub struct CompliancePermissionDisclosure {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListingIapItem {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub listing_id: String,
+    pub iap_no: String,
+    pub iap_type: String,
+    pub sku: String,
+    pub display_name: String,
+    pub price_cents: i32,
+    pub currency_code: String,
+    pub subscription_period: Option<String>,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}

@@ -10,6 +10,18 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore.publishers.me.retrieve",
     ),
     HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/publishers/me/listings",
+        "appstore",
+        "appstore.publishers.me.listings.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/publishers/me/apps",
+        "appstore",
+        "appstore.publishers.me.apps.bootstrap",
+    ),
+    HttpRoute::dual_token(
         HttpMethod::Post,
         "/app/v3/api/publishers",
         "appstore",

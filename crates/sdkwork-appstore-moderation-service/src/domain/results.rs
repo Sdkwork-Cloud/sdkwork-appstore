@@ -79,6 +79,28 @@ impl AssignModerationReviewResult {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EnqueueSubmissionReviewResult {
+    pub operation_id: &'static str,
+    pub review: ModerationReview,
+}
+
+impl EnqueueSubmissionReviewResult {
+    pub fn created(operation_id: &'static str, review: ModerationReview) -> Self {
+        Self {
+            operation_id,
+            review,
+        }
+    }
+
+    pub fn existing(operation_id: &'static str, review: ModerationReview) -> Self {
+        Self {
+            operation_id,
+            review,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CreateModerationDecisionResult {
     pub operation_id: &'static str,
     pub decision: ModerationDecision,
@@ -95,6 +117,75 @@ impl CreateModerationDecisionResult {
             operation_id,
             decision,
             review,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateModerationAppealResult {
+    pub operation_id: &'static str,
+    pub appeal: super::models::ModerationAppeal,
+}
+
+impl CreateModerationAppealResult {
+    pub fn created(operation_id: &'static str, appeal: super::models::ModerationAppeal) -> Self {
+        Self {
+            operation_id,
+            appeal,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListModerationAppealsResult {
+    pub operation_id: &'static str,
+    pub appeals: Vec<super::models::ModerationAppeal>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl ListModerationAppealsResult {
+    pub fn new(
+        operation_id: &'static str,
+        appeals: Vec<super::models::ModerationAppeal>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            appeals,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RetrieveModerationAppealResult {
+    pub operation_id: &'static str,
+    pub appeal: super::models::ModerationAppeal,
+}
+
+impl RetrieveModerationAppealResult {
+    pub fn found(operation_id: &'static str, appeal: super::models::ModerationAppeal) -> Self {
+        Self {
+            operation_id,
+            appeal,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DecideModerationAppealResult {
+    pub operation_id: &'static str,
+    pub appeal: super::models::ModerationAppeal,
+}
+
+impl DecideModerationAppealResult {
+    pub fn decided(operation_id: &'static str, appeal: super::models::ModerationAppeal) -> Self {
+        Self {
+            operation_id,
+            appeal,
         }
     }
 }

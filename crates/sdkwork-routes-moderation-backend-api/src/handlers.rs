@@ -1,8 +1,9 @@
 use crate::mapper;
 use sdkwork_appstore_moderation_service::context::AppstoreRequestContext;
 use sdkwork_appstore_moderation_service::domain::results::{
-    AssignModerationReviewResult, CreateModerationDecisionResult, ListModerationQueueResult,
-    RetrieveModerationReviewResult,
+    AssignModerationReviewResult, CreateModerationAppealResult, CreateModerationDecisionResult,
+    DecideModerationAppealResult, ListModerationAppealsResult, ListModerationQueueResult,
+    RetrieveModerationAppealResult, RetrieveModerationReviewResult,
 };
 use sdkwork_appstore_moderation_service::error::AppstoreServiceError;
 use sdkwork_appstore_moderation_service::ModerationOperations;
@@ -34,6 +35,26 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         operation_id: "appstore.moderation.decisions.create",
         handler_name: "moderation_decisions_create",
         service_method: "create_moderation_decision",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.moderation.appeals.create",
+        handler_name: "moderation_appeals_create",
+        service_method: "create_appeal",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.moderation.appeals.list",
+        handler_name: "moderation_appeals_list",
+        service_method: "list_appeals",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.moderation.appeals.retrieve",
+        handler_name: "moderation_appeals_retrieve",
+        service_method: "retrieve_appeal",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.moderation.appeals.decide",
+        handler_name: "moderation_appeals_decide",
+        service_method: "decide_appeal",
     },
 ];
 
@@ -90,4 +111,45 @@ pub async fn moderation_decisions_create<S: ModerationOperations>(
         policy_reference,
     );
     service.create_decision(context, cmd).await
+}
+
+pub async fn moderation_appeals_create<S: ModerationOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    decision_id: String,
+    appeal_reason: String,
+) -> Result<CreateModerationAppealResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_create_moderation_appeal(decision_id, appeal_reason);
+    service.create_appeal(context, cmd).await
+}
+
+pub async fn moderation_appeals_list<S: ModerationOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    status: Option<String>,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<ListModerationAppealsResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_list_moderation_appeals(status, cursor, limit);
+    service.list_appeals(context, cmd).await
+}
+
+pub async fn moderation_appeals_retrieve<S: ModerationOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    appeal_id: String,
+) -> Result<RetrieveModerationAppealResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_retrieve_moderation_appeal(appeal_id);
+    service.retrieve_appeal(context, cmd).await
+}
+
+pub async fn moderation_appeals_decide<S: ModerationOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    appeal_id: String,
+    decision: String,
+    note: String,
+) -> Result<DecideModerationAppealResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_decide_moderation_appeal(appeal_id, decision, note);
+    service.decide_appeal(context, cmd).await
 }

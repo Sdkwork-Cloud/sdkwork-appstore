@@ -1,7 +1,9 @@
 use sdkwork_appstore_listing_service::domain::commands::{
     AttachListingMediaRequest, BindListingCategoriesRequest, CreateListingRequest,
-    CreateListingSubmissionRequest, ListListingMediaRequest, ListListingReleasesRequest,
-    RegionEntry, RemoveListingMediaRequest, RetrieveListingRequest, UpdateListingRequest,
+    CreateListingSubmissionRequest, ListDeveloperOtherListingsRequest, ListListingMediaRequest,
+    ListListingReleaseHistoryRequest, ListListingReleasesRequest, ListPublisherListingsRequest,
+    ListSimilarListingsRequest, RegionEntry, RemoveListingMediaRequest,
+    RetrieveListingEditorialRequest, RetrieveListingRequest, UpdateListingRequest,
     UpdateRegionalAvailabilityRequest, UpsertListingLocalizationRequest,
 };
 
@@ -28,16 +30,30 @@ pub fn map_list_listing_releases(
     req
 }
 
+pub fn map_list_publisher_listings(
+    publisher_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> ListPublisherListingsRequest {
+    let mut req = ListPublisherListingsRequest::new(publisher_id);
+    if let Some(value) = cursor {
+        req = req.with_cursor(value);
+    }
+    if let Some(value) = limit {
+        req = req.with_limit(value);
+    }
+    req
+}
+
 pub fn map_create_listing(
-    plus_app_id: String,
-    plus_app_key: String,
+    app_id: String,
+    app_key: String,
     publisher_id: String,
     default_locale: String,
     listing_slug: Option<String>,
     pricing_model: Option<String>,
 ) -> CreateListingRequest {
-    let mut req =
-        CreateListingRequest::new(plus_app_id, plus_app_key, publisher_id, default_locale);
+    let mut req = CreateListingRequest::new(app_id, app_key, publisher_id, default_locale);
     if let Some(v) = listing_slug {
         req = req.with_listing_slug(v);
     }
@@ -149,4 +165,53 @@ pub fn map_create_listing_submission(
         req = req.with_release_id(v);
     }
     req
+}
+
+pub fn map_list_listing_release_history(
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> ListListingReleaseHistoryRequest {
+    let mut req = ListListingReleaseHistoryRequest::new(listing_id);
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_list_similar_listings(
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> ListSimilarListingsRequest {
+    let mut req = ListSimilarListingsRequest::new(listing_id);
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_list_developer_other_listings(
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> ListDeveloperOtherListingsRequest {
+    let mut req = ListDeveloperOtherListingsRequest::new(listing_id);
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_retrieve_listing_editorial(listing_id: String) -> RetrieveListingEditorialRequest {
+    RetrieveListingEditorialRequest::new(listing_id)
 }

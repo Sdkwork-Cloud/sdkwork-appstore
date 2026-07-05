@@ -53,6 +53,60 @@ const HTTP_ROUTES: &[HttpRoute] = &[
     ),
     HttpRoute::dual_token(
         HttpMethod::Get,
+        "/app/v3/api/catalog/recommendations",
+        "appstore",
+        "appstore.catalog.recommendations.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/recently_updated",
+        "appstore",
+        "appstore.catalog.recentlyUpdated.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/events",
+        "appstore",
+        "appstore.catalog.events.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/events/{eventId}",
+        "appstore",
+        "appstore.catalog.events.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/search/suggestions",
+        "appstore",
+        "appstore.catalog.search.suggestions.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/search/trending",
+        "appstore",
+        "appstore.catalog.search.trending.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/catalog/search/history",
+        "appstore",
+        "appstore.catalog.search.history.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Put,
+        "/app/v3/api/catalog/search/history",
+        "appstore",
+        "appstore.catalog.search.history.upsert",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/app/v3/api/catalog/search/history",
+        "appstore",
+        "appstore.catalog.search.history.clear",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
         "/app/v3/api/listings/{listingId}/compliance",
         "appstore",
         "appstore.compliance.profile.retrieve",
@@ -68,6 +122,12 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "/app/v3/api/listings/{listingId}/compliance/permissions",
         "appstore",
         "appstore.compliance.permissions.update",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/compliance/iap_items",
+        "appstore",
+        "appstore.compliance.iapItems.list",
     ),
     HttpRoute::dual_token(
         HttpMethod::Get,
@@ -134,6 +194,18 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "/app/v3/api/publishers/me",
         "appstore",
         "appstore.publishers.me.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/publishers/me/listings",
+        "appstore",
+        "appstore.publishers.me.listings.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/publishers/me/apps",
+        "appstore",
+        "appstore.publishers.me.apps.bootstrap",
     ),
     HttpRoute::dual_token(
         HttpMethod::Post,
@@ -274,6 +346,30 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore.listings.submissions.create",
     ),
     HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/releases/history",
+        "appstore",
+        "appstore.listings.releases.history.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/similar",
+        "appstore",
+        "appstore.listings.similar.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/developer_other",
+        "appstore",
+        "appstore.listings.developerOther.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/editorial",
+        "appstore",
+        "appstore.listings.editorial.retrieve",
+    ),
+    HttpRoute::dual_token(
         HttpMethod::Post,
         "/backend/v3/api/catalog/collections",
         "appstore",
@@ -328,12 +424,6 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore.listings.admin.visibility.update",
     ),
     HttpRoute::dual_token(
-        HttpMethod::Post,
-        "/backend/v3/api/publishers/{publisherId}/verify",
-        "appstore",
-        "appstore.publishers.admin.verify",
-    ),
-    HttpRoute::dual_token(
         HttpMethod::Get,
         "/backend/v3/api/moderation/queue",
         "appstore",
@@ -356,6 +446,30 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "/backend/v3/api/moderation/reviews/{reviewId}/decisions",
         "appstore",
         "appstore.moderation.decisions.create",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/moderation/appeals",
+        "appstore",
+        "appstore.moderation.appeals.create",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/moderation/appeals",
+        "appstore",
+        "appstore.moderation.appeals.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/moderation/appeals/{appealId}",
+        "appstore",
+        "appstore.moderation.appeals.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/moderation/appeals/{appealId}/decide",
+        "appstore",
+        "appstore.moderation.appeals.decide",
     ),
     HttpRoute::dual_token(
         HttpMethod::Get,
@@ -393,17 +507,35 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.metrics.listings.retrieve",
     ),
-    HttpRoute::public(
+    HttpRoute::dual_token(
         HttpMethod::Get,
-        "/store/v3/api/catalog/featured",
+        "/backend/v3/api/analytics/publisher/overview",
         "appstore",
-        "appstore.catalog.public.featured.list",
+        "appstore.analytics.publisher.overview.retrieve",
     ),
-    HttpRoute::public(
+    HttpRoute::dual_token(
         HttpMethod::Get,
-        "/store/v3/api/listings/{listingSlug}",
+        "/backend/v3/api/analytics/publisher/listings",
         "appstore",
-        "appstore.listings.public.retrieve",
+        "appstore.analytics.publisher.listings.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/publisher/listings/{listingId}",
+        "appstore",
+        "appstore.analytics.publisher.listings.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/operator/dashboard",
+        "appstore",
+        "appstore.analytics.operator.dashboard.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/analytics/operator/search",
+        "appstore",
+        "appstore.analytics.operator.search.retrieve",
     ),
     HttpRoute::api_key(
         HttpMethod::Post,
@@ -423,11 +555,29 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.releases.public.retrieve",
     ),
+    HttpRoute::public(
+        HttpMethod::Get,
+        "/store/v3/api/catalog/featured",
+        "appstore",
+        "appstore.catalog.public.featured.list",
+    ),
+    HttpRoute::public(
+        HttpMethod::Get,
+        "/store/v3/api/listings/{listingSlug}",
+        "appstore",
+        "appstore.listings.public.retrieve",
+    ),
     HttpRoute::api_key(
         HttpMethod::Post,
         "/store/v3/api/automation/submissions",
         "appstore",
         "appstore.publish.automation.submissions.create",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/publishers/{publisherId}/verify",
+        "appstore",
+        "appstore.publishers.admin.verify",
     ),
 ];
 

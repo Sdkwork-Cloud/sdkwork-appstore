@@ -19,7 +19,7 @@ required and planned integration surfaces only; they do not construct SDK
 clients yet.
 
 - `appbase` - IAM/session/context dependency.
-- `platform` - PlusApp registration and manifest projection dependency.
+- `platform` - registered app registration and manifest projection dependency.
 - `drive` - media, uploader, and release artifact dependency.
 - `comments` - reviews, ratings, favorites, and visit history dependency.
 - `commerce` - paid app/IAP product reference dependency.

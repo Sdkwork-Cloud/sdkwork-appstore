@@ -1,5 +1,9 @@
 use sqlx::{Pool, Sqlite};
 
+use crate::db::columns::{
+    columns_csv, APPSTORE_PUBLISHER_COLUMNS, APPSTORE_PUBLISHER_MEMBER_COLUMNS,
+    APPSTORE_PUBLISHER_VERIFICATION_COLUMNS,
+};
 use crate::db::rows::{PublisherMemberRow, PublisherRow, PublisherVerificationRow};
 use crate::mapper::row_mapper::{
     map_member_domain_to_row, map_member_row_to_domain, map_publisher_domain_to_row,
@@ -30,16 +34,14 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         publisher_id: &PublisherId,
     ) -> Result<Option<Publisher>, sdkwork_appstore_publisher_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, PublisherRow>(
+        let row = sqlx::query_as::<_, PublisherRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, publisher_no, publisher_type, display_name,
-                   legal_name, publisher_status, verification_status, contact_snapshot_json,
-                   profile_snapshot_json, website_url, support_email, logo_media_resource_id,
-                   owner_user_id, version, verified_at, suspended_at, deleted_at, created_at, updated_at
+            SELECT {}
             FROM appstore_publisher
             WHERE id = ? AND tenant_id = ? AND deleted_at IS NULL
             "#,
-        )
+            columns_csv(APPSTORE_PUBLISHER_COLUMNS)
+        ))
         .bind(publisher_id.as_str())
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -64,16 +66,14 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         owner_user_id: &str,
     ) -> Result<Option<Publisher>, sdkwork_appstore_publisher_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, PublisherRow>(
+        let row = sqlx::query_as::<_, PublisherRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, publisher_no, publisher_type, display_name,
-                   legal_name, publisher_status, verification_status, contact_snapshot_json,
-                   profile_snapshot_json, website_url, support_email, logo_media_resource_id,
-                   owner_user_id, version, verified_at, suspended_at, deleted_at, created_at, updated_at
+            SELECT {}
             FROM appstore_publisher
             WHERE owner_user_id = ? AND tenant_id = ? AND deleted_at IS NULL
             "#,
-        )
+            columns_csv(APPSTORE_PUBLISHER_COLUMNS)
+        ))
         .bind(owner_user_id)
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -98,16 +98,14 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         organization_id: &str,
     ) -> Result<Option<Publisher>, sdkwork_appstore_publisher_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, PublisherRow>(
+        let row = sqlx::query_as::<_, PublisherRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, publisher_no, publisher_type, display_name,
-                   legal_name, publisher_status, verification_status, contact_snapshot_json,
-                   profile_snapshot_json, website_url, support_email, logo_media_resource_id,
-                   owner_user_id, version, verified_at, suspended_at, deleted_at, created_at, updated_at
+            SELECT {}
             FROM appstore_publisher
             WHERE organization_id = ? AND tenant_id = ? AND deleted_at IS NULL
             "#,
-        )
+            columns_csv(APPSTORE_PUBLISHER_COLUMNS)
+        ))
         .bind(organization_id)
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -252,16 +250,16 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
     {
         let rows =
             if let Some(cursor_user_id) = cursor {
-                sqlx::query_as::<_, PublisherMemberRow>(
+                sqlx::query_as::<_, PublisherMemberRow>(&format!(
                     r#"
-                SELECT id, tenant_id, organization_id, publisher_id, user_id, member_role,
-                       member_status, invited_by, joined_at, created_at, updated_at
+                SELECT {}
                 FROM appstore_publisher_member
                 WHERE publisher_id = ? AND tenant_id = ? AND user_id > ?
                 ORDER BY user_id ASC
                 LIMIT ?
                 "#,
-                )
+                    columns_csv(APPSTORE_PUBLISHER_MEMBER_COLUMNS)
+                ))
                 .bind(publisher_id.as_str())
                 .bind(&context.tenant_id)
                 .bind(cursor_user_id)
@@ -274,16 +272,16 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
                     )
                 })?
             } else {
-                sqlx::query_as::<_, PublisherMemberRow>(
+                sqlx::query_as::<_, PublisherMemberRow>(&format!(
                     r#"
-                SELECT id, tenant_id, organization_id, publisher_id, user_id, member_role,
-                       member_status, invited_by, joined_at, created_at, updated_at
+                SELECT {}
                 FROM appstore_publisher_member
                 WHERE publisher_id = ? AND tenant_id = ?
                 ORDER BY user_id ASC
                 LIMIT ?
                 "#,
-                )
+                    columns_csv(APPSTORE_PUBLISHER_MEMBER_COLUMNS)
+                ))
                 .bind(publisher_id.as_str())
                 .bind(&context.tenant_id)
                 .bind(limit)
@@ -313,14 +311,14 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         Option<PublisherMember>,
         sdkwork_appstore_publisher_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, PublisherMemberRow>(
+        let row = sqlx::query_as::<_, PublisherMemberRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, publisher_id, user_id, member_role,
-                   member_status, invited_by, joined_at, created_at, updated_at
+            SELECT {}
             FROM appstore_publisher_member
             WHERE publisher_id = ? AND tenant_id = ? AND user_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_PUBLISHER_MEMBER_COLUMNS)
+        ))
         .bind(publisher_id.as_str())
         .bind(&context.tenant_id)
         .bind(user_id)
@@ -417,15 +415,14 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         Option<PublisherVerification>,
         sdkwork_appstore_publisher_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, PublisherVerificationRow>(
+        let row = sqlx::query_as::<_, PublisherVerificationRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, publisher_id, verification_type,
-                   verification_status, credential_snapshot_json, evidence_media_resource_id,
-                   reviewed_by, reviewed_at, expires_at, created_at, updated_at
+            SELECT {}
             FROM appstore_publisher_verification
             WHERE publisher_id = ? AND tenant_id = ? AND verification_type = ?
             "#,
-        )
+            columns_csv(APPSTORE_PUBLISHER_VERIFICATION_COLUMNS)
+        ))
         .bind(publisher_id.as_str())
         .bind(&context.tenant_id)
         .bind(verification_type.as_str())
@@ -471,10 +468,10 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(&credential_snapshot_json)
         .bind(&verification.evidence_media_resource_id)
         .bind(&verification.reviewed_by)
-        .bind(verification.reviewed_at)
-        .bind(verification.expires_at)
-        .bind(verification.created_at)
-        .bind(verification.updated_at)
+        .bind(&verification.reviewed_at)
+        .bind(&verification.expires_at)
+        .bind(&verification.created_at)
+        .bind(&verification.updated_at)
         .execute(&self.pool)
         .await
         .map_err(|e| {
@@ -509,7 +506,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(&verification.reviewed_by)
         .bind(verification.reviewed_at)
         .bind(verification.expires_at)
-        .bind(verification.updated_at)
+        .bind(&verification.updated_at)
         .bind(&verification.id)
         .bind(&context.tenant_id)
         .execute(&self.pool)

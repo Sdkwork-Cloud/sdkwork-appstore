@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::context::AppstoreRequestContext;
 use crate::domain::commands::{
-    RetrieveComplianceProfileRequest, UpdateComplianceProfileRequest,
+    ListIapItemsRequest, RetrieveComplianceProfileRequest, UpdateComplianceProfileRequest,
     UpsertPermissionDisclosuresRequest,
 };
 use crate::domain::models::{
@@ -11,7 +11,7 @@ use crate::domain::models::{
     DisclosureStatus,
 };
 use crate::domain::results::{
-    RetrieveComplianceProfileResult, UpdateComplianceProfileResult,
+    ListIapItemsResult, RetrieveComplianceProfileResult, UpdateComplianceProfileResult,
     UpsertPermissionDisclosuresResult,
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
@@ -36,6 +36,12 @@ pub trait ComplianceOperations {
         context: &AppstoreRequestContext,
         request: UpsertPermissionDisclosuresRequest,
     ) -> AppstoreServiceResult<UpsertPermissionDisclosuresResult>;
+
+    async fn list_iap_items(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListIapItemsRequest,
+    ) -> AppstoreServiceResult<ListIapItemsResult>;
 }
 
 #[derive(Debug, Clone)]
@@ -262,6 +268,44 @@ where
         Ok(UpsertPermissionDisclosuresResult::upserted(
             "appstore.compliance.permissions.update",
             disclosures,
+        ))
+    }
+
+    async fn list_iap_items(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListIapItemsRequest,
+    ) -> AppstoreServiceResult<ListIapItemsResult> {
+        if request.listing_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Listing ID is required".to_string(),
+            ));
+        }
+
+        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let items = self
+            .repository
+            .find_iap_items_by_listing(
+                context,
+                request.listing_id.trim(),
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = items.len() > limit as usize;
+        let items: Vec<_> = items.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            items.last().map(|item| item.id.clone())
+        } else {
+            None
+        };
+
+        Ok(ListIapItemsResult::new(
+            "appstore.compliance.iapItems.list",
+            items,
+            next_cursor,
+            has_more,
         ))
     }
 }

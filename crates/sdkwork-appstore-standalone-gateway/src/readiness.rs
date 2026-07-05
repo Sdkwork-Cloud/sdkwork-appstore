@@ -1,25 +1,24 @@
 use std::future::Future;
 use std::pin::Pin;
 
+use sdkwork_database_sqlx::DatabasePool;
 use sdkwork_web_bootstrap::ReadinessCheck;
-use sqlx::SqlitePool;
 
-pub struct AppstoreSqliteReadinessCheck {
-    pool: SqlitePool,
+pub struct AppstoreDatabaseReadinessCheck {
+    pool: DatabasePool,
 }
 
-impl AppstoreSqliteReadinessCheck {
-    pub fn new(pool: SqlitePool) -> Self {
+impl AppstoreDatabaseReadinessCheck {
+    pub fn new(pool: DatabasePool) -> Self {
         Self { pool }
     }
 }
 
-impl ReadinessCheck for AppstoreSqliteReadinessCheck {
+impl ReadinessCheck for AppstoreDatabaseReadinessCheck {
     fn check(&self) -> Pin<Box<dyn Future<Output = Result<(), String>> + Send + '_>> {
         let pool = self.pool.clone();
         Box::pin(async move {
-            sqlx::query("SELECT 1")
-                .execute(&pool)
+            pool.execute_raw("SELECT 1")
                 .await
                 .map(|_| ())
                 .map_err(|error| error.to_string())

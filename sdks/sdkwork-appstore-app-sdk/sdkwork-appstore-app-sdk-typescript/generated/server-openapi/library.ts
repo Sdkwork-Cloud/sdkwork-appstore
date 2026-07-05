@@ -3,8 +3,8 @@ import { StoreApiResult, PaginatedResponse } from './types';
 export interface UserLibraryItem {
   id: string;
   listingId: string;
-  plusAppId: string;
-  plusAppKey: string;
+  appId: string;
+  appKey: string;
   libraryStatus: 'installed' | 'uninstalled';
   installedReleaseId?: string;
   installedVersionCode?: string;

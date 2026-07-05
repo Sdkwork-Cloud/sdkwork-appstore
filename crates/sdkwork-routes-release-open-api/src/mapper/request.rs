@@ -3,7 +3,7 @@ use sdkwork_appstore_release_service::domain::commands::{
 };
 
 pub fn map_check_update(
-    plus_app_key: String,
+    app_key: String,
     platform: String,
     installed_version_code: String,
     channel_code: String,
@@ -11,8 +11,7 @@ pub fn map_check_update(
     device_id: Option<String>,
     region_code: Option<String>,
 ) -> CheckUpdateRequest {
-    let mut req =
-        CheckUpdateRequest::new(plus_app_key, platform, installed_version_code, channel_code);
+    let mut req = CheckUpdateRequest::new(app_key, platform, installed_version_code, channel_code);
     if let Some(v) = architecture {
         req = req.with_architecture(v);
     }
@@ -28,14 +27,14 @@ pub fn map_check_update(
 pub fn map_resolve_download(
     artifact_id: String,
     grant_id: Option<String>,
-    plus_app_key: Option<String>,
+    app_key: Option<String>,
 ) -> ResolveDownloadRequest {
     let mut req = ResolveDownloadRequest::new(artifact_id);
     if let Some(v) = grant_id {
         req = req.with_grant_id(v);
     }
-    if let Some(v) = plus_app_key {
-        req = req.with_plus_app_key(v);
+    if let Some(v) = app_key {
+        req = req.with_app_key(v);
     }
     req
 }

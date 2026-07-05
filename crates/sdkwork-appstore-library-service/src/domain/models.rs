@@ -211,8 +211,7 @@ pub struct UserLibraryItem {
     pub tenant_id: String,
     pub user_id: String,
     pub listing_id: String,
-    pub plus_app_id: String,
-    pub plus_app_key: String,
+    pub app_key: String,
     pub library_status: LibraryStatus,
     pub installed_release_id: Option<String>,
     pub installed_version_code: Option<String>,
@@ -283,14 +282,14 @@ pub struct DownloadGrant {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UpdateCheckItem {
-    pub plus_app_key: String,
+    pub app_key: String,
     pub platform: String,
     pub installed_version_code: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UpdateAvailable {
-    pub plus_app_key: String,
+    pub app_key: String,
     pub platform: String,
     pub installed_version_code: String,
     pub latest_version_code: String,

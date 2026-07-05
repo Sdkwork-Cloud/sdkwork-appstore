@@ -4,19 +4,38 @@ export function createAppRoutes(): RouteObject[] {
   return [
     {
       path: '/',
-      lazy: () => import('@sdkwork/appstore-h5-catalog').then(m => ({ default: m.HomePage })),
+      lazy: () =>
+        import('../pages/HomePage').then((module) => ({
+          Component: module.HomePage,
+        })),
     },
     {
       path: '/search',
-      lazy: () => import('@sdkwork/appstore-h5-search').then(m => ({ default: m.SearchPage })),
+      lazy: () =>
+        import('../pages/SearchPage').then((module) => ({
+          Component: module.SearchPage,
+        })),
     },
     {
       path: '/app/:listingSlug',
-      lazy: () => import('@sdkwork/appstore-h5-listing').then(m => ({ default: m.ListingDetailPage })),
+      lazy: () =>
+        import('../pages/ListingDetailPage').then((module) => ({
+          Component: module.ListingDetailPage,
+        })),
     },
     {
       path: '/library',
-      lazy: () => import('@sdkwork/appstore-h5-library').then(m => ({ default: m.LibraryPage })),
+      lazy: () =>
+        import('../pages/LibraryPage').then((module) => ({
+          Component: module.LibraryPage,
+        })),
+    },
+    {
+      path: '/publisher/*',
+      lazy: () =>
+        import('@sdkwork/appstore-h5-console-publisher').then((module) => ({
+          Component: module.PublisherRoutes,
+        })),
     },
   ];
 }

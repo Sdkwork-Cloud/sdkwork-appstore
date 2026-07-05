@@ -3,12 +3,19 @@ import { AuthGate } from './AuthGate';
 import { MobileLayout } from './components/layout/MobileLayout';
 import { lazy, Suspense } from 'react';
 
+const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const HomePage = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
 const SearchPage = lazy(() => import('./pages/SearchPage').then(m => ({ default: m.SearchPage })));
 const ListingDetailPage = lazy(() => import('./pages/ListingDetailPage').then(m => ({ default: m.ListingDetailPage })));
 const LibraryPage = lazy(() => import('./pages/LibraryPage').then(m => ({ default: m.LibraryPage })));
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage').then(m => ({ default: m.NotificationsPage })));
+const UpdatesPage = lazy(() => import('./pages/updates/UpdatesPage').then(m => ({ default: m.UpdatesPage })));
+const PublisherRoutes = lazy(() =>
+  import('@sdkwork/appstore-h5-console-publisher').then((m) => ({ default: m.PublisherRoutes })),
+);
+const AppsBrowsePage = lazy(() => import('./pages/BrowsePage').then(m => ({ default: m.AppsBrowsePage })));
+const GamesBrowsePage = lazy(() => import('./pages/BrowsePage').then(m => ({ default: m.GamesBrowsePage })));
 
 function PageLoader() {
   return (
@@ -24,7 +31,10 @@ export default function App() {
       <Routes>
         <Route element={<MobileLayout />}>
           {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<HomePage />} />
+          <Route path="/browse/apps" element={<AppsBrowsePage />} />
+          <Route path="/browse/games" element={<GamesBrowsePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/app/:listingSlug" element={<ListingDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
@@ -51,6 +61,22 @@ export default function App() {
             element={
               <AuthGate>
                 <NotificationsPage />
+              </AuthGate>
+            }
+          />
+          <Route
+            path="/updates"
+            element={
+              <AuthGate>
+                <UpdatesPage />
+              </AuthGate>
+            }
+          />
+          <Route
+            path="/publisher/*"
+            element={
+              <AuthGate>
+                <PublisherRoutes />
               </AuthGate>
             }
           />

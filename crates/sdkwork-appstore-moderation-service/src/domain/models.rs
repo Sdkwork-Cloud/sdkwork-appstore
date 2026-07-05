@@ -287,3 +287,67 @@ pub struct ModerationDecision {
     pub payload_snapshot: serde_json::Value,
     pub created_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct ModerationAppealId(pub String);
+
+impl ModerationAppealId {
+    pub fn new(id: impl Into<String>) -> Self {
+        Self(id.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppealStatus {
+    Pending,
+    Approved,
+    Rejected,
+}
+
+impl AppealStatus {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Pending => "pending",
+            Self::Approved => "approved",
+            Self::Rejected => "rejected",
+        }
+    }
+
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "pending" => Some(Self::Pending),
+            "approved" => Some(Self::Approved),
+            "rejected" => Some(Self::Rejected),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ModerationAppeal {
+    pub id: ModerationAppealId,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub decision_id: String,
+    pub review_id: String,
+    pub appeal_no: String,
+    pub appellant_user_id: String,
+    pub appeal_reason: String,
+    pub appeal_status: AppealStatus,
+    pub decided_by: Option<String>,
+    pub decision_note: Option<String>,
+    pub submitted_at: DateTime<Utc>,
+    pub decided_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+impl ModerationAppeal {
+    pub fn is_pending(&self) -> bool {
+        self.appeal_status == AppealStatus::Pending
+    }
+}

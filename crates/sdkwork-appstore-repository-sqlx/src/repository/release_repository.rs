@@ -1,5 +1,9 @@
 use sqlx::{Pool, Sqlite};
 
+use crate::db::columns::{
+    columns_csv, APPSTORE_DOWNLOAD_GRANT_COLUMNS, APPSTORE_RELEASE_ARTIFACT_COLUMNS,
+    APPSTORE_RELEASE_CHANNEL_COLUMNS, APPSTORE_RELEASE_COLUMNS, APPSTORE_RELEASE_ROLLOUT_COLUMNS,
+};
 use crate::db::rows::{
     DownloadGrantRow, ReleaseArtifactRow, ReleaseChannelRow, ReleaseNoteLocalizationRow,
     ReleaseRolloutRow, ReleaseRow,
@@ -30,27 +34,6 @@ impl SqlxReleaseRepository {
     }
 }
 
-const RELEASE_COLUMNS: &str = r#"id, tenant_id, organization_id, listing_id, release_no, channel_id,
-    version_name, version_code, build_number, release_status, minimum_os_version,
-    release_notes_default_locale, manifest_snapshot_json, submitted_at, approved_at,
-    published_at, retired_at, version, created_at, updated_at"#;
-
-const CHANNEL_COLUMNS: &str = r#"id, tenant_id, channel_code, channel_type, channel_status,
-    audience_scope, created_at, updated_at"#;
-
-const ARTIFACT_COLUMNS: &str = r#"id, tenant_id, organization_id, release_id, artifact_no,
-    platform, architecture, package_format, artifact_status, drive_node_id, media_resource_id,
-    file_size_bytes, content_type, checksum_sha256, signature_snapshot_json, sbom_ref,
-    provenance_ref, min_os_version, created_at, updated_at"#;
-
-const ROLLOUT_COLUMNS: &str = r#"id, tenant_id, organization_id, release_id, rollout_strategy,
-    rollout_status, target_percentage, current_percentage, region_filter_json, device_filter_json,
-    started_at, completed_at, paused_at, created_at, updated_at"#;
-
-const GRANT_COLUMNS: &str = r#"id, tenant_id, organization_id, grant_no, listing_id, release_id,
-    artifact_id, user_id, grant_status, grant_reason, expires_at, consumed_at, download_count,
-    max_download_count, created_at, updated_at"#;
-
 #[async_trait::async_trait]
 impl ReleaseRepositoryPort for SqlxReleaseRepository {
     async fn find_channel_by_code(
@@ -60,7 +43,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<Option<ReleaseChannel>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ReleaseChannelRow>(&format!(
             r#"SELECT {} FROM appstore_release_channel WHERE tenant_id = ? AND channel_code = ?"#,
-            CHANNEL_COLUMNS
+            columns_csv(APPSTORE_RELEASE_CHANNEL_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(channel_code)
@@ -80,7 +63,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<Option<Release>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ReleaseRow>(&format!(
             r#"SELECT {} FROM appstore_release WHERE id = ? AND tenant_id = ?"#,
-            RELEASE_COLUMNS
+            columns_csv(APPSTORE_RELEASE_COLUMNS)
         ))
         .bind(release_id.as_str())
         .bind(&context.tenant_id)
@@ -100,7 +83,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<Option<Release>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ReleaseRow>(&format!(
             r#"SELECT {} FROM appstore_release WHERE tenant_id = ? AND release_no = ?"#,
-            RELEASE_COLUMNS
+            columns_csv(APPSTORE_RELEASE_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(release_no)
@@ -123,7 +106,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
             r#"SELECT {} FROM appstore_release
             WHERE tenant_id = ? AND listing_id = ? AND channel_id = ? AND release_status = 'published'
             ORDER BY published_at DESC LIMIT 1"#,
-            RELEASE_COLUMNS
+            columns_csv(APPSTORE_RELEASE_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(listing_id)
@@ -148,7 +131,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
             INNER JOIN appstore_release_channel c ON r.channel_id = c.id
             WHERE r.tenant_id = ? AND r.listing_id = ? AND c.channel_code = ?
             ORDER BY r.version DESC LIMIT 1"#,
-            RELEASE_COLUMNS
+            columns_csv(APPSTORE_RELEASE_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(listing_id)
@@ -329,7 +312,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<Option<ReleaseArtifact>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ReleaseArtifactRow>(&format!(
             r#"SELECT {} FROM appstore_release_artifact WHERE id = ? AND tenant_id = ?"#,
-            ARTIFACT_COLUMNS
+            columns_csv(APPSTORE_RELEASE_ARTIFACT_COLUMNS)
         ))
         .bind(artifact_id.as_str())
         .bind(&context.tenant_id)
@@ -353,7 +336,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         let row = sqlx::query_as::<_, ReleaseArtifactRow>(&format!(
             r#"SELECT {} FROM appstore_release_artifact
             WHERE tenant_id = ? AND release_id = ? AND platform = ? AND architecture = ? AND package_format = ?"#,
-            ARTIFACT_COLUMNS
+            columns_csv(APPSTORE_RELEASE_ARTIFACT_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(release_id.as_str())
@@ -418,7 +401,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<Option<ReleaseRollout>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, ReleaseRolloutRow>(&format!(
             r#"SELECT {} FROM appstore_release_rollout WHERE tenant_id = ? AND release_id = ?"#,
-            ROLLOUT_COLUMNS
+            columns_csv(APPSTORE_RELEASE_ROLLOUT_COLUMNS)
         ))
         .bind(&context.tenant_id)
         .bind(release_id.as_str())
@@ -509,7 +492,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
     ) -> Result<Option<DownloadGrant>, AppstoreServiceError> {
         let row = sqlx::query_as::<_, DownloadGrantRow>(&format!(
             r#"SELECT {} FROM appstore_download_grant WHERE id = ? AND tenant_id = ?"#,
-            GRANT_COLUMNS
+            columns_csv(APPSTORE_DOWNLOAD_GRANT_COLUMNS)
         ))
         .bind(grant_id.as_str())
         .bind(&context.tenant_id)
@@ -588,16 +571,16 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         Ok(())
     }
 
-    async fn find_listing_by_plus_app_key(
+    async fn find_listing_by_app_key(
         &self,
         context: &AppstoreRequestContext,
-        plus_app_key: &str,
+        app_key: &str,
     ) -> Result<Option<String>, AppstoreServiceError> {
         let row: Option<(String,)> = sqlx::query_as(
-            r#"SELECT id FROM appstore_listing WHERE tenant_id = ? AND plus_app_key = ? AND deleted_at IS NULL"#,
+            r#"SELECT id FROM appstore_listing WHERE tenant_id = ? AND app_key = ? AND deleted_at IS NULL"#,
         )
         .bind(&context.tenant_id)
-        .bind(plus_app_key)
+        .bind(app_key)
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;

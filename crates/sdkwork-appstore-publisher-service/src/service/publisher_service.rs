@@ -279,7 +279,7 @@ where
         let publisher_id = PublisherId::new(&request.publisher_id);
 
         // Verify publisher exists
-        let _publisher = self
+        let publisher = self
             .repository
             .find_publisher_by_id(context, &publisher_id)
             .await?
@@ -289,6 +289,18 @@ where
                     request.publisher_id
                 ))
             })?;
+
+        // Verify caller is a publisher member or owner
+        let caller_is_member = self
+            .repository
+            .find_member_by_user(context, &publisher_id, &context.user_id)
+            .await?
+            .is_some();
+        if !caller_is_member && publisher.owner_user_id != context.user_id {
+            return Err(AppstoreServiceError::PermissionDenied(
+                "Publisher membership is required to list members".to_string(),
+            ));
+        }
 
         let limit = request.limit.unwrap_or(20).min(100);
         let members = self
@@ -507,6 +519,15 @@ where
         context: &AppstoreRequestContext,
         request: AdminVerifyPublisherRequest,
     ) -> AppstoreServiceResult<AdminVerifyPublisherResult> {
+        if !sdkwork_appstore_authorization::scope_granted(
+            &context.permission_scopes,
+            "appstore.publishers.admin",
+        ) {
+            return Err(AppstoreServiceError::PermissionDenied(
+                sdkwork_appstore_authorization::missing_scope_message("appstore.publishers.admin"),
+            ));
+        }
+
         let publisher_id = PublisherId::new(&request.publisher_id);
 
         // Verify publisher exists

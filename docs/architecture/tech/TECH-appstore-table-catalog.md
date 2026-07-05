@@ -147,8 +147,6 @@ CREATE TABLE IF NOT EXISTS appstore_app (
   publisher_id TEXT NOT NULL,
   app_no TEXT NOT NULL,
   app_key TEXT NOT NULL,
-  plus_app_id TEXT,
-  plus_app_key TEXT,
   app_slug TEXT NOT NULL,
   display_name TEXT NOT NULL,
   default_locale TEXT NOT NULL,
@@ -183,8 +181,7 @@ CREATE TABLE IF NOT EXISTS appstore_app (
   updated_at TEXT NOT NULL,
   UNIQUE (tenant_id, app_no),
   UNIQUE (tenant_id, app_key),
-  UNIQUE (tenant_id, app_slug),
-  UNIQUE (tenant_id, plus_app_id)
+  UNIQUE (tenant_id, app_slug)
 );
 ```
 
@@ -209,7 +206,6 @@ CREATE TABLE IF NOT EXISTS appstore_app_dependency (
   organization_id TEXT NOT NULL,
   app_id TEXT NOT NULL,
   dependency_app_id TEXT,
-  dependency_plus_app_id TEXT,
   dependency_key TEXT NOT NULL,
   dependency_kind TEXT NOT NULL,
   version_requirement TEXT,
@@ -337,11 +333,10 @@ CREATE TABLE IF NOT EXISTS appstore_listing (
   id TEXT PRIMARY KEY,
   tenant_id TEXT NOT NULL,
   organization_id TEXT NOT NULL,
-  app_id TEXT,
   publisher_id TEXT NOT NULL,
   listing_no TEXT NOT NULL,
-  plus_app_id TEXT NOT NULL,
-  plus_app_key TEXT NOT NULL,
+  app_id TEXT NOT NULL,
+  app_key TEXT NOT NULL,
   listing_slug TEXT NOT NULL,
   listing_type TEXT NOT NULL,
   pricing_model TEXT NOT NULL,
@@ -371,7 +366,6 @@ CREATE TABLE IF NOT EXISTS appstore_listing (
   updated_at TEXT NOT NULL,
   UNIQUE (tenant_id, listing_no),
   UNIQUE (tenant_id, app_id),
-  UNIQUE (tenant_id, plus_app_id),
   UNIQUE (tenant_id, listing_slug)
 );
 ```
@@ -1060,8 +1054,7 @@ CREATE TABLE IF NOT EXISTS appstore_user_library_item (
   tenant_id TEXT NOT NULL,
   user_id TEXT NOT NULL,
   listing_id TEXT NOT NULL,
-  plus_app_id TEXT NOT NULL,
-  plus_app_key TEXT NOT NULL,
+  app_key TEXT NOT NULL,
   library_status TEXT NOT NULL,
   installed_release_id TEXT,
   installed_version_code TEXT,
@@ -1074,7 +1067,7 @@ CREATE TABLE IF NOT EXISTS appstore_user_library_item (
   updated_at TEXT NOT NULL,
   removed_at TEXT,
   created_at TEXT NOT NULL,
-  UNIQUE (tenant_id, user_id, plus_app_key, platform)
+  UNIQUE (tenant_id, user_id, app_key, platform)
 );
 ```
 

@@ -39,8 +39,8 @@ impl RetrieveListingRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CreateListingRequest {
-    pub plus_app_id: String,
-    pub plus_app_key: String,
+    pub app_id: String,
+    pub app_key: String,
     pub publisher_id: String,
     pub listing_slug: Option<String>,
     pub pricing_model: Option<String>,
@@ -50,14 +50,14 @@ pub struct CreateListingRequest {
 
 impl CreateListingRequest {
     pub fn new(
-        plus_app_id: impl Into<String>,
-        plus_app_key: impl Into<String>,
+        app_id: impl Into<String>,
+        app_key: impl Into<String>,
         publisher_id: impl Into<String>,
         default_locale: impl Into<String>,
     ) -> Self {
         Self {
-            plus_app_id: plus_app_id.into(),
-            plus_app_key: plus_app_key.into(),
+            app_id: app_id.into(),
+            app_key: app_key.into(),
             publisher_id: publisher_id.into(),
             listing_slug: None,
             pricing_model: None,
@@ -317,6 +317,35 @@ impl UpdateRegionalAvailabilityRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListPublisherListingsRequest {
+    pub publisher_id: String,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+    pub idempotency_key: Option<String>,
+}
+
+impl ListPublisherListingsRequest {
+    pub fn new(publisher_id: impl Into<String>) -> Self {
+        Self {
+            publisher_id: publisher_id.into(),
+            cursor: None,
+            limit: None,
+            idempotency_key: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ListListingReleasesRequest {
     pub listing_id: String,
     pub cursor: Option<String>,
@@ -371,6 +400,28 @@ impl CreateListingSubmissionRequest {
     pub fn with_release_id(mut self, id: impl Into<String>) -> Self {
         self.release_id = Some(id.into());
         self
+    }
+
+    pub fn with_idempotency_key(mut self, key: impl Into<String>) -> Self {
+        self.idempotency_key = Some(key.into());
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApplyModerationDecisionRequest {
+    pub submission_id: String,
+    pub decision_type: String,
+    pub idempotency_key: Option<String>,
+}
+
+impl ApplyModerationDecisionRequest {
+    pub fn new(submission_id: impl Into<String>, decision_type: impl Into<String>) -> Self {
+        Self {
+            submission_id: submission_id.into(),
+            decision_type: decision_type.into(),
+            idempotency_key: None,
+        }
     }
 
     pub fn with_idempotency_key(mut self, key: impl Into<String>) -> Self {
@@ -480,6 +531,132 @@ impl PublicRetrieveListingRequest {
         Self {
             listing_slug: listing_slug.into(),
             idempotency_key: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BootstrapPublisherAppRequest {
+    pub publisher_id: String,
+    pub app_key: String,
+    pub display_name: String,
+    pub default_locale: String,
+    pub app_type: Option<String>,
+    pub listing_slug: Option<String>,
+    pub pricing_model: Option<String>,
+    pub idempotency_key: Option<String>,
+}
+
+impl BootstrapPublisherAppRequest {
+    pub fn new(
+        publisher_id: impl Into<String>,
+        app_key: impl Into<String>,
+        display_name: impl Into<String>,
+        default_locale: impl Into<String>,
+    ) -> Self {
+        Self {
+            publisher_id: publisher_id.into(),
+            app_key: app_key.into(),
+            display_name: display_name.into(),
+            default_locale: default_locale.into(),
+            app_type: None,
+            listing_slug: None,
+            pricing_model: None,
+            idempotency_key: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListListingReleaseHistoryRequest {
+    pub listing_id: String,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl ListListingReleaseHistoryRequest {
+    pub fn new(listing_id: impl Into<String>) -> Self {
+        Self {
+            listing_id: listing_id.into(),
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListSimilarListingsRequest {
+    pub listing_id: String,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl ListSimilarListingsRequest {
+    pub fn new(listing_id: impl Into<String>) -> Self {
+        Self {
+            listing_id: listing_id.into(),
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListDeveloperOtherListingsRequest {
+    pub listing_id: String,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl ListDeveloperOtherListingsRequest {
+    pub fn new(listing_id: impl Into<String>) -> Self {
+        Self {
+            listing_id: listing_id.into(),
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RetrieveListingEditorialRequest {
+    pub listing_id: String,
+}
+
+impl RetrieveListingEditorialRequest {
+    pub fn new(listing_id: impl Into<String>) -> Self {
+        Self {
+            listing_id: listing_id.into(),
         }
     }
 }

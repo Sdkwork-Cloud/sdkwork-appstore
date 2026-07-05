@@ -2,7 +2,7 @@ use crate::mapper;
 use sdkwork_appstore_compliance_service::context::AppstoreRequestContext;
 use sdkwork_appstore_compliance_service::domain::commands::PermissionDisclosureItem;
 use sdkwork_appstore_compliance_service::domain::results::{
-    RetrieveComplianceProfileResult, UpdateComplianceProfileResult,
+    ListIapItemsResult, RetrieveComplianceProfileResult, UpdateComplianceProfileResult,
     UpsertPermissionDisclosuresResult,
 };
 use sdkwork_appstore_compliance_service::error::AppstoreServiceError;
@@ -30,6 +30,11 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         operation_id: "appstore.compliance.permissions.update",
         handler_name: "compliance_permissions_update",
         service_method: "upsert_permission_disclosures",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.compliance.iapItems.list",
+        handler_name: "compliance_iap_items_list",
+        service_method: "list_iap_items",
     },
 ];
 
@@ -73,4 +78,15 @@ pub async fn compliance_permissions_update<S: ComplianceOperations>(
 ) -> Result<UpsertPermissionDisclosuresResult, AppstoreServiceError> {
     let cmd = mapper::request::map_upsert_permission_disclosures(listing_id, permissions);
     service.upsert_permission_disclosures(context, cmd).await
+}
+
+pub async fn compliance_iap_items_list<S: ComplianceOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<ListIapItemsResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_list_iap_items(listing_id, cursor, limit);
+    service.list_iap_items(context, cmd).await
 }

@@ -18,6 +18,20 @@ pub const ROUTES: &[RouteDefinition] = &[
         service_method: "publishers_me_retrieve",
     },
     RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/publishers/me/listings",
+        operation_id: "appstore.publishers.me.listings.list",
+        handler: "publishers_me_listings_list",
+        service_method: "list_publisher_listings",
+    },
+    RouteDefinition {
+        method: "POST",
+        path: "/app/v3/api/publishers/me/apps",
+        operation_id: "appstore.publishers.me.apps.bootstrap",
+        handler: "publishers_me_apps_bootstrap",
+        service_method: "bootstrap_publisher_app",
+    },
+    RouteDefinition {
         method: "POST",
         path: "/app/v3/api/publishers",
         operation_id: "appstore.publishers.create",

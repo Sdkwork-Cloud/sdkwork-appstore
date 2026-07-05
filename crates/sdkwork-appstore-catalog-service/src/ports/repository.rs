@@ -4,7 +4,7 @@ use crate::context::AppstoreRequestContext;
 use crate::domain::models::{
     CatalogChartSnapshot, CatalogCollection, CatalogCollectionItem, CatalogCollectionLocalization,
     CatalogFeaturedSlot, Category, CategoryId, CategoryLocalization, CollectionId,
-    ListingMetricSnapshot, ListingSummary,
+    ListingMetricSnapshot, ListingSummary, SearchHistoryEntry, SearchSuggestion, TrendingTerm,
 };
 use crate::error::AppstoreServiceResult;
 
@@ -164,4 +164,115 @@ pub trait CatalogRepositoryPort: Send + Sync {
         start_date: Option<&str>,
         end_date: Option<&str>,
     ) -> AppstoreServiceResult<Vec<ListingMetricSnapshot>>;
+
+    async fn find_listings_by_ids(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_ids: &[String],
+        locale: Option<&str>,
+    ) -> AppstoreServiceResult<Vec<ListingSummary>>;
+
+    async fn find_recently_updated_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        locale: Option<&str>,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<ListingSummary>>;
+
+    async fn find_event_collections(
+        &self,
+        context: &AppstoreRequestContext,
+        status: Option<&str>,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<CatalogCollection>>;
+
+    async fn find_listing_name_suggestions(
+        &self,
+        context: &AppstoreRequestContext,
+        prefix: &str,
+        locale: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<SearchSuggestion>>;
+
+    async fn find_trending_term_suggestions(
+        &self,
+        context: &AppstoreRequestContext,
+        prefix: &str,
+        locale: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<SearchSuggestion>>;
+
+    async fn find_trending_terms(
+        &self,
+        context: &AppstoreRequestContext,
+        locale: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<TrendingTerm>>;
+
+    async fn find_search_history(
+        &self,
+        context: &AppstoreRequestContext,
+        user_id: &str,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<SearchHistoryEntry>>;
+
+    async fn insert_search_history(
+        &self,
+        context: &AppstoreRequestContext,
+        entry: &SearchHistoryEntry,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn clear_search_history(
+        &self,
+        context: &AppstoreRequestContext,
+        user_id: &str,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn find_publisher_id_by_owner(
+        &self,
+        context: &AppstoreRequestContext,
+        owner_user_id: &str,
+    ) -> AppstoreServiceResult<Option<String>>;
+
+    async fn aggregate_publisher_metrics(
+        &self,
+        context: &AppstoreRequestContext,
+        publisher_id: &str,
+        date_from: Option<&str>,
+        date_to: Option<&str>,
+    ) -> AppstoreServiceResult<crate::domain::models::PublisherAnalyticsOverview>;
+
+    async fn list_publisher_listing_metrics(
+        &self,
+        context: &AppstoreRequestContext,
+        publisher_id: &str,
+        date_from: Option<&str>,
+        date_to: Option<&str>,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<crate::domain::models::PublisherListingMetricsSummary>>;
+
+    async fn listing_belongs_to_publisher(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &str,
+        publisher_id: &str,
+    ) -> AppstoreServiceResult<bool>;
+
+    async fn count_operator_dashboard_stats(
+        &self,
+        context: &AppstoreRequestContext,
+    ) -> AppstoreServiceResult<crate::domain::models::OperatorDashboardStats>;
+
+    async fn find_operator_search_analytics(
+        &self,
+        context: &AppstoreRequestContext,
+        query: Option<&str>,
+        date_from: Option<&str>,
+        date_to: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<crate::domain::models::OperatorSearchAnalytics>;
 }

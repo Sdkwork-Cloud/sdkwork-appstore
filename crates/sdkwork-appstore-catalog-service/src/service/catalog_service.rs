@@ -1,28 +1,39 @@
 //! Catalog service entrypoint.
 
 use chrono::Utc;
+use sdkwork_appstore_authorization::{missing_scope_message, scope_granted};
 use uuid::Uuid;
 
 use crate::context::AppstoreRequestContext;
 use crate::domain::commands::{
-    CategoriesListRequest, CategoryCreateRequest, CategoryRetrieveRequest, CategoryUpdateRequest,
-    ChartsRetrieveRequest, CollectionCreateRequest, CollectionItemsUpsertRequest,
-    CollectionRetrieveRequest, CollectionUpdateRequest, CollectionsListRequest,
-    FeaturedListRequest, FeaturedUpsertRequest, HomeRetrieveRequest, ListingsSearchRequest,
-    MetricsRetrieveRequest, PublicFeaturedListRequest,
+    AnalyticsOperatorDashboardRequest, AnalyticsOperatorSearchRequest,
+    AnalyticsPublisherListingRetrieveRequest, AnalyticsPublisherListingsListRequest,
+    AnalyticsPublisherOverviewRequest, CategoriesListRequest, CategoryCreateRequest,
+    CategoryRetrieveRequest, CategoryUpdateRequest, ChartsRetrieveRequest, CollectionCreateRequest,
+    CollectionItemsUpsertRequest, CollectionRetrieveRequest, CollectionUpdateRequest,
+    CollectionsListRequest, EventRetrieveRequest, EventsListRequest, FeaturedListRequest,
+    FeaturedUpsertRequest, HomeRetrieveRequest, ListingsSearchRequest, MetricsRetrieveRequest,
+    PublicFeaturedListRequest, RecentlyUpdatedListRequest, RecommendationsListRequest,
+    SearchHistoryClearRequest, SearchHistoryListRequest, SearchHistoryUpsertRequest,
+    SearchSuggestionsListRequest, SearchTrendingListRequest,
 };
 use crate::domain::models::{
     AudienceScope, CatalogCollection, CatalogCollectionItem, CatalogCollectionLocalization,
     CatalogFeaturedSlot, Category, CategoryId, CategoryLocalization, CategoryStatus,
     CategoryWithLocalizations, CollectionId, CollectionStatus, CollectionType, CollectionWithItems,
-    FeaturedSlotId, FeaturedSlotStatus, ListingSummary, PlatformScope,
+    FeaturedSlotId, FeaturedSlotStatus, ListingSummary, PlatformScope, SearchHistoryEntry,
 };
 use crate::domain::results::{
-    CategoriesListResult, CategoryCreateResult, CategoryRetrieveResult, CategoryUpdateResult,
-    ChartsRetrieveResult, CollectionCreateResult, CollectionItemsUpsertResult,
-    CollectionRetrieveResult, CollectionUpdateResult, CollectionsListResult, FeaturedListResult,
+    AnalyticsOperatorDashboardResult, AnalyticsOperatorSearchResult,
+    AnalyticsPublisherListingRetrieveResult, AnalyticsPublisherListingsListResult,
+    AnalyticsPublisherOverviewResult, CategoriesListResult, CategoryCreateResult,
+    CategoryRetrieveResult, CategoryUpdateResult, ChartsRetrieveResult, CollectionCreateResult,
+    CollectionItemsUpsertResult, CollectionRetrieveResult, CollectionUpdateResult,
+    CollectionsListResult, EventRetrieveResult, EventsListResult, FeaturedListResult,
     FeaturedUpsertResult, HomeRetrieveResult, ListingsSearchResult, MetricsRetrieveResult,
-    PublicFeaturedListResult,
+    PublicFeaturedListResult, RecentlyUpdatedListResult, RecommendationsListResult,
+    SearchHistoryClearResult, SearchHistoryListResult, SearchHistoryUpsertResult,
+    SearchSuggestionsListResult, SearchTrendingListResult,
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
 use crate::ports::repository::CatalogRepositoryPort;
@@ -124,6 +135,90 @@ pub trait CatalogOperations {
         context: &AppstoreRequestContext,
         request: PublicFeaturedListRequest,
     ) -> AppstoreServiceResult<PublicFeaturedListResult>;
+
+    async fn recommendations_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RecommendationsListRequest,
+    ) -> AppstoreServiceResult<RecommendationsListResult>;
+
+    async fn recently_updated_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RecentlyUpdatedListRequest,
+    ) -> AppstoreServiceResult<RecentlyUpdatedListResult>;
+
+    async fn events_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: EventsListRequest,
+    ) -> AppstoreServiceResult<EventsListResult>;
+
+    async fn event_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: EventRetrieveRequest,
+    ) -> AppstoreServiceResult<EventRetrieveResult>;
+
+    async fn search_suggestions_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchSuggestionsListRequest,
+    ) -> AppstoreServiceResult<SearchSuggestionsListResult>;
+
+    async fn search_trending_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchTrendingListRequest,
+    ) -> AppstoreServiceResult<SearchTrendingListResult>;
+
+    async fn search_history_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchHistoryListRequest,
+    ) -> AppstoreServiceResult<SearchHistoryListResult>;
+
+    async fn search_history_upsert(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchHistoryUpsertRequest,
+    ) -> AppstoreServiceResult<SearchHistoryUpsertResult>;
+
+    async fn search_history_clear(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchHistoryClearRequest,
+    ) -> AppstoreServiceResult<SearchHistoryClearResult>;
+
+    async fn analytics_publisher_overview_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsPublisherOverviewRequest,
+    ) -> AppstoreServiceResult<AnalyticsPublisherOverviewResult>;
+
+    async fn analytics_publisher_listings_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsPublisherListingsListRequest,
+    ) -> AppstoreServiceResult<AnalyticsPublisherListingsListResult>;
+
+    async fn analytics_publisher_listings_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsPublisherListingRetrieveRequest,
+    ) -> AppstoreServiceResult<AnalyticsPublisherListingRetrieveResult>;
+
+    async fn analytics_operator_dashboard_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsOperatorDashboardRequest,
+    ) -> AppstoreServiceResult<AnalyticsOperatorDashboardResult>;
+
+    async fn analytics_operator_search_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsOperatorSearchRequest,
+    ) -> AppstoreServiceResult<AnalyticsOperatorSearchResult>;
 }
 
 #[derive(Debug, Clone)]
@@ -135,6 +230,124 @@ impl<R> CatalogService<R> {
     pub fn new(repository: R) -> Self {
         Self { repository }
     }
+}
+
+fn require_scope(context: &AppstoreRequestContext, required: &str) -> AppstoreServiceResult<()> {
+    if scope_granted(&context.permission_scopes, required) {
+        Ok(())
+    } else {
+        Err(AppstoreServiceError::PermissionDenied(
+            missing_scope_message(required),
+        ))
+    }
+}
+
+fn require_user_id(context: &AppstoreRequestContext) -> AppstoreServiceResult<String> {
+    context
+        .user_id
+        .as_ref()
+        .filter(|id| !id.trim().is_empty())
+        .cloned()
+        .ok_or_else(|| {
+            AppstoreServiceError::PermissionDenied("Authenticated user is required".to_string())
+        })
+}
+
+async fn resolve_publisher_id<R: CatalogRepositoryPort>(
+    repository: &R,
+    context: &AppstoreRequestContext,
+) -> AppstoreServiceResult<String> {
+    let user_id = require_user_id(context)?;
+    repository
+        .find_publisher_id_by_owner(context, &user_id)
+        .await?
+        .ok_or_else(|| {
+            AppstoreServiceError::NotFound(
+                "Publisher profile not found for current user".to_string(),
+            )
+        })
+}
+
+fn listing_ids_from_chart_ranking(ranking: &serde_json::Value) -> Vec<String> {
+    match ranking {
+        serde_json::Value::Array(items) => items
+            .iter()
+            .filter_map(|item| match item {
+                serde_json::Value::String(id) => Some(id.clone()),
+                serde_json::Value::Object(obj) => obj
+                    .get("listing_id")
+                    .or_else(|| obj.get("listingId"))
+                    .and_then(|value| value.as_str())
+                    .map(str::to_owned),
+                _ => None,
+            })
+            .collect(),
+        serde_json::Value::Object(obj) => ["entries", "listings", "items", "ranking"]
+            .iter()
+            .find_map(|key| obj.get(*key))
+            .map(|value| listing_ids_from_chart_ranking(value))
+            .unwrap_or_default(),
+        _ => Vec::new(),
+    }
+}
+
+fn merge_recommendation_listing_ids(
+    featured_slots: &[CatalogFeaturedSlot],
+    chart_ids: &[String],
+) -> Vec<String> {
+    let mut merged = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+
+    for slot in featured_slots {
+        if seen.insert(slot.listing_id.clone()) {
+            merged.push(slot.listing_id.clone());
+        }
+    }
+    for id in chart_ids {
+        if seen.insert(id.clone()) {
+            merged.push(id.clone());
+        }
+    }
+
+    merged
+}
+
+fn paginate_id_list(
+    ids: &[String],
+    cursor: Option<&str>,
+    limit: i32,
+) -> (Vec<String>, Option<String>, bool) {
+    let start = cursor
+        .and_then(|cursor_id| ids.iter().position(|id| id == cursor_id))
+        .map(|index| index + 1)
+        .unwrap_or(0);
+    let page_ids: Vec<String> = ids
+        .iter()
+        .skip(start)
+        .take(limit as usize)
+        .cloned()
+        .collect();
+    let has_more = start + page_ids.len() < ids.len();
+    let next_cursor = if has_more {
+        page_ids.last().cloned()
+    } else {
+        None
+    };
+    (page_ids, next_cursor, has_more)
+}
+
+fn order_listings_by_ids(listings: Vec<ListingSummary>, ids: &[String]) -> Vec<ListingSummary> {
+    let mut by_id = listings
+        .into_iter()
+        .map(|listing| (listing.id.clone(), listing))
+        .collect::<std::collections::HashMap<_, _>>();
+    ids.iter().filter_map(|id| by_id.remove(id)).collect()
+}
+
+fn is_event_collection(collection: &CatalogCollection) -> bool {
+    collection.status == CollectionStatus::Published
+        && collection.starts_at.is_some()
+        && collection.ends_at.is_some()
 }
 
 #[async_trait::async_trait]
@@ -238,6 +451,7 @@ where
         context: &AppstoreRequestContext,
         request: CategoryCreateRequest,
     ) -> AppstoreServiceResult<CategoryCreateResult> {
+        require_scope(context, "appstore.catalog.admin")?;
         if request.category_code.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
                 "Category code is required".to_string(),
@@ -303,6 +517,7 @@ where
         context: &AppstoreRequestContext,
         request: CategoryUpdateRequest,
     ) -> AppstoreServiceResult<CategoryUpdateResult> {
+        require_scope(context, "appstore.catalog.admin")?;
         let category_id = CategoryId::new(&request.category_id);
 
         let mut category = self
@@ -472,6 +687,7 @@ where
         context: &AppstoreRequestContext,
         request: CollectionCreateRequest,
     ) -> AppstoreServiceResult<CollectionCreateResult> {
+        require_scope(context, "appstore.catalog.admin")?;
         if request.collection_code.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
                 "Collection code is required".to_string(),
@@ -559,6 +775,7 @@ where
         context: &AppstoreRequestContext,
         request: CollectionUpdateRequest,
     ) -> AppstoreServiceResult<CollectionUpdateResult> {
+        require_scope(context, "appstore.catalog.admin")?;
         let collection_id = CollectionId::new(&request.collection_id);
 
         let mut collection = self
@@ -671,6 +888,7 @@ where
         context: &AppstoreRequestContext,
         request: CollectionItemsUpsertRequest,
     ) -> AppstoreServiceResult<CollectionItemsUpsertResult> {
+        require_scope(context, "appstore.catalog.admin")?;
         let collection_id = CollectionId::new(&request.collection_id);
 
         let _collection = self
@@ -739,6 +957,7 @@ where
         context: &AppstoreRequestContext,
         request: FeaturedUpsertRequest,
     ) -> AppstoreServiceResult<FeaturedUpsertResult> {
+        require_scope(context, "appstore.catalog.admin")?;
         if request.slot_code.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
                 "Slot code is required".to_string(),
@@ -873,6 +1092,7 @@ where
         context: &AppstoreRequestContext,
         request: MetricsRetrieveRequest,
     ) -> AppstoreServiceResult<MetricsRetrieveResult> {
+        require_scope(context, "appstore.metrics.read")?;
         if request.listing_id.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
                 "Listing ID is required".to_string(),
@@ -919,6 +1139,461 @@ where
         Ok(PublicFeaturedListResult::new(
             "appstore.catalog.public.featured.list",
             slots,
+        ))
+    }
+
+    async fn recommendations_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RecommendationsListRequest,
+    ) -> AppstoreServiceResult<RecommendationsListResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let locale = request.locale.as_deref().unwrap_or("en-US");
+        let platform_scope = request
+            .platform
+            .as_deref()
+            .and_then(PlatformScope::from_str)
+            .unwrap_or(PlatformScope::All);
+        let limit = request.limit.unwrap_or(20).min(100);
+
+        let chart = self
+            .repository
+            .find_latest_chart_snapshot(context, "top", locale, platform_scope.as_str())
+            .await?;
+        let chart_ids = chart
+            .as_ref()
+            .map(|snapshot| listing_ids_from_chart_ranking(&snapshot.ranking))
+            .unwrap_or_default();
+
+        let now = Utc::now();
+        let featured_slots: Vec<CatalogFeaturedSlot> = self
+            .repository
+            .find_featured_slots(context)
+            .await?
+            .into_iter()
+            .filter(|slot| {
+                slot.status == FeaturedSlotStatus::Active
+                    && slot.starts_at <= now
+                    && slot.ends_at >= now
+                    && (slot.platform_scope == PlatformScope::All
+                        || slot.platform_scope == platform_scope)
+            })
+            .collect();
+
+        let merged_ids = merge_recommendation_listing_ids(&featured_slots, &chart_ids);
+        let (page_ids, next_cursor, has_more) =
+            paginate_id_list(&merged_ids, request.cursor.as_deref(), limit);
+
+        let listings = if page_ids.is_empty() {
+            Vec::new()
+        } else {
+            let fetched = self
+                .repository
+                .find_listings_by_ids(context, &page_ids, Some(locale))
+                .await?;
+            order_listings_by_ids(fetched, &page_ids)
+        };
+
+        Ok(RecommendationsListResult::new(
+            "appstore.catalog.recommendations.list",
+            listings,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn recently_updated_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RecentlyUpdatedListRequest,
+    ) -> AppstoreServiceResult<RecentlyUpdatedListResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let limit = request.limit.unwrap_or(20).min(100);
+        let listings = self
+            .repository
+            .find_recently_updated_listings(
+                context,
+                request.locale.as_deref(),
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = listings.len() > limit as usize;
+        let listings: Vec<ListingSummary> = listings.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            listings.last().map(|listing| listing.id.clone())
+        } else {
+            None
+        };
+
+        Ok(RecentlyUpdatedListResult::new(
+            "appstore.catalog.recentlyUpdated.list",
+            listings,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn events_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: EventsListRequest,
+    ) -> AppstoreServiceResult<EventsListResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let limit = request.limit.unwrap_or(20).min(100);
+        let collections = self
+            .repository
+            .find_event_collections(
+                context,
+                request.status.as_deref(),
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = collections.len() > limit as usize;
+        let collections: Vec<CatalogCollection> =
+            collections.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            collections
+                .last()
+                .map(|collection| collection.id.as_str().to_string())
+        } else {
+            None
+        };
+
+        let mut events = Vec::new();
+        for collection in collections {
+            let localizations = self
+                .repository
+                .find_collection_localizations(context, &collection.id)
+                .await?;
+            let items = self
+                .repository
+                .find_collection_items(context, &collection.id)
+                .await?;
+            events.push(CollectionWithItems {
+                collection,
+                localizations,
+                items,
+            });
+        }
+
+        Ok(EventsListResult::new(
+            "appstore.catalog.events.list",
+            events,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn event_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: EventRetrieveRequest,
+    ) -> AppstoreServiceResult<EventRetrieveResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let collection_id = CollectionId::new(&request.event_id);
+        let collection = self
+            .repository
+            .find_collection_by_id(context, &collection_id)
+            .await?;
+
+        match collection {
+            Some(collection) if is_event_collection(&collection) => {
+                let localizations = self
+                    .repository
+                    .find_collection_localizations(context, &collection_id)
+                    .await?;
+                let items = self
+                    .repository
+                    .find_collection_items(context, &collection_id)
+                    .await?;
+                Ok(EventRetrieveResult::found(
+                    "appstore.catalog.events.retrieve",
+                    CollectionWithItems {
+                        collection,
+                        localizations,
+                        items,
+                    },
+                ))
+            }
+            _ => Ok(EventRetrieveResult::not_found(
+                "appstore.catalog.events.retrieve",
+            )),
+        }
+    }
+
+    async fn search_suggestions_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchSuggestionsListRequest,
+    ) -> AppstoreServiceResult<SearchSuggestionsListResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        if request.query.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Query parameter q is required".to_string(),
+            ));
+        }
+
+        let limit = 10;
+        let prefix = request.query.trim();
+        let locale = request.locale.as_deref();
+
+        let mut listing_suggestions = self
+            .repository
+            .find_listing_name_suggestions(context, prefix, locale, limit)
+            .await?;
+        let remaining = limit.saturating_sub(listing_suggestions.len() as i32);
+        if remaining > 0 {
+            let mut trending_suggestions = self
+                .repository
+                .find_trending_term_suggestions(context, prefix, locale, remaining)
+                .await?;
+            listing_suggestions.append(&mut trending_suggestions);
+        }
+
+        Ok(SearchSuggestionsListResult::new(
+            "appstore.catalog.search.suggestions.list",
+            listing_suggestions,
+        ))
+    }
+
+    async fn search_trending_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchTrendingListRequest,
+    ) -> AppstoreServiceResult<SearchTrendingListResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let limit = request.limit.unwrap_or(20).min(100);
+        let terms = self
+            .repository
+            .find_trending_terms(context, request.locale.as_deref(), limit)
+            .await?;
+
+        Ok(SearchTrendingListResult::new(
+            "appstore.catalog.search.trending.list",
+            terms,
+        ))
+    }
+
+    async fn search_history_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchHistoryListRequest,
+    ) -> AppstoreServiceResult<SearchHistoryListResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let user_id = require_user_id(context)?;
+        let limit = request.limit.unwrap_or(20).min(100);
+        let entries = self
+            .repository
+            .find_search_history(context, &user_id, request.cursor.as_deref(), limit + 1)
+            .await?;
+
+        let has_more = entries.len() > limit as usize;
+        let entries: Vec<SearchHistoryEntry> = entries.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            entries.last().map(|entry| entry.id.clone())
+        } else {
+            None
+        };
+
+        Ok(SearchHistoryListResult::new(
+            "appstore.catalog.search.history.list",
+            entries,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn search_history_upsert(
+        &self,
+        context: &AppstoreRequestContext,
+        request: SearchHistoryUpsertRequest,
+    ) -> AppstoreServiceResult<SearchHistoryUpsertResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let user_id = require_user_id(context)?;
+        if request.query_text.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "query_text is required".to_string(),
+            ));
+        }
+
+        let now = Utc::now();
+        let entry = SearchHistoryEntry {
+            id: Uuid::new_v4().to_string(),
+            tenant_id: context.tenant_id.clone(),
+            user_id,
+            query_text: request.query_text,
+            filters_json: request.filters_json.unwrap_or_else(|| "{}".to_string()),
+            result_count: request.result_count.unwrap_or(0),
+            created_at: now,
+        };
+
+        self.repository
+            .insert_search_history(context, &entry)
+            .await?;
+
+        Ok(SearchHistoryUpsertResult::upserted(
+            "appstore.catalog.search.history.upsert",
+            entry,
+        ))
+    }
+
+    async fn search_history_clear(
+        &self,
+        context: &AppstoreRequestContext,
+        _request: SearchHistoryClearRequest,
+    ) -> AppstoreServiceResult<SearchHistoryClearResult> {
+        require_scope(context, "appstore.catalog.read")?;
+        let user_id = require_user_id(context)?;
+        self.repository
+            .clear_search_history(context, &user_id)
+            .await?;
+
+        Ok(SearchHistoryClearResult::cleared(
+            "appstore.catalog.search.history.clear",
+        ))
+    }
+
+    async fn analytics_publisher_overview_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsPublisherOverviewRequest,
+    ) -> AppstoreServiceResult<AnalyticsPublisherOverviewResult> {
+        require_scope(context, "appstore.analytics.publisher")?;
+        let publisher_id = resolve_publisher_id(&self.repository, context).await?;
+        let overview = self
+            .repository
+            .aggregate_publisher_metrics(
+                context,
+                &publisher_id,
+                request.date_from.as_deref(),
+                request.date_to.as_deref(),
+            )
+            .await?;
+
+        Ok(AnalyticsPublisherOverviewResult::new(
+            "appstore.analytics.publisher.overview.retrieve",
+            overview,
+        ))
+    }
+
+    async fn analytics_publisher_listings_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsPublisherListingsListRequest,
+    ) -> AppstoreServiceResult<AnalyticsPublisherListingsListResult> {
+        require_scope(context, "appstore.analytics.publisher")?;
+        let publisher_id = resolve_publisher_id(&self.repository, context).await?;
+        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let listings = self
+            .repository
+            .list_publisher_listing_metrics(
+                context,
+                &publisher_id,
+                request.date_from.as_deref(),
+                request.date_to.as_deref(),
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = listings.len() > limit as usize;
+        let listings: Vec<_> = listings.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            listings.last().map(|item| item.listing_id.clone())
+        } else {
+            None
+        };
+
+        Ok(AnalyticsPublisherListingsListResult::new(
+            "appstore.analytics.publisher.listings.list",
+            listings,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn analytics_publisher_listings_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsPublisherListingRetrieveRequest,
+    ) -> AppstoreServiceResult<AnalyticsPublisherListingRetrieveResult> {
+        require_scope(context, "appstore.analytics.publisher")?;
+        if request.listing_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Listing ID is required".to_string(),
+            ));
+        }
+
+        let publisher_id = resolve_publisher_id(&self.repository, context).await?;
+        let belongs = self
+            .repository
+            .listing_belongs_to_publisher(context, request.listing_id.trim(), &publisher_id)
+            .await?;
+        if !belongs {
+            return Err(AppstoreServiceError::NotFound(format!(
+                "Listing not found: {}",
+                request.listing_id
+            )));
+        }
+
+        let metrics = self
+            .repository
+            .find_metric_snapshots(
+                context,
+                request.listing_id.trim(),
+                request.date_from.as_deref(),
+                request.date_to.as_deref(),
+            )
+            .await?;
+
+        Ok(AnalyticsPublisherListingRetrieveResult::new(
+            "appstore.analytics.publisher.listings.retrieve",
+            request.listing_id,
+            metrics,
+        ))
+    }
+
+    async fn analytics_operator_dashboard_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        _request: AnalyticsOperatorDashboardRequest,
+    ) -> AppstoreServiceResult<AnalyticsOperatorDashboardResult> {
+        require_scope(context, "appstore.analytics.operator")?;
+        let dashboard = self
+            .repository
+            .count_operator_dashboard_stats(context)
+            .await?;
+
+        Ok(AnalyticsOperatorDashboardResult::new(
+            "appstore.analytics.operator.dashboard.retrieve",
+            dashboard,
+        ))
+    }
+
+    async fn analytics_operator_search_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: AnalyticsOperatorSearchRequest,
+    ) -> AppstoreServiceResult<AnalyticsOperatorSearchResult> {
+        require_scope(context, "appstore.analytics.operator")?;
+        let analytics = self
+            .repository
+            .find_operator_search_analytics(
+                context,
+                request.query.as_deref(),
+                request.date_from.as_deref(),
+                request.date_to.as_deref(),
+                50,
+            )
+            .await?;
+
+        Ok(AnalyticsOperatorSearchResult::new(
+            "appstore.analytics.operator.search.retrieve",
+            analytics,
         ))
     }
 }

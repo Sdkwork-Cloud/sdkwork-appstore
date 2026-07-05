@@ -1,4 +1,4 @@
-import { createAppStoreClient, type AppStoreClient, type TokenManager } from '@sdk/composed/client';
+import { createAppStoreClient, type AppStoreClient, type TokenManager } from '@sdkwork/appstore-app-sdk';
 import { getEnvironment } from '../environment/config';
 
 let storeClient: AppStoreClient | null = null;

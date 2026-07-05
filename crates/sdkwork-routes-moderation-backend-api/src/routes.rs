@@ -38,6 +38,34 @@ pub const ROUTES: &[RouteDefinition] = &[
         handler: "moderation_decisions_create",
         service_method: "moderation_decisions_create",
     },
+    RouteDefinition {
+        method: "POST",
+        path: "/backend/v3/api/moderation/appeals",
+        operation_id: "appstore.moderation.appeals.create",
+        handler: "moderation_appeals_create",
+        service_method: "moderation_appeals_create",
+    },
+    RouteDefinition {
+        method: "GET",
+        path: "/backend/v3/api/moderation/appeals",
+        operation_id: "appstore.moderation.appeals.list",
+        handler: "moderation_appeals_list",
+        service_method: "moderation_appeals_list",
+    },
+    RouteDefinition {
+        method: "GET",
+        path: "/backend/v3/api/moderation/appeals/{appealId}",
+        operation_id: "appstore.moderation.appeals.retrieve",
+        handler: "moderation_appeals_retrieve",
+        service_method: "moderation_appeals_retrieve",
+    },
+    RouteDefinition {
+        method: "POST",
+        path: "/backend/v3/api/moderation/appeals/{appealId}/decide",
+        operation_id: "appstore.moderation.appeals.decide",
+        handler: "moderation_appeals_decide",
+        service_method: "moderation_appeals_decide",
+    },
 ];
 
 pub fn route_definitions() -> &'static [RouteDefinition] {

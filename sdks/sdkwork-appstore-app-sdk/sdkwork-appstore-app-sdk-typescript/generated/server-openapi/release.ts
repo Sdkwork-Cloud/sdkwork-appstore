@@ -108,7 +108,7 @@ export interface RolloutUpdateRequest {
 }
 
 export interface CheckUpdateRequest {
-  plusAppKey: string;
+  appKey: string;
   channelCode: string;
   installedVersionCode: string;
   platform: string;

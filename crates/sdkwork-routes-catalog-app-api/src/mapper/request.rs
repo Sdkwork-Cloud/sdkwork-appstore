@@ -1,7 +1,9 @@
 use sdkwork_appstore_catalog_service::domain::commands::{
     CategoriesListRequest, CategoryRetrieveRequest, ChartsRetrieveRequest,
-    CollectionRetrieveRequest, CollectionsListRequest, FeaturedListRequest, HomeRetrieveRequest,
-    ListingsSearchRequest,
+    CollectionRetrieveRequest, CollectionsListRequest, EventRetrieveRequest, EventsListRequest,
+    FeaturedListRequest, HomeRetrieveRequest, ListingsSearchRequest, RecentlyUpdatedListRequest,
+    RecommendationsListRequest, SearchHistoryClearRequest, SearchHistoryListRequest,
+    SearchHistoryUpsertRequest, SearchSuggestionsListRequest, SearchTrendingListRequest,
 };
 
 pub fn map_home_retrieve(locale: Option<String>, platform: Option<String>) -> HomeRetrieveRequest {
@@ -126,4 +128,124 @@ pub fn map_listings_search(
         req = req.with_limit(v);
     }
     req
+}
+
+pub fn map_recommendations_list(
+    locale: Option<String>,
+    platform: Option<String>,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> RecommendationsListRequest {
+    let mut req = RecommendationsListRequest::new();
+    if let Some(v) = locale {
+        req = req.with_locale(v);
+    }
+    if let Some(v) = platform {
+        req = req.with_platform(v);
+    }
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_recently_updated_list(
+    locale: Option<String>,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> RecentlyUpdatedListRequest {
+    let mut req = RecentlyUpdatedListRequest::new();
+    if let Some(v) = locale {
+        req = req.with_locale(v);
+    }
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_events_list(
+    cursor: Option<String>,
+    limit: Option<i32>,
+    status: Option<String>,
+) -> EventsListRequest {
+    let mut req = EventsListRequest::new();
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    if let Some(v) = status {
+        req = req.with_status(v);
+    }
+    req
+}
+
+pub fn map_event_retrieve(event_id: String, locale: Option<String>) -> EventRetrieveRequest {
+    let mut req = EventRetrieveRequest::new(event_id);
+    if let Some(v) = locale {
+        req = req.with_locale(v);
+    }
+    req
+}
+
+pub fn map_search_suggestions_list(
+    query: String,
+    locale: Option<String>,
+) -> SearchSuggestionsListRequest {
+    let mut req = SearchSuggestionsListRequest::new(query);
+    if let Some(v) = locale {
+        req = req.with_locale(v);
+    }
+    req
+}
+
+pub fn map_search_trending_list(
+    locale: Option<String>,
+    limit: Option<i32>,
+) -> SearchTrendingListRequest {
+    let mut req = SearchTrendingListRequest::new();
+    if let Some(v) = locale {
+        req = req.with_locale(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_search_history_list(
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> SearchHistoryListRequest {
+    let mut req = SearchHistoryListRequest::new();
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_search_history_upsert(
+    query_text: String,
+    filters_json: Option<String>,
+) -> SearchHistoryUpsertRequest {
+    let mut req = SearchHistoryUpsertRequest::new(query_text);
+    if let Some(v) = filters_json {
+        req = req.with_filters_json(v);
+    }
+    req
+}
+
+pub fn map_search_history_clear() -> SearchHistoryClearRequest {
+    SearchHistoryClearRequest::new()
 }

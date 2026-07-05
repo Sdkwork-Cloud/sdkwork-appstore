@@ -2,7 +2,10 @@ use crate::mapper;
 use sdkwork_appstore_catalog_service::context::AppstoreRequestContext;
 use sdkwork_appstore_catalog_service::domain::results::{
     CategoriesListResult, CategoryRetrieveResult, ChartsRetrieveResult, CollectionRetrieveResult,
-    CollectionsListResult, FeaturedListResult, HomeRetrieveResult, ListingsSearchResult,
+    CollectionsListResult, EventRetrieveResult, EventsListResult, FeaturedListResult,
+    HomeRetrieveResult, ListingsSearchResult, RecentlyUpdatedListResult, RecommendationsListResult,
+    SearchHistoryClearResult, SearchHistoryListResult, SearchHistoryUpsertResult,
+    SearchSuggestionsListResult, SearchTrendingListResult,
 };
 use sdkwork_appstore_catalog_service::error::AppstoreServiceError;
 use sdkwork_appstore_catalog_service::CatalogOperations;
@@ -54,6 +57,51 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         operation_id: "appstore.catalog.listings.search",
         handler_name: "catalog_listings_search",
         service_method: "search_listings",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.recommendations.list",
+        handler_name: "catalog_recommendations_list",
+        service_method: "recommendations_list",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.recentlyUpdated.list",
+        handler_name: "catalog_recently_updated_list",
+        service_method: "recently_updated_list",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.events.list",
+        handler_name: "catalog_events_list",
+        service_method: "events_list",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.events.retrieve",
+        handler_name: "catalog_events_retrieve",
+        service_method: "event_retrieve",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.search.suggestions.list",
+        handler_name: "catalog_search_suggestions_list",
+        service_method: "search_suggestions_list",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.search.trending.list",
+        handler_name: "catalog_search_trending_list",
+        service_method: "search_trending_list",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.search.history.list",
+        handler_name: "catalog_search_history_list",
+        service_method: "search_history_list",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.search.history.upsert",
+        handler_name: "catalog_search_history_upsert",
+        service_method: "search_history_upsert",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.catalog.search.history.clear",
+        handler_name: "catalog_search_history_clear",
+        service_method: "search_history_clear",
     },
 ];
 
@@ -146,4 +194,96 @@ pub async fn catalog_listings_search<S: CatalogOperations>(
 ) -> Result<ListingsSearchResult, AppstoreServiceError> {
     let cmd = mapper::request::map_listings_search(query, category_id, cursor, limit);
     service.listings_search(context, cmd).await
+}
+
+pub async fn catalog_recommendations_list<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    locale: Option<String>,
+    platform: Option<String>,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<RecommendationsListResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_recommendations_list(locale, platform, cursor, limit);
+    service.recommendations_list(context, cmd).await
+}
+
+pub async fn catalog_recently_updated_list<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    locale: Option<String>,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<RecentlyUpdatedListResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_recently_updated_list(locale, cursor, limit);
+    service.recently_updated_list(context, cmd).await
+}
+
+pub async fn catalog_events_list<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    cursor: Option<String>,
+    limit: Option<i32>,
+    status: Option<String>,
+) -> Result<EventsListResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_events_list(cursor, limit, status);
+    service.events_list(context, cmd).await
+}
+
+pub async fn catalog_events_retrieve<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    event_id: String,
+    locale: Option<String>,
+) -> Result<EventRetrieveResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_event_retrieve(event_id, locale);
+    service.event_retrieve(context, cmd).await
+}
+
+pub async fn catalog_search_suggestions_list<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    query: String,
+    locale: Option<String>,
+) -> Result<SearchSuggestionsListResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_search_suggestions_list(query, locale);
+    service.search_suggestions_list(context, cmd).await
+}
+
+pub async fn catalog_search_trending_list<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    locale: Option<String>,
+    limit: Option<i32>,
+) -> Result<SearchTrendingListResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_search_trending_list(locale, limit);
+    service.search_trending_list(context, cmd).await
+}
+
+pub async fn catalog_search_history_list<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<SearchHistoryListResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_search_history_list(cursor, limit);
+    service.search_history_list(context, cmd).await
+}
+
+pub async fn catalog_search_history_upsert<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    query_text: String,
+    filters_json: Option<String>,
+) -> Result<SearchHistoryUpsertResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_search_history_upsert(query_text, filters_json);
+    service.search_history_upsert(context, cmd).await
+}
+
+pub async fn catalog_search_history_clear<S: CatalogOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+) -> Result<SearchHistoryClearResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_search_history_clear();
+    service.search_history_clear(context, cmd).await
 }

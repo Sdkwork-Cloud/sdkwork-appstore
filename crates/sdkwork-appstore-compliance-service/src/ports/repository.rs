@@ -54,4 +54,12 @@ pub trait ComplianceRepositoryPort: Send + Sync {
         context: &AppstoreRequestContext,
         disclosure: &CompliancePermissionDisclosure,
     ) -> AppstoreServiceResult<()>;
+
+    async fn find_iap_items_by_listing(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &str,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<crate::domain::models::ListingIapItem>>;
 }

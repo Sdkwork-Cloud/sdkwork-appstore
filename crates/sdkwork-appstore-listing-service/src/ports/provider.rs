@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PlusAppReference {
-    pub plus_app_id: String,
-    pub plus_app_key: String,
-    pub app_name: String,
+pub struct AppReference {
+    pub app_id: String,
+    pub app_key: String,
+    pub display_name: String,
     pub manifest_snapshot: serde_json::Value,
 }
 
@@ -18,11 +18,7 @@ pub struct MediaUploadResult {
 
 #[async_trait]
 pub trait ListingProviderPort: Send + Sync {
-    async fn resolve_plus_app(
-        &self,
-        tenant_id: &str,
-        plus_app_id: &str,
-    ) -> Result<PlusAppReference, String>;
+    async fn resolve_app(&self, tenant_id: &str, app_id: &str) -> Result<AppReference, String>;
 
     async fn resolve_media_resource(
         &self,

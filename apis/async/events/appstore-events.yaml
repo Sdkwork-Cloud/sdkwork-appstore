@@ -19,8 +19,8 @@ events:
     version: 1
     payload:
       listingId: string
-      plusAppId: string
-      plusAppKey: string
+      appId: string
+      appKey: string
       publisherId: string
   - type: appstore.store.listing.submitted
     version: 1

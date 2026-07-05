@@ -103,14 +103,35 @@ pub trait ReleaseOperations {
     ) -> AppstoreServiceResult<AutomationSubmissionResult>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ReleaseService<R> {
     repository: R,
+    provider: Option<std::sync::Arc<dyn crate::ports::provider::ReleaseProviderPort>>,
+}
+
+impl<R: std::fmt::Debug> std::fmt::Debug for ReleaseService<R> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ReleaseService")
+            .field("repository", &self.repository)
+            .field("provider", &self.provider.is_some())
+            .finish()
+    }
 }
 
 impl<R> ReleaseService<R> {
     pub fn new(repository: R) -> Self {
-        Self { repository }
+        Self {
+            repository,
+            provider: None,
+        }
+    }
+
+    pub fn with_provider(
+        mut self,
+        provider: std::sync::Arc<dyn crate::ports::provider::ReleaseProviderPort>,
+    ) -> Self {
+        self.provider = Some(provider);
+        self
     }
 
     fn generate_release_no() -> String {
@@ -448,6 +469,19 @@ where
             ));
         }
 
+        if request.drive_node_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "drive_node_id is required".to_string(),
+            ));
+        }
+
+        if let Some(provider) = &self.provider {
+            provider
+                .validate_drive_node(&context.tenant_id, request.drive_node_id.trim())
+                .await
+                .map_err(AppstoreServiceError::ValidationFailed)?;
+        }
+
         let now = Utc::now();
         let artifact_id = ArtifactId::new(Uuid::new_v4().to_string());
         let artifact_no = Self::generate_artifact_no();
@@ -664,12 +698,12 @@ where
     ) -> AppstoreServiceResult<CheckUpdateResult> {
         let listing_id = self
             .repository
-            .find_listing_by_plus_app_key(context, &request.plus_app_key)
+            .find_listing_by_app_key(context, &request.app_key)
             .await?
             .ok_or_else(|| {
                 AppstoreServiceError::NotFound(format!(
-                    "Listing not found for plus app key: {}",
-                    request.plus_app_key
+                    "Listing not found for app key: {}",
+                    request.app_key
                 ))
             })?;
 
@@ -765,9 +799,24 @@ where
             }
         }
 
+        let download_url = if !artifact.drive_node_id.is_empty() {
+            if let Some(provider) = &self.provider {
+                provider
+                    .generate_download_url(&context.tenant_id, &artifact.drive_node_id, 300)
+                    .await
+                    .map_err(AppstoreServiceError::Internal)?
+            } else {
+                format!("drive://{}", artifact.drive_node_id)
+            }
+        } else {
+            return Err(AppstoreServiceError::InvalidState(
+                "Artifact has no drive node reference".to_string(),
+            ));
+        };
+
         Ok(ResolveDownloadResult::resolved(
             "appstore.artifacts.resolveDownload",
-            format!("drive://{}", artifact.drive_node_id),
+            download_url,
             Utc::now().to_rfc3339(),
             &artifact.checksum_sha256,
             &artifact.file_size_bytes,
@@ -940,12 +989,12 @@ where
 
         let listing_id = self
             .repository
-            .find_listing_by_plus_app_key(context, &request.plus_app_key)
+            .find_listing_by_app_key(context, &request.app_key)
             .await?
             .ok_or_else(|| {
                 AppstoreServiceError::NotFound(format!(
-                    "Listing not found for plus app key: {}",
-                    request.plus_app_key
+                    "Listing not found for app key: {}",
+                    request.app_key
                 ))
             })?;
 
@@ -991,6 +1040,18 @@ where
         self.repository.insert_release(context, &release).await?;
 
         for spec in &request.artifacts {
+            if spec.drive_node_id.trim().is_empty() {
+                return Err(AppstoreServiceError::ValidationFailed(
+                    "Each automation artifact requires a drive_node_id".to_string(),
+                ));
+            }
+            if let Some(provider) = &self.provider {
+                provider
+                    .validate_drive_node(&context.tenant_id, spec.drive_node_id.trim())
+                    .await
+                    .map_err(AppstoreServiceError::ValidationFailed)?;
+            }
+
             let artifact_id = ArtifactId::new(Uuid::new_v4().to_string());
             let artifact_no = Self::generate_artifact_no();
 

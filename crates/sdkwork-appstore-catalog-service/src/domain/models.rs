@@ -337,8 +337,8 @@ pub struct ListingMetricSnapshot {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ListingSummary {
     pub id: String,
-    pub plus_app_id: Option<String>,
-    pub plus_app_key: String,
+    pub app_id: String,
+    pub app_key: String,
     pub display_name: String,
     pub subtitle: Option<String>,
     pub listing_slug: String,
@@ -346,4 +346,71 @@ pub struct ListingSummary {
     pub icon_media_resource_id: Option<String>,
     pub average_rating: Option<String>,
     pub rating_count: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchSuggestion {
+    pub text: String,
+    pub suggestion_type: String,
+    pub listing_id: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TrendingTerm {
+    pub id: String,
+    pub tenant_id: String,
+    pub term: String,
+    pub locale: String,
+    pub rank: i32,
+    pub score: f64,
+    pub snapshot_date: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchHistoryEntry {
+    pub id: String,
+    pub tenant_id: String,
+    pub user_id: String,
+    pub query_text: String,
+    pub filters_json: String,
+    pub result_count: i32,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PublisherAnalyticsOverview {
+    pub publisher_id: String,
+    pub listing_count: i32,
+    pub total_impressions: i64,
+    pub total_detail_views: i64,
+    pub total_installs: i64,
+    pub total_uninstalls: i64,
+    pub total_updates: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PublisherListingMetricsSummary {
+    pub listing_id: String,
+    pub listing_slug: String,
+    pub display_name: Option<String>,
+    pub impression_count: i64,
+    pub detail_view_count: i64,
+    pub install_count: i64,
+    pub uninstall_count: i64,
+    pub update_count: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OperatorDashboardStats {
+    pub listing_count: i32,
+    pub publisher_count: i32,
+    pub pending_review_count: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OperatorSearchAnalytics {
+    pub recent_searches: Vec<SearchHistoryEntry>,
+    pub trending_terms: Vec<TrendingTerm>,
 }

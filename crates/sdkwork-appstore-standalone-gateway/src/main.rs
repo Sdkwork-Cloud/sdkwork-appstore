@@ -20,14 +20,20 @@ use sdkwork_appstore_repository_sqlx::repository::moderation_repository::SqlxMod
 use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPublisherRepository;
 use sdkwork_appstore_repository_sqlx::repository::release_repository::SqlxReleaseRepository;
 
-mod http_envelope;
 mod http_route_manifest;
 mod readiness;
 mod routes;
 mod web_bootstrap;
 
+use sdkwork_appstore_standalone_gateway::bootstrap::decision_listing_projection::decision_listing_projection_port;
+use sdkwork_appstore_standalone_gateway::bootstrap::submission_moderation::submission_moderation_port;
+
+use readiness::AppstoreDatabaseReadinessCheck;
+use sdkwork_appstore_database_host::bootstrap_appstore_database_from_env;
+use sdkwork_appstore_service_host::integrations::{
+    DriveIntegrationAdapter, PlatformIntegrationAdapter,
+};
 use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
-use readiness::AppstoreSqliteReadinessCheck;
 use std::sync::Arc;
 use web_bootstrap::wrap_router_with_web_framework_from_env;
 
@@ -49,21 +55,21 @@ async fn main() {
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
-    // Load .env file if present
     let _ = dotenvy::dotenv();
 
-    // Create database pool using sdkwork-pool
-    let pool = sdkwork_database_sqlx::create_pool_from_env("APPSTORE")
+    let database_host = bootstrap_appstore_database_from_env()
         .await
-        .expect("Failed to create database pool")
-        .expect("SDKWORK_APPSTORE_DATABASE_URL not set");
+        .expect("Failed to bootstrap appstore database");
 
-    // Extract SQLite pool
-    let sqlite_pool = pool.as_sqlite()
-        .expect("Expected SQLite pool for appstore service")
+    let pool = database_host.pool().clone();
+    let sqlite_pool = pool
+        .as_sqlite()
+        .expect(
+            "Standalone gateway repositories require SQLite today; set APPSTORE_DATABASE_URL to a SQLite URL",
+        )
         .clone();
 
-    tracing::info!("Database connected successfully");
+    tracing::info!("Database connected and migrated successfully");
 
     let publisher_repo = SqlxPublisherRepository::new(sqlite_pool.clone());
     let listing_repo = SqlxListingRepository::new(sqlite_pool.clone());
@@ -74,28 +80,73 @@ async fn main() {
     let compliance_repo = SqlxComplianceRepository::new(sqlite_pool.clone());
     let market_repo = SqlxMarketRepository::new(sqlite_pool.clone());
 
+    let listing_service = {
+        let mut service = ListingService::new(listing_repo);
+        match PlatformIntegrationAdapter::from_env() {
+            Ok(adapter) => {
+                tracing::info!("Platform integration enabled for listing create validation");
+                service = service.with_platform_provider(Arc::new(adapter));
+            }
+            Err(error) => tracing::warn!("Platform integration disabled: {error}"),
+        }
+        match DriveIntegrationAdapter::from_env() {
+            Ok(adapter) => {
+                tracing::info!("Drive integration enabled for listing media validation");
+                service = service.with_media_provider(Arc::new(adapter));
+            }
+            Err(error) => tracing::warn!("Drive media validation disabled: {error}"),
+        }
+        service
+    };
+
+    let moderation_service = ModerationService::new(moderation_repo.clone())
+        .with_listing_projection(decision_listing_projection_port(listing_service.clone()));
+
+    let listing_service = listing_service
+        .with_moderation_port(submission_moderation_port(moderation_service.clone()));
+
+    let release_service = {
+        let service = ReleaseService::new(release_repo);
+        match DriveIntegrationAdapter::from_env() {
+            Ok(adapter) => {
+                tracing::info!("Drive integration adapter enabled");
+                service.with_provider(Arc::new(adapter))
+            }
+            Err(error) => {
+                tracing::warn!("Drive integration disabled: {error}");
+                service
+            }
+        }
+    };
+
     let state = AppState {
         publisher_service: PublisherService::new(publisher_repo),
-        listing_service: ListingService::new(listing_repo),
-        release_service: ReleaseService::new(release_repo),
+        listing_service,
+        release_service,
         catalog_service: CatalogService::new(catalog_repo),
         library_service: LibraryService::new(library_repo),
-        moderation_service: ModerationService::new(moderation_repo),
+        moderation_service: moderation_service,
         compliance_service: ComplianceService::new(compliance_repo),
         market_service: MarketService::new(market_repo),
     };
 
+    let cors = cors_layer_from_env();
     let business = wrap_router_with_web_framework_from_env(
         Router::new()
             .merge(routes::catalog::routes())
+            .merge(routes::catalog_backend::routes())
             .merge(routes::listing::routes())
+            .merge(routes::listing_backend::routes())
             .merge(routes::publisher::routes())
+            .merge(routes::publisher_backend::routes())
             .merge(routes::release_routes::routes())
             .merge(routes::library::routes())
             .merge(routes::moderation::routes())
             .merge(routes::compliance::routes())
             .merge(routes::market::routes())
-            .layer(CorsLayer::permissive())
+            .merge(routes::metrics_backend::routes())
+            .merge(routes::open_api::routes())
+            .layer(cors)
             .with_state(state),
     )
     .await;
@@ -103,17 +154,69 @@ async fn main() {
     let app = service_router(
         business,
         ServiceRouterConfig::default()
-            .with_readiness_check(Arc::new(AppstoreSqliteReadinessCheck::new(sqlite_pool))),
+            .with_readiness_check(Arc::new(AppstoreDatabaseReadinessCheck::new(pool.clone()))),
     );
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "18090".to_string());
-    let addr = format!("0.0.0.0:{}", port);
+    let addr = format!("0.0.0.0:{port}");
 
-    tracing::info!("Starting sdkwork-appstore-standalone-gateway on {}", addr);
+    tracing::info!("Starting sdkwork-appstore-standalone-gateway on {addr}");
 
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect("Failed to bind");
 
-    axum::serve(listener, app).await.expect("Server failed");
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .expect("Server failed");
+}
+
+fn cors_layer_from_env() -> CorsLayer {
+    if let Ok(origins) = std::env::var("APPSTORE_CORS_ALLOWED_ORIGINS") {
+        let allowed: Vec<_> = origins
+            .split(',')
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(|origin| {
+                origin
+                    .parse()
+                    .expect("Invalid APPSTORE_CORS_ALLOWED_ORIGINS entry")
+            })
+            .collect();
+        if allowed.is_empty() {
+            return CorsLayer::permissive();
+        }
+        return CorsLayer::new()
+            .allow_origin(allowed)
+            .allow_methods(tower_http::cors::Any)
+            .allow_headers(tower_http::cors::Any);
+    }
+    CorsLayer::permissive()
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("Failed to install SIGTERM handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        () = ctrl_c => {},
+        () = terminate => {},
+    }
+
+    tracing::info!("Shutdown signal received, draining connections");
 }

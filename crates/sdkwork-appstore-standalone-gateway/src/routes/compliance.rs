@@ -1,42 +1,139 @@
-use axum::{extract::State, routing::get, Json, Router};
-use serde_json::Value;
+use axum::extract::{Extension, Json, Path, Query, State};
+use axum::response::Response;
+use axum::routing::{get, put};
+use axum::Router;
+use sdkwork_appstore_compliance_service::domain::commands::PermissionDisclosureItem;
+use sdkwork_routes_compliance_app_api::handlers::{
+    compliance_iap_items_list, compliance_permissions_update, compliance_profile_retrieve,
+    compliance_profile_update,
+};
+use sdkwork_web_core::WebRequestContext;
 
-use crate::http_envelope::{internal_error, success_item, trace_id_from};
+use crate::routes::support::{
+    map_compliance_error, ok_item, ok_page, to_compliance_context, CursorLimitQuery,
+};
 use crate::AppState;
-use sdkwork_appstore_compliance_service::service::compliance_service::ComplianceOperations;
 
-pub fn routes() -> Router<AppState> {
-    Router::new().route(
-        "/app/v3/api/compliance/profile/{listingId}",
-        get(compliance_profile_retrieve),
-    )
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ComplianceProfileUpdateBody {
+    privacy_nutrition: Option<serde_json::Value>,
+    content_rating_questionnaire: Option<serde_json::Value>,
+    data_safety: Option<serde_json::Value>,
+    target_audience: Option<serde_json::Value>,
 }
 
-fn mock_context() -> sdkwork_appstore_compliance_service::context::AppstoreRequestContext {
-    sdkwork_appstore_compliance_service::context::AppstoreRequestContext {
-        tenant_id: "100001".to_string(),
-        organization_id: Some("0".to_string()),
-        user_id: Some("anonymous".to_string()),
-        request_id: uuid::Uuid::new_v4().to_string(),
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CompliancePermissionsUpdateBody {
+    permissions: Vec<PermissionDisclosureItem>,
+}
+
+pub fn routes() -> Router<AppState> {
+    Router::new()
+        .route(
+            "/app/v3/api/listings/{listingId}/compliance",
+            get(compliance_profile_retrieve_handler).put(compliance_profile_update_handler),
+        )
+        .route(
+            "/app/v3/api/listings/{listingId}/compliance/permissions",
+            put(compliance_permissions_update_handler),
+        )
+        .route(
+            "/app/v3/api/listings/{listingId}/compliance/iap_items",
+            get(compliance_iap_items_list_handler),
+        )
+}
+
+async fn compliance_profile_retrieve_handler(
+    State(state): State<AppState>,
+    Path(listing_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+) -> Response {
+    let ctx = match to_compliance_context(context.as_ref()) {
+        Ok(ctx) => ctx,
+        Err(resp) => return resp,
+    };
+    match compliance_profile_retrieve(&state.compliance_service, &ctx, listing_id).await {
+        Ok(result) => ok_item(context.as_ref(), result.profile),
+        Err(error) => map_compliance_error(context.as_ref(), error),
     }
 }
 
-async fn compliance_profile_retrieve(
-    state: State<AppState>,
-    axum::extract::Path(listing_id): axum::extract::Path<String>,
-) -> Json<Value> {
-    let ctx = mock_context();
-    let req =
-        sdkwork_appstore_compliance_service::domain::commands::RetrieveComplianceProfileRequest {
-            listing_id,
-            idempotency_key: None,
-        };
-    match state
-        .compliance_service
-        .retrieve_compliance_profile(&ctx, req)
-        .await
+async fn compliance_profile_update_handler(
+    State(state): State<AppState>,
+    Path(listing_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    Json(body): Json<ComplianceProfileUpdateBody>,
+) -> Response {
+    let ctx = match to_compliance_context(context.as_ref()) {
+        Ok(ctx) => ctx,
+        Err(resp) => return resp,
+    };
+    match compliance_profile_update(
+        &state.compliance_service,
+        &ctx,
+        listing_id,
+        body.privacy_nutrition,
+        body.content_rating_questionnaire,
+        body.data_safety,
+        body.target_audience,
+    )
+    .await
     {
-        Ok(result) => success_item(trace_id_from(&ctx.request_id), result),
-        Err(error) => internal_error(trace_id_from(&ctx.request_id), error),
+        Ok(result) => ok_item(context.as_ref(), result.profile),
+        Err(error) => map_compliance_error(context.as_ref(), error),
+    }
+}
+
+async fn compliance_permissions_update_handler(
+    State(state): State<AppState>,
+    Path(listing_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    Json(body): Json<CompliancePermissionsUpdateBody>,
+) -> Response {
+    let ctx = match to_compliance_context(context.as_ref()) {
+        Ok(ctx) => ctx,
+        Err(resp) => return resp,
+    };
+    match compliance_permissions_update(
+        &state.compliance_service,
+        &ctx,
+        listing_id,
+        body.permissions,
+    )
+    .await
+    {
+        Ok(result) => ok_page(context.as_ref(), result.disclosures, None, false),
+        Err(error) => map_compliance_error(context.as_ref(), error),
+    }
+}
+
+async fn compliance_iap_items_list_handler(
+    State(state): State<AppState>,
+    Path(listing_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    Query(query): Query<CursorLimitQuery>,
+) -> Response {
+    let ctx = match to_compliance_context(context.as_ref()) {
+        Ok(ctx) => ctx,
+        Err(resp) => return resp,
+    };
+    match compliance_iap_items_list(
+        &state.compliance_service,
+        &ctx,
+        listing_id,
+        query.cursor,
+        query.limit,
+    )
+    .await
+    {
+        Ok(result) => ok_page(
+            context.as_ref(),
+            result.items,
+            result.next_cursor,
+            result.has_more,
+        ),
+        Err(error) => map_compliance_error(context.as_ref(), error),
     }
 }

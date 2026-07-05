@@ -31,6 +31,13 @@ pub const ROUTES: &[RouteDefinition] = &[
         handler: "compliance_permissions_update",
         service_method: "compliance_permissions_update",
     },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/listings/{listingId}/compliance/iap_items",
+        operation_id: "appstore.compliance.iapItems.list",
+        handler: "compliance_iap_items_list",
+        service_method: "compliance_iap_items_list",
+    },
 ];
 
 pub fn route_definitions() -> &'static [RouteDefinition] {

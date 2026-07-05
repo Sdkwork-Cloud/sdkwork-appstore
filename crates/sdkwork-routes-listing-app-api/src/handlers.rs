@@ -3,9 +3,11 @@ use sdkwork_appstore_listing_service::context::AppstoreRequestContext;
 use sdkwork_appstore_listing_service::domain::commands::RegionEntry;
 use sdkwork_appstore_listing_service::domain::results::{
     AttachListingMediaResult, BindListingCategoriesResult, CreateListingResult,
-    CreateListingSubmissionResult, ListListingMediaResult, ListListingReleasesResult,
-    RemoveListingMediaResult, RetrieveListingResult, UpdateListingResult,
-    UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
+    CreateListingSubmissionResult, ListDeveloperOtherListingsResult, ListListingMediaResult,
+    ListListingReleaseHistoryResult, ListListingReleasesResult, ListPublisherListingsResult,
+    ListSimilarListingsResult, RemoveListingMediaResult, RetrieveListingEditorialResult,
+    RetrieveListingResult, UpdateListingResult, UpdateRegionalAvailabilityResult,
+    UpsertListingLocalizationResult,
 };
 use sdkwork_appstore_listing_service::error::AppstoreServiceError;
 use sdkwork_appstore_listing_service::ListingOperations;
@@ -73,10 +75,41 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         handler_name: "listings_submissions_create",
         service_method: "create_listing_submission",
     },
+    RouteHandlerPlan {
+        operation_id: "appstore.listings.releases.history.list",
+        handler_name: "listings_releases_history_list",
+        service_method: "list_release_history",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.listings.similar.list",
+        handler_name: "listings_similar_list",
+        service_method: "list_similar_listings",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.listings.developerOther.list",
+        handler_name: "listings_developer_other_list",
+        service_method: "list_developer_other_listings",
+    },
+    RouteHandlerPlan {
+        operation_id: "appstore.listings.editorial.retrieve",
+        handler_name: "listings_editorial_retrieve",
+        service_method: "retrieve_listing_editorial",
+    },
 ];
 
 pub fn route_handler_plans() -> &'static [RouteHandlerPlan] {
     ROUTE_HANDLER_PLANS
+}
+
+pub async fn listings_publisher_list<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    publisher_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<ListPublisherListingsResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_list_publisher_listings(publisher_id, cursor, limit);
+    service.list_publisher_listings(context, cmd).await
 }
 
 pub async fn listings_retrieve<S: ListingOperations>(
@@ -111,16 +144,16 @@ pub async fn listings_releases_list<S: ListingOperations>(
 pub async fn listings_create<S: ListingOperations>(
     service: &S,
     context: &AppstoreRequestContext,
-    plus_app_id: String,
-    plus_app_key: String,
+    app_id: String,
+    app_key: String,
     publisher_id: String,
     default_locale: String,
     listing_slug: Option<String>,
     pricing_model: Option<String>,
 ) -> Result<CreateListingResult, AppstoreServiceError> {
     let cmd = mapper::request::map_create_listing(
-        plus_app_id,
-        plus_app_key,
+        app_id,
+        app_key,
         publisher_id,
         default_locale,
         listing_slug,
@@ -234,4 +267,73 @@ pub async fn listings_submissions_create<S: ListingOperations>(
     let cmd =
         mapper::request::map_create_listing_submission(listing_id, submission_type, release_id);
     service.create_submission(context, cmd).await
+}
+
+pub async fn listings_releases_history_list<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<ListListingReleaseHistoryResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_list_listing_release_history(listing_id, cursor, limit);
+    service.list_release_history(context, cmd).await
+}
+
+pub async fn listings_similar_list<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<ListSimilarListingsResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_list_similar_listings(listing_id, cursor, limit);
+    service.list_similar_listings(context, cmd).await
+}
+
+pub async fn listings_developer_other_list<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    listing_id: String,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> Result<ListDeveloperOtherListingsResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_list_developer_other_listings(listing_id, cursor, limit);
+    service.list_developer_other_listings(context, cmd).await
+}
+
+pub async fn listings_editorial_retrieve<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    listing_id: String,
+) -> Result<RetrieveListingEditorialResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_retrieve_listing_editorial(listing_id);
+    service.retrieve_listing_editorial(context, cmd).await
+}
+
+pub async fn publishers_me_apps_bootstrap<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    publisher_id: String,
+    app_key: String,
+    display_name: String,
+    default_locale: String,
+    app_type: Option<String>,
+    listing_slug: Option<String>,
+    pricing_model: Option<String>,
+) -> Result<
+    sdkwork_appstore_listing_service::domain::results::BootstrapPublisherAppResult,
+    AppstoreServiceError,
+> {
+    let mut cmd =
+        sdkwork_appstore_listing_service::domain::commands::BootstrapPublisherAppRequest::new(
+            publisher_id,
+            app_key,
+            display_name,
+            default_locale,
+        );
+    cmd.app_type = app_type;
+    cmd.listing_slug = listing_slug;
+    cmd.pricing_model = pricing_model;
+    service.bootstrap_publisher_app(context, cmd).await
 }

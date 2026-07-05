@@ -1,6 +1,7 @@
 use sdkwork_appstore_moderation_service::domain::commands::{
-    AssignModerationReviewRequest, CreateModerationDecisionRequest, ListModerationQueueRequest,
-    RetrieveModerationReviewRequest,
+    AssignModerationReviewRequest, CreateModerationAppealRequest, CreateModerationDecisionRequest,
+    DecideModerationAppealRequest, ListModerationAppealsRequest, ListModerationQueueRequest,
+    RetrieveModerationAppealRequest, RetrieveModerationReviewRequest,
 };
 
 pub fn map_list_moderation_queue(
@@ -51,4 +52,41 @@ pub fn map_create_moderation_decision(
         req = req.with_policy_reference(v);
     }
     req
+}
+
+pub fn map_create_moderation_appeal(
+    decision_id: String,
+    appeal_reason: String,
+) -> CreateModerationAppealRequest {
+    CreateModerationAppealRequest::new(decision_id, appeal_reason)
+}
+
+pub fn map_list_moderation_appeals(
+    status: Option<String>,
+    cursor: Option<String>,
+    limit: Option<i32>,
+) -> ListModerationAppealsRequest {
+    let mut req = ListModerationAppealsRequest::new();
+    if let Some(v) = status {
+        req = req.with_status(v);
+    }
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = limit {
+        req = req.with_limit(v);
+    }
+    req
+}
+
+pub fn map_retrieve_moderation_appeal(appeal_id: String) -> RetrieveModerationAppealRequest {
+    RetrieveModerationAppealRequest::new(appeal_id)
+}
+
+pub fn map_decide_moderation_appeal(
+    appeal_id: String,
+    decision: String,
+    note: String,
+) -> DecideModerationAppealRequest {
+    DecideModerationAppealRequest::new(appeal_id, decision, note)
 }

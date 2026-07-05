@@ -464,7 +464,7 @@ async fn test_listing_raw_sql_operations() {
     let now = Utc::now();
     sqlx::query(
         r#"INSERT INTO appstore_listing (
-            id, tenant_id, organization_id, publisher_id, listing_no, plus_app_id, plus_app_key,
+            id, tenant_id, organization_id, publisher_id, listing_no, app_id, app_key,
             listing_slug, listing_type, pricing_model, listing_status, storefront_visibility,
             review_status, default_locale, content_rating_json, featured_score, download_count,
             rating_count, version, created_at, updated_at
@@ -475,8 +475,8 @@ async fn test_listing_raw_sql_operations() {
     .bind(&ctx.organization_id)
     .bind("pub-1")
     .bind("LST-001")
-    .bind("plus-app-1")
-    .bind("plus-key-1")
+    .bind("app-1")
+    .bind("app-key-1")
     .bind("test-listing")
     .bind("app")
     .bind("free")
@@ -743,16 +743,15 @@ async fn test_library_raw_sql_operations() {
     let now = Utc::now();
     sqlx::query(
         r#"INSERT INTO appstore_user_library_item (
-            id, tenant_id, user_id, listing_id, plus_app_id, plus_app_key,
+            id, tenant_id, user_id, listing_id, app_key,
             library_status, install_source, platform, updated_at, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
     )
     .bind("lib-1")
     .bind("100001")
     .bind("1")
     .bind("listing-1")
-    .bind("plus-app-1")
-    .bind("plus-key-1")
+    .bind("app-key-1")
     .bind("installed")
     .bind("store")
     .bind("windows")
@@ -772,6 +771,63 @@ async fn test_library_raw_sql_operations() {
 
     assert_eq!(row.0, "installed");
     assert_eq!(row.1, "windows");
+}
+
+#[tokio::test]
+async fn test_library_item_scoped_to_user() {
+    use sdkwork_appstore_library_service::domain::models::LibraryItemId;
+    use sdkwork_appstore_library_service::ports::repository::LibraryRepositoryPort;
+    use sdkwork_appstore_repository_sqlx::repository::library_repository::SqlxLibraryRepository;
+
+    let pool = setup_db().await;
+    let repo = SqlxLibraryRepository::new(pool.clone());
+    let now = Utc::now();
+
+    for (id, user_id) in [("lib-owner", "user-a"), ("lib-other", "user-b")] {
+        sqlx::query(
+            r#"INSERT INTO appstore_user_library_item (
+                id, tenant_id, user_id, listing_id, app_key,
+                library_status, install_source, platform, updated_at, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+        )
+        .bind(id)
+        .bind("100001")
+        .bind(user_id)
+        .bind("listing-1")
+        .bind("app-key-1")
+        .bind("installed")
+        .bind("store")
+        .bind("windows")
+        .bind(now.to_rfc3339())
+        .bind(now.to_rfc3339())
+        .execute(&pool)
+        .await
+        .unwrap();
+    }
+
+    let owner_ctx = sdkwork_appstore_library_service::context::AppstoreRequestContext {
+        tenant_id: "100001".to_string(),
+        organization_id: "org-1".to_string(),
+        user_id: "user-a".to_string(),
+        request_id: "req-1".to_string(),
+        trace_id: Some("trace-1".to_string()),
+        permission_scopes: vec![],
+    };
+
+    let found = repo
+        .find_library_item_by_id(&owner_ctx, &LibraryItemId::new("lib-owner"))
+        .await
+        .unwrap();
+    assert!(found.is_some());
+
+    let idor = repo
+        .find_library_item_by_id(&owner_ctx, &LibraryItemId::new("lib-other"))
+        .await
+        .unwrap();
+    assert!(
+        idor.is_none(),
+        "library item must not be readable across users"
+    );
 }
 
 #[tokio::test]

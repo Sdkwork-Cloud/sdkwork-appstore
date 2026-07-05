@@ -1,20 +1,25 @@
 use chrono::Utc;
+use sdkwork_appstore_authorization::{missing_scope_message, scope_granted};
 use uuid::Uuid;
 
 use crate::context::AppstoreRequestContext;
 use crate::domain::commands::{
-    AssignModerationReviewRequest, CreateModerationDecisionRequest, ListModerationQueueRequest,
-    RetrieveModerationReviewRequest,
+    AssignModerationReviewRequest, CreateModerationAppealRequest, CreateModerationDecisionRequest,
+    DecideModerationAppealRequest, EnqueueSubmissionReviewRequest, ListModerationAppealsRequest,
+    ListModerationQueueRequest, RetrieveModerationAppealRequest, RetrieveModerationReviewRequest,
 };
 use crate::domain::models::{
-    DecisionStatus, DecisionType, ModerationDecision, ModerationDecisionId, ModerationReview,
-    ModerationReviewId, ReasonCode, ReviewStatus,
+    AppealStatus, DecisionStatus, DecisionType, ModerationAppeal, ModerationAppealId,
+    ModerationDecision, ModerationDecisionId, ModerationReview, ModerationReviewId, Priority,
+    QueueCode, ReasonCode, ReviewStatus,
 };
 use crate::domain::results::{
-    AssignModerationReviewResult, CreateModerationDecisionResult, ListModerationQueueResult,
-    RetrieveModerationReviewResult,
+    AssignModerationReviewResult, CreateModerationAppealResult, CreateModerationDecisionResult,
+    DecideModerationAppealResult, EnqueueSubmissionReviewResult, ListModerationAppealsResult,
+    ListModerationQueueResult, RetrieveModerationAppealResult, RetrieveModerationReviewResult,
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
+use crate::ports::listing_projection::ModerationListingProjectionPort;
 use crate::ports::repository::ModerationRepositoryPort;
 
 #[async_trait::async_trait]
@@ -42,16 +47,68 @@ pub trait ModerationOperations {
         context: &AppstoreRequestContext,
         request: CreateModerationDecisionRequest,
     ) -> AppstoreServiceResult<CreateModerationDecisionResult>;
+
+    async fn enqueue_submission_review(
+        &self,
+        context: &AppstoreRequestContext,
+        request: EnqueueSubmissionReviewRequest,
+    ) -> AppstoreServiceResult<EnqueueSubmissionReviewResult>;
+
+    async fn create_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        request: CreateModerationAppealRequest,
+    ) -> AppstoreServiceResult<CreateModerationAppealResult>;
+
+    async fn list_appeals(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListModerationAppealsRequest,
+    ) -> AppstoreServiceResult<ListModerationAppealsResult>;
+
+    async fn retrieve_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RetrieveModerationAppealRequest,
+    ) -> AppstoreServiceResult<RetrieveModerationAppealResult>;
+
+    async fn decide_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        request: DecideModerationAppealRequest,
+    ) -> AppstoreServiceResult<DecideModerationAppealResult>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ModerationService<R> {
     repository: R,
+    listing_projection_port: Option<std::sync::Arc<dyn ModerationListingProjectionPort>>,
 }
 
 impl<R> ModerationService<R> {
     pub fn new(repository: R) -> Self {
-        Self { repository }
+        Self {
+            repository,
+            listing_projection_port: None,
+        }
+    }
+
+    pub fn with_listing_projection(
+        mut self,
+        port: std::sync::Arc<dyn ModerationListingProjectionPort>,
+    ) -> Self {
+        self.listing_projection_port = Some(port);
+        self
+    }
+}
+
+fn require_scope(context: &AppstoreRequestContext, required: &str) -> AppstoreServiceResult<()> {
+    if scope_granted(&context.permission_scopes, required) {
+        Ok(())
+    } else {
+        Err(AppstoreServiceError::PermissionDenied(
+            missing_scope_message(required),
+        ))
     }
 }
 
@@ -65,6 +122,7 @@ where
         context: &AppstoreRequestContext,
         request: ListModerationQueueRequest,
     ) -> AppstoreServiceResult<ListModerationQueueResult> {
+        require_scope(context, "appstore.moderation.read")?;
         let limit = request.limit.unwrap_or(20).min(100);
         let reviews = self
             .repository
@@ -97,6 +155,7 @@ where
         context: &AppstoreRequestContext,
         request: RetrieveModerationReviewRequest,
     ) -> AppstoreServiceResult<RetrieveModerationReviewResult> {
+        require_scope(context, "appstore.moderation.read")?;
         let review_id = ModerationReviewId::new(&request.review_id);
 
         let review = self
@@ -121,6 +180,7 @@ where
         context: &AppstoreRequestContext,
         request: AssignModerationReviewRequest,
     ) -> AppstoreServiceResult<AssignModerationReviewResult> {
+        require_scope(context, "appstore.moderation.assign")?;
         if request.assigned_to.trim().is_empty() {
             return Err(AppstoreServiceError::ValidationFailed(
                 "assignedTo is required".to_string(),
@@ -166,6 +226,7 @@ where
         context: &AppstoreRequestContext,
         request: CreateModerationDecisionRequest,
     ) -> AppstoreServiceResult<CreateModerationDecisionResult> {
+        require_scope(context, "appstore.moderation.decide")?;
         let review_id = ModerationReviewId::new(&request.review_id);
 
         let mut review = self
@@ -238,6 +299,7 @@ where
 
         self.repository.insert_decision(context, &decision).await?;
 
+        let decision_type_for_listing = decision_type.clone();
         match decision_type {
             DecisionType::Approve => {
                 review.review_status = ReviewStatus::Approved;
@@ -254,10 +316,259 @@ where
 
         self.repository.update_review(context, &review).await?;
 
+        if let Some(port) = &self.listing_projection_port {
+            port.apply_decision_outcome(
+                context,
+                &review.submission_id,
+                decision_type_for_listing,
+                &review.organization_id,
+            )
+            .await?;
+        }
+
         Ok(CreateModerationDecisionResult::created(
             "appstore.moderation.decisions.create",
             decision,
             review,
+        ))
+    }
+
+    async fn enqueue_submission_review(
+        &self,
+        context: &AppstoreRequestContext,
+        request: EnqueueSubmissionReviewRequest,
+    ) -> AppstoreServiceResult<EnqueueSubmissionReviewResult> {
+        if let Some(existing) = self
+            .repository
+            .find_review_by_submission(context, &request.submission_id)
+            .await?
+        {
+            return Ok(EnqueueSubmissionReviewResult::existing(
+                "appstore.moderation.submissions.enqueue",
+                existing,
+            ));
+        }
+
+        let now = Utc::now();
+        let review_id = ModerationReviewId::new(Uuid::new_v4().to_string());
+        let review_no = format!(
+            "MOD-REV-{}",
+            Uuid::new_v4()
+                .to_string()
+                .split('-')
+                .next()
+                .unwrap_or_default()
+        );
+
+        let review = ModerationReview {
+            id: review_id,
+            tenant_id: context.tenant_id.clone(),
+            organization_id: request.organization_id,
+            submission_id: request.submission_id,
+            review_no,
+            review_status: ReviewStatus::Pending,
+            priority: Priority::Normal,
+            assigned_to: None,
+            queue_code: QueueCode::ContentReview,
+            sla_due_at: None,
+            started_at: None,
+            completed_at: None,
+            created_at: now,
+            updated_at: now,
+        };
+
+        self.repository.insert_review(context, &review).await?;
+
+        Ok(EnqueueSubmissionReviewResult::created(
+            "appstore.moderation.submissions.enqueue",
+            review,
+        ))
+    }
+
+    async fn create_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        request: CreateModerationAppealRequest,
+    ) -> AppstoreServiceResult<CreateModerationAppealResult> {
+        require_scope(context, "appstore.moderation.appeal")?;
+        if request.decision_id.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "decision_id is required".to_string(),
+            ));
+        }
+        if request.appeal_reason.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "appeal_reason is required".to_string(),
+            ));
+        }
+
+        let decision_id = ModerationDecisionId::new(&request.decision_id);
+        let decision = self
+            .repository
+            .find_decision_by_id(context, &decision_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!(
+                    "Moderation decision not found: {}",
+                    request.decision_id
+                ))
+            })?;
+
+        let appellant_user_id = context
+            .user_id
+            .clone()
+            .filter(|id| !id.trim().is_empty())
+            .ok_or_else(|| {
+                AppstoreServiceError::PermissionDenied("Authenticated user is required".to_string())
+            })?;
+
+        let now = Utc::now();
+        let appeal = ModerationAppeal {
+            id: ModerationAppealId::new(Uuid::new_v4().to_string()),
+            tenant_id: context.tenant_id.clone(),
+            organization_id: context.organization_id.clone().unwrap_or_default(),
+            decision_id: decision.id.as_str().to_string(),
+            review_id: decision.review_id.as_str().to_string(),
+            appeal_no: format!(
+                "APL-{}",
+                Uuid::new_v4()
+                    .to_string()
+                    .split('-')
+                    .next()
+                    .unwrap_or_default()
+            ),
+            appellant_user_id,
+            appeal_reason: request.appeal_reason.trim().to_string(),
+            appeal_status: AppealStatus::Pending,
+            decided_by: None,
+            decision_note: None,
+            submitted_at: now,
+            decided_at: None,
+            created_at: now,
+            updated_at: now,
+        };
+
+        self.repository.insert_appeal(context, &appeal).await?;
+
+        Ok(CreateModerationAppealResult::created(
+            "appstore.moderation.appeals.create",
+            appeal,
+        ))
+    }
+
+    async fn list_appeals(
+        &self,
+        context: &AppstoreRequestContext,
+        request: ListModerationAppealsRequest,
+    ) -> AppstoreServiceResult<ListModerationAppealsResult> {
+        require_scope(context, "appstore.moderation.read")?;
+        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let appeals = self
+            .repository
+            .list_appeals(
+                context,
+                request.status.as_deref(),
+                request.cursor.as_deref(),
+                limit + 1,
+            )
+            .await?;
+
+        let has_more = appeals.len() > limit as usize;
+        let appeals: Vec<ModerationAppeal> = appeals.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            appeals.last().map(|a| a.id.as_str().to_string())
+        } else {
+            None
+        };
+
+        Ok(ListModerationAppealsResult::new(
+            "appstore.moderation.appeals.list",
+            appeals,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn retrieve_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RetrieveModerationAppealRequest,
+    ) -> AppstoreServiceResult<RetrieveModerationAppealResult> {
+        require_scope(context, "appstore.moderation.read")?;
+        let appeal_id = ModerationAppealId::new(&request.appeal_id);
+
+        let appeal = self
+            .repository
+            .find_appeal_by_id(context, &appeal_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!(
+                    "Moderation appeal not found: {}",
+                    request.appeal_id
+                ))
+            })?;
+
+        Ok(RetrieveModerationAppealResult::found(
+            "appstore.moderation.appeals.retrieve",
+            appeal,
+        ))
+    }
+
+    async fn decide_appeal(
+        &self,
+        context: &AppstoreRequestContext,
+        request: DecideModerationAppealRequest,
+    ) -> AppstoreServiceResult<DecideModerationAppealResult> {
+        require_scope(context, "appstore.moderation.decide")?;
+        if request.note.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "note is required".to_string(),
+            ));
+        }
+
+        let appeal_status = match request.decision.to_ascii_lowercase().as_str() {
+            "approved" | "approve" => AppealStatus::Approved,
+            "rejected" | "reject" => AppealStatus::Rejected,
+            other => {
+                return Err(AppstoreServiceError::ValidationFailed(format!(
+                    "Invalid appeal decision: {other}"
+                )));
+            }
+        };
+
+        let appeal_id = ModerationAppealId::new(&request.appeal_id);
+        let mut appeal = self
+            .repository
+            .find_appeal_by_id(context, &appeal_id)
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!(
+                    "Moderation appeal not found: {}",
+                    request.appeal_id
+                ))
+            })?;
+
+        if !appeal.is_pending() {
+            return Err(AppstoreServiceError::InvalidState(
+                "Appeal is not pending".to_string(),
+            ));
+        }
+
+        let now = Utc::now();
+        appeal.appeal_status = appeal_status;
+        appeal.decided_by = context
+            .user_id
+            .clone()
+            .or_else(|| Some("system".to_string()));
+        appeal.decision_note = Some(request.note.trim().to_string());
+        appeal.decided_at = Some(now);
+        appeal.updated_at = now;
+
+        self.repository.update_appeal(context, &appeal).await?;
+
+        Ok(DecideModerationAppealResult::decided(
+            "appstore.moderation.appeals.decide",
+            appeal,
         ))
     }
 }

@@ -614,3 +614,315 @@ impl PublicFeaturedListRequest {
         self
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RecommendationsListRequest {
+    pub locale: Option<String>,
+    pub platform: Option<String>,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl RecommendationsListRequest {
+    pub fn new() -> Self {
+        Self {
+            locale: None,
+            platform: None,
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_locale(mut self, locale: impl Into<String>) -> Self {
+        self.locale = Some(locale.into());
+        self
+    }
+
+    pub fn with_platform(mut self, platform: impl Into<String>) -> Self {
+        self.platform = Some(platform.into());
+        self
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RecentlyUpdatedListRequest {
+    pub locale: Option<String>,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl RecentlyUpdatedListRequest {
+    pub fn new() -> Self {
+        Self {
+            locale: None,
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_locale(mut self, locale: impl Into<String>) -> Self {
+        self.locale = Some(locale.into());
+        self
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EventsListRequest {
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+    pub status: Option<String>,
+}
+
+impl EventsListRequest {
+    pub fn new() -> Self {
+        Self {
+            cursor: None,
+            limit: None,
+            status: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+
+    pub fn with_status(mut self, status: impl Into<String>) -> Self {
+        self.status = Some(status.into());
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EventRetrieveRequest {
+    pub event_id: String,
+    pub locale: Option<String>,
+}
+
+impl EventRetrieveRequest {
+    pub fn new(event_id: impl Into<String>) -> Self {
+        Self {
+            event_id: event_id.into(),
+            locale: None,
+        }
+    }
+
+    pub fn with_locale(mut self, locale: impl Into<String>) -> Self {
+        self.locale = Some(locale.into());
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchSuggestionsListRequest {
+    pub query: String,
+    pub locale: Option<String>,
+}
+
+impl SearchSuggestionsListRequest {
+    pub fn new(query: impl Into<String>) -> Self {
+        Self {
+            query: query.into(),
+            locale: None,
+        }
+    }
+
+    pub fn with_locale(mut self, locale: impl Into<String>) -> Self {
+        self.locale = Some(locale.into());
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchTrendingListRequest {
+    pub locale: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl SearchTrendingListRequest {
+    pub fn new() -> Self {
+        Self {
+            locale: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_locale(mut self, locale: impl Into<String>) -> Self {
+        self.locale = Some(locale.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchHistoryListRequest {
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl SearchHistoryListRequest {
+    pub fn new() -> Self {
+        Self {
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchHistoryUpsertRequest {
+    pub query_text: String,
+    pub filters_json: Option<String>,
+    pub result_count: Option<i32>,
+}
+
+impl SearchHistoryUpsertRequest {
+    pub fn new(query_text: impl Into<String>) -> Self {
+        Self {
+            query_text: query_text.into(),
+            filters_json: None,
+            result_count: None,
+        }
+    }
+
+    pub fn with_filters_json(mut self, filters_json: impl Into<String>) -> Self {
+        self.filters_json = Some(filters_json.into());
+        self
+    }
+
+    pub fn with_result_count(mut self, result_count: i32) -> Self {
+        self.result_count = Some(result_count);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SearchHistoryClearRequest;
+
+impl SearchHistoryClearRequest {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsPublisherOverviewRequest {
+    pub date_from: Option<String>,
+    pub date_to: Option<String>,
+}
+
+impl AnalyticsPublisherOverviewRequest {
+    pub fn new() -> Self {
+        Self {
+            date_from: None,
+            date_to: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsPublisherListingsListRequest {
+    pub date_from: Option<String>,
+    pub date_to: Option<String>,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl AnalyticsPublisherListingsListRequest {
+    pub fn new() -> Self {
+        Self {
+            date_from: None,
+            date_to: None,
+            cursor: None,
+            limit: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsPublisherListingRetrieveRequest {
+    pub listing_id: String,
+    pub date_from: Option<String>,
+    pub date_to: Option<String>,
+}
+
+impl AnalyticsPublisherListingRetrieveRequest {
+    pub fn new(listing_id: impl Into<String>) -> Self {
+        Self {
+            listing_id: listing_id.into(),
+            date_from: None,
+            date_to: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsOperatorDashboardRequest {
+    pub date_from: Option<String>,
+    pub date_to: Option<String>,
+}
+
+impl AnalyticsOperatorDashboardRequest {
+    pub fn new() -> Self {
+        Self {
+            date_from: None,
+            date_to: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnalyticsOperatorSearchRequest {
+    pub query: Option<String>,
+    pub date_from: Option<String>,
+    pub date_to: Option<String>,
+}
+
+impl AnalyticsOperatorSearchRequest {
+    pub fn new() -> Self {
+        Self {
+            query: None,
+            date_from: None,
+            date_to: None,
+        }
+    }
+}

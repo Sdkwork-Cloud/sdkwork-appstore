@@ -39,6 +39,12 @@ function extractRegistryTables(registry) {
   );
 }
 
+function extractMigrationFiles(registry) {
+  return [...registry.matchAll(/^\s+file:\s+(migrations\/[A-Za-z0-9_]+\.sql)\s*$/gm)].map(
+    (match) => match[1],
+  );
+}
+
 function extractOperationIds(openApi) {
   return [...openApi.matchAll(/^\s*operationId:\s+([A-Za-z0-9_.]+)\s*$/gm)].map(
     (match) => match[1],
@@ -118,7 +124,10 @@ const catalog = readRequired("docs/api/operation-catalog.md");
 const serviceInterfaceMap = readRequired("docs/api/appstore-service-interface-map.md");
 const tableCatalog = readRequired("docs/database/appstore-table-catalog.md");
 const registry = readRequired("specs/database/schema-registry.yaml");
-const migration = readRequired("specs/database/migrations/0001_appstore_foundation.sql");
+const migrationFiles = extractMigrationFiles(registry);
+const migration = migrationFiles
+  .map((file) => readRequired(`specs/database/${file}`))
+  .join("\n\n");
 const events = readRequired("apis/async/events/appstore-events.yaml");
 
 const openApiSurfaces = [
@@ -539,9 +548,15 @@ for (const operationId of routeOperationIds) {
 
 assertContains(
   implementationTodo,
-  "TODO(appstore-implementation)",
-  "crates/IMPLEMENTATION_TODO.md must contain TODO(appstore-implementation) handoff items",
+  "## API Operations",
+  "crates/IMPLEMENTATION_TODO.md must track API operation implementation status",
 );
+
+if (serviceInterfaceMap.includes("TODO(appstore-implementation)")) {
+  errors.push(
+    "docs/api/appstore-service-interface-map.md still contains TODO(appstore-implementation) entries",
+  );
+}
 
 if (errors.length > 0) {
   console.error("App Store design verification failed:\n" + errors.map((e) => `- ${e}`).join("\n"));

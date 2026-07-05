@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   User,
   Bell,
@@ -12,99 +12,174 @@ import {
   ArrowLeft,
   Moon,
   Sun,
-  Monitor,
   Check,
+  Package,
 } from 'lucide-react';
+import { fetchCurrentIamUser, getCurrentUser, isAuthenticated, type IamUser } from '@/bootstrap/iamRuntime';
+import { LoadingSpinner } from '@sdkwork/appstore-h5-commons';
+import { useTheme, type Theme } from '@/hooks/useTheme';
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState('system');
+  const { theme, setTheme } = useTheme();
+  const [iamUser, setIamUser] = useState<IamUser | null>(getCurrentUser());
+  const [accountLoading, setAccountLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      setIamUser(null);
+      return;
+    }
+    let cancelled = false;
+    setAccountLoading(true);
+    void fetchCurrentIamUser()
+      .then((user) => {
+        if (!cancelled) {
+          setIamUser(user);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setAccountLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const displayInitial =
+    iamUser?.displayName?.trim()?.[0]?.toUpperCase() ||
+    iamUser?.email?.trim()?.[0]?.toUpperCase() ||
+    '?';
 
   const sections = [
-    { label: 'Account', icon: User, path: '/settings/account' },
-    { label: 'Notifications', icon: Bell, path: '/settings/notifications' },
-    { label: 'Privacy & Security', icon: Shield, path: '/settings/privacy' },
-    { label: 'Appearance', icon: Palette, path: '/settings/appearance' },
-    { label: 'Language & Region', icon: Globe, path: '/settings/language' },
-    { label: 'Downloads', icon: Download, path: '/settings/downloads' },
-    { label: 'Storage', icon: HardDrive, path: '/settings/storage' },
+    { label: '开发者中心', icon: Package, path: '/publisher' },
+    { label: '通知', icon: Bell, path: '/notifications' },
+    { label: '隐私与安全', icon: Shield, path: '/settings' },
+    { label: '语言与地区', icon: Globe, path: '/settings' },
+    { label: '下载', icon: Download, path: '/settings' },
+    { label: '存储', icon: HardDrive, path: '/settings' },
+  ];
+
+  const themeOptions: { id: Theme; label: string; icon: typeof Sun }[] = [
+    { id: 'light', label: '浅色', icon: Sun },
+    { id: 'dark', label: '深色', icon: Moon },
   ];
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+      <header className="page-header">
         <div className="flex items-center gap-3 px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center">
-            <ArrowLeft className="w-6 h-6" />
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center"
+            aria-label="返回"
+          >
+            <ArrowLeft className="h-6 w-6" style={{ color: 'var(--text-primary)' }} />
           </button>
-          <h1 className="text-lg font-bold">Settings</h1>
+          <h1 className="text-lg font-bold text-[var(--text-primary)]">设置</h1>
         </div>
       </header>
 
-      {/* Profile Card */}
       <div className="px-4 py-4">
-        <div className="flex items-center gap-4 p-4 bg-white rounded-2xl">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">J</span>
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">John Doe</h3>
-            <p className="text-sm text-gray-500">john@example.com</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-gray-400 ml-auto" />
-        </div>
+        {isAuthenticated() ? (
+          accountLoading ? (
+            <div className="flex justify-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <div className="card flex items-center gap-4 p-4">
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white"
+                style={{ background: 'linear-gradient(135deg, var(--accent), #5856d6)' }}
+              >
+                {displayInitial}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  {iamUser?.displayName || 'SDKWork 用户'}
+                </h3>
+                <p className="text-sm text-[var(--text-tertiary)] truncate">
+                  {iamUser?.email || iamUser?.userId || '已登录'}
+                </p>
+              </div>
+            </div>
+          )
+        ) : (
+          <Link to="/login" className="card flex items-center gap-4 p-4 card-press">
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white"
+              style={{ background: 'linear-gradient(135deg, var(--accent), #5856d6)' }}
+            >
+              <User className="h-8 w-8" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-[var(--text-primary)]">登录账户</h3>
+              <p className="text-sm text-[var(--text-tertiary)]">登录后同步库、收藏与开发者资料</p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-[var(--text-tertiary)]" />
+          </Link>
+        )}
       </div>
 
-      {/* Theme Selection */}
       <div className="px-4 py-2">
-        <h3 className="text-sm font-medium text-gray-500 mb-3 px-1">Appearance</h3>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { id: 'light', label: 'Light', icon: Sun },
-            { id: 'dark', label: 'Dark', icon: Moon },
-            { id: 'system', label: 'System', icon: Monitor },
-          ].map(t => (
+        <div className="mb-3 flex items-center gap-2 px-1">
+          <Palette className="h-4 w-4 text-[var(--accent)]" />
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">外观</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {themeOptions.map((option) => (
             <button
-              key={t.id}
-              onClick={() => setTheme(t.id)}
-              className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 ${
-                theme === t.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-              }`}
+              key={option.id}
+              type="button"
+              onClick={() => setTheme(option.id)}
+              className="card card-press flex flex-col items-center gap-2 p-4"
+              style={
+                theme === option.id
+                  ? { borderColor: 'var(--accent)', boxShadow: '0 0 0 1px var(--accent)' }
+                  : undefined
+              }
             >
-              <t.icon className={`w-6 h-6 ${theme === t.id ? 'text-blue-500' : 'text-gray-500'}`} />
-              <span className={`text-sm font-medium ${theme === t.id ? 'text-blue-600' : 'text-gray-700'}`}>
-                {t.label}
+              <option.icon
+                className="h-6 w-6"
+                style={{ color: theme === option.id ? 'var(--accent)' : 'var(--text-tertiary)' }}
+              />
+              <span
+                className="text-sm font-medium"
+                style={{ color: theme === option.id ? 'var(--accent)' : 'var(--text-primary)' }}
+              >
+                {option.label}
               </span>
-              {theme === t.id && <Check className="w-4 h-4 text-blue-500" />}
+              {theme === option.id ? <Check className="h-4 w-4 text-[var(--accent)]" /> : null}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Settings List */}
       <div className="px-4 py-4">
-        <div className="bg-white rounded-2xl overflow-hidden">
-          {sections.map((section, i) => (
+        <div className="card overflow-hidden">
+          {sections.map((section) => (
             <button
-              key={i}
-              className="flex items-center gap-4 w-full px-4 py-4 border-b border-gray-100 last:border-0"
+              key={section.label}
+              type="button"
+              onClick={() => navigate(section.path)}
+              className="flex w-full items-center gap-4 border-b px-4 py-4 text-left last:border-0"
+              style={{ borderColor: 'var(--border-subtle)' }}
             >
-              <section.icon className="w-5 h-5 text-gray-500" />
-              <span className="flex-1 text-left font-medium text-gray-900">{section.label}</span>
-              <ChevronRight className="w-5 h-5 text-gray-400" />
+              <section.icon className="h-5 w-5 text-[var(--text-tertiary)]" />
+              <span className="flex-1 font-medium text-[var(--text-primary)]">{section.label}</span>
+              <ChevronRight className="h-5 w-5 text-[var(--text-tertiary)]" />
             </button>
           ))}
         </div>
       </div>
 
-      {/* About */}
-      <div className="px-4 py-4">
-        <div className="bg-white rounded-2xl p-4">
-          <div className="text-center">
-            <p className="text-sm text-gray-500">SDKWork App Store</p>
-            <p className="text-xs text-gray-400 mt-1">Version 1.0.0</p>
-          </div>
+      <div className="px-4 py-4 pb-8">
+        <div className="card p-4 text-center">
+          <p className="text-sm text-[var(--text-secondary)]">SDKWork App Store</p>
+          <p className="mt-1 text-xs text-[var(--text-tertiary)]">版本 1.0.0</p>
         </div>
       </div>
     </div>

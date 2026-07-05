@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '..');
+const checkOnly = process.argv.includes('--check');
 const alignScript = resolve(repoRoot, '../sdkwork-specs/tools/align-openapi-response-envelope.mjs');
 
 const targets = [
@@ -25,14 +26,26 @@ const targets = [
 
 for (const { source, target, legacyEnvelope } of targets) {
   const sourcePath = resolve(source);
-  execFileSync(
-    process.execPath,
-    [alignScript, '--file', sourcePath, '--legacy-envelope', legacyEnvelope],
-    { stdio: 'inherit' },
-  );
+  if (!checkOnly) {
+    execFileSync(
+      process.execPath,
+      [alignScript, '--file', sourcePath, '--legacy-envelope', legacyEnvelope],
+      { stdio: 'inherit' },
+    );
+  }
 
   const targetPath = resolve(target);
+  const sourceText = await readFile(sourcePath, 'utf8');
+  if (checkOnly) {
+    const materializedText = await readFile(targetPath, 'utf8');
+    if (sourceText !== materializedText) {
+      throw new Error(`${targetPath} is stale; run pnpm run api:materialize`);
+    }
+    console.log(`api materialize check passed for ${target}`);
+    continue;
+  }
+
   await mkdir(resolve(target, '..'), { recursive: true });
-  await writeFile(targetPath, await readFile(sourcePath, 'utf8'));
+  await writeFile(targetPath, sourceText);
   console.log(`materialized ${targetPath} from ${source}`);
 }

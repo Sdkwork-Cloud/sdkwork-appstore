@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ListingSummary, Category, CatalogFeaturedSlot, CatalogCollection } from '@sdk/generated/server-openapi';
+import type { ListingSummary, Category, CatalogFeaturedSlot, CatalogCollection } from '@sdkwork/appstore-app-sdk';
 
 interface AppState {
   // Auth

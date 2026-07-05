@@ -121,7 +121,7 @@ pub struct DownloadGrantConsumedEvent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UpdateCheckPerformedEvent {
     pub tenant_id: String,
-    pub plus_app_key: String,
+    pub app_key: String,
     pub platform: String,
     pub installed_version_code: String,
     pub update_available: bool,

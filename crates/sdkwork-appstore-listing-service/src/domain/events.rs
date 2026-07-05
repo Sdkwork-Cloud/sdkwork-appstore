@@ -28,7 +28,7 @@ pub struct ListingCreatedEvent {
     pub tenant_id: String,
     pub organization_id: String,
     pub publisher_id: String,
-    pub plus_app_id: String,
+    pub app_id: String,
     pub occurred_at: DateTime<Utc>,
 }
 

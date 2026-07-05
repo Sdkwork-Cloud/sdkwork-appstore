@@ -3,6 +3,7 @@ export interface RuntimeEnvironment {
   appstoreAppApiBaseUrl: string;
   appstoreOpenApiBaseUrl: string;
   appbaseBaseUrl: string;
+  driveAppApiBaseUrl: string;
   features: {
     enablePublisherConsole: boolean;
     enableWishlist: boolean;
@@ -15,6 +16,7 @@ const defaultEnvironment: RuntimeEnvironment = {
   appstoreAppApiBaseUrl: 'http://127.0.0.1:18090',
   appstoreOpenApiBaseUrl: 'http://127.0.0.1:18092',
   appbaseBaseUrl: 'http://127.0.0.1:18080',
+  driveAppApiBaseUrl: 'http://127.0.0.1:18080',
   features: {
     enablePublisherConsole: true,
     enableWishlist: true,

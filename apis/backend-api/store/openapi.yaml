@@ -20,6 +20,7 @@ tags:
 - name: publishers
 - name: metrics
 - name: market
+- name: analytics
 security:
 - AuthToken: []
   AccessToken: []
@@ -103,6 +104,80 @@ paths:
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
+  /backend/v3/api/moderation/appeals:
+    post:
+      tags:
+      - moderation
+      operationId: appstore.moderation.appeals.create
+      summary: Create moderation appeal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerationAppealCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
+    get:
+      tags:
+      - moderation
+      operationId: appstore.moderation.appeals.list
+      summary: List moderation appeals
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      - name: status
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /backend/v3/api/moderation/appeals/{appealId}:
+    get:
+      tags:
+      - moderation
+      operationId: appstore.moderation.appeals.retrieve
+      summary: Retrieve moderation appeal
+      parameters:
+      - $ref: '#/components/parameters/AppealId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
+  /backend/v3/api/moderation/appeals/{appealId}/decide:
+    post:
+      tags:
+      - moderation
+      operationId: appstore.moderation.appeals.decide
+      summary: Decide moderation appeal
+      parameters:
+      - $ref: '#/components/parameters/AppealId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerationAppealDecideRequest'
+      responses:
+        '200':
+          description: Success
           content:
             application/json:
               schema:
@@ -362,6 +437,124 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkListResponse'
+  /backend/v3/api/analytics/publisher/overview:
+    get:
+      tags:
+      - analytics
+      operationId: appstore.analytics.publisher.overview.retrieve
+      summary: Retrieve publisher analytics overview
+      parameters:
+      - name: date_from
+        in: query
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
+  /backend/v3/api/analytics/publisher/listings:
+    get:
+      tags:
+      - analytics
+      operationId: appstore.analytics.publisher.listings.list
+      summary: List publisher analytics per listing
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/Limit'
+      - name: date_from
+        in: query
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
+  /backend/v3/api/analytics/publisher/listings/{listingId}:
+    get:
+      tags:
+      - analytics
+      operationId: appstore.analytics.publisher.listings.retrieve
+      summary: Retrieve publisher analytics for a listing
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - name: date_from
+        in: query
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
+  /backend/v3/api/analytics/operator/dashboard:
+    get:
+      tags:
+      - analytics
+      operationId: appstore.analytics.operator.dashboard.retrieve
+      summary: Retrieve operator analytics dashboard
+      parameters:
+      - name: date_from
+        in: query
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkResourceResponse'
+  /backend/v3/api/analytics/operator/search:
+    get:
+      tags:
+      - analytics
+      operationId: appstore.analytics.operator.search.retrieve
+      summary: Retrieve operator search analytics
+      parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
+      - name: date_from
+        in: query
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SdkWorkListResponse'
   /backend/v3/api/market_channels:
     get:
       tags:
@@ -543,6 +736,12 @@ components:
       required: true
       schema:
         type: string
+    AppealId:
+      name: appealId
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
     ModerationDecisionCreateRequest:
       type: object
@@ -563,6 +762,26 @@ components:
         reasonDetail:
           type: string
         policyReference:
+          type: string
+    ModerationAppealCreateRequest:
+      type: object
+      required:
+      - decision_id
+      - appeal_reason
+      properties:
+        decision_id:
+          type: string
+        appeal_reason:
+          type: string
+    ModerationAppealDecideRequest:
+      type: object
+      required:
+      - decision
+      - note
+      properties:
+        decision:
+          type: string
+        note:
           type: string
     CollectionCreateRequest:
       type: object

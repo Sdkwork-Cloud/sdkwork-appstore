@@ -125,6 +125,32 @@ tables:
   - name: appstore_listing_metric_snapshot
     profile: read_model
     complianceLevel: L2
+  - name: appstore_listing_iap_item
+    profile: master
+    complianceLevel: L2
+  - name: appstore_catalog_search_history
+    profile: audit_event
+    complianceLevel: L2
+  - name: appstore_catalog_trending_term
+    profile: read_model
+    complianceLevel: L2
+  - name: appstore_moderation_appeal
+    profile: workflow
+    complianceLevel: L3
+  - name: appstore_release_beta_invite
+    profile: master
+    complianceLevel: L2
+  - name: appstore_app_template
+    profile: master
+    complianceLevel: L2
+  - name: appstore_app_template_usage
+    profile: relation
+    complianceLevel: L2
+  - name: appstore_app_template_version
+    profile: master
+    complianceLevel: L2
 migrations:
   - id: "0001"
     file: migrations/0001_appstore_foundation.sql
+  - id: "0002"
+    file: migrations/0002_appstore_extensions.sql

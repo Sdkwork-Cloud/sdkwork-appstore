@@ -19,7 +19,7 @@ This repository owns the **appstore** bounded context:
 It does **not** own:
 
 - IAM login/session (`sdkwork-appbase`)
-- PlusApp registration projection (`platform` / app manifest pipeline)
+- registered app registration projection (`platform` / app manifest pipeline)
 - Comment threads, star ratings, favorites (`sdkwork-comments`)
 - Paid checkout and IAP settlement (`sdkwork-commerce (deleted)`, integration only)
 - Binary bytes (`sdkwork-drive`)
@@ -92,3 +92,20 @@ Follow `../sdkwork-specs/README.md`. Key specs for this repository:
 ## Application Roots
 
 - [apps directory index](apps/README.md)
+
+## Local Development
+
+```bash
+pnpm install
+pnpm dev:browser          # PC web (default)
+pnpm dev:browser:mobile   # H5 mobile web
+pnpm build
+pnpm check
+pnpm verify
+```
+
+Backend gateway (Rust):
+
+```bash
+cargo run -p sdkwork-appstore-standalone-gateway
+```

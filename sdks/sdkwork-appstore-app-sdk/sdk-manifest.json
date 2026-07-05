@@ -9,24 +9,17 @@
   "generationInputSpec": "../../apis/app-api/store/openapi.yaml",
   "generatedPackages": {},
   "sdkDependencies": [
-    {
-      "sdkFamily": "sdkwork-iam-app-sdk",
-      "reason": "IAM session and organization context"
-    },
-    {
-      "sdkFamily": "sdkwork-comments-app-sdk",
-      "reason": "Reviews and ratings integration"
-    },
-    {
-      "sdkFamily": "sdkwork-drive-app-sdk",
-      "reason": "Listing media and artifact uploads"
-    }
+    "sdkwork-iam-app-sdk",
+    "sdkwork-comments-app-sdk",
+    "sdkwork-drive-app-sdk"
   ],
   "dependencyApiExports": [],
   "generatorName": "sdkwork-sdk-generator",
   "baseUrl": "http://127.0.0.1:18090",
   "standardProfile": "sdkwork-appstore-app-v3",
   "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 42,
-  "managedBy": "tools/appstore_sdk_generate.mjs"
+  "ownerOnlyOperationCount": 45,
+  "managedBy": "tools/appstore_sdk_generate.mjs",
+  "packageName": "@sdkwork/appstore-app-sdk",
+  "transportPackageName": "sdkwork-appstore-app-sdk-generated-typescript"
 }

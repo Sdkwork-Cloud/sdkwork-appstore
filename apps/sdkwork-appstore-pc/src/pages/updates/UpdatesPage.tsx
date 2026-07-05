@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Download,
   CheckCircle2,
@@ -8,8 +9,9 @@ import {
   Shield,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
 } from 'lucide-react';
+import { useLibraryUpdates, formatApiError, resolveArtifactDownload } from '@/hooks/useApi';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
 interface UpdateItem {
   id: string;
@@ -18,259 +20,254 @@ interface UpdateItem {
   newVersion: string;
   size: string;
   releaseDate: string;
-  iconColor: string;
-  status: 'available' | 'downloading' | 'installed';
-  progress?: number;
-  changelog: string[];
+  iconUrl?: string;
   security: boolean;
+  releaseId: string;
+  artifactId: string;
+  appKey: string;
+  listingSlug: string;
 }
 
-const mockUpdates: UpdateItem[] = [
-  {
-    id: '1',
-    appName: 'Amazing Productivity',
-    currentVersion: '2.5.0',
-    newVersion: '2.5.1',
-    size: '2.3 MB',
-    releaseDate: '2 days ago',
-    iconColor: 'from-blue-500 to-cyan-500',
-    status: 'available',
-    changelog: [
-      'Fixed sync issues with cloud storage',
-      'Improved performance for large task lists',
-      'Added dark mode support',
-      'Bug fixes and stability improvements',
-    ],
+function readString(record: Record<string, unknown>, ...keys: string[]): string {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim()) {
+      return value;
+    }
+  }
+  return '';
+}
+
+function formatBytes(value: unknown): string {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    if (value >= 1_000_000) {
+      return `${(value / 1_000_000).toFixed(1)} MB`;
+    }
+    if (value >= 1_000) {
+      return `${Math.round(value / 1_000)} KB`;
+    }
+    return `${value} B`;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    return value;
+  }
+  return '—';
+}
+
+function mapUpdateRow(
+  update: unknown,
+  index: number,
+  libraryItems: unknown[],
+): UpdateItem {
+  const row = (update ?? {}) as Record<string, unknown>;
+  const appKey = readString(row, 'appKey', 'app_key');
+  const libraryMatch = libraryItems.find((entry) => {
+    const libraryRow = (entry ?? {}) as Record<string, unknown>;
+    return readString(libraryRow, 'appKey', 'app_key') === appKey;
+  });
+  const libraryRecord = (libraryMatch ?? {}) as Record<string, unknown>;
+  const appName =
+    readString(libraryRecord, 'displayName', 'display_name') ||
+    readString(libraryRecord, 'listingId', 'listing_id') ||
+    appKey ||
+    `App ${index + 1}`;
+
+  return {
+    id: readString(row, 'artifactId', 'artifact_id', 'releaseId', 'release_id') || `${index}`,
+    appName,
+    currentVersion: readString(row, 'installedVersionCode', 'installed_version_code') || '—',
+    newVersion: readString(row, 'latestVersionName', 'latest_version_name') || '—',
+    size: formatBytes(row.fileSizeBytes ?? row.file_size_bytes),
+    releaseDate: 'Available now',
+    iconUrl: readString(libraryRecord, 'icon_media_resource_id', 'iconMediaResourceId') || undefined,
     security: false,
-  },
-  {
-    id: '2',
-    appName: 'Photo Editor Pro',
-    currentVersion: '3.1.0',
-    newVersion: '3.2.0',
-    size: '15.8 MB',
-    releaseDate: '1 day ago',
-    iconColor: 'from-purple-500 to-pink-500',
-    status: 'available',
-    changelog: [
-      'New AI-powered background removal tool',
-      'Added 50+ new filters and effects',
-      'Improved export quality options',
-      'Performance optimizations',
-    ],
-    security: false,
-  },
-  {
-    id: '3',
-    appName: 'Weather Now',
-    currentVersion: '1.8.2',
-    newVersion: '1.8.3',
-    size: '856 KB',
-    releaseDate: '3 hours ago',
-    iconColor: 'from-cyan-500 to-blue-500',
-    status: 'downloading',
-    progress: 65,
-    changelog: [
-      'Critical security patch',
-      'Fixed location accuracy issues',
-      'Updated weather data providers',
-    ],
-    security: true,
-  },
-  {
-    id: '4',
-    appName: 'Fitness Tracker',
-    currentVersion: '2.0.0',
-    newVersion: '2.0.0',
-    size: '0 KB',
-    releaseDate: 'Today',
-    iconColor: 'from-green-500 to-emerald-500',
-    status: 'installed',
-    changelog: [],
-    security: false,
-  },
-];
+    releaseId: readString(row, 'releaseId', 'release_id'),
+    artifactId: readString(row, 'artifactId', 'artifact_id'),
+    appKey,
+    listingSlug:
+      readString(libraryRecord, 'listingSlug', 'listing_slug') ||
+      readString(libraryRecord, 'listingId', 'listing_id') ||
+      appKey,
+  };
+}
 
 export function UpdatesPage() {
-  const [updates, setUpdates] = useState(mockUpdates);
+  const { data, loading, error, execute } = useLibraryUpdates();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const availableUpdates = updates.filter(u => u.status === 'available' || u.status === 'downloading');
-  const installedUpdates = updates.filter(u => u.status === 'installed');
-
-  const toggleExpand = (id: string) => {
-    setExpandedId(prev => prev === id ? null : id);
-  };
-
-  const startUpdate = (id: string) => {
-    setUpdates(prev =>
-      prev.map(u => u.id === id ? { ...u, status: 'downloading' as const, progress: 0 } : u)
+  const updates = useMemo(() => {
+    const libraryItems = data?.libraryItems ?? [];
+    return (data?.updates ?? []).map((update, index) =>
+      mapUpdateRow(update, index, libraryItems),
     );
+  }, [data]);
 
-    // Simulate download progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 20;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setUpdates(prev =>
-          prev.map(u => u.id === id ? { ...u, status: 'installed' as const, progress: 100 } : u)
-        );
-      } else {
-        setUpdates(prev =>
-          prev.map(u => u.id === id ? { ...u, progress: Math.round(progress) } : u)
-        );
-      }
-    }, 500);
-  };
+  async function handleUpdateDownload(update: UpdateItem) {
+    if (!update.artifactId) {
+      setActionError('该更新暂无可下载的安装包。');
+      return;
+    }
+    setDownloadingId(update.id);
+    setActionError(null);
+    try {
+      const downloadUrl = await resolveArtifactDownload({
+        artifactId: update.artifactId,
+        appKey: update.appKey || undefined,
+      });
+      window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      setActionError(formatApiError(err instanceof Error ? err : new Error(String(err))));
+    } finally {
+      setDownloadingId(null);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">App Updates</h1>
-          <p className="text-gray-500 mt-1">
-            {availableUpdates.length > 0
-              ? `${availableUpdates.length} update${availableUpdates.length > 1 ? 's' : ''} available`
-              : 'All apps are up to date'}
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">应用更新</h1>
+          <p className="text-[var(--text-tertiary)] mt-1">
+            {updates.length > 0
+              ? `有 ${updates.length} 个可用更新`
+              : '所有已安装应用均为最新版本'}
           </p>
         </div>
-        <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition-colors">
+        <button
+          type="button"
+          onClick={() => execute()}
+          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-[var(--text-inverse)] rounded-full text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors"
+        >
           <RefreshCw className="w-4 h-4" />
-          Check for Updates
+          检查更新
         </button>
       </div>
 
-      {/* Available Updates */}
-      {availableUpdates.length > 0 && (
-        <section className="mb-10">
-          <h2 className="text-lg font-bold mb-4">Available Updates</h2>
+      {error && (
+        <div className="mb-6 rounded-xl border border-[var(--warning)] bg-[var(--warning-subtle)] px-4 py-3 text-sm text-[var(--warning)]">
+          {formatApiError(error)}
+        </div>
+      )}
+
+      {actionError && (
+        <div className="mb-6 rounded-xl border border-[var(--danger)] bg-[var(--danger-subtle)] px-4 py-3 text-sm text-[var(--danger)]">
+          {actionError}
+        </div>
+      )}
+
+      {updates.length === 0 ? (
+        <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-10 text-center">
+          <CheckCircle2 className="mx-auto h-10 w-10 text-[var(--success)] mb-3" />
+          <p className="text-[var(--text-secondary)]">库中暂无待更新应用。</p>
+          <Link to="/library" className="mt-4 inline-block text-[var(--accent)] hover:underline font-medium">
+            打开我的库
+          </Link>
+        </div>
+      ) : (
+        <section>
+          <h2 className="text-lg font-bold mb-4 text-[var(--text-primary)]">可用更新</h2>
           <div className="space-y-3">
-            {availableUpdates.map(update => (
-              <div key={update.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            {updates.map((update) => (
+              <div key={update.id} className="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden">
                 <div className="flex items-center gap-4 p-5">
-                  <div className={`w-14 h-14 bg-gradient-to-br ${update.iconColor} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-xl font-bold text-white">{update.appName[0]}</span>
+                  <div
+                    className="app-icon flex-shrink-0 flex items-center justify-center"
+                    style={{
+                      width: 56,
+                      height: 56,
+                      background: update.iconUrl
+                        ? undefined
+                        : 'linear-gradient(135deg, var(--accent), var(--accent-active))',
+                    }}
+                  >
+                    {update.iconUrl ? (
+                      <img
+                        src={update.iconUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span
+                        className="font-semibold"
+                        style={{
+                          color: 'var(--text-inverse)',
+                          fontSize: 22,
+                        }}
+                      >
+                        {update.appName[0]?.toUpperCase() ?? 'A'}
+                      </span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900">{update.appName}</h3>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-sm text-gray-500">{update.currentVersion}</span>
-                      <ArrowRight className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-blue-600">{update.newVersion}</span>
-                      <span className="text-sm text-gray-400">({update.size})</span>
+                    <h3 className="font-semibold text-[var(--text-primary)]">{update.appName}</h3>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                      <span className="text-sm text-[var(--text-tertiary)]">v{update.currentVersion}</span>
+                      <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)]" />
+                      <span className="text-sm font-medium text-[var(--accent)]">v{update.newVersion}</span>
+                      <span className="text-sm text-[var(--text-tertiary)]">({update.size})</span>
                       {update.security && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-600 rounded-full text-xs">
+                        <span className="flex items-center gap-1 px-2 py-0.5 bg-[var(--danger-subtle)] text-[var(--danger)] rounded-full text-xs">
                           <Shield className="w-3 h-3" />
-                          Security
+                          安全更新
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {update.status === 'available' && (
-                      <button
-                        onClick={() => startUpdate(update.id)}
-                        className="px-5 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition-colors"
-                      >
-                        Update
-                      </button>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId((prev) => (prev === update.id ? null : update.id))}
+                    className="p-2 hover:bg-[var(--bg-muted)] rounded-lg transition-colors"
+                  >
+                    {expandedId === update.id ? (
+                      <ChevronUp className="w-5 h-5 text-[var(--text-tertiary)]" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-[var(--text-tertiary)]" />
                     )}
-                    {update.status === 'downloading' && (
-                      <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500 rounded-full transition-all"
-                            style={{ width: `${update.progress}%` }}
-                          />
-                        </div>
-                        <span className="text-sm text-gray-500">{update.progress}%</span>
-                      </div>
-                    )}
-                    <button
-                      onClick={() => toggleExpand(update.id)}
-                      className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
-                      {expandedId === update.id ? (
-                        <ChevronUp className="w-5 h-5 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
-                      )}
-                    </button>
-                  </div>
+                  </button>
                 </div>
-
-                {/* Changelog */}
                 {expandedId === update.id && (
-                  <div className="px-5 pb-5 pt-0 border-t border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3 mt-4">What's New</h4>
-                    <ul className="space-y-2">
-                      {update.changelog.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
-                      <span className="text-xs text-gray-400">Released {update.releaseDate}</span>
-                      <a href="#" className="text-xs text-blue-500 hover:text-blue-600 flex items-center gap-1">
-                        Full release notes
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
+                  <div className="px-5 pb-5 border-t border-[var(--border-subtle)] pt-4">
+                    <div className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] mb-3">
+                      <Clock className="w-4 h-4" />
+                      {update.releaseDate}
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        disabled={!update.artifactId || downloadingId === update.id}
+                        onClick={() => void handleUpdateDownload(update)}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-[var(--text-inverse)] rounded-full text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-60"
+                      >
+                        <Download className="w-4 h-4" />
+                        {downloadingId === update.id ? '准备中…' : '更新'}
+                      </button>
+                      {update.listingSlug && (
+                        <Link
+                          to={`/app/${update.listingSlug}`}
+                          className="px-5 py-2.5 border border-[var(--border-default)] rounded-full text-sm font-medium hover:bg-[var(--bg-canvas)] transition-colors"
+                        >
+                          查看应用
+                        </Link>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
             ))}
           </div>
-
-          <button className="w-full mt-4 py-3 bg-gray-50 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-100 transition-colors">
-            Update All ({availableUpdates.filter(u => u.status === 'available').length} apps)
-          </button>
         </section>
       )}
-
-      {/* Installed Updates */}
-      {installedUpdates.length > 0 && (
-        <section>
-          <h2 className="text-lg font-bold mb-4">Recently Updated</h2>
-          <div className="space-y-3">
-            {installedUpdates.map(update => (
-              <div key={update.id} className="flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-100">
-                <div className={`w-14 h-14 bg-gradient-to-br ${update.iconColor} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                  <span className="text-xl font-bold text-white">{update.appName[0]}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900">{update.appName}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-green-600">Up to date</span>
-                    <span className="text-sm text-gray-400">v{update.newVersion}</span>
-                  </div>
-                </div>
-                <span className="text-sm text-gray-400">{update.releaseDate}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Auto-update settings */}
-      <section className="mt-10">
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-gray-900">Auto-update apps</h3>
-              <p className="text-sm text-gray-500 mt-0.5">Automatically update apps when new versions are available</p>
-            </div>
-            <button className="w-12 h-7 bg-blue-500 rounded-full">
-              <div className="w-5 h-5 bg-white rounded-full shadow translate-x-6" />
-            </button>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

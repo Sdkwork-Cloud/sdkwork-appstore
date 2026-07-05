@@ -265,7 +265,7 @@ impl RetireReleaseRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CheckUpdateRequest {
-    pub plus_app_key: String,
+    pub app_key: String,
     pub platform: String,
     pub installed_version_code: String,
     pub channel_code: String,
@@ -276,13 +276,13 @@ pub struct CheckUpdateRequest {
 
 impl CheckUpdateRequest {
     pub fn new(
-        plus_app_key: impl Into<String>,
+        app_key: impl Into<String>,
         platform: impl Into<String>,
         installed_version_code: impl Into<String>,
         channel_code: impl Into<String>,
     ) -> Self {
         Self {
-            plus_app_key: plus_app_key.into(),
+            app_key: app_key.into(),
             platform: platform.into(),
             installed_version_code: installed_version_code.into(),
             channel_code: channel_code.into(),
@@ -312,7 +312,7 @@ impl CheckUpdateRequest {
 pub struct ResolveDownloadRequest {
     pub artifact_id: String,
     pub grant_id: Option<String>,
-    pub plus_app_key: Option<String>,
+    pub app_key: Option<String>,
 }
 
 impl ResolveDownloadRequest {
@@ -320,7 +320,7 @@ impl ResolveDownloadRequest {
         Self {
             artifact_id: artifact_id.into(),
             grant_id: None,
-            plus_app_key: None,
+            app_key: None,
         }
     }
 
@@ -329,8 +329,8 @@ impl ResolveDownloadRequest {
         self
     }
 
-    pub fn with_plus_app_key(mut self, key: impl Into<String>) -> Self {
-        self.plus_app_key = Some(key.into());
+    pub fn with_app_key(mut self, key: impl Into<String>) -> Self {
+        self.app_key = Some(key.into());
         self
     }
 }
@@ -398,7 +398,7 @@ impl ConsumeDownloadGrantRequest {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AutomationSubmissionCreateRequest {
-    pub plus_app_key: String,
+    pub app_key: String,
     pub submission_type: String,
     pub channel_code: String,
     pub version_name: String,
@@ -409,14 +409,14 @@ pub struct AutomationSubmissionCreateRequest {
 
 impl AutomationSubmissionCreateRequest {
     pub fn new(
-        plus_app_key: impl Into<String>,
+        app_key: impl Into<String>,
         submission_type: impl Into<String>,
         channel_code: impl Into<String>,
         version_name: impl Into<String>,
         version_code: impl Into<String>,
     ) -> Self {
         Self {
-            plus_app_key: plus_app_key.into(),
+            app_key: app_key.into(),
             submission_type: submission_type.into(),
             channel_code: channel_code.into(),
             version_name: version_name.into(),

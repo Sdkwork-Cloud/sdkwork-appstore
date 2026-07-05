@@ -178,6 +178,30 @@ impl UpdateRegionalAvailabilityResult {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListPublisherListingsResult {
+    pub operation_id: &'static str,
+    pub listings: Vec<Listing>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl ListPublisherListingsResult {
+    pub fn new(
+        operation_id: &'static str,
+        listings: Vec<Listing>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            listings,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ListListingReleasesResult {
     pub operation_id: &'static str,
     pub releases: Vec<serde_json::Value>,
@@ -211,6 +235,27 @@ impl CreateListingSubmissionResult {
     pub fn created(operation_id: &'static str, submission: ListingSubmission) -> Self {
         Self {
             operation_id,
+            submission,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApplyModerationDecisionResult {
+    pub operation_id: &'static str,
+    pub listing: Listing,
+    pub submission: ListingSubmission,
+}
+
+impl ApplyModerationDecisionResult {
+    pub fn applied(
+        operation_id: &'static str,
+        listing: Listing,
+        submission: ListingSubmission,
+    ) -> Self {
+        Self {
+            operation_id,
+            listing,
             submission,
         }
     }
@@ -295,6 +340,127 @@ impl PublicRetrieveListingResult {
         Self {
             operation_id,
             listing: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BootstrapPublisherAppResult {
+    pub operation_id: &'static str,
+    pub app: crate::domain::models::StoreApp,
+    pub listing: Listing,
+}
+
+impl BootstrapPublisherAppResult {
+    pub fn created(
+        operation_id: &'static str,
+        app: crate::domain::models::StoreApp,
+        listing: Listing,
+    ) -> Self {
+        Self {
+            operation_id,
+            app,
+            listing,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListListingReleaseHistoryResult {
+    pub operation_id: &'static str,
+    pub releases: Vec<serde_json::Value>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl ListListingReleaseHistoryResult {
+    pub fn new(
+        operation_id: &'static str,
+        releases: Vec<serde_json::Value>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            releases,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListSimilarListingsResult {
+    pub operation_id: &'static str,
+    pub listings: Vec<Listing>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl ListSimilarListingsResult {
+    pub fn new(
+        operation_id: &'static str,
+        listings: Vec<Listing>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            listings,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListDeveloperOtherListingsResult {
+    pub operation_id: &'static str,
+    pub listings: Vec<Listing>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl ListDeveloperOtherListingsResult {
+    pub fn new(
+        operation_id: &'static str,
+        listings: Vec<Listing>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            listings,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListingEditorialContent {
+    pub editorial_highlight: Option<String>,
+    pub collection_editorial_note: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RetrieveListingEditorialResult {
+    pub operation_id: &'static str,
+    pub editorial: Option<ListingEditorialContent>,
+}
+
+impl RetrieveListingEditorialResult {
+    pub fn found(operation_id: &'static str, editorial: ListingEditorialContent) -> Self {
+        Self {
+            operation_id,
+            editorial: Some(editorial),
+        }
+    }
+
+    pub fn not_found(operation_id: &'static str) -> Self {
+        Self {
+            operation_id,
+            editorial: None,
         }
     }
 }

@@ -102,6 +102,28 @@ impl AssignModerationReviewRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EnqueueSubmissionReviewRequest {
+    pub submission_id: String,
+    pub organization_id: String,
+    pub idempotency_key: Option<String>,
+}
+
+impl EnqueueSubmissionReviewRequest {
+    pub fn new(submission_id: impl Into<String>, organization_id: impl Into<String>) -> Self {
+        Self {
+            submission_id: submission_id.into(),
+            organization_id: organization_id.into(),
+            idempotency_key: None,
+        }
+    }
+
+    pub fn with_idempotency_key(mut self, key: impl Into<String>) -> Self {
+        self.idempotency_key = Some(key.into());
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CreateModerationDecisionRequest {
     pub review_id: String,
     pub decision_type: String,
@@ -147,5 +169,88 @@ impl CreateModerationDecisionRequest {
     pub fn with_idempotency_key(mut self, key: impl Into<String>) -> Self {
         self.idempotency_key = Some(key.into());
         self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CreateModerationAppealRequest {
+    pub decision_id: String,
+    pub appeal_reason: String,
+    pub idempotency_key: Option<String>,
+}
+
+impl CreateModerationAppealRequest {
+    pub fn new(decision_id: impl Into<String>, appeal_reason: impl Into<String>) -> Self {
+        Self {
+            decision_id: decision_id.into(),
+            appeal_reason: appeal_reason.into(),
+            idempotency_key: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListModerationAppealsRequest {
+    pub status: Option<String>,
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+impl ListModerationAppealsRequest {
+    pub fn new() -> Self {
+        Self {
+            status: None,
+            cursor: None,
+            limit: None,
+        }
+    }
+
+    pub fn with_status(mut self, status: impl Into<String>) -> Self {
+        self.status = Some(status.into());
+        self
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_limit(mut self, limit: i32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RetrieveModerationAppealRequest {
+    pub appeal_id: String,
+}
+
+impl RetrieveModerationAppealRequest {
+    pub fn new(appeal_id: impl Into<String>) -> Self {
+        Self {
+            appeal_id: appeal_id.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DecideModerationAppealRequest {
+    pub appeal_id: String,
+    pub decision: String,
+    pub note: String,
+}
+
+impl DecideModerationAppealRequest {
+    pub fn new(
+        appeal_id: impl Into<String>,
+        decision: impl Into<String>,
+        note: impl Into<String>,
+    ) -> Self {
+        Self {
+            appeal_id: appeal_id.into(),
+            decision: decision.into(),
+            note: note.into(),
+        }
     }
 }

@@ -3,7 +3,7 @@
 use crate::context::AppstoreRequestContext;
 use crate::domain::models::{
     Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia,
-    ListingSubmission, RegionalAvailability,
+    ListingSubmission, RegionalAvailability, StoreApp,
 };
 use crate::error::AppstoreServiceResult;
 
@@ -22,10 +22,10 @@ pub trait ListingRepositoryPort: Send + Sync {
         listing_slug: &str,
     ) -> AppstoreServiceResult<Option<Listing>>;
 
-    async fn find_listing_by_plus_app_id(
+    async fn find_listing_by_app_id(
         &self,
         context: &AppstoreRequestContext,
-        plus_app_id: &str,
+        app_id: &str,
     ) -> AppstoreServiceResult<Option<Listing>>;
 
     async fn find_listings_by_publisher(
@@ -125,6 +125,18 @@ pub trait ListingRepositoryPort: Send + Sync {
         submission: &ListingSubmission,
     ) -> AppstoreServiceResult<()>;
 
+    async fn find_submission_by_id(
+        &self,
+        context: &AppstoreRequestContext,
+        submission_id: &str,
+    ) -> AppstoreServiceResult<Option<ListingSubmission>>;
+
+    async fn update_submission(
+        &self,
+        context: &AppstoreRequestContext,
+        submission: &ListingSubmission,
+    ) -> AppstoreServiceResult<()>;
+
     async fn find_submissions_by_listing(
         &self,
         context: &AppstoreRequestContext,
@@ -140,4 +152,50 @@ pub trait ListingRepositoryPort: Send + Sync {
         cursor: Option<&str>,
         limit: i32,
     ) -> AppstoreServiceResult<Vec<Listing>>;
+
+    async fn find_app_by_key(
+        &self,
+        context: &AppstoreRequestContext,
+        app_key: &str,
+    ) -> AppstoreServiceResult<Option<StoreApp>>;
+
+    async fn bootstrap_app_and_listing(
+        &self,
+        context: &AppstoreRequestContext,
+        app: &StoreApp,
+        listing: &Listing,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn find_release_history_by_listing(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<serde_json::Value>>;
+
+    async fn find_similar_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        primary_category_id: &str,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<Listing>>;
+
+    async fn find_developer_other_listings(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        publisher_id: &str,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<Listing>>;
+
+    async fn find_listing_editorial(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        default_locale: &str,
+    ) -> AppstoreServiceResult<(Option<String>, Option<String>)>;
 }

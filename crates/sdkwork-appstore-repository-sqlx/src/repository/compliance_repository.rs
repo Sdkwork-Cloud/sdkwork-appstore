@@ -1,5 +1,9 @@
 use sqlx::{Pool, Sqlite};
 
+use crate::db::columns::{
+    columns_csv, APPSTORE_COMPLIANCE_PERMISSION_DISCLOSURE_COLUMNS,
+    APPSTORE_COMPLIANCE_PROFILE_COLUMNS,
+};
 use crate::db::rows::{CompliancePermissionDisclosureRow, ComplianceProfileRow};
 use crate::mapper::row_mapper::{
     map_compliance_profile_domain_to_row, map_compliance_profile_row_to_domain,
@@ -35,18 +39,16 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Option<ComplianceProfile>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ComplianceProfileRow>(
+        let row = sqlx::query_as::<_, ComplianceProfileRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, listing_id, compliance_version,
-                   privacy_nutrition_json, content_rating_questionnaire_json, data_safety_json,
-                   target_audience_json, compliance_status, reviewed_by, reviewed_at,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_compliance_profile
             WHERE listing_id = ? AND tenant_id = ?
             ORDER BY compliance_version DESC
             LIMIT 1
             "#,
-        )
+            columns_csv(APPSTORE_COMPLIANCE_PROFILE_COLUMNS)
+        ))
         .bind(listing_id)
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -66,16 +68,14 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Option<ComplianceProfile>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ComplianceProfileRow>(
+        let row = sqlx::query_as::<_, ComplianceProfileRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, listing_id, compliance_version,
-                   privacy_nutrition_json, content_rating_questionnaire_json, data_safety_json,
-                   target_audience_json, compliance_status, reviewed_by, reviewed_at,
-                   created_at, updated_at
+            SELECT {}
             FROM appstore_compliance_profile
             WHERE id = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_COMPLIANCE_PROFILE_COLUMNS)
+        ))
         .bind(profile_id.as_str())
         .bind(&context.tenant_id)
         .fetch_optional(&self.pool)
@@ -178,15 +178,15 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Vec<CompliancePermissionDisclosure>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let rows = sqlx::query_as::<_, CompliancePermissionDisclosureRow>(
+        let rows = sqlx::query_as::<_, CompliancePermissionDisclosureRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, listing_id, permission_code, usage_purpose,
-                   is_required, disclosure_status, created_at, updated_at
+            SELECT {}
             FROM appstore_compliance_permission_disclosure
             WHERE listing_id = ? AND tenant_id = ?
             ORDER BY permission_code ASC
             "#,
-        )
+            columns_csv(APPSTORE_COMPLIANCE_PERMISSION_DISCLOSURE_COLUMNS)
+        ))
         .bind(listing_id)
         .bind(&context.tenant_id)
         .fetch_all(&self.pool)
@@ -208,14 +208,14 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         Option<CompliancePermissionDisclosure>,
         sdkwork_appstore_compliance_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, CompliancePermissionDisclosureRow>(
+        let row = sqlx::query_as::<_, CompliancePermissionDisclosureRow>(&format!(
             r#"
-            SELECT id, tenant_id, organization_id, listing_id, permission_code, usage_purpose,
-                   is_required, disclosure_status, created_at, updated_at
+            SELECT {}
             FROM appstore_compliance_permission_disclosure
             WHERE listing_id = ? AND permission_code = ? AND tenant_id = ?
             "#,
-        )
+            columns_csv(APPSTORE_COMPLIANCE_PERMISSION_DISCLOSURE_COLUMNS)
+        ))
         .bind(listing_id)
         .bind(permission_code)
         .bind(&context.tenant_id)
@@ -285,5 +285,77 @@ impl sdkwork_appstore_compliance_service::ports::repository::ComplianceRepositor
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
+    }
+
+    async fn find_iap_items_by_listing(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &str,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> Result<
+        Vec<sdkwork_appstore_compliance_service::domain::models::ListingIapItem>,
+        sdkwork_appstore_compliance_service::error::AppstoreServiceError,
+    > {
+        use crate::db::columns::APPSTORE_LISTING_IAP_ITEM_COLUMNS;
+        use crate::db::rows::ListingIapItemRow;
+
+        let rows = if let Some(cursor_id) = cursor {
+            sqlx::query_as::<_, ListingIapItemRow>(&format!(
+                r#"
+                SELECT {}
+                FROM appstore_listing_iap_item
+                WHERE listing_id = ? AND tenant_id = ? AND id > ?
+                ORDER BY id ASC
+                LIMIT ?
+                "#,
+                columns_csv(APPSTORE_LISTING_IAP_ITEM_COLUMNS)
+            ))
+            .bind(listing_id)
+            .bind(&context.tenant_id)
+            .bind(cursor_id)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+        } else {
+            sqlx::query_as::<_, ListingIapItemRow>(&format!(
+                r#"
+                SELECT {}
+                FROM appstore_listing_iap_item
+                WHERE listing_id = ? AND tenant_id = ?
+                ORDER BY id ASC
+                LIMIT ?
+                "#,
+                columns_csv(APPSTORE_LISTING_IAP_ITEM_COLUMNS)
+            ))
+            .bind(listing_id)
+            .bind(&context.tenant_id)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+        }
+        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+
+        Ok(rows
+            .into_iter()
+            .map(
+                |row| sdkwork_appstore_compliance_service::domain::models::ListingIapItem {
+                    id: row.id,
+                    tenant_id: row.tenant_id,
+                    organization_id: row.organization_id,
+                    listing_id: row.listing_id,
+                    iap_no: row.iap_no,
+                    iap_type: row.iap_type,
+                    sku: row.sku,
+                    display_name: row.display_name,
+                    price_cents: row.price_cents,
+                    currency_code: row.currency_code,
+                    subscription_period: row.subscription_period,
+                    status: row.status,
+                    created_at: row.created_at,
+                    updated_at: row.updated_at,
+                },
+            )
+            .collect())
     }
 }

@@ -18,7 +18,7 @@ or explicit upstream dependency surfaces.
 | Capability | Owner | App Store role | Runtime surface | Phase 1 policy |
 | --- | --- | --- | --- | --- |
 | `appbase` | `sdkwork-appbase` | IAM sessions, tenant, organization, user, request, and operator context. | app-api/backend-api dependency SDK or appbase Rust runtime. | Required; no local auth/session routes. |
-| `platform` | `sdkwork-appbase` | PlusApp registration, app identity, manifest projection, workspace visibility. | appbase/platform dependency SDK or service port. | Required for publishable apps; references `plus_app_id`, `plus_app_key`, and `manifest_snapshot_json`. |
+| `platform` | `sdkwork-appbase` | registered app registration, app identity, manifest projection, workspace visibility. | appbase/platform dependency SDK or service port. | Required for publishable apps; references `app_id`, `app_key`, and `manifest_snapshot_json`. |
 | `drive` | `sdkwork-drive` | Icons, screenshots, preview videos, install artifacts, release binaries, and moderation evidence media. | Drive app/backend SDK, Drive uploader, or server-side Drive service facade. | Required for rich listings and releases; App Store stores Drive references only. |
 | `comments` | `sdkwork-comments` | Review threads, rating summaries, favorites, visit history, and abuse-report linkage. | comments app/backend SDK or service port. | Required for social proof; App Store stores `comments_thread_id` and cached aggregates. |
 | `commerce` | `sdkwork-commerce (deleted)` | Paid apps, in-app purchase product references, entitlement billing linkage. | commerce SDK or service port. | Optional in phase 1; no checkout, settlement, invoice, or payment routes in App Store. |
@@ -32,7 +32,7 @@ or explicit upstream dependency surfaces.
 request/operator context and must not parse raw authorization headers, create
 session endpoints, or infer tenants from request payloads.
 
-`platform` supplies PlusApp lifecycle and manifest projection. App Store keeps
+`platform` supplies registered app lifecycle and manifest projection. App Store keeps
 the store-facing listing, release, and catalog workflow while platform remains
 the owner of app registration and runtime manifest authority.
 

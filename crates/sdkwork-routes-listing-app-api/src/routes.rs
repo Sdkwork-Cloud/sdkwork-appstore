@@ -87,6 +87,34 @@ pub const ROUTES: &[RouteDefinition] = &[
         handler: "listings_submissions_create",
         service_method: "listings_submissions_create",
     },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/listings/{listingId}/releases/history",
+        operation_id: "appstore.listings.releases.history.list",
+        handler: "listings_releases_history_list",
+        service_method: "listings_releases_history_list",
+    },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/listings/{listingId}/similar",
+        operation_id: "appstore.listings.similar.list",
+        handler: "listings_similar_list",
+        service_method: "listings_similar_list",
+    },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/listings/{listingId}/developer_other",
+        operation_id: "appstore.listings.developerOther.list",
+        handler: "listings_developer_other_list",
+        service_method: "listings_developer_other_list",
+    },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/listings/{listingId}/editorial",
+        operation_id: "appstore.listings.editorial.retrieve",
+        handler: "listings_editorial_retrieve",
+        service_method: "listings_editorial_retrieve",
+    },
 ];
 
 pub fn route_definitions() -> &'static [RouteDefinition] {

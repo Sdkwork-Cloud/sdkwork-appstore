@@ -1,5 +1,8 @@
 [workspace]
 members = [
+  "crates/sdkwork-appstore-authorization",
+  "crates/sdkwork-appstore-routes-common",
+  "crates/sdkwork-appstore-database-host",
   "crates/sdkwork-appstore-standalone-gateway",
   "crates/sdkwork-appstore-service-host",
   "crates/sdkwork-appstore-repository-sqlx",
@@ -32,10 +35,14 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-sdkwork-utils-rust = { path = "../../../sdkwork-utils/packages/sdkwork-utils-rust" }
-sdkwork-web-core = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-core" }
-sdkwork-web-axum = { path = "../../../sdkwork-web-framework/crates/sdkwork-web-axum" }
-sdkwork-iam-web-adapter = { path = "../../../sdkwork-iam/crates/sdkwork-iam-web-adapter" }
-sdkwork-database-sqlx = { path = "../../../sdkwork-database/crates/sdkwork-database-sqlx" }
-sdkwork-database-config = { path = "../../../sdkwork-database/crates/sdkwork-database-config" }
+sdkwork-utils-rust = { path = "../sdkwork-utils/packages/sdkwork-utils-rust" }
+sdkwork-web-core = { path = "../sdkwork-web-framework/crates/sdkwork-web-core" }
+sdkwork-web-axum = { path = "../sdkwork-web-framework/crates/sdkwork-web-axum" }
+sdkwork-iam-web-adapter = { path = "../sdkwork-iam/crates/sdkwork-iam-web-adapter" }
+sdkwork-database-sqlx = { path = "../sdkwork-database/crates/sdkwork-database-sqlx" }
+sdkwork-database-config = { path = "../sdkwork-database/crates/sdkwork-database-config" }
+sdkwork-database-lifecycle = { path = "../sdkwork-database/crates/sdkwork-database-lifecycle" }
+sdkwork-database-spi = { path = "../sdkwork-database/crates/sdkwork-database-spi" }
+sdkwork-appstore-routes-common = { path = "crates/sdkwork-appstore-routes-common" }
+sdkwork-appstore-database-host = { path = "crates/sdkwork-appstore-database-host" }
 sdkwork-web-bootstrap = { path = "../sdkwork-web-framework/crates/sdkwork-web-bootstrap" }

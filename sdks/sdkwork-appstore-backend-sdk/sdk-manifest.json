@@ -9,16 +9,15 @@
   "generationInputSpec": "../../apis/backend-api/store/openapi.yaml",
   "generatedPackages": {},
   "sdkDependencies": [
-    {
-      "sdkFamily": "sdkwork-iam-backend-sdk",
-      "reason": "Operator auth and tenant administration context"
-    }
+    "sdkwork-iam-backend-sdk"
   ],
   "dependencyApiExports": [],
   "generatorName": "sdkwork-sdk-generator",
   "baseUrl": "http://127.0.0.1:18091",
   "standardProfile": "sdkwork-appstore-backend-v3",
   "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 14,
-  "managedBy": "tools/appstore_sdk_generate.mjs"
+  "ownerOnlyOperationCount": 20,
+  "managedBy": "tools/appstore_sdk_generate.mjs",
+  "packageName": "@sdkwork/appstore-backend-sdk",
+  "transportPackageName": "sdkwork-appstore-backend-sdk-generated-typescript"
 }

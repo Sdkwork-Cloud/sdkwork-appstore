@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { isAuthenticated } from '@/bootstrap/iamRuntime';
 
 interface AuthGateProps {
   children: ReactNode;
@@ -8,9 +9,8 @@ interface AuthGateProps {
 
 export function AuthGate({ children, fallback }: AuthGateProps) {
   const location = useLocation();
-  const isAuthenticated = checkAuth();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated()) {
     if (fallback) {
       return <>{fallback}</>;
     }
@@ -20,6 +20,4 @@ export function AuthGate({ children, fallback }: AuthGateProps) {
   return <>{children}</>;
 }
 
-function checkAuth(): boolean {
-  return !!localStorage.getItem('auth-token');
-}
+export { isAuthenticated } from '@/bootstrap/iamRuntime';

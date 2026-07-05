@@ -2,14 +2,12 @@
 
 use sdkwork_web_core::{HttpMethod, HttpRoute, HttpRouteManifest};
 
-const HTTP_ROUTES: &[HttpRoute] = &[
-    HttpRoute::dual_token(
-        HttpMethod::Post,
-        "/backend/v3/api/publishers/{publisherId}/verify",
-        "appstore",
-        "appstore.publishers.admin.verify",
-    ),
-];
+const HTTP_ROUTES: &[HttpRoute] = &[HttpRoute::dual_token(
+    HttpMethod::Post,
+    "/backend/v3/api/publishers/{publisherId}/verify",
+    "appstore",
+    "appstore.publishers.admin.verify",
+)];
 
 pub fn backend_route_manifest() -> HttpRouteManifest {
     HttpRouteManifest::new(HTTP_ROUTES)

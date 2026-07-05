@@ -65,11 +65,10 @@ pub struct ListingRow {
     pub id: String,
     pub tenant_id: String,
     pub organization_id: String,
-    pub app_id: Option<String>,
     pub publisher_id: String,
     pub listing_no: String,
-    pub plus_app_id: String,
-    pub plus_app_key: String,
+    pub app_id: String,
+    pub app_key: String,
     pub listing_slug: String,
     pub listing_type: String,
     pub pricing_model: String,
@@ -408,8 +407,8 @@ pub struct ListingMetricSnapshotRow {
 #[derive(Debug, Clone, FromRow)]
 pub struct ListingSearchRow {
     pub id: String,
-    pub plus_app_id: Option<String>,
-    pub plus_app_key: String,
+    pub app_id: String,
+    pub app_key: String,
     pub display_name: String,
     pub subtitle: Option<String>,
     pub listing_slug: String,
@@ -425,8 +424,7 @@ pub struct UserLibraryItemRow {
     pub tenant_id: String,
     pub user_id: String,
     pub listing_id: String,
-    pub plus_app_id: String,
-    pub plus_app_key: String,
+    pub app_key: String,
     pub library_status: String,
     pub installed_release_id: Option<String>,
     pub installed_version_code: Option<String>,
@@ -584,4 +582,71 @@ pub struct InstallEventRow {
     pub payload_snapshot_json: String,
     pub occurred_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct CatalogSearchHistoryRow {
+    pub id: String,
+    pub tenant_id: String,
+    pub user_id: String,
+    pub query_text: String,
+    pub filters_json: String,
+    pub result_count: i32,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct CatalogTrendingTermRow {
+    pub id: String,
+    pub tenant_id: String,
+    pub term: String,
+    pub locale: String,
+    pub rank: i32,
+    pub score: f64,
+    pub snapshot_date: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct ListingSuggestionRow {
+    pub listing_id: String,
+    pub display_name: String,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct ListingIapItemRow {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub listing_id: String,
+    pub iap_no: String,
+    pub iap_type: String,
+    pub sku: String,
+    pub display_name: String,
+    pub price_cents: i32,
+    pub currency_code: String,
+    pub subscription_period: Option<String>,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct ModerationAppealRow {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub decision_id: String,
+    pub review_id: String,
+    pub appeal_no: String,
+    pub appellant_user_id: String,
+    pub appeal_reason: String,
+    pub appeal_status: String,
+    pub decided_by: Option<String>,
+    pub decision_note: Option<String>,
+    pub submitted_at: DateTime<Utc>,
+    pub decided_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
