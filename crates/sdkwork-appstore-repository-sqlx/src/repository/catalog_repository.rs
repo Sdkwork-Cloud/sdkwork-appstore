@@ -1,4 +1,4 @@
-use sqlx::{Pool, Sqlite};
+use crate::pool::AppstoreSqlxDb;
 
 use crate::db::columns::{
     columns_csv, APPSTORE_CATALOG_CHART_SNAPSHOT_COLUMNS, APPSTORE_CATALOG_COLLECTION_COLUMNS,
@@ -36,12 +36,12 @@ use sdkwork_appstore_catalog_service::ports::repository::CatalogRepositoryPort;
 
 #[derive(Debug, Clone)]
 pub struct SqlxCatalogRepository {
-    pool: Pool<Sqlite>,
+    db: AppstoreSqlxDb,
 }
 
 impl SqlxCatalogRepository {
-    pub fn new(pool: Pool<Sqlite>) -> Self {
-        Self { pool }
+    pub fn new(db: AppstoreSqlxDb) -> Self {
+        Self { db }
     }
 }
 
@@ -54,7 +54,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         limit: i32,
     ) -> Result<Vec<Category>, AppstoreServiceError> {
         let rows = if let Some(cursor_id) = cursor {
-            sqlx::query_as::<_, CategoryRow>(&format!(
+            self.db.query_as::< CategoryRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_category
@@ -67,11 +67,11 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .bind(&context.tenant_id)
             .bind(cursor_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            sqlx::query_as::<_, CategoryRow>(&format!(
+            self.db.query_as::< CategoryRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_category
@@ -83,7 +83,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             ))
             .bind(&context.tenant_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
@@ -99,7 +99,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         category_id: &CategoryId,
     ) -> Result<Option<Category>, AppstoreServiceError> {
-        let row = sqlx::query_as::<_, CategoryRow>(&format!(
+        let row = self.db.query_as::< CategoryRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_category
@@ -109,7 +109,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(category_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -123,7 +123,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         category_code: &str,
     ) -> Result<Option<Category>, AppstoreServiceError> {
-        let row = sqlx::query_as::<_, CategoryRow>(&format!(
+        let row = self.db.query_as::< CategoryRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_category
@@ -133,7 +133,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(category_code)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -147,7 +147,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         category_id: &CategoryId,
     ) -> Result<Vec<CategoryLocalization>, AppstoreServiceError> {
-        let rows = sqlx::query_as::<_, CategoryLocalizationRow>(&format!(
+        let rows = self.db.query_as::< CategoryLocalizationRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_category_localization
@@ -157,7 +157,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(category_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -174,7 +174,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<(), AppstoreServiceError> {
         let status = map_category_domain_to_row(category);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_category (
                 id, tenant_id, category_code, parent_category_id, category_level,
@@ -192,7 +192,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(&category.icon_media_resource_id)
         .bind(category.created_at)
         .bind(category.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -206,7 +206,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<(), AppstoreServiceError> {
         let status = map_category_domain_to_row(category);
 
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_category
             SET category_code = ?, parent_category_id = ?, category_level = ?,
@@ -223,7 +223,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(category.updated_at)
         .bind(category.id.as_str())
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -235,7 +235,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         localization: &CategoryLocalization,
     ) -> Result<(), AppstoreServiceError> {
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_category_localization (
                 id, tenant_id, category_id, locale, display_name, description, created_at, updated_at
@@ -254,7 +254,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(&localization.description)
         .bind(localization.created_at)
         .bind(localization.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -268,7 +268,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         limit: i32,
     ) -> Result<Vec<CatalogCollection>, AppstoreServiceError> {
         let rows = if let Some(cursor_id) = cursor {
-            sqlx::query_as::<_, CatalogCollectionRow>(&format!(
+            self.db.query_as::< CatalogCollectionRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_catalog_collection
@@ -281,11 +281,11 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .bind(&context.tenant_id)
             .bind(cursor_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            sqlx::query_as::<_, CatalogCollectionRow>(&format!(
+            self.db.query_as::< CatalogCollectionRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_catalog_collection
@@ -297,7 +297,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             ))
             .bind(&context.tenant_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
@@ -313,7 +313,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<Option<CatalogCollection>, AppstoreServiceError> {
-        let row = sqlx::query_as::<_, CatalogCollectionRow>(&format!(
+        let row = self.db.query_as::< CatalogCollectionRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_collection
@@ -323,7 +323,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(collection_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -337,7 +337,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_code: &str,
     ) -> Result<Option<CatalogCollection>, AppstoreServiceError> {
-        let row = sqlx::query_as::<_, CatalogCollectionRow>(&format!(
+        let row = self.db.query_as::< CatalogCollectionRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_collection
@@ -347,7 +347,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(collection_code)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -361,7 +361,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<Vec<CatalogCollectionLocalization>, AppstoreServiceError> {
-        let rows = sqlx::query_as::<_, CatalogCollectionLocalizationRow>(&format!(
+        let rows = self.db.query_as::< CatalogCollectionLocalizationRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_collection_localization
@@ -371,7 +371,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(collection_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -386,7 +386,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<Vec<CatalogCollectionItem>, AppstoreServiceError> {
-        let rows = sqlx::query_as::<_, CatalogCollectionItemRow>(&format!(
+        let rows = self.db.query_as::< CatalogCollectionItemRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_collection_item
@@ -397,7 +397,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(collection_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -415,7 +415,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let (collection_type, collection_status, audience_scope) =
             map_collection_domain_to_row(collection);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_catalog_collection (
                 id, tenant_id, collection_code, collection_type, collection_status,
@@ -436,7 +436,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(collection.ends_at)
         .bind(collection.created_at)
         .bind(collection.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -451,7 +451,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let (collection_type, collection_status, audience_scope) =
             map_collection_domain_to_row(collection);
 
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_catalog_collection
             SET collection_code = ?, collection_type = ?, collection_status = ?,
@@ -471,7 +471,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(collection.updated_at)
         .bind(collection.id.as_str())
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -483,7 +483,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         localization: &CatalogCollectionLocalization,
     ) -> Result<(), AppstoreServiceError> {
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_catalog_collection_localization (
                 id, tenant_id, collection_id, locale, display_name, description, created_at, updated_at
@@ -502,7 +502,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(&localization.description)
         .bind(localization.created_at)
         .bind(localization.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -514,7 +514,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         collection_id: &CollectionId,
     ) -> Result<(), AppstoreServiceError> {
-        sqlx::query(
+        self.db.query(
             r#"
             DELETE FROM appstore_catalog_collection_item
             WHERE collection_id = ? AND tenant_id = ?
@@ -522,7 +522,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         )
         .bind(collection_id.as_str())
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -536,7 +536,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<(), AppstoreServiceError> {
         let highlight_json = map_collection_item_domain_to_row(item);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_catalog_collection_item (
                 id, tenant_id, collection_id, listing_id, sort_order,
@@ -553,7 +553,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(item.starts_at)
         .bind(item.ends_at)
         .bind(item.created_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -564,7 +564,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         &self,
         context: &AppstoreRequestContext,
     ) -> Result<Vec<CatalogFeaturedSlot>, AppstoreServiceError> {
-        let rows = sqlx::query_as::<_, CatalogFeaturedSlotRow>(&format!(
+        let rows = self.db.query_as::< CatalogFeaturedSlotRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_featured_slot
@@ -574,7 +574,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             columns_csv(APPSTORE_CATALOG_FEATURED_SLOT_COLUMNS)
         ))
         .bind(&context.tenant_id)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -589,7 +589,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         slot_code: &str,
     ) -> Result<Option<CatalogFeaturedSlot>, AppstoreServiceError> {
-        let row = sqlx::query_as::<_, CatalogFeaturedSlotRow>(&format!(
+        let row = self.db.query_as::< CatalogFeaturedSlotRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_featured_slot
@@ -601,7 +601,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         ))
         .bind(slot_code)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -618,7 +618,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let (slot_status, audience_scope, platform_scope, region_scope_json) =
             map_featured_slot_domain_to_row(slot);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_catalog_featured_slot (
                 id, tenant_id, slot_code, listing_id, slot_status, audience_scope,
@@ -646,7 +646,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(slot.ends_at)
         .bind(slot.created_at)
         .bind(slot.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -661,7 +661,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         locale: &str,
         platform_scope: &str,
     ) -> Result<Option<CatalogChartSnapshot>, AppstoreServiceError> {
-        let row = sqlx::query_as::<_, CatalogChartSnapshotRow>(&format!(
+        let row = self.db.query_as::< CatalogChartSnapshotRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_chart_snapshot
@@ -675,7 +675,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(locale)
         .bind(platform_scope)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -691,7 +691,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         locale: &str,
         platform_scope: &str,
     ) -> Result<Option<CatalogChartSnapshot>, AppstoreServiceError> {
-        let row = sqlx::query_as::<_, CatalogChartSnapshotRow>(&format!(
+        let row = self.db.query_as::< CatalogChartSnapshotRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_chart_snapshot
@@ -705,7 +705,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(locale)
         .bind(platform_scope)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -749,7 +749,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         sql.push_str("ORDER BY l.featured_score DESC, l.rating_count DESC, l.listing_no ASC\n");
         sql.push_str("LIMIT ?\n");
 
-        let mut q = sqlx::query_as::<_, ListingSearchRow>(&sql).bind(&context.tenant_id);
+        let mut q = self.db.query_as::<ListingSearchRow>(&self.db.adapt_sql(&sql)).bind(&context.tenant_id);
 
         if let Some(qs) = query {
             let pattern = format!("%{}%", qs);
@@ -764,7 +764,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         q = q.bind(limit);
 
         let rows = q
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -798,7 +798,9 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
         sql.push_str("ORDER BY snapshot_date ASC\n");
 
-        let mut q = sqlx::query_as::<_, ListingMetricSnapshotRow>(&sql)
+        let mut q = self
+            .db
+            .query_as::<ListingMetricSnapshotRow>(&self.db.adapt_sql(&sql))
             .bind(listing_id)
             .bind(&context.tenant_id);
 
@@ -810,7 +812,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
 
         let rows = q
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -854,7 +856,9 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             "#,
         );
 
-        let mut query = sqlx::query_as::<_, ListingSearchRow>(&sql)
+        let mut query = self
+            .db
+            .query_as::<ListingSearchRow>(&self.db.adapt_sql(&sql))
             .bind(locale_filter)
             .bind(&context.tenant_id);
         for listing_id in listing_ids {
@@ -862,7 +866,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
 
         let rows = query
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -912,7 +916,9 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
         sql.push_str("ORDER BY l.updated_at DESC, l.id DESC\nLIMIT ?\n");
 
-        let mut query = sqlx::query_as::<_, ListingSearchRow>(&sql)
+        let mut query = self
+            .db
+            .query_as::<ListingSearchRow>(&self.db.adapt_sql(&sql))
             .bind(locale_filter)
             .bind(&context.tenant_id);
         if let Some(cursor_id) = cursor {
@@ -926,7 +932,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         query = query.bind(limit);
 
         let rows = query
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -979,7 +985,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
         sql.push_str("ORDER BY starts_at DESC, id DESC\nLIMIT ?\n");
 
-        let mut query = sqlx::query_as::<_, CatalogCollectionRow>(&sql).bind(&context.tenant_id);
+        let mut query = self
+            .db
+            .query_as::<CatalogCollectionRow>(&self.db.adapt_sql(&sql))
+            .bind(&context.tenant_id);
         if let Some(status_filter) = status {
             match status_filter {
                 "upcoming" => query = query.bind(now),
@@ -999,7 +1008,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         query = query.bind(limit);
 
         let rows = query
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -1019,7 +1028,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let locale_filter = locale.unwrap_or("en-US");
         let pattern = format!("{}%", prefix);
 
-        let rows = sqlx::query_as::<_, ListingSuggestionRow>(
+        let rows = self.db.query_as::< ListingSuggestionRow>(
             r#"
             SELECT l.id AS listing_id, ll.display_name
             FROM appstore_listing l
@@ -1040,7 +1049,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(&context.tenant_id)
         .bind(pattern)
         .bind(limit)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -1064,7 +1073,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let locale_filter = locale.unwrap_or("en-US");
         let pattern = format!("{}%", prefix);
 
-        let rows = sqlx::query_as::<_, CatalogTrendingTermRow>(&format!(
+        let rows = self.db.query_as::< CatalogTrendingTermRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_trending_term
@@ -1087,7 +1096,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(locale_filter)
         .bind(pattern)
         .bind(limit)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -1109,7 +1118,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
     ) -> Result<Vec<TrendingTerm>, AppstoreServiceError> {
         let locale_filter = locale.unwrap_or("en-US");
 
-        let rows = sqlx::query_as::<_, CatalogTrendingTermRow>(&format!(
+        let rows = self.db.query_as::< CatalogTrendingTermRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_catalog_trending_term
@@ -1130,7 +1139,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(&context.tenant_id)
         .bind(locale_filter)
         .bind(limit)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -1148,7 +1157,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         limit: i32,
     ) -> Result<Vec<SearchHistoryEntry>, AppstoreServiceError> {
         let rows = if let Some(cursor_id) = cursor {
-            sqlx::query_as::<_, CatalogSearchHistoryRow>(&format!(
+            self.db.query_as::< CatalogSearchHistoryRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_catalog_search_history
@@ -1175,11 +1184,11 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .bind(user_id)
             .bind(cursor_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         } else {
-            sqlx::query_as::<_, CatalogSearchHistoryRow>(&format!(
+            self.db.query_as::< CatalogSearchHistoryRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_catalog_search_history
@@ -1192,7 +1201,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .bind(&context.tenant_id)
             .bind(user_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?
         };
@@ -1208,7 +1217,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         entry: &SearchHistoryEntry,
     ) -> Result<(), AppstoreServiceError> {
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_catalog_search_history (
                 id, tenant_id, user_id, query_text, filters_json, result_count, created_at
@@ -1222,7 +1231,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         .bind(&entry.filters_json)
         .bind(entry.result_count)
         .bind(entry.created_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -1234,7 +1243,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         user_id: &str,
     ) -> Result<(), AppstoreServiceError> {
-        sqlx::query(
+        self.db.query(
             r#"
             DELETE FROM appstore_catalog_search_history
             WHERE tenant_id = ? AND user_id = ?
@@ -1242,7 +1251,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         )
         .bind(&context.tenant_id)
         .bind(user_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -1254,14 +1263,16 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         context: &AppstoreRequestContext,
         owner_user_id: &str,
     ) -> Result<Option<String>, AppstoreServiceError> {
-        let row: Option<(String,)> = sqlx::query_as(
-            r#"SELECT id FROM appstore_publisher
+        let row: Option<(String,)> = self
+            .db
+            .query_as::<(String,)>(
+                r#"SELECT id FROM appstore_publisher
                WHERE tenant_id = ? AND owner_user_id = ? AND deleted_at IS NULL
                LIMIT 1"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(owner_user_id)
-        .fetch_optional(&self.pool)
+            )
+            .bind(&context.tenant_id)
+            .bind(owner_user_id)
+            .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
@@ -1298,7 +1309,9 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             sql.push_str(" AND (m.snapshot_date IS NULL OR m.snapshot_date <= ?)\n");
         }
 
-        let mut q = sqlx::query_as::<_, (i64, i64, i64, i64, i64, i64)>(&sql)
+        let mut q = self
+            .db
+            .query_as::<(i64, i64, i64, i64, i64, i64)>(&self.db.adapt_sql(&sql))
             .bind(&context.tenant_id)
             .bind(publisher_id);
 
@@ -1317,7 +1330,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             total_uninstalls,
             total_updates,
         ) = q
-            .fetch_one(&self.pool)
+            .fetch_one(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
@@ -1375,7 +1388,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         );
 
         let mut q =
-            sqlx::query_as::<_, (String, String, Option<String>, i64, i64, i64, i64, i64)>(&sql)
+            self.db.query_as::<(String, String, Option<String>, i64, i64, i64, i64, i64)>(&self.db.adapt_sql(&sql))
                 .bind(&context.tenant_id)
                 .bind(publisher_id);
 
@@ -1391,7 +1404,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         q = q.bind(limit);
 
         let rows = q
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
@@ -1427,14 +1440,16 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         listing_id: &str,
         publisher_id: &str,
     ) -> Result<bool, AppstoreServiceError> {
-        let row: Option<(i64,)> = sqlx::query_as(
-            r#"SELECT COUNT(*) FROM appstore_listing
+        let row: Option<(i64,)> = self
+            .db
+            .query_as::<(i64,)>(
+                r#"SELECT COUNT(*) FROM appstore_listing
                WHERE tenant_id = ? AND id = ? AND publisher_id = ? AND deleted_at IS NULL"#,
-        )
-        .bind(&context.tenant_id)
-        .bind(listing_id)
-        .bind(publisher_id)
-        .fetch_optional(&self.pool)
+            )
+            .bind(&context.tenant_id)
+            .bind(listing_id)
+            .bind(publisher_id)
+            .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
@@ -1445,30 +1460,36 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         &self,
         context: &AppstoreRequestContext,
     ) -> Result<OperatorDashboardStats, AppstoreServiceError> {
-        let listing_count: (i64,) = sqlx::query_as(
-            r#"SELECT COUNT(*) FROM appstore_listing
+        let listing_count: (i64,) = self
+            .db
+            .query_as::<(i64,)>(
+                r#"SELECT COUNT(*) FROM appstore_listing
                WHERE tenant_id = ? AND deleted_at IS NULL"#,
-        )
-        .bind(&context.tenant_id)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            )
+            .bind(&context.tenant_id)
+            .fetch_one(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
-        let publisher_count: (i64,) = sqlx::query_as(
-            r#"SELECT COUNT(*) FROM appstore_publisher
+        let publisher_count: (i64,) = self
+            .db
+            .query_as::<(i64,)>(
+                r#"SELECT COUNT(*) FROM appstore_publisher
                WHERE tenant_id = ? AND deleted_at IS NULL"#,
-        )
-        .bind(&context.tenant_id)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+            )
+            .bind(&context.tenant_id)
+            .fetch_one(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
-        let pending_review_count: (i64,) = sqlx::query_as(
-            r#"SELECT COUNT(*) FROM appstore_moderation_review
+        let pending_review_count: (i64,) = self
+            .db
+            .query_as::<(i64,)>(
+                r#"SELECT COUNT(*) FROM appstore_moderation_review
                WHERE tenant_id = ? AND review_status IN ('pending', 'in_review')"#,
-        )
-        .bind(&context.tenant_id)
-        .fetch_one(&self.pool)
+            )
+            .bind(&context.tenant_id)
+            .fetch_one(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
@@ -1507,7 +1528,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
         sql.push_str("ORDER BY created_at DESC, id DESC\nLIMIT ?\n");
 
-        let mut q = sqlx::query_as::<_, CatalogSearchHistoryRow>(&sql).bind(&context.tenant_id);
+        let mut q = self
+            .db
+            .query_as::<CatalogSearchHistoryRow>(&self.db.adapt_sql(&sql))
+            .bind(&context.tenant_id);
 
         if let Some(qs) = query {
             q = q.bind(format!("%{qs}%"));
@@ -1521,7 +1545,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         q = q.bind(limit);
 
         let search_rows = q
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 

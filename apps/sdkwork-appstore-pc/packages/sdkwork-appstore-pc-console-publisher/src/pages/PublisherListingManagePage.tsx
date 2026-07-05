@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, FileText, ImagePlus, PackagePlus, Send, Upload } from 'lucide-react';
 import {
@@ -14,10 +14,83 @@ import {
 import { LoadingSpinner, readString } from '@sdkwork/appstore-pc-commons';
 
 const MEDIA_ROLES = [
-  { value: 'ICON', label: 'Icon' },
-  { value: 'SCREENSHOT', label: 'Screenshot' },
-  { value: 'FEATURE_GRAPHIC', label: 'Feature Graphic' },
+  { value: 'ICON', label: '应用图标' },
+  { value: 'SCREENSHOT', label: '截图' },
+  { value: 'FEATURE_GRAPHIC', label: '特色图片' },
 ] as const;
+
+const SUBMISSION_TYPES = [
+  { value: 'INITIAL', label: '首次上架审核' },
+  { value: 'METADATA', label: '元数据更新' },
+  { value: 'RELEASE', label: '版本发布' },
+] as const;
+
+type SubmissionType = (typeof SUBMISSION_TYPES)[number]['value'];
+
+interface StatusMessage {
+  kind: 'success' | 'error' | 'info';
+  text: string;
+}
+
+function StatusNotice({ message }: { message: StatusMessage | null }) {
+  if (!message) return null;
+  const color =
+    message.kind === 'success'
+      ? 'var(--success)'
+      : message.kind === 'error'
+        ? 'var(--danger)'
+        : 'var(--text-secondary)';
+  return (
+    <p
+      className="text-sm mt-3"
+      style={{ color }}
+      role={message.kind === 'error' ? 'alert' : 'status'}
+      aria-live="polite"
+    >
+      {message.text}
+    </p>
+  );
+}
+
+function SectionCard({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: ReactNode;
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="card p-6 mb-6">
+      <div className="flex items-center gap-2 mb-2">
+        <span
+          className="w-9 h-9 rounded-xl flex items-center justify-center"
+          style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
+        >
+          {icon}
+        </span>
+        <h2
+          className="text-lg font-semibold"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {title}
+        </h2>
+      </div>
+      {description && (
+        <p
+          className="text-sm mb-4"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
+          {description}
+        </p>
+      )}
+      {children}
+    </section>
+  );
+}
 
 export function PublisherListingManagePage() {
   const { listingId = '' } = useParams();
@@ -56,33 +129,33 @@ export function PublisherListingManagePage() {
 
   const [mediaRole, setMediaRole] = useState<(typeof MEDIA_ROLES)[number]['value']>('ICON');
   const [mediaUploading, setMediaUploading] = useState(false);
-  const [mediaMessage, setMediaMessage] = useState<string | null>(null);
+  const [mediaMessage, setMediaMessage] = useState<StatusMessage | null>(null);
 
   const [channelCode, setChannelCode] = useState('stable');
   const [versionName, setVersionName] = useState('1.0.0');
   const [versionCode, setVersionCode] = useState('100');
   const [creatingRelease, setCreatingRelease] = useState(false);
-  const [releaseMessage, setReleaseMessage] = useState<string | null>(null);
+  const [releaseMessage, setReleaseMessage] = useState<StatusMessage | null>(null);
 
   const [selectedReleaseId, setSelectedReleaseId] = useState('');
   const [artifactUploading, setArtifactUploading] = useState(false);
-  const [artifactMessage, setArtifactMessage] = useState<string | null>(null);
+  const [artifactMessage, setArtifactMessage] = useState<StatusMessage | null>(null);
   const [platform, setPlatform] = useState('WINDOWS');
   const [architecture, setArchitecture] = useState('X64');
   const [packageFormat, setPackageFormat] = useState('ZIP');
 
-  const [locale, setLocale] = useState('en-US');
+  const [locale, setLocale] = useState('zh-CN');
   const [localizationDisplayName, setLocalizationDisplayName] = useState('');
   const [localizationSubtitle, setLocalizationSubtitle] = useState('');
   const [localizationShortDescription, setLocalizationShortDescription] = useState('');
   const [localizationFullDescription, setLocalizationFullDescription] = useState('');
   const [savingLocalization, setSavingLocalization] = useState(false);
-  const [localizationMessage, setLocalizationMessage] = useState<string | null>(null);
+  const [localizationMessage, setLocalizationMessage] = useState<StatusMessage | null>(null);
   const [localizationSeeded, setLocalizationSeeded] = useState(false);
 
-  const [submissionType, setSubmissionType] = useState<'INITIAL' | 'METADATA' | 'RELEASE'>('INITIAL');
+  const [submissionType, setSubmissionType] = useState<SubmissionType>('INITIAL');
   const [submittingReview, setSubmittingReview] = useState(false);
-  const [submissionMessage, setSubmissionMessage] = useState<string | null>(null);
+  const [submissionMessage, setSubmissionMessage] = useState<StatusMessage | null>(null);
 
   useEffect(() => {
     if (!listing || localizationSeeded) {
@@ -105,7 +178,10 @@ export function PublisherListingManagePage() {
 
   async function handleMediaUpload(file: File) {
     if (!organizationId) {
-      setMediaMessage('Organization context is required for Drive uploads. Sign in via IAM or create a publisher profile.');
+      setMediaMessage({
+        kind: 'error',
+        text: '缺少组织上下文，请先通过 IAM 登录或创建发布者资料。',
+      });
       return;
     }
     setMediaUploading(true);
@@ -117,16 +193,27 @@ export function PublisherListingManagePage() {
         listingId,
         mediaRole,
       });
-      setMediaMessage(`${mediaRole} uploaded and attached.`);
+      const roleLabel = MEDIA_ROLES.find((r) => r.value === mediaRole)?.label ?? mediaRole;
+      setMediaMessage({
+        kind: 'success',
+        text: `${roleLabel}已上传并关联到当前应用。`,
+      });
       await refreshMedia();
     } catch (err) {
-      setMediaMessage(formatApiError(err as Error));
+      setMediaMessage({ kind: 'error', text: formatApiError(err as Error) });
     } finally {
       setMediaUploading(false);
     }
   }
 
   async function handleCreateRelease() {
+    if (!channelCode.trim() || !versionName.trim() || !versionCode.trim()) {
+      setReleaseMessage({
+        kind: 'error',
+        text: '渠道、版本名称与版本号均为必填项。',
+      });
+      return;
+    }
     setCreatingRelease(true);
     setReleaseMessage(null);
     try {
@@ -140,10 +227,13 @@ export function PublisherListingManagePage() {
       if (releaseId) {
         setSelectedReleaseId(releaseId);
       }
-      setReleaseMessage('Release created. Upload an artifact below.');
+      setReleaseMessage({
+        kind: 'success',
+        text: '版本已创建，请在下方上传对应的安装包。',
+      });
       await refreshReleases();
     } catch (err) {
-      setReleaseMessage(formatApiError(err as Error));
+      setReleaseMessage({ kind: 'error', text: formatApiError(err as Error) });
     } finally {
       setCreatingRelease(false);
     }
@@ -151,11 +241,17 @@ export function PublisherListingManagePage() {
 
   async function handleArtifactUpload(file: File) {
     if (!selectedReleaseId) {
-      setArtifactMessage('Select or create a release first.');
+      setArtifactMessage({
+        kind: 'error',
+        text: '请先选择或创建一个版本。',
+      });
       return;
     }
     if (!organizationId) {
-      setArtifactMessage('Organization context is required for Drive uploads.');
+      setArtifactMessage({
+        kind: 'error',
+        text: '缺少组织上下文，无法上传到 Drive。',
+      });
       return;
     }
     setArtifactUploading(true);
@@ -169,18 +265,28 @@ export function PublisherListingManagePage() {
         architecture,
         packageFormat,
       });
-      setArtifactMessage('Artifact uploaded and attached to release.');
+      setArtifactMessage({
+        kind: 'success',
+        text: '安装包已上传并关联到所选版本。',
+      });
       await refreshReleases();
     } catch (err) {
-      setArtifactMessage(formatApiError(err as Error));
+      setArtifactMessage({ kind: 'error', text: formatApiError(err as Error) });
     } finally {
       setArtifactUploading(false);
     }
   }
 
   async function handleSaveLocalization() {
-    if (!localizationDisplayName.trim() || !localizationShortDescription.trim() || !localizationFullDescription.trim()) {
-      setLocalizationMessage('Display name, short description, and full description are required.');
+    if (
+      !localizationDisplayName.trim() ||
+      !localizationShortDescription.trim() ||
+      !localizationFullDescription.trim()
+    ) {
+      setLocalizationMessage({
+        kind: 'error',
+        text: '应用名称、简短描述与完整描述均为必填项。',
+      });
       return;
     }
     setSavingLocalization(true);
@@ -193,10 +299,13 @@ export function PublisherListingManagePage() {
         fullDescription: localizationFullDescription.trim(),
         ...(localizationSubtitle.trim() ? { subtitle: localizationSubtitle.trim() } : {}),
       });
-      setLocalizationMessage('Store listing copy saved.');
+      setLocalizationMessage({
+        kind: 'success',
+        text: '应用商店文案已保存。',
+      });
       await refreshListing();
     } catch (err) {
-      setLocalizationMessage(formatApiError(err as Error));
+      setLocalizationMessage({ kind: 'error', text: formatApiError(err as Error) });
     } finally {
       setSavingLocalization(false);
     }
@@ -204,7 +313,10 @@ export function PublisherListingManagePage() {
 
   async function handleSubmitForReview() {
     if (submissionType === 'RELEASE' && !selectedReleaseId) {
-      setSubmissionMessage('Select a release before submitting a release review.');
+      setSubmissionMessage({
+        kind: 'error',
+        text: '提交版本审核前请先选择一个版本。',
+      });
       return;
     }
     setSubmittingReview(true);
@@ -215,10 +327,13 @@ export function PublisherListingManagePage() {
         ...(submissionType === 'RELEASE' ? { releaseId: selectedReleaseId } : {}),
       });
       const status = result.status ?? 'submitted';
-      setSubmissionMessage(`Submission accepted (${status}). Moderation will review your listing.`);
+      setSubmissionMessage({
+        kind: 'success',
+        text: `提交已受理（状态：${status}），审核团队将尽快处理。`,
+      });
       await refreshListing();
     } catch (err) {
-      setSubmissionMessage(formatApiError(err as Error));
+      setSubmissionMessage({ kind: 'error', text: formatApiError(err as Error) });
     } finally {
       setSubmittingReview(false);
     }
@@ -232,104 +347,170 @@ export function PublisherListingManagePage() {
     );
   }
 
+  const statusBadgeClass =
+    listingStatus === 'active'
+      ? 'badge-success'
+      : listingStatus === 'rejected'
+        ? 'badge-error'
+        : listingStatus === 'in_review' || listingStatus === 'in-review'
+          ? 'badge-warning'
+          : 'badge-neutral';
+
   return (
     <div className="max-w-4xl mx-auto">
       <Link
         to="/publisher"
-        className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6"
+        className="inline-flex items-center gap-2 text-sm mb-6 transition-colors hover:opacity-80"
+        style={{ color: 'var(--text-secondary)' }}
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Developer Console
+        返回开发者控制台
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{displayName}</h1>
-        <p className="text-gray-500 mt-2">
-          Listing {listingId} · status {listingStatus} · review {reviewStatus}
-        </p>
+        <h1
+          className="text-3xl font-bold"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {displayName}
+        </h1>
+        <div
+          className="flex items-center gap-3 mt-2 flex-wrap text-sm"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
+          <span>应用 ID：{listingId}</span>
+          <span aria-hidden>·</span>
+          <span>
+            状态：
+            <span className={`ml-1 ${statusBadgeClass}`}>{listingStatus}</span>
+          </span>
+          <span aria-hidden>·</span>
+          <span>审核：{reviewStatus}</span>
+        </div>
       </div>
 
       {error && (
-        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div
+          className="mb-6 rounded-xl px-4 py-3 text-sm"
+          style={{
+            backgroundColor: 'var(--warning-subtle)',
+            border: '1px solid var(--warning)',
+            color: 'var(--warning)',
+          }}
+          role="alert"
+        >
           {formatApiError(error)}
         </div>
       )}
 
-      <section className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <FileText className="w-5 h-5 text-emerald-500" />
-          <h2 className="text-lg font-semibold">Store Listing Copy</h2>
-        </div>
-        <p className="text-sm text-gray-500 mb-4">
-          Localized display name and descriptions shown on the storefront.
-        </p>
-
+      <SectionCard
+        icon={<FileText className="w-5 h-5" />}
+        title="应用商店文案"
+        description="面向用户展示的本地化名称与描述，将直接出现在应用详情页。"
+      >
         <div className="grid gap-3 mb-4">
-          <input
-            value={locale}
-            onChange={(e) => setLocale(e.target.value)}
-            placeholder="Locale (en-US)"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
-          <input
-            value={localizationDisplayName}
-            onChange={(e) => setLocalizationDisplayName(e.target.value)}
-            placeholder="Display name"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
-          <input
-            value={localizationSubtitle}
-            onChange={(e) => setLocalizationSubtitle(e.target.value)}
-            placeholder="Subtitle (optional)"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
-          <textarea
-            value={localizationShortDescription}
-            onChange={(e) => setLocalizationShortDescription(e.target.value)}
-            placeholder="Short description"
-            rows={2}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm resize-y"
-          />
-          <textarea
-            value={localizationFullDescription}
-            onChange={(e) => setLocalizationFullDescription(e.target.value)}
-            placeholder="Full description"
-            rows={5}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm resize-y"
-          />
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              语言区域
+            </label>
+            <input
+              value={locale}
+              onChange={(e) => setLocale(e.target.value)}
+              placeholder="例如 zh-CN、en-US"
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              应用名称
+            </label>
+            <input
+              value={localizationDisplayName}
+              onChange={(e) => setLocalizationDisplayName(e.target.value)}
+              placeholder="例如 SDKWork 应用商店"
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              副标题（可选）
+            </label>
+            <input
+              value={localizationSubtitle}
+              onChange={(e) => setLocalizationSubtitle(e.target.value)}
+              placeholder="一句话亮点"
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              简短描述
+            </label>
+            <textarea
+              value={localizationShortDescription}
+              onChange={(e) => setLocalizationShortDescription(e.target.value)}
+              placeholder="80 字以内的简介"
+              rows={2}
+              className="input-field resize-y"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              完整描述
+            </label>
+            <textarea
+              value={localizationFullDescription}
+              onChange={(e) => setLocalizationFullDescription(e.target.value)}
+              placeholder="详细介绍应用的功能、特性与适用场景"
+              rows={5}
+              className="input-field resize-y"
+            />
+          </div>
         </div>
 
         <button
           type="button"
           onClick={() => void handleSaveLocalization()}
           disabled={savingLocalization}
-          className="px-4 py-2 bg-emerald-500 text-white rounded-lg text-sm font-medium hover:bg-emerald-600 disabled:opacity-60"
+          className="btn-primary text-sm"
         >
-          {savingLocalization ? 'Saving…' : 'Save localization'}
+          {savingLocalization ? '保存中…' : '保存文案'}
         </button>
-        {localizationMessage && (
-          <p className={`text-sm mt-4 ${localizationMessage.includes('saved') ? 'text-green-700' : 'text-red-600'}`}>
-            {localizationMessage}
-          </p>
-        )}
-      </section>
+        <StatusNotice message={localizationMessage} />
+      </SectionCard>
 
-      <section className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <ImagePlus className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold">Listing Media</h2>
-        </div>
-        <p className="text-sm text-gray-500 mb-4">
-          Upload via sdkwork-drive, then attach the Drive reference to this listing.
-        </p>
-
+      <SectionCard
+        icon={<ImagePlus className="w-5 h-5" />}
+        title="应用素材"
+        description="通过 sdkwork-drive 上传素材后，将引用关联到当前应用。"
+      >
         <div className="flex flex-wrap items-end gap-4 mb-4">
           <label className="text-sm">
-            <span className="block text-gray-600 mb-1">Media role</span>
+            <span
+              className="block mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              素材类型
+            </span>
             <select
               value={mediaRole}
               onChange={(e) => setMediaRole(e.target.value as (typeof MEDIA_ROLES)[number]['value'])}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+              className="input-field"
             >
               {MEDIA_ROLES.map((role) => (
                 <option key={role.value} value={role.value}>
@@ -338,9 +519,9 @@ export function PublisherListingManagePage() {
               ))}
             </select>
           </label>
-          <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-blue-600">
+          <label className="btn-primary text-sm cursor-pointer">
             <Upload className="w-4 h-4" />
-            {mediaUploading ? 'Uploading…' : 'Upload file'}
+            {mediaUploading ? '上传中…' : '上传文件'}
             <input
               type="file"
               className="hidden"
@@ -357,89 +538,129 @@ export function PublisherListingManagePage() {
           </label>
         </div>
 
-        {mediaMessage && (
-          <p className={`text-sm mb-4 ${mediaMessage.includes('uploaded') ? 'text-green-700' : 'text-red-600'}`}>
-            {mediaMessage}
-          </p>
-        )}
+        <StatusNotice message={mediaMessage} />
 
         {mediaItems.length === 0 ? (
-          <p className="text-sm text-gray-500">No media attached yet.</p>
+          <p
+            className="text-sm mt-4"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            暂未关联任何素材。
+          </p>
         ) : (
-          <ul className="space-y-2">
-            {mediaItems.map((item, index) => {
+          <ul className="space-y-2 mt-4">
+            {mediaItems.map((item: unknown, index: number) => {
               const row = (item ?? {}) as Record<string, unknown>;
+              const roleValue = readString(row, 'mediaRole', 'media_role');
+              const roleLabel =
+                MEDIA_ROLES.find((r) => r.value === roleValue)?.label ?? roleValue ?? '素材';
               return (
                 <li
                   key={readString(row, 'id') || String(index)}
-                  className="flex justify-between text-sm border border-gray-100 rounded-lg px-3 py-2"
+                  className="flex justify-between items-center text-sm rounded-lg px-3 py-2"
+                  style={{
+                    backgroundColor: 'var(--bg-muted)',
+                    color: 'var(--text-primary)',
+                  }}
                 >
-                  <span>{readString(row, 'mediaRole', 'media_role') || 'MEDIA'}</span>
-                  <span className="text-gray-400 truncate max-w-xs">
-                    {readString(row, 'mediaResourceId', 'media_resource_id')}
+                  <span className="font-medium">{roleLabel}</span>
+                  <span
+                    className="truncate max-w-xs ml-3"
+                    style={{ color: 'var(--text-tertiary)' }}
+                  >
+                    {readString(row, 'mediaResourceId', 'media_resource_id') || '—'}
                   </span>
                 </li>
               );
             })}
           </ul>
         )}
-      </section>
+      </SectionCard>
 
-      <section className="bg-white rounded-2xl border border-gray-100 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <PackagePlus className="w-5 h-5 text-purple-500" />
-          <h2 className="text-lg font-semibold">Releases & Artifacts</h2>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <input
-            value={channelCode}
-            onChange={(e) => setChannelCode(e.target.value)}
-            placeholder="Channel (stable)"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
-          <input
-            value={versionName}
-            onChange={(e) => setVersionName(e.target.value)}
-            placeholder="Version name"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
-          <input
-            value={versionCode}
-            onChange={(e) => setVersionCode(e.target.value)}
-            placeholder="Version code"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
+      <SectionCard
+        icon={<PackagePlus className="w-5 h-5" />}
+        title="版本与安装包"
+        description="创建版本后即可上传对应平台的安装包，供审核与分发。"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              渠道
+            </label>
+            <input
+              value={channelCode}
+              onChange={(e) => setChannelCode(e.target.value)}
+              placeholder="例如 stable"
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              版本名称
+            </label>
+            <input
+              value={versionName}
+              onChange={(e) => setVersionName(e.target.value)}
+              placeholder="例如 1.0.0"
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              版本号
+            </label>
+            <input
+              value={versionCode}
+              onChange={(e) => setVersionCode(e.target.value)}
+              placeholder="例如 100"
+              className="input-field"
+            />
+          </div>
         </div>
         <button
           type="button"
           onClick={() => void handleCreateRelease()}
           disabled={creatingRelease}
-          className="mb-6 px-4 py-2 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 disabled:opacity-60"
+          className="btn-primary text-sm"
         >
-          {creatingRelease ? 'Creating…' : 'Create release'}
+          {creatingRelease ? '创建中…' : '创建版本'}
         </button>
-        {releaseMessage && (
-          <p className={`text-sm mb-4 ${releaseMessage.includes('created') ? 'text-green-700' : 'text-red-600'}`}>
-            {releaseMessage}
-          </p>
-        )}
+        <StatusNotice message={releaseMessage} />
 
         {releaseItems.length === 0 ? (
-          <p className="text-sm text-gray-500 mb-6">No releases yet.</p>
+          <p
+            className="text-sm mt-4"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            暂无版本记录。
+          </p>
         ) : (
-          <div className="mb-6">
-            <label className="block text-sm text-gray-600 mb-1">Select release</label>
+          <div className="mt-4">
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              选择版本
+            </label>
             <select
               value={selectedReleaseId}
               onChange={(e) => setSelectedReleaseId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+              className="input-field"
             >
-              <option value="">Choose a release…</option>
-              {releaseItems.map((item, index) => {
+              <option value="">请选择版本…</option>
+              {releaseItems.map((item: unknown, index: number) => {
                 const row = (item ?? {}) as Record<string, unknown>;
                 const id = readString(row, 'id') || String(index);
-                const label = `${readString(row, 'versionName', 'version_name') || id} (${readString(row, 'channelCode', 'channel_code') || 'channel'})`;
+                const label = `${readString(row, 'versionName', 'version_name') || id}（${readString(row, 'channelCode', 'channel_code') || '渠道'}）`;
                 return (
                   <option key={id} value={id}>
                     {label}
@@ -450,30 +671,58 @@ export function PublisherListingManagePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <input
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value)}
-            placeholder="Platform"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
-          <input
-            value={architecture}
-            onChange={(e) => setArchitecture(e.target.value)}
-            placeholder="Architecture"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
-          <input
-            value={packageFormat}
-            onChange={(e) => setPackageFormat(e.target.value)}
-            placeholder="Package format"
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 mb-4">
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              平台
+            </label>
+            <input
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              placeholder="例如 WINDOWS"
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              架构
+            </label>
+            <input
+              value={architecture}
+              onChange={(e) => setArchitecture(e.target.value)}
+              placeholder="例如 X64"
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              打包格式
+            </label>
+            <input
+              value={packageFormat}
+              onChange={(e) => setPackageFormat(e.target.value)}
+              placeholder="例如 ZIP"
+              className="input-field"
+            />
+          </div>
         </div>
 
-        <label className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-purple-600">
+        <label
+          className={`btn-primary text-sm cursor-pointer ${
+            artifactUploading || !selectedReleaseId ? 'opacity-60 pointer-events-none' : ''
+          }`}
+        >
           <Upload className="w-4 h-4" />
-          {artifactUploading ? 'Uploading artifact…' : 'Upload release artifact'}
+          {artifactUploading ? '上传中…' : '上传安装包'}
           <input
             type="file"
             className="hidden"
@@ -487,48 +736,52 @@ export function PublisherListingManagePage() {
             }}
           />
         </label>
-        {artifactMessage && (
-          <p className={`text-sm mt-4 ${artifactMessage.includes('uploaded') ? 'text-green-700' : 'text-red-600'}`}>
-            {artifactMessage}
-          </p>
-        )}
-      </section>
+        <StatusNotice message={artifactMessage} />
+      </SectionCard>
 
-      <section className="bg-white rounded-2xl border border-gray-100 p-6 mt-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Send className="w-5 h-5 text-orange-500" />
-          <h2 className="text-lg font-semibold">Submit for Review</h2>
-        </div>
-        <p className="text-sm text-gray-500 mb-4">
-          Send the listing to moderation. Use INITIAL for first review, METADATA after copy changes, RELEASE when a build is ready.
-        </p>
-
+      <SectionCard
+        icon={<Send className="w-5 h-5" />}
+        title="提交审核"
+        description="将应用提交至审核团队。首次上架选「首次上架审核」；文案更新选「元数据更新」；新版本发布选「版本发布」。"
+      >
         <div className="flex flex-wrap items-end gap-4 mb-4">
           <label className="text-sm">
-            <span className="block text-gray-600 mb-1">Submission type</span>
+            <span
+              className="block mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              提交类型
+            </span>
             <select
               value={submissionType}
-              onChange={(e) => setSubmissionType(e.target.value as 'INITIAL' | 'METADATA' | 'RELEASE')}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+              onChange={(e) => setSubmissionType(e.target.value as SubmissionType)}
+              className="input-field"
             >
-              <option value="INITIAL">Initial listing review</option>
-              <option value="METADATA">Metadata update</option>
-              <option value="RELEASE">Release build</option>
+              {SUBMISSION_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
             </select>
           </label>
           {submissionType === 'RELEASE' && releaseItems.length > 0 && (
             <label className="text-sm flex-1 min-w-[12rem]">
-              <span className="block text-gray-600 mb-1">Release</span>
+              <span
+                className="block mb-1"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                版本
+              </span>
               <select
                 value={selectedReleaseId}
                 onChange={(e) => setSelectedReleaseId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                className="input-field"
               >
-                <option value="">Choose a release…</option>
-                {releaseItems.map((item, index) => {
+                <option value="">请选择版本…</option>
+                {releaseItems.map((item: unknown, index: number) => {
                   const row = (item ?? {}) as Record<string, unknown>;
                   const id = readString(row, 'id') || String(index);
-                  const label = `${readString(row, 'versionName', 'version_name') || id} (${readString(row, 'channelCode', 'channel_code') || 'channel'})`;
+                  const label = `${readString(row, 'versionName', 'version_name') || id}（${readString(row, 'channelCode', 'channel_code') || '渠道'}）`;
                   return (
                     <option key={id} value={id}>
                       {label}
@@ -544,16 +797,12 @@ export function PublisherListingManagePage() {
           type="button"
           onClick={() => void handleSubmitForReview()}
           disabled={submittingReview}
-          className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-60"
+          className="btn-primary text-sm"
         >
-          {submittingReview ? 'Submitting…' : 'Submit for review'}
+          {submittingReview ? '提交中…' : '提交审核'}
         </button>
-        {submissionMessage && (
-          <p className={`text-sm mt-4 ${submissionMessage.includes('accepted') ? 'text-green-700' : 'text-red-600'}`}>
-            {submissionMessage}
-          </p>
-        )}
-      </section>
+        <StatusNotice message={submissionMessage} />
+      </SectionCard>
     </div>
   );
 }

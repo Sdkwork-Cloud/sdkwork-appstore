@@ -15,7 +15,7 @@ import {
   Layers,
   Sparkles,
   Store,
-  CheckCircle2,
+  Info,
 } from 'lucide-react';
 import { Modal } from '@/components/common/Modal';
 import {
@@ -116,7 +116,8 @@ function mapListingToDetail(listing: unknown): ListingDetail | null {
     appKey: readString(record, 'app_key', 'appKey'),
     displayName: readString(record, 'display_name', 'displayName') || listingSlug,
     subtitle: readString(record, 'subtitle'),
-    developer: readString(record, 'publisher_id', 'publisherId') || '未知开发者',
+    // publisher_id 是 UUID，不能作为开发者名称展示；待后端补 developer_name 字段。
+    developer: readString(record, 'developer_name', 'developerName', 'publisher_name', 'publisherName') || '未知开发者',
     developerId: readString(record, 'publisher_id', 'publisherId'),
     iconUrl: readString(record, 'icon_media_resource_id', 'iconMediaResourceId') || undefined,
     rating: readNumber(record, 'average_rating', 'averageRating'),
@@ -126,10 +127,11 @@ function mapListingToDetail(listing: unknown): ListingDetail | null {
     pricingModel,
     category: readString(record, 'primary_category_id', 'primaryCategoryId') || '应用',
     categoryId: readString(record, 'primary_category_id', 'primaryCategoryId') || undefined,
-    version: readString(record, 'current_release_id', 'currentReleaseId') || '—',
+    // current_release_id 是 UUID，不能作为版本号展示；待后端补 version_name 字段。
+    version: readString(record, 'version_name', 'versionName') || '—',
     size: '—',
-    compatibility: '所有平台',
-    languages: [readString(record, 'default_locale', 'defaultLocale') || '中文'].filter(Boolean),
+    compatibility: '—',
+    languages: [readString(record, 'default_locale', 'defaultLocale')].filter(Boolean),
     lastUpdated: readString(record, 'updated_at', 'updatedAt') || '—',
     description: readString(record, 'short_description', 'shortDescription') ||
       '应用详情将在本地化内容发布后展示。',
@@ -155,7 +157,7 @@ export function ListingDetailPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<string>('');
-  const [reportSubmitted, setReportSubmitted] = useState(false);
+  const [reportNotice, setReportNotice] = useState<{ title: string; message: string } | null>(null);
 
   const app = useMemo(() => mapListingToDetail(data), [data]);
   const authed = isAuthenticated();
@@ -462,18 +464,7 @@ export function ListingDetailPage() {
       {/* 3. Screenshots */}
       <section>
         <SectionTitle>截图与预览</SectionTitle>
-        {authed ? (
-          <ScreenshotGallery items={mediaItems} loading={mediaApi.loading} appName={app.displayName} />
-        ) : (
-          <EmptyState
-            icon={<Layers className="w-7 h-7" />}
-            title="登录后查看截图"
-            description="登录账号以查看应用的截图与视频预览。"
-            action={
-              <Link to="/login" className="btn-primary">登录</Link>
-            }
-          />
-        )}
+        <ScreenshotGallery items={mediaItems} loading={mediaApi.loading} appName={app.displayName} />
       </section>
 
       {/* 4. Description */}
@@ -585,52 +576,43 @@ export function ListingDetailPage() {
       {/* 10. Version History */}
       <section>
         <SectionTitle>版本历史</SectionTitle>
-        {authed ? (
-          releasesApi.loading ? (
-            <div className="card p-6"><div className="skeleton" style={{ height: 120 }} /></div>
-          ) : releases.length === 0 ? (
-            <EmptyState
-              icon={<Clock className="w-7 h-7" />}
-              title="暂无版本记录"
-              description="该应用尚未发布任何版本。"
-            />
-          ) : (
-            <div className="card divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-              {releases.map((release) => (
-                <div key={release.id} className="px-6 py-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      v{release.versionName}
-                    </span>
-                    <span
-                      className="text-[var(--text-xs)] px-2 py-0.5 rounded-full"
-                      style={{
-                        backgroundColor: 'var(--bg-muted)',
-                        color: 'var(--text-tertiary)',
-                      }}
-                    >
-                      {release.releaseStatus}
-                    </span>
-                  </div>
-                  <p className="text-[var(--text-sm)]" style={{ color: 'var(--text-tertiary)' }}>
-                    {release.publishedAt}
-                  </p>
-                  {release.releaseNotes && (
-                    <p className="text-[var(--text-sm)] mt-2" style={{ color: 'var(--text-secondary)' }}>
-                      {release.releaseNotes}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )
-        ) : (
+        {releasesApi.loading ? (
+          <div className="card p-6"><div className="skeleton" style={{ height: 120 }} /></div>
+        ) : releases.length === 0 ? (
           <EmptyState
             icon={<Clock className="w-7 h-7" />}
-            title="登录后查看版本历史"
-            description="登录账号以查看该应用的完整版本发布记录。"
-            action={<Link to="/login" className="btn-primary">登录</Link>}
+            title="暂无版本记录"
+            description="该应用尚未发布任何版本。"
           />
+        ) : (
+          <div className="card divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+            {releases.map((release) => (
+              <div key={release.id} className="px-6 py-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    v{release.versionName}
+                  </span>
+                  <span
+                    className="text-[var(--text-xs)] px-2 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: 'var(--bg-muted)',
+                      color: 'var(--text-tertiary)',
+                    }}
+                  >
+                    {release.releaseStatus}
+                  </span>
+                </div>
+                <p className="text-[var(--text-sm)]" style={{ color: 'var(--text-tertiary)' }}>
+                  {release.publishedAt}
+                </p>
+                {release.releaseNotes && (
+                  <p className="text-[var(--text-sm)] mt-2" style={{ color: 'var(--text-secondary)' }}>
+                    {release.releaseNotes}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </section>
 
@@ -779,7 +761,7 @@ export function ListingDetailPage() {
                 隐私详情
               </h3>
               <p className="mt-1 text-[var(--text-sm)]" style={{ color: 'var(--text-secondary)' }}>
-                开发者声明本应用不收集任何数据。隐私实践可能因使用功能而异。
+                隐私实践信息待开发者声明。实际数据收集行为可能因使用功能而异，详情请参阅开发者的隐私政策。
               </p>
               {app.privacyPolicyUrl && (
                 <a
@@ -834,7 +816,7 @@ export function ListingDetailPage() {
             <button
               type="button"
               onClick={() => {
-                setReportSubmitted(false);
+                setReportNotice(null);
                 setReportReason('');
                 setReportOpen(true);
               }}
@@ -855,11 +837,14 @@ export function ListingDetailPage() {
         onClose={() => setReportOpen(false)}
         reason={reportReason}
         onReasonChange={setReportReason}
-        submitted={reportSubmitted}
+        notice={reportNotice}
         onSubmit={() => {
           if (!reportReason) return;
-          setReportSubmitted(true);
-          setTimeout(() => setReportOpen(false), 1800);
+          // 诚实占位：举报通道正在接入合规服务，本次提交不会发送至服务器。
+          setReportNotice({
+            title: '举报通道即将上线',
+            message: '感谢你的反馈。合规举报服务正在接入中，本次提交暂未发送至服务器。如需紧急联系，请使用上方的技术支持链接。',
+          });
         }}
       />
     </div>
@@ -881,7 +866,7 @@ interface ReportAppModalProps {
   onClose: () => void;
   reason: string;
   onReasonChange: (value: string) => void;
-  submitted: boolean;
+  notice: { title: string; message: string } | null;
   onSubmit: () => void;
 }
 
@@ -890,7 +875,7 @@ function ReportAppModal({
   onClose,
   reason,
   onReasonChange,
-  submitted,
+  notice,
   onSubmit,
 }: ReportAppModalProps) {
   return (
@@ -901,7 +886,7 @@ function ReportAppModal({
       description="选择最符合问题的选项，我们会尽快审核处理。"
       size="md"
       footer={
-        submitted ? null : (
+        notice ? null : (
           <>
             <button type="button" onClick={onClose} className="btn-secondary">
               取消
@@ -918,21 +903,21 @@ function ReportAppModal({
         )
       }
     >
-      {submitted ? (
+      {notice ? (
         <div
           className="flex flex-col items-center text-center py-6"
           role="status"
           aria-live="polite"
         >
-          <CheckCircle2 className="w-12 h-12" style={{ color: 'var(--success)' }} />
+          <Info className="w-12 h-12" style={{ color: 'var(--accent)' }} />
           <p
             className="mt-4 text-[var(--text-md)] font-semibold"
             style={{ color: 'var(--text-primary)' }}
           >
-            举报已提交
+            {notice.title}
           </p>
           <p className="mt-1 text-[var(--text-sm)]" style={{ color: 'var(--text-secondary)' }}>
-            感谢你的反馈，我们将尽快核实处理。
+            {notice.message}
           </p>
         </div>
       ) : (

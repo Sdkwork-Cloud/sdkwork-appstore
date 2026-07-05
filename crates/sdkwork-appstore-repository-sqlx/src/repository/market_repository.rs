@@ -1,4 +1,4 @@
-use sqlx::{Pool, Sqlite};
+use crate::pool::AppstoreSqlxDb;
 
 use crate::db::columns::{
     columns_csv, APPSTORE_MARKET_CHANNEL_COLUMNS, APPSTORE_MARKET_RELEASE_COLUMNS,
@@ -17,12 +17,12 @@ use sdkwork_appstore_market_service::error::AppstoreServiceError;
 
 #[derive(Debug, Clone)]
 pub struct SqlxMarketRepository {
-    pool: Pool<Sqlite>,
+    db: AppstoreSqlxDb,
 }
 
 impl SqlxMarketRepository {
-    pub fn new(pool: Pool<Sqlite>) -> Self {
-        Self { pool }
+    pub fn new(db: AppstoreSqlxDb) -> Self {
+        Self { db }
     }
 }
 
@@ -36,7 +36,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         channel_id: &MarketChannelId,
     ) -> Result<Option<MarketChannel>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, MarketChannelRow>(&format!(
+        let row = self.db.query_as::< MarketChannelRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_market_channel
@@ -46,7 +46,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         ))
         .bind(channel_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -61,7 +61,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         channel_code: &str,
     ) -> Result<Option<MarketChannel>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, MarketChannelRow>(&format!(
+        let row = self.db.query_as::< MarketChannelRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_market_channel
@@ -71,7 +71,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         ))
         .bind(channel_code)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -90,7 +90,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
     {
         let rows = if let Some(cursor_id) = cursor {
             if let Some(status) = channel_status {
-                sqlx::query_as::<_, MarketChannelRow>(&format!(
+                self.db.query_as::< MarketChannelRow>(&format!(
                     r#"
                     SELECT {}
                     FROM appstore_market_channel
@@ -104,10 +104,10 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
                 .bind(status)
                 .bind(cursor_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
             } else {
-                sqlx::query_as::<_, MarketChannelRow>(&format!(
+                self.db.query_as::< MarketChannelRow>(&format!(
                     r#"
                     SELECT {}
                     FROM appstore_market_channel
@@ -120,11 +120,11 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
                 .bind(&context.tenant_id)
                 .bind(cursor_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
             }
         } else if let Some(status) = channel_status {
-            sqlx::query_as::<_, MarketChannelRow>(&format!(
+            self.db.query_as::< MarketChannelRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_market_channel
@@ -137,10 +137,10 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
             .bind(&context.tenant_id)
             .bind(status)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
         } else {
-            sqlx::query_as::<_, MarketChannelRow>(&format!(
+            self.db.query_as::< MarketChannelRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_market_channel
@@ -152,7 +152,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
             ))
             .bind(&context.tenant_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
         }
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
@@ -171,7 +171,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         let (channel_type, channel_status, api_capability_json, config_json) =
             map_market_channel_domain_to_row(channel);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_market_channel (
                 id, tenant_id, organization_id, channel_code, channel_type, provider,
@@ -192,7 +192,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         .bind(&config_json)
         .bind(channel.created_at)
         .bind(channel.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -207,7 +207,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         let (channel_type, channel_status, api_capability_json, config_json) =
             map_market_channel_domain_to_row(channel);
 
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_market_channel
             SET channel_type = ?, provider = ?, channel_status = ?, external_store_code = ?,
@@ -224,7 +224,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         .bind(channel.updated_at)
         .bind(channel.id.as_str())
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -237,7 +237,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         release_id: &MarketReleaseId,
     ) -> Result<Option<MarketRelease>, sdkwork_appstore_market_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, MarketReleaseRow>(&format!(
+        let row = self.db.query_as::< MarketReleaseRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_market_release
@@ -247,7 +247,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         ))
         .bind(release_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -294,7 +294,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
             where_clause
         );
 
-        let mut query = sqlx::query_as::<_, MarketReleaseRow>(&sql);
+        let mut query = self.db.query_as::< MarketReleaseRow>(&sql);
         query = query.bind(&context.tenant_id);
         if let Some(rid) = release_id {
             query = query.bind(rid);
@@ -311,7 +311,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         query = query.bind(limit);
 
         let rows = query
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -329,7 +329,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         let (market_status, countries_json, external_status_json) =
             map_market_release_domain_to_row(release);
 
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_market_release
             SET market_status = ?, rollout_percent = ?, countries_json = ?, store_url = ?,
@@ -351,7 +351,7 @@ impl sdkwork_appstore_market_service::ports::repository::MarketRepositoryPort
         .bind(release.updated_at)
         .bind(release.id.as_str())
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 

@@ -1,4 +1,4 @@
-use sqlx::{Pool, Sqlite};
+use crate::pool::AppstoreSqlxDb;
 
 use crate::db::columns::{
     columns_csv, APPSTORE_PUBLISHER_COLUMNS, APPSTORE_PUBLISHER_MEMBER_COLUMNS,
@@ -17,12 +17,12 @@ use sdkwork_appstore_publisher_service::ports::repository::PublisherRepositoryPo
 
 #[derive(Debug, Clone)]
 pub struct SqlxPublisherRepository {
-    pool: Pool<Sqlite>,
+    db: AppstoreSqlxDb,
 }
 
 impl SqlxPublisherRepository {
-    pub fn new(pool: Pool<Sqlite>) -> Self {
-        Self { pool }
+    pub fn new(db: AppstoreSqlxDb) -> Self {
+        Self { db }
     }
 }
 
@@ -34,7 +34,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         publisher_id: &PublisherId,
     ) -> Result<Option<Publisher>, sdkwork_appstore_publisher_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, PublisherRow>(&format!(
+        let row = self.db.query_as::< PublisherRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_publisher
@@ -44,7 +44,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         ))
         .bind(publisher_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -66,7 +66,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         owner_user_id: &str,
     ) -> Result<Option<Publisher>, sdkwork_appstore_publisher_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, PublisherRow>(&format!(
+        let row = self.db.query_as::< PublisherRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_publisher
@@ -76,7 +76,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         ))
         .bind(owner_user_id)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -98,7 +98,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         organization_id: &str,
     ) -> Result<Option<Publisher>, sdkwork_appstore_publisher_service::error::AppstoreServiceError>
     {
-        let row = sqlx::query_as::<_, PublisherRow>(&format!(
+        let row = self.db.query_as::< PublisherRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_publisher
@@ -108,7 +108,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         ))
         .bind(organization_id)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -137,7 +137,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
             profile_snapshot_json,
         ) = map_publisher_domain_to_row(publisher);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_publisher (
                 id, tenant_id, organization_id, publisher_no, publisher_type, display_name,
@@ -168,7 +168,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(publisher.deleted_at)
         .bind(publisher.created_at)
         .bind(publisher.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -193,7 +193,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
             profile_snapshot_json,
         ) = map_publisher_domain_to_row(publisher);
 
-        let result = sqlx::query(
+        let result = self.db.query(
             r#"
             UPDATE appstore_publisher
             SET display_name = ?, legal_name = ?, publisher_status = ?, verification_status = ?,
@@ -220,7 +220,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(publisher.id.as_str())
         .bind(&context.tenant_id)
         .bind(publisher.version - 1)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -250,7 +250,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
     {
         let rows =
             if let Some(cursor_user_id) = cursor {
-                sqlx::query_as::<_, PublisherMemberRow>(&format!(
+                self.db.query_as::< PublisherMemberRow>(&format!(
                     r#"
                 SELECT {}
                 FROM appstore_publisher_member
@@ -264,7 +264,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
                 .bind(&context.tenant_id)
                 .bind(cursor_user_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
                 .map_err(|e| {
                     sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(
@@ -272,7 +272,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
                     )
                 })?
             } else {
-                sqlx::query_as::<_, PublisherMemberRow>(&format!(
+                self.db.query_as::< PublisherMemberRow>(&format!(
                     r#"
                 SELECT {}
                 FROM appstore_publisher_member
@@ -285,7 +285,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
                 .bind(publisher_id.as_str())
                 .bind(&context.tenant_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
                 .map_err(|e| {
                     sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(
@@ -311,7 +311,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         Option<PublisherMember>,
         sdkwork_appstore_publisher_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, PublisherMemberRow>(&format!(
+        let row = self.db.query_as::< PublisherMemberRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_publisher_member
@@ -322,7 +322,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(publisher_id.as_str())
         .bind(&context.tenant_id)
         .bind(user_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -343,7 +343,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
     ) -> Result<(), sdkwork_appstore_publisher_service::error::AppstoreServiceError> {
         let (member_role, member_status) = map_member_domain_to_row(member);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_publisher_member (
                 id, tenant_id, organization_id, publisher_id, user_id, member_role,
@@ -362,7 +362,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(member.joined_at)
         .bind(member.created_at)
         .bind(member.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -381,7 +381,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
     ) -> Result<(), sdkwork_appstore_publisher_service::error::AppstoreServiceError> {
         let (member_role, member_status) = map_member_domain_to_row(member);
 
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_publisher_member
             SET member_role = ?, member_status = ?, joined_at = ?, updated_at = ?
@@ -394,7 +394,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(member.updated_at)
         .bind(&member.id)
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -415,7 +415,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         Option<PublisherVerification>,
         sdkwork_appstore_publisher_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, PublisherVerificationRow>(&format!(
+        let row = self.db.query_as::< PublisherVerificationRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_publisher_verification
@@ -426,7 +426,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(publisher_id.as_str())
         .bind(&context.tenant_id)
         .bind(verification_type.as_str())
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -450,7 +450,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         let (verification_type, verification_status, credential_snapshot_json) =
             map_verification_domain_to_row(verification);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_publisher_verification (
                 id, tenant_id, organization_id, publisher_id, verification_type,
@@ -472,7 +472,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(&verification.expires_at)
         .bind(&verification.created_at)
         .bind(&verification.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(
@@ -492,7 +492,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         let (_verification_type, verification_status, credential_snapshot_json) =
             map_verification_domain_to_row(verification);
 
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_publisher_verification
             SET verification_status = ?, credential_snapshot_json = ?, evidence_media_resource_id = ?,
@@ -509,7 +509,7 @@ impl PublisherRepositoryPort for SqlxPublisherRepository {
         .bind(&verification.updated_at)
         .bind(&verification.id)
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| {
             sdkwork_appstore_publisher_service::error::AppstoreServiceError::Internal(format!(

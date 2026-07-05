@@ -1751,6 +1751,7 @@ dependencies = [
  "sdkwork-appstore-moderation-service",
  "sdkwork-appstore-publisher-service",
  "sdkwork-appstore-release-service",
+ "sdkwork-database-sqlx",
  "serde",
  "serde_json",
  "sqlx",

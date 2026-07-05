@@ -1,8 +1,12 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import { isAppStoreApiError } from '@sdkwork/appstore-app-sdk';
-import { usePublisher, formatApiError, publisherService } from '@sdkwork/appstore-publisher-console-core';
+import {
+  usePublisher,
+  formatApiError,
+  publisherService,
+} from '@sdkwork/appstore-publisher-console-core';
 import { LoadingSpinner } from '@sdkwork/appstore-pc-commons';
 
 export function PublisherNewAppPage() {
@@ -10,7 +14,7 @@ export function PublisherNewAppPage() {
   const { data: publisherData, loading: publisherLoading } = usePublisher();
   const [appKey, setAppKey] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [defaultLocale, setDefaultLocale] = useState('en-US');
+  const [defaultLocale, setDefaultLocale] = useState('zh-CN');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +23,7 @@ export function PublisherNewAppPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!publisher) {
-      setError('Create a publisher profile before registering an app.');
+      setError('请先创建发布者资料后再注册应用。');
       return;
     }
 
@@ -55,7 +59,7 @@ export function PublisherNewAppPage() {
 
   if (publisherLoading) {
     return (
-      <div className="flex justify-center py-20">
+      <div className="flex min-h-[40vh] items-center justify-center">
         <LoadingSpinner />
       </div>
     );
@@ -64,9 +68,29 @@ export function PublisherNewAppPage() {
   if (!publisher) {
     return (
       <div className="max-w-xl mx-auto py-16 px-6 text-center">
-        <p className="text-gray-600 mb-6">You need a publisher profile before creating an app.</p>
-        <Link to="/publisher" className="text-blue-600 hover:underline">
-          Back to publisher console
+        <div
+          className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+          style={{
+            backgroundColor: 'var(--accent-subtle)',
+            color: 'var(--accent)',
+          }}
+        >
+          <Sparkles className="w-7 h-7" />
+        </div>
+        <h2
+          className="text-xl font-semibold mb-2"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          尚未创建发布者资料
+        </h2>
+        <p
+          className="text-sm mb-6"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          注册应用前，请先完成发布者资料创建。
+        </p>
+        <Link to="/publisher" className="btn-primary text-sm inline-flex">
+          返回开发者控制台
         </Link>
       </div>
     );
@@ -76,35 +100,52 @@ export function PublisherNewAppPage() {
     <div className="max-w-2xl mx-auto py-10 px-6">
       <Link
         to="/publisher"
-        className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6"
+        className="inline-flex items-center gap-2 text-sm mb-6 transition-colors hover:opacity-80"
+        style={{ color: 'var(--text-secondary)' }}
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to console
+        返回开发者控制台
       </Link>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Create App</h1>
-      <p className="text-gray-600 mb-8">
-        Registers an <code className="text-sm">appstore_app</code> record and a draft listing in one step.
+      <h1
+        className="text-3xl font-bold mb-2"
+        style={{ color: 'var(--text-primary)' }}
+      >
+        创建应用
+      </h1>
+      <p
+        className="text-sm mb-8"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        一步完成 <code style={{ color: 'var(--accent)' }}>appstore_app</code> 记录与草稿应用的注册。
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white border border-gray-200 rounded-2xl p-8">
+      <form onSubmit={handleSubmit} className="card p-8 space-y-6">
         <div>
-          <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-2">
-            Display name
+          <label
+            htmlFor="displayName"
+            className="block text-sm font-medium mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            应用名称
           </label>
           <input
             id="displayName"
             required
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3"
-            placeholder="My Awesome App"
+            className="input-field"
+            placeholder="例如 SDKWork 应用商店"
           />
         </div>
 
         <div>
-          <label htmlFor="appKey" className="block text-sm font-medium text-gray-700 mb-2">
-            App key
+          <label
+            htmlFor="appKey"
+            className="block text-sm font-medium mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            应用标识（App Key）
           </label>
           <input
             id="appKey"
@@ -112,27 +153,51 @@ export function PublisherNewAppPage() {
             value={appKey}
             onChange={(e) => setAppKey(e.target.value.toLowerCase())}
             pattern="[a-z0-9]+(-[a-z0-9]+)*"
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 font-mono text-sm"
+            className="input-field font-mono"
             placeholder="my-awesome-app"
           />
-          <p className="mt-2 text-xs text-gray-500">Lower-kebab-case. Immutable after creation.</p>
+          <p
+            className="mt-2 text-xs"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            小写字母、数字与短横线组合（kebab-case）。创建后不可修改。
+          </p>
         </div>
 
         <div>
-          <label htmlFor="defaultLocale" className="block text-sm font-medium text-gray-700 mb-2">
-            Default locale
+          <label
+            htmlFor="defaultLocale"
+            className="block text-sm font-medium mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            默认语言区域
           </label>
           <input
             id="defaultLocale"
             required
             value={defaultLocale}
             onChange={(e) => setDefaultLocale(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3"
+            className="input-field"
+            placeholder="例如 zh-CN、en-US"
           />
+          <p
+            className="mt-2 text-xs"
+            style={{ color: 'var(--text-tertiary)' }}
+          >
+            应用的默认语言，后续可在管理页添加更多语言。
+          </p>
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div
+            className="rounded-xl px-4 py-3 text-sm"
+            style={{
+              backgroundColor: 'var(--danger-subtle)',
+              border: '1px solid var(--danger)',
+              color: 'var(--danger)',
+            }}
+            role="alert"
+          >
             {error}
           </div>
         )}
@@ -140,9 +205,9 @@ export function PublisherNewAppPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-full bg-blue-600 px-6 py-3 text-white font-medium hover:bg-blue-700 disabled:opacity-60"
+          className="btn-primary w-full justify-center"
         >
-          {submitting ? 'Creating…' : 'Create app & listing'}
+          {submitting ? '创建中…' : '创建应用与商店条目'}
         </button>
       </form>
     </div>

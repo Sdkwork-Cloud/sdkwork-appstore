@@ -160,14 +160,16 @@ export function LibraryPage() {
 
   const handleUninstall = useCallback(
     (item: LibraryItem) => {
-      showToast(`已请求卸载「${item.displayName}」`);
+      // 诚实占位：卸载服务正在接入，当前不会真实移除应用。
+      showToast(`卸载服务正在接入中，「${item.displayName}」暂未移除`);
     },
     [showToast],
   );
 
   const handleRemoveFromWishlist = useCallback(
     (item: LibraryItem) => {
-      showToast(`已从收藏夹移除「${item.displayName}」`);
+      // 诚实占位：收藏夹服务正在接入，当前不会真实移除。
+      showToast(`收藏夹服务正在接入中，「${item.displayName}」暂未移除`);
     },
     [showToast],
   );

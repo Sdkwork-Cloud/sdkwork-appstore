@@ -1,4 +1,4 @@
-use sqlx::{Pool, Sqlite};
+use crate::pool::AppstoreSqlxDb;
 
 use crate::db::columns::{
     columns_csv, APPSTORE_MODERATION_APPEAL_COLUMNS, APPSTORE_MODERATION_DECISION_COLUMNS,
@@ -19,12 +19,12 @@ use sdkwork_appstore_moderation_service::error::AppstoreServiceError;
 
 #[derive(Debug, Clone)]
 pub struct SqlxModerationRepository {
-    pool: Pool<Sqlite>,
+    db: AppstoreSqlxDb,
 }
 
 impl SqlxModerationRepository {
-    pub fn new(pool: Pool<Sqlite>) -> Self {
-        Self { pool }
+    pub fn new(db: AppstoreSqlxDb) -> Self {
+        Self { db }
     }
 }
 
@@ -63,7 +63,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Option<ModerationReview>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ModerationReviewRow>(&format!(
+        let row = self.db.query_as::< ModerationReviewRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_moderation_review
@@ -73,7 +73,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         ))
         .bind(review_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -90,7 +90,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Option<ModerationReview>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ModerationReviewRow>(&format!(
+        let row = self.db.query_as::< ModerationReviewRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_moderation_review
@@ -100,7 +100,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         ))
         .bind(submission_id)
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -121,7 +121,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
     > {
         let rows = if let Some(cursor_id) = cursor {
             if let Some(status) = review_status {
-                sqlx::query_as::<_, ModerationReviewRow>(&format!(
+                self.db.query_as::< ModerationReviewRow>(&format!(
                     r#"
                     SELECT {}
                     FROM appstore_moderation_review
@@ -135,10 +135,10 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
                 .bind(status)
                 .bind(cursor_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
             } else {
-                sqlx::query_as::<_, ModerationReviewRow>(&format!(
+                self.db.query_as::< ModerationReviewRow>(&format!(
                     r#"
                     SELECT {}
                     FROM appstore_moderation_review
@@ -151,11 +151,11 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
                 .bind(&context.tenant_id)
                 .bind(cursor_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
             }
         } else if let Some(status) = review_status {
-            sqlx::query_as::<_, ModerationReviewRow>(&format!(
+            self.db.query_as::< ModerationReviewRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_moderation_review
@@ -168,10 +168,10 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
             .bind(&context.tenant_id)
             .bind(status)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
         } else {
-            sqlx::query_as::<_, ModerationReviewRow>(&format!(
+            self.db.query_as::< ModerationReviewRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_moderation_review
@@ -183,7 +183,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
             ))
             .bind(&context.tenant_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
         }
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
@@ -201,7 +201,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
     ) -> Result<(), sdkwork_appstore_moderation_service::error::AppstoreServiceError> {
         let (review_status, priority, queue_code) = map_moderation_review_domain_to_row(review);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_moderation_review (
                 id, tenant_id, organization_id, submission_id, review_no, review_status,
@@ -224,7 +224,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         .bind(review.completed_at)
         .bind(review.created_at)
         .bind(review.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -238,7 +238,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
     ) -> Result<(), sdkwork_appstore_moderation_service::error::AppstoreServiceError> {
         let (review_status, priority, queue_code) = map_moderation_review_domain_to_row(review);
 
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_moderation_review
             SET review_status = ?, priority = ?, assigned_to = ?, queue_code = ?,
@@ -256,7 +256,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         .bind(review.updated_at)
         .bind(review.id.as_str())
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -271,7 +271,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Option<ModerationDecision>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ModerationDecisionRow>(&format!(
+        let row = self.db.query_as::< ModerationDecisionRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_moderation_decision
@@ -281,7 +281,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         ))
         .bind(decision_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -298,7 +298,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Vec<ModerationDecision>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let rows = sqlx::query_as::<_, ModerationDecisionRow>(&format!(
+        let rows = self.db.query_as::< ModerationDecisionRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_moderation_decision
@@ -309,7 +309,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         ))
         .bind(review_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_all(&self.pool)
+        .fetch_all(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -327,7 +327,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         let (decision_type, decision_status, reason_code, payload_snapshot_json) =
             map_moderation_decision_domain_to_row(decision);
 
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_moderation_decision (
                 id, tenant_id, organization_id, review_id, decision_no, decision_type,
@@ -350,7 +350,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         .bind(decision.decided_at)
         .bind(&payload_snapshot_json)
         .bind(decision.created_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
@@ -365,7 +365,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         Option<ModerationAppeal>,
         sdkwork_appstore_moderation_service::error::AppstoreServiceError,
     > {
-        let row = sqlx::query_as::<_, ModerationAppealRow>(&format!(
+        let row = self.db.query_as::< ModerationAppealRow>(&format!(
             r#"
             SELECT {}
             FROM appstore_moderation_appeal
@@ -375,7 +375,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         ))
         .bind(appeal_id.as_str())
         .bind(&context.tenant_id)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
@@ -396,7 +396,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
     > {
         let rows = if let Some(cursor_id) = cursor {
             if let Some(status) = status {
-                sqlx::query_as::<_, ModerationAppealRow>(&format!(
+                self.db.query_as::< ModerationAppealRow>(&format!(
                     r#"
                     SELECT {}
                     FROM appstore_moderation_appeal
@@ -410,10 +410,10 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
                 .bind(status)
                 .bind(cursor_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
             } else {
-                sqlx::query_as::<_, ModerationAppealRow>(&format!(
+                self.db.query_as::< ModerationAppealRow>(&format!(
                     r#"
                     SELECT {}
                     FROM appstore_moderation_appeal
@@ -426,11 +426,11 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
                 .bind(&context.tenant_id)
                 .bind(cursor_id)
                 .bind(limit)
-                .fetch_all(&self.pool)
+                .fetch_all(&self.db)
                 .await
             }
         } else if let Some(status) = status {
-            sqlx::query_as::<_, ModerationAppealRow>(&format!(
+            self.db.query_as::< ModerationAppealRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_moderation_appeal
@@ -443,10 +443,10 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
             .bind(&context.tenant_id)
             .bind(status)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
         } else {
-            sqlx::query_as::<_, ModerationAppealRow>(&format!(
+            self.db.query_as::< ModerationAppealRow>(&format!(
                 r#"
                 SELECT {}
                 FROM appstore_moderation_appeal
@@ -458,7 +458,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
             ))
             .bind(&context.tenant_id)
             .bind(limit)
-            .fetch_all(&self.pool)
+            .fetch_all(&self.db)
             .await
         }
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
@@ -474,7 +474,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         context: &AppstoreRequestContext,
         appeal: &ModerationAppeal,
     ) -> Result<(), sdkwork_appstore_moderation_service::error::AppstoreServiceError> {
-        sqlx::query(
+        self.db.query(
             r#"
             INSERT INTO appstore_moderation_appeal (
                 id, tenant_id, organization_id, decision_id, review_id, appeal_no,
@@ -498,7 +498,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         .bind(appeal.decided_at)
         .bind(appeal.created_at)
         .bind(appeal.updated_at)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 
@@ -510,7 +510,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         context: &AppstoreRequestContext,
         appeal: &ModerationAppeal,
     ) -> Result<(), sdkwork_appstore_moderation_service::error::AppstoreServiceError> {
-        sqlx::query(
+        self.db.query(
             r#"
             UPDATE appstore_moderation_appeal
             SET appeal_status = ?, decided_by = ?, decision_note = ?,
@@ -525,7 +525,7 @@ impl sdkwork_appstore_moderation_service::ports::repository::ModerationRepositor
         .bind(appeal.updated_at)
         .bind(appeal.id.as_str())
         .bind(&context.tenant_id)
-        .execute(&self.pool)
+        .execute_unified(&self.db)
         .await
         .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
 

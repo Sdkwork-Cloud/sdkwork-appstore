@@ -80,7 +80,8 @@ export function CategoryPage({ categoryId: categoryIdProp }: { categoryId?: stri
     return [...apps].sort((a, b) => {
       if (sortBy === 'rating') return (b.averageRating ?? 0) - (a.averageRating ?? 0);
       if (sortBy === 'name') return a.displayName.localeCompare(b.displayName, 'zh-CN');
-      return (b.ratingCount ?? 0) - (a.ratingCount ?? 0);
+      // downloads / 最受欢迎 严格按下载量排序
+      return (b.downloadCount ?? 0) - (a.downloadCount ?? 0);
     });
   }, [apps, sortBy]);
 

@@ -11,6 +11,8 @@ use sdkwork_appstore_moderation_service::service::moderation_service::Moderation
 use sdkwork_appstore_publisher_service::service::publisher_service::PublisherService;
 use sdkwork_appstore_release_service::service::release_service::ReleaseService;
 
+use sdkwork_appstore_repository_sqlx::AppstoreSqlxDb;
+
 use sdkwork_appstore_repository_sqlx::repository::catalog_repository::SqlxCatalogRepository;
 use sdkwork_appstore_repository_sqlx::repository::compliance_repository::SqlxComplianceRepository;
 use sdkwork_appstore_repository_sqlx::repository::library_repository::SqlxLibraryRepository;
@@ -62,23 +64,20 @@ async fn main() {
         .expect("Failed to bootstrap appstore database");
 
     let pool = database_host.pool().clone();
-    let sqlite_pool = pool
-        .as_sqlite()
-        .expect(
-            "Standalone gateway repositories require SQLite today; set APPSTORE_DATABASE_URL to a SQLite URL",
-        )
-        .clone();
+    let db = AppstoreSqlxDb::from_database_pool(&pool).expect(
+        "Standalone gateway repositories require SQLite or PostgreSQL; set APPSTORE_DATABASE_URL",
+    );
 
     tracing::info!("Database connected and migrated successfully");
 
-    let publisher_repo = SqlxPublisherRepository::new(sqlite_pool.clone());
-    let listing_repo = SqlxListingRepository::new(sqlite_pool.clone());
-    let release_repo = SqlxReleaseRepository::new(sqlite_pool.clone());
-    let catalog_repo = SqlxCatalogRepository::new(sqlite_pool.clone());
-    let library_repo = SqlxLibraryRepository::new(sqlite_pool.clone());
-    let moderation_repo = SqlxModerationRepository::new(sqlite_pool.clone());
-    let compliance_repo = SqlxComplianceRepository::new(sqlite_pool.clone());
-    let market_repo = SqlxMarketRepository::new(sqlite_pool.clone());
+    let publisher_repo = SqlxPublisherRepository::new(db.clone());
+    let listing_repo = SqlxListingRepository::new(db.clone());
+    let release_repo = SqlxReleaseRepository::new(db.clone());
+    let catalog_repo = SqlxCatalogRepository::new(db.clone());
+    let library_repo = SqlxLibraryRepository::new(db.clone());
+    let moderation_repo = SqlxModerationRepository::new(db.clone());
+    let compliance_repo = SqlxComplianceRepository::new(db.clone());
+    let market_repo = SqlxMarketRepository::new(db.clone());
 
     let listing_service = {
         let mut service = ListingService::new(listing_repo);

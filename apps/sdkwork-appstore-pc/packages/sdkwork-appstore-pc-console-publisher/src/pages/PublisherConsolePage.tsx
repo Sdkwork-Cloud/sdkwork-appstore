@@ -79,22 +79,29 @@ interface StatItem {
   icon: typeof Package;
 }
 
+interface TeamMember {
+  id: string;
+  userId: string;
+  role: string;
+  status: string;
+}
+
 export function PublisherConsolePage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'apps' | 'team' | 'settings'>('overview');
   const { data: publisherData, loading: publisherLoading, error: publisherError, execute } = usePublisher();
   const { data: listingsData, loading: listingsLoading, error: listingsError } = usePublisherListings();
 
-  const apps = useMemo(
+  const apps = useMemo<AppItem[]>(
     () => (listingsData?.items ?? []).map(mapListingRow),
     [listingsData?.items],
   );
 
   const stats = useMemo<StatItem[]>(() => {
-    const totalDownloads = apps.reduce((sum, app) => sum + app.downloads, 0);
+    const totalDownloads = apps.reduce<number>((sum, app) => sum + app.downloads, 0);
     const ratedApps = apps.filter((app) => app.rating > 0);
     const averageRating =
       ratedApps.length > 0
-        ? ratedApps.reduce((sum, app) => sum + app.rating, 0) / ratedApps.length
+        ? ratedApps.reduce<number>((sum, app) => sum + app.rating, 0) / ratedApps.length
         : 0;
     return [
       {
@@ -436,7 +443,7 @@ function AppsTab({ apps }: { apps: AppItem[] }) {
 
 function TeamTab({ publisherId }: { publisherId: string }) {
   const { data, loading, error } = usePublisherMembers(publisherId);
-  const members = (data?.items ?? []).map((item, index) => {
+  const members: TeamMember[] = (data?.items ?? []).map((item: unknown, index: number) => {
     const row = (item ?? {}) as Record<string, unknown>;
     return {
       id: readString(row, 'id') || String(index),

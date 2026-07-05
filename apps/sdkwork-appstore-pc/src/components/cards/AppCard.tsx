@@ -33,11 +33,26 @@ function formatDownloadCount(count: number): string {
 
 function getPricingLabel(model?: string, priceLabel?: string): string {
   if (priceLabel) return priceLabel;
-  if (!model) return '免费';
+  if (!model) return '—';
   const normalized = model.toUpperCase();
   if (normalized === 'FREE' || normalized === 'FREEMIUM') return '免费';
   if (normalized === 'PAID' || normalized === 'SUBSCRIPTION') return '付费';
-  return '免费';
+  return '—';
+}
+
+function AppIconFallback({ name, size }: { name: string; size: number }) {
+  return (
+    <div
+      className="w-full h-full flex items-center justify-center font-semibold"
+      style={{
+        fontSize: size * 0.4,
+        background: 'linear-gradient(135deg, var(--accent), var(--accent-active))',
+        color: 'var(--text-inverse)',
+      }}
+    >
+      {name?.[0]?.toUpperCase() ?? '?'}
+    </div>
+  );
 }
 
 export function AppCard({
@@ -56,13 +71,11 @@ export function AppCard({
           {app.iconUrl ? (
             <img src={app.iconUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[var(--text-tertiary)] font-semibold" style={{ fontSize: iconPx * 0.4 }}>
-              {app.displayName?.[0] ?? '?'}
-            </div>
+            <AppIconFallback name={app.displayName} size={iconPx} />
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-[var(--text-primary)] truncate text-[var(--text-base)]">
+          <p className="font-semibold text-[var(--text-primary)] truncate text-[var(--text-base)]">
             {app.displayName}
           </p>
           {app.subtitle && (
@@ -97,15 +110,10 @@ export function AppCard({
             loading="lazy"
           />
         ) : (
-          <div
-            className="w-full h-full flex items-center justify-center text-[var(--text-tertiary)] font-semibold"
-            style={{ fontSize: iconPx * 0.4 }}
-          >
-            {app.displayName?.[0] ?? '?'}
-          </div>
+          <AppIconFallback name={app.displayName} size={iconPx} />
         )}
       </div>
-      <p className="font-medium text-[var(--text-primary)] truncate text-[var(--text-base)]">
+      <p className="font-semibold text-[var(--text-primary)] truncate text-[var(--text-base)]">
         {app.displayName}
       </p>
       {app.subtitle && (

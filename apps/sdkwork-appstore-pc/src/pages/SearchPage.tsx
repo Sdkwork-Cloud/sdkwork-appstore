@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, X, SlidersHorizontal, TrendingUp, Clock, ArrowRight } from 'lucide-react';
+import { Search, X, TrendingUp, Clock, ArrowRight } from 'lucide-react';
 import {
   useSearch,
   useTrendingSearchTerms,
@@ -175,23 +175,17 @@ export function SearchPage() {
       </div>
 
       {/* 筛选栏 */}
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          type="button"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors border"
-          style={{
-            backgroundColor: 'var(--bg-surface)',
-            borderColor: 'var(--border-default)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          筛选
-        </button>
+      <div
+        className="flex items-center gap-2 mb-6 flex-wrap"
+        role="tablist"
+        aria-label="搜索结果筛选"
+      >
         {filters.map((filter) => (
           <button
             key={filter.id}
             type="button"
+            role="tab"
+            aria-selected={activeFilter === filter.id}
             onClick={() => setActiveFilter(filter.id)}
             className="px-4 py-2.5 rounded-full text-sm font-medium transition-colors"
             style={
