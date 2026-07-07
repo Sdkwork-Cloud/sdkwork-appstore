@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct ListMarketChannelsRequest {
     pub channel_status: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub idempotency_key: Option<String>,
 }
 
@@ -12,8 +12,7 @@ impl ListMarketChannelsRequest {
     pub fn new() -> Self {
         Self {
             channel_status: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             idempotency_key: None,
         }
     }
@@ -28,8 +27,8 @@ impl ListMarketChannelsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 
@@ -142,7 +141,7 @@ pub struct ListMarketReleasesRequest {
     pub channel_id: Option<String>,
     pub market_status: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub idempotency_key: Option<String>,
 }
 
@@ -152,8 +151,7 @@ impl ListMarketReleasesRequest {
             release_id: None,
             channel_id: None,
             market_status: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             idempotency_key: None,
         }
     }
@@ -178,8 +176,8 @@ impl ListMarketReleasesRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 

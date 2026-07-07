@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, FileText, ImagePlus, PackagePlus, Send, Upload } from 'lucide-react';
+import { FileText, ImagePlus, Send, Upload, ArrowRight } from 'lucide-react';
 import {
   formatApiError,
   useListing,
@@ -11,7 +11,8 @@ import {
   resolveOrganizationId,
   getPublisherUploads,
 } from '@sdkwork/appstore-publisher-console-core';
-import { LoadingSpinner, readString } from '@sdkwork/appstore-pc-commons';
+import { readString } from '@sdkwork/appstore-pc-commons';
+import { ListingLayout } from '../components/ListingLayout';
 
 const MEDIA_ROLES = [
   { value: 'ICON', label: '应用图标' },
@@ -80,10 +81,7 @@ function SectionCard({
         </h2>
       </div>
       {description && (
-        <p
-          className="text-sm mb-4"
-          style={{ color: 'var(--text-tertiary)' }}
-        >
+        <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>
           {description}
         </p>
       )}
@@ -110,19 +108,16 @@ export function PublisherListingManagePage() {
     data: releasesData,
     loading: releasesLoading,
     error: releasesError,
-    execute: refreshReleases,
   } = useListingReleases(listingId);
   const { data: publisher } = usePublisher();
 
-  const organizationId = useMemo(() => resolveOrganizationId(publisher), [publisher]);
-
-  const listingRow = (listing ?? {}) as Record<string, unknown>;
-  const displayName =
-    readString(listingRow, 'displayName', 'display_name') ||
-    readString(listingRow, 'listingSlug', 'listing_slug') ||
-    listingId;
-  const listingStatus = readString(listingRow, 'listingStatus', 'listing_status') || 'draft';
-  const reviewStatus = readString(listingRow, 'reviewStatus', 'review_status') || '—';
+  const organizationId = (() => {
+    try {
+      return resolveOrganizationId(publisher);
+    } catch {
+      return '';
+    }
+  })();
 
   const mediaItems = mediaData?.items ?? [];
   const releaseItems = releasesData?.items ?? [];
@@ -130,19 +125,6 @@ export function PublisherListingManagePage() {
   const [mediaRole, setMediaRole] = useState<(typeof MEDIA_ROLES)[number]['value']>('ICON');
   const [mediaUploading, setMediaUploading] = useState(false);
   const [mediaMessage, setMediaMessage] = useState<StatusMessage | null>(null);
-
-  const [channelCode, setChannelCode] = useState('stable');
-  const [versionName, setVersionName] = useState('1.0.0');
-  const [versionCode, setVersionCode] = useState('100');
-  const [creatingRelease, setCreatingRelease] = useState(false);
-  const [releaseMessage, setReleaseMessage] = useState<StatusMessage | null>(null);
-
-  const [selectedReleaseId, setSelectedReleaseId] = useState('');
-  const [artifactUploading, setArtifactUploading] = useState(false);
-  const [artifactMessage, setArtifactMessage] = useState<StatusMessage | null>(null);
-  const [platform, setPlatform] = useState('WINDOWS');
-  const [architecture, setArchitecture] = useState('X64');
-  const [packageFormat, setPackageFormat] = useState('ZIP');
 
   const [locale, setLocale] = useState('zh-CN');
   const [localizationDisplayName, setLocalizationDisplayName] = useState('');
@@ -153,6 +135,7 @@ export function PublisherListingManagePage() {
   const [localizationMessage, setLocalizationMessage] = useState<StatusMessage | null>(null);
   const [localizationSeeded, setLocalizationSeeded] = useState(false);
 
+  const [selectedReleaseId, setSelectedReleaseId] = useState('');
   const [submissionType, setSubmissionType] = useState<SubmissionType>('INITIAL');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [submissionMessage, setSubmissionMessage] = useState<StatusMessage | null>(null);
@@ -203,77 +186,6 @@ export function PublisherListingManagePage() {
       setMediaMessage({ kind: 'error', text: formatApiError(err as Error) });
     } finally {
       setMediaUploading(false);
-    }
-  }
-
-  async function handleCreateRelease() {
-    if (!channelCode.trim() || !versionName.trim() || !versionCode.trim()) {
-      setReleaseMessage({
-        kind: 'error',
-        text: '渠道、版本名称与版本号均为必填项。',
-      });
-      return;
-    }
-    setCreatingRelease(true);
-    setReleaseMessage(null);
-    try {
-      const created = (await publisherService.createRelease(listingId, {
-        listingId,
-        channelCode: channelCode.trim(),
-        versionName: versionName.trim(),
-        versionCode: versionCode.trim(),
-      })) as Record<string, unknown>;
-      const releaseId = readString(created, 'id');
-      if (releaseId) {
-        setSelectedReleaseId(releaseId);
-      }
-      setReleaseMessage({
-        kind: 'success',
-        text: '版本已创建，请在下方上传对应的安装包。',
-      });
-      await refreshReleases();
-    } catch (err) {
-      setReleaseMessage({ kind: 'error', text: formatApiError(err as Error) });
-    } finally {
-      setCreatingRelease(false);
-    }
-  }
-
-  async function handleArtifactUpload(file: File) {
-    if (!selectedReleaseId) {
-      setArtifactMessage({
-        kind: 'error',
-        text: '请先选择或创建一个版本。',
-      });
-      return;
-    }
-    if (!organizationId) {
-      setArtifactMessage({
-        kind: 'error',
-        text: '缺少组织上下文，无法上传到 Drive。',
-      });
-      return;
-    }
-    setArtifactUploading(true);
-    setArtifactMessage(null);
-    try {
-      await getPublisherUploads().uploadReleaseArtifact({
-        file,
-        organizationId,
-        releaseId: selectedReleaseId,
-        platform,
-        architecture,
-        packageFormat,
-      });
-      setArtifactMessage({
-        kind: 'success',
-        text: '安装包已上传并关联到所选版本。',
-      });
-      await refreshReleases();
-    } catch (err) {
-      setArtifactMessage({ kind: 'error', text: formatApiError(err as Error) });
-    } finally {
-      setArtifactUploading(false);
     }
   }
 
@@ -341,54 +253,16 @@ export function PublisherListingManagePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <ListingLayout activeTab="manage">
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <p style={{ color: 'var(--text-tertiary)' }}>加载中…</p>
+        </div>
+      </ListingLayout>
     );
   }
 
-  const statusBadgeClass =
-    listingStatus === 'active'
-      ? 'badge-success'
-      : listingStatus === 'rejected'
-        ? 'badge-error'
-        : listingStatus === 'in_review' || listingStatus === 'in-review'
-          ? 'badge-warning'
-          : 'badge-neutral';
-
   return (
-    <div className="max-w-4xl mx-auto">
-      <Link
-        to="/publisher"
-        className="inline-flex items-center gap-2 text-sm mb-6 transition-colors hover:opacity-80"
-        style={{ color: 'var(--text-secondary)' }}
-      >
-        <ArrowLeft className="w-4 h-4" />
-        返回开发者控制台
-      </Link>
-
-      <div className="mb-8">
-        <h1
-          className="text-3xl font-bold"
-          style={{ color: 'var(--text-primary)' }}
-        >
-          {displayName}
-        </h1>
-        <div
-          className="flex items-center gap-3 mt-2 flex-wrap text-sm"
-          style={{ color: 'var(--text-tertiary)' }}
-        >
-          <span>应用 ID：{listingId}</span>
-          <span aria-hidden>·</span>
-          <span>
-            状态：
-            <span className={`ml-1 ${statusBadgeClass}`}>{listingStatus}</span>
-          </span>
-          <span aria-hidden>·</span>
-          <span>审核：{reviewStatus}</span>
-        </div>
-      </div>
-
+    <ListingLayout activeTab="manage">
       {error && (
         <div
           className="mb-6 rounded-xl px-4 py-3 text-sm"
@@ -411,12 +285,14 @@ export function PublisherListingManagePage() {
         <div className="grid gap-3 mb-4">
           <div>
             <label
+              htmlFor={`locale-${listingId}`}
               className="block text-sm mb-1"
               style={{ color: 'var(--text-secondary)' }}
             >
               语言区域
             </label>
             <input
+              id={`locale-${listingId}`}
               value={locale}
               onChange={(e) => setLocale(e.target.value)}
               placeholder="例如 zh-CN、en-US"
@@ -425,12 +301,14 @@ export function PublisherListingManagePage() {
           </div>
           <div>
             <label
+              htmlFor={`display-name-${listingId}`}
               className="block text-sm mb-1"
               style={{ color: 'var(--text-secondary)' }}
             >
               应用名称
             </label>
             <input
+              id={`display-name-${listingId}`}
               value={localizationDisplayName}
               onChange={(e) => setLocalizationDisplayName(e.target.value)}
               placeholder="例如 SDKWork 应用商店"
@@ -439,12 +317,14 @@ export function PublisherListingManagePage() {
           </div>
           <div>
             <label
+              htmlFor={`subtitle-${listingId}`}
               className="block text-sm mb-1"
               style={{ color: 'var(--text-secondary)' }}
             >
               副标题（可选）
             </label>
             <input
+              id={`subtitle-${listingId}`}
               value={localizationSubtitle}
               onChange={(e) => setLocalizationSubtitle(e.target.value)}
               placeholder="一句话亮点"
@@ -453,12 +333,14 @@ export function PublisherListingManagePage() {
           </div>
           <div>
             <label
+              htmlFor={`short-desc-${listingId}`}
               className="block text-sm mb-1"
               style={{ color: 'var(--text-secondary)' }}
             >
               简短描述
             </label>
             <textarea
+              id={`short-desc-${listingId}`}
               value={localizationShortDescription}
               onChange={(e) => setLocalizationShortDescription(e.target.value)}
               placeholder="80 字以内的简介"
@@ -468,12 +350,14 @@ export function PublisherListingManagePage() {
           </div>
           <div>
             <label
+              htmlFor={`full-desc-${listingId}`}
               className="block text-sm mb-1"
               style={{ color: 'var(--text-secondary)' }}
             >
               完整描述
             </label>
             <textarea
+              id={`full-desc-${listingId}`}
               value={localizationFullDescription}
               onChange={(e) => setLocalizationFullDescription(e.target.value)}
               placeholder="详细介绍应用的功能、特性与适用场景"
@@ -577,167 +461,33 @@ export function PublisherListingManagePage() {
         )}
       </SectionCard>
 
-      <SectionCard
-        icon={<PackagePlus className="w-5 h-5" />}
-        title="版本与安装包"
-        description="创建版本后即可上传对应平台的安装包，供审核与分发。"
+      {/* Link to releases page */}
+      <Link
+        to={`/publisher/apps/${listingId}/releases`}
+        className="card p-5 mb-6 flex items-center gap-4 transition-all card-hover group"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-          <div>
-            <label
-              className="block text-sm mb-1"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              渠道
-            </label>
-            <input
-              value={channelCode}
-              onChange={(e) => setChannelCode(e.target.value)}
-              placeholder="例如 stable"
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label
-              className="block text-sm mb-1"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              版本名称
-            </label>
-            <input
-              value={versionName}
-              onChange={(e) => setVersionName(e.target.value)}
-              placeholder="例如 1.0.0"
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label
-              className="block text-sm mb-1"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              版本号
-            </label>
-            <input
-              value={versionCode}
-              onChange={(e) => setVersionCode(e.target.value)}
-              placeholder="例如 100"
-              className="input-field"
-            />
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => void handleCreateRelease()}
-          disabled={creatingRelease}
-          className="btn-primary text-sm"
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
         >
-          {creatingRelease ? '创建中…' : '创建版本'}
-        </button>
-        <StatusNotice message={releaseMessage} />
-
-        {releaseItems.length === 0 ? (
-          <p
-            className="text-sm mt-4"
-            style={{ color: 'var(--text-tertiary)' }}
+          <ArrowRight className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3
+            className="font-semibold"
+            style={{ color: 'var(--text-primary)' }}
           >
-            暂无版本记录。
+            版本管理
+          </h3>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            创建版本、上传安装包、配置灰度发布
           </p>
-        ) : (
-          <div className="mt-4">
-            <label
-              className="block text-sm mb-1"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              选择版本
-            </label>
-            <select
-              value={selectedReleaseId}
-              onChange={(e) => setSelectedReleaseId(e.target.value)}
-              className="input-field"
-            >
-              <option value="">请选择版本…</option>
-              {releaseItems.map((item: unknown, index: number) => {
-                const row = (item ?? {}) as Record<string, unknown>;
-                const id = readString(row, 'id') || String(index);
-                const label = `${readString(row, 'versionName', 'version_name') || id}（${readString(row, 'channelCode', 'channel_code') || '渠道'}）`;
-                return (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 mb-4">
-          <div>
-            <label
-              className="block text-sm mb-1"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              平台
-            </label>
-            <input
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
-              placeholder="例如 WINDOWS"
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label
-              className="block text-sm mb-1"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              架构
-            </label>
-            <input
-              value={architecture}
-              onChange={(e) => setArchitecture(e.target.value)}
-              placeholder="例如 X64"
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label
-              className="block text-sm mb-1"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              打包格式
-            </label>
-            <input
-              value={packageFormat}
-              onChange={(e) => setPackageFormat(e.target.value)}
-              placeholder="例如 ZIP"
-              className="input-field"
-            />
-          </div>
         </div>
-
-        <label
-          className={`btn-primary text-sm cursor-pointer ${
-            artifactUploading || !selectedReleaseId ? 'opacity-60 pointer-events-none' : ''
-          }`}
-        >
-          <Upload className="w-4 h-4" />
-          {artifactUploading ? '上传中…' : '上传安装包'}
-          <input
-            type="file"
-            className="hidden"
-            disabled={artifactUploading || !selectedReleaseId}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                void handleArtifactUpload(file);
-              }
-              e.target.value = '';
-            }}
-          />
-        </label>
-        <StatusNotice message={artifactMessage} />
-      </SectionCard>
+        <ArrowRight
+          className="w-5 h-5 transition-transform group-hover:translate-x-1"
+          style={{ color: 'var(--text-tertiary)' }}
+        />
+      </Link>
 
       <SectionCard
         icon={<Send className="w-5 h-5" />}
@@ -793,6 +543,20 @@ export function PublisherListingManagePage() {
           )}
         </div>
 
+        {submissionType === 'RELEASE' && releaseItems.length === 0 && (
+          <p className="text-sm mb-3" style={{ color: 'var(--warning)' }}>
+            尚无可用版本，请先前往
+            <Link
+              to={`/publisher/apps/${listingId}/releases`}
+              className="underline ml-1"
+              style={{ color: 'var(--accent)' }}
+            >
+              版本管理
+            </Link>
+            创建版本。
+          </p>
+        )}
+
         <button
           type="button"
           onClick={() => void handleSubmitForReview()}
@@ -803,6 +567,6 @@ export function PublisherListingManagePage() {
         </button>
         <StatusNotice message={submissionMessage} />
       </SectionCard>
-    </div>
+    </ListingLayout>
   );
 }

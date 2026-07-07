@@ -100,9 +100,9 @@ pub async fn publishers_members_list<S: PublisherOperations>(
     context: &AppstoreRequestContext,
     publisher_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListPublisherMembersResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_publisher_members(publisher_id, cursor, limit);
+    let cmd = mapper::request::map_list_publisher_members(publisher_id, cursor, page_size);
     service.list_members(context, cmd).await
 }
 

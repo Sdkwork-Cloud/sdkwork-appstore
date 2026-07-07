@@ -37,7 +37,7 @@ paths:
         schema:
           type: string
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -134,7 +134,7 @@ paths:
       summary: List moderation appeals
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       - name: status
         in: query
         schema:
@@ -334,7 +334,7 @@ paths:
         schema:
           type: string
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -467,7 +467,7 @@ paths:
       summary: List publisher analytics per listing
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       - name: date_from
         in: query
         schema:
@@ -547,7 +547,7 @@ paths:
         in: query
         schema:
           type: string
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -567,7 +567,7 @@ paths:
         schema:
           type: string
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -634,7 +634,7 @@ paths:
         schema:
           type: string
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -681,7 +681,7 @@ components:
       schema:
         type: string
     Limit:
-      name: limit
+      $1page_size
       in: query
       schema:
         type: integer

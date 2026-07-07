@@ -123,7 +123,7 @@ where
         request: ListModerationQueueRequest,
     ) -> AppstoreServiceResult<ListModerationQueueResult> {
         require_scope(context, "appstore.moderation.read")?;
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let reviews = self
             .repository
             .list_reviews(
@@ -462,7 +462,7 @@ where
         request: ListModerationAppealsRequest,
     ) -> AppstoreServiceResult<ListModerationAppealsResult> {
         require_scope(context, "appstore.moderation.read")?;
-        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let limit = request.page_size.unwrap_or(20).clamp(1, 200);
         let appeals = self
             .repository
             .list_appeals(

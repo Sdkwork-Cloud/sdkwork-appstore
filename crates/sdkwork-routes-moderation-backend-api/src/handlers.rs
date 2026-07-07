@@ -67,9 +67,9 @@ pub async fn moderation_queue_list<S: ModerationOperations>(
     context: &AppstoreRequestContext,
     review_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListModerationQueueResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_moderation_queue(review_status, cursor, limit);
+    let cmd = mapper::request::map_list_moderation_queue(review_status, cursor, page_size);
     service.list_queue(context, cmd).await
 }
 
@@ -128,9 +128,9 @@ pub async fn moderation_appeals_list<S: ModerationOperations>(
     context: &AppstoreRequestContext,
     status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListModerationAppealsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_moderation_appeals(status, cursor, limit);
+    let cmd = mapper::request::map_list_moderation_appeals(status, cursor, page_size);
     service.list_appeals(context, cmd).await
 }
 

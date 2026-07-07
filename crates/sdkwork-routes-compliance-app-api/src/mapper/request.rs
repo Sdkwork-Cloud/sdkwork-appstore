@@ -40,14 +40,14 @@ pub fn map_upsert_permission_disclosures(
 pub fn map_list_iap_items(
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListIapItemsRequest {
     let mut req = ListIapItemsRequest::new(listing_id);
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

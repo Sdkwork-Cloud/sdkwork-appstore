@@ -1,4 +1,4 @@
-> Migrated from `docs/requirements/REQ-2026-appstore-foundation.md` on 2026-06-24.
+﻿> Migrated from `docs/requirements/REQ-2026-appstore-foundation.md` on 2026-06-24.
 > Owner: SDKWork maintainers
 
 # REQ-2026-APPSTORE-FOUNDATION
@@ -10,7 +10,7 @@ Specs: REQUIREMENTS_SPEC.md, DOMAIN_SPEC.md, APP_MANIFEST_SPEC.md
 
 ## Problem
 
-SDKWork needs a first-class application marketplace comparable to Apple App Store and Google Play: publisher workflows, listing metadata, multi-platform releases, discovery surfaces, user libraries, moderation, compliance disclosures, and update distribution �?without forking IAM, comments, Drive, or commerce ownership.
+SDKWork needs a first-class application marketplace comparable to Apple App Store and Google Play: publisher workflows, listing metadata, multi-platform releases, discovery surfaces, user libraries, moderation, compliance disclosures, and update distribution — without forking IAM, comments, Drive, or commerce ownership.
 
 ## Goals
 
@@ -22,8 +22,7 @@ SDKWork needs a first-class application marketplace comparable to Apple App Stor
 
 ## Non-Goals (this phase)
 
-- Frontend `apps/` implementation (handled elsewhere).
-- Payment settlement and IAP purchase flows (commerce integration stub only).
+- Payment settlement backend ownership (checkout sessions owned by commerce/clawrouter domains; app store routes paid acquire via `@sdkwork/clawrouter-app-sdk/domains`).
 - Full Java SaaS implementation (contracts first; Rust/Java parity planned).
 - Production deployment topology.
 

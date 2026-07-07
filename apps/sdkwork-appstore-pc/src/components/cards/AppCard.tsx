@@ -121,14 +121,28 @@ export function AppCard({
           {app.subtitle}
         </p>
       )}
-      <div className="flex items-center justify-between mt-2">
+      {app.category && (
+        <span className="badge badge-neutral mt-1.5">
+          {app.category}
+        </span>
+      )}
+      <div className="flex items-center justify-between mt-2 gap-2">
         {typeof app.averageRating === 'number' && app.averageRating > 0 ? (
           <RatingStars rating={app.averageRating} size="xs" />
         ) : (
-          <span />
+          <span className="text-[var(--text-xs)] text-[var(--text-tertiary)]">
+            {getPricingLabel(app.pricingModel, app.priceLabel)}
+          </span>
         )}
-        <span className="text-[var(--text-xs)] text-[var(--text-tertiary)]">
-          {getPricingLabel(app.pricingModel, app.priceLabel)}
+        <span
+          className="text-[var(--text-xs)] font-semibold px-3 py-1 rounded-full transition-colors flex-shrink-0"
+          style={{
+            backgroundColor: 'var(--accent-subtle)',
+            color: 'var(--accent)',
+          }}
+          aria-label="获取该应用"
+        >
+          获取
         </span>
       </div>
       {typeof app.downloadCount === 'number' && app.downloadCount > 0 && (

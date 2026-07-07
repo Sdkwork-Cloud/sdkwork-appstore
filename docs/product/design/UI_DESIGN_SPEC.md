@@ -157,7 +157,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
 | 状态 | 文案 | 样式 | 交互 |
 | --- | --- | --- | --- |
 | 未安装（免费） | 获取 | accent 胶囊 | 点击创建 download_grant |
-| 未安装（付费） | ¥价格 | accent 胶囊 | 跳转 commerce（预留） |
+| 未安装（付费） | ¥价格 / 购买 | accent 胶囊 | 经 `@sdkwork/clawrouter-app-sdk/domains` 创建 checkout session |
 | 安装中 | 进度环 | accent + spinner | 禁用 |
 | 已安装 | 打开 | 灰色胶囊 | 唤起应用 |
 | 可更新 | 更新 | accent 描边 | 进入更新流 |
@@ -303,7 +303,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
 | 图标形状 | 连续圆角 | 圆形 | 圆角 | 连续圆角（iOS 风） |
 | 游戏独立 Tab | Arcade | Games | 有 | 有 |
 | 评论 | 深度整合 | 深度整合 | 深度整合 | comments 域 |
-| IAP | 原生 | 原生 | 弱 | 预览 only（commerce 域） |
+| IAP | 原生 | 原生 | 弱 | clawrouter/commerce 域结算；库内 entitlement 同步 |
 
 ---
 
@@ -319,4 +319,8 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
 - [x] Publisher Console 包下沉（PC/H5 + `publisher-console-core`）
 - [x] IAM 账户资料：登录后拉取 + 设置页展示
 - [x] 评论区块：PC/H5 通过 `@sdkwork/comments-app-sdk` 加载 `comments_thread_id` 评价
+- [x] 通知收件箱：PC/H5 通过 `@sdkwork/clawrouter-app-sdk` + `appstore-notification-core` 分页加载
+- [x] 付费获取：PC/H5 通过 `@sdkwork/appstore-listing-acquire-core` + clawrouter domains 结算分支
+- [x] 搜索页：PC/H5 共享 `@sdkwork/appstore-search-core`；H5 全中文 + 设计 token
+- [x] 更新页：PC/H5 共享 `@sdkwork/appstore-library-core`；H5 全中文 + 设计 token
 - [ ] 生产环境 LCP / CDN 压测（需部署环境）

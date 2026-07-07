@@ -52,14 +52,14 @@ pub fn map_update_publisher(
 pub fn map_list_publisher_members(
     publisher_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListPublisherMembersRequest {
     let mut req = ListPublisherMembersRequest::new(publisher_id);
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

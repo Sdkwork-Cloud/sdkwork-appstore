@@ -1643,6 +1643,7 @@ dependencies = [
  "sdkwork-appstore-authorization",
  "serde",
  "serde_json",
+ "tracing",
  "uuid",
 ]
 
@@ -1687,6 +1688,7 @@ dependencies = [
  "chrono",
  "serde",
  "serde_json",
+ "tracing",
  "uuid",
 ]
 
@@ -1789,6 +1791,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "tokio",
+ "urlencoding",
  "uuid",
 ]
 

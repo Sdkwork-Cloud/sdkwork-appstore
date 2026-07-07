@@ -16,7 +16,9 @@ use crate::domain::results::{
     SyncMarketReleaseResult, UpdateMarketChannelResult,
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
+use crate::ports::provider::MarketProviderPort;
 use crate::ports::repository::MarketRepositoryPort;
+use std::sync::Arc;
 
 #[async_trait::async_trait]
 pub trait MarketOperations {
@@ -51,14 +53,32 @@ pub trait MarketOperations {
     ) -> AppstoreServiceResult<SyncMarketReleaseResult>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct MarketService<R> {
     repository: R,
+    market_provider: Option<Arc<dyn MarketProviderPort>>,
+}
+
+impl<R: std::fmt::Debug> std::fmt::Debug for MarketService<R> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MarketService")
+            .field("repository", &self.repository)
+            .field("market_provider", &self.market_provider.is_some())
+            .finish()
+    }
 }
 
 impl<R> MarketService<R> {
     pub fn new(repository: R) -> Self {
-        Self { repository }
+        Self {
+            repository,
+            market_provider: None,
+        }
+    }
+
+    pub fn with_market_provider(mut self, provider: Arc<dyn MarketProviderPort>) -> Self {
+        self.market_provider = Some(provider);
+        self
     }
 }
 
@@ -83,7 +103,7 @@ where
         request: ListMarketChannelsRequest,
     ) -> AppstoreServiceResult<ListMarketChannelsResult> {
         require_scope(context, "appstore.market_channels.read")?;
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let channels = self
             .repository
             .list_channels(
@@ -244,7 +264,7 @@ where
         request: ListMarketReleasesRequest,
     ) -> AppstoreServiceResult<ListMarketReleasesResult> {
         require_scope(context, "appstore.market_releases.read")?;
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let releases = self
             .repository
             .list_releases(
@@ -302,7 +322,26 @@ where
         let sync_mode = request.sync_mode.to_lowercase();
         match sync_mode.as_str() {
             "pull_status" => {
-                if let Some(ref external_status) = request.external_status {
+                if let (Some(provider), Some(channel), Some(external_release_id)) = (
+                    self.market_provider.as_ref(),
+                    self.repository
+                        .find_channel_by_id(context, &release.channel_id)
+                        .await?,
+                    release.external_release_id.as_deref(),
+                ) {
+                    let status = provider
+                        .poll_release_status(&channel.channel_code, external_release_id)
+                        .await
+                        .map_err(|error| AppstoreServiceError::Internal(error))?;
+                    release.external_status = serde_json::json!({
+                        "status": status.external_status,
+                        "storeUrl": status.store_url,
+                        "rejectionReason": status.rejection_reason,
+                    });
+                    if let Some(store_url) = status.store_url {
+                        release.store_url = Some(store_url);
+                    }
+                } else if let Some(ref external_status) = request.external_status {
                     release.external_status = external_status.clone();
                 }
             }
@@ -312,8 +351,49 @@ where
                 }
             }
             "push_release" => {
-                release.market_status = MarketStatus::Submitted;
-                release.submitted_at = Some(Utc::now());
+                if let (Some(provider), Some(channel)) = (
+                    self.market_provider.as_ref(),
+                    self.repository
+                        .find_channel_by_id(context, &release.channel_id)
+                        .await?,
+                ) {
+                    let external_app_id = release.external_app_id.clone().ok_or_else(|| {
+                        AppstoreServiceError::ValidationFailed(
+                            "external_app_id is required for provider push_release".to_string(),
+                        )
+                    })?;
+                    let metadata = request.external_status.clone().unwrap_or_else(|| serde_json::json!({}));
+                    let artifact_url = metadata
+                        .get("artifactUrl")
+                        .or_else(|| metadata.get("artifact_url"))
+                        .and_then(|value| value.as_str())
+                        .unwrap_or_default()
+                        .to_string();
+                    if artifact_url.trim().is_empty() {
+                        return Err(AppstoreServiceError::ValidationFailed(
+                            "external_status.artifactUrl is required for provider push_release"
+                                .to_string(),
+                        ));
+                    }
+                    let submission = provider
+                        .submit_release(
+                            &channel.channel_code,
+                            &external_app_id,
+                            &artifact_url,
+                            &metadata,
+                        )
+                        .await
+                        .map_err(|error| AppstoreServiceError::Internal(error))?;
+                    release.external_release_id = Some(submission.external_release_id);
+                    release.external_status = serde_json::json!({
+                        "status": submission.external_status,
+                    });
+                    release.market_status = MarketStatus::Submitted;
+                    release.submitted_at = Some(Utc::now());
+                } else {
+                    release.market_status = MarketStatus::Submitted;
+                    release.submitted_at = Some(Utc::now());
+                }
             }
             "reconcile" => {
                 if let Some(ref external_status) = request.external_status {

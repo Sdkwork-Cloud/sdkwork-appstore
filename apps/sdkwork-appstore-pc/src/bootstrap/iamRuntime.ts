@@ -7,6 +7,8 @@ import { getEnvironment } from './environment';
 import { resetStoreClient } from '@/services/storeClient';
 import { resetDriveClient } from '@/services/driveClient';
 import { resetCommentsClient } from '@/services/commentsClient';
+import { resetNotificationClient } from '@/services/notificationClient';
+import { resetCommerceDomainsClient } from '@/services/commerceDomainsClient';
 
 const AUTH_TOKEN_KEY = 'auth-token';
 const ACCESS_TOKEN_KEY = 'access-token';
@@ -58,6 +60,8 @@ function commitStoredSession(session: {
   resetStoreClient();
   resetDriveClient();
   resetCommentsClient();
+  resetNotificationClient();
+  resetCommerceDomainsClient();
 }
 
 function clearStoredSession() {
@@ -69,6 +73,8 @@ function clearStoredSession() {
   resetStoreClient();
   resetDriveClient();
   resetCommentsClient();
+  resetNotificationClient();
+  resetCommerceDomainsClient();
 }
 
 export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeComposition {
@@ -111,6 +117,8 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
             resetStoreClient();
             resetDriveClient();
             resetCommentsClient();
+  resetNotificationClient();
+  resetCommerceDomainsClient();
           }
         },
       },
@@ -120,6 +128,8 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
         resetStoreClient();
         resetDriveClient();
         resetCommentsClient();
+  resetNotificationClient();
+  resetCommerceDomainsClient();
       },
     },
   });

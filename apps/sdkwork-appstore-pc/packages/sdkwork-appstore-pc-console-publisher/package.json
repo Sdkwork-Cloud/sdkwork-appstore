@@ -5,10 +5,8 @@
   "main": "./src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
-    "@sdkwork/appstore-app-sdk": "workspace:*",
     "@sdkwork/appstore-pc-commons": "workspace:*",
     "@sdkwork/appstore-publisher-console-core": "workspace:*",
-    "@sdkwork/drive-app-sdk": "workspace:*",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",

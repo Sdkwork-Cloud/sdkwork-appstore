@@ -51,9 +51,9 @@ pub async fn market_channels_list<S: MarketOperations>(
     context: &AppstoreRequestContext,
     channel_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListMarketChannelsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_market_channels(channel_status, cursor, limit);
+    let cmd = mapper::request::map_list_market_channels(channel_status, cursor, page_size);
     service.list_channels(context, cmd).await
 }
 
@@ -104,7 +104,7 @@ pub async fn market_releases_list<S: MarketOperations>(
     channel_id: Option<String>,
     market_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListMarketReleasesResult, AppstoreServiceError> {
     let cmd = mapper::request::map_list_market_releases(
         release_id,

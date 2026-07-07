@@ -31,6 +31,10 @@ export const publisherService = {
     data: Parameters<AppStoreClient['publishers']['update']>[1],
   ) => getClient().publishers.update(publisherId, data),
   getListing: (listingId: string) => getClient().listings.get(listingId),
+  updateListing: (
+    listingId: string,
+    data: Parameters<AppStoreClient['listings']['update']>[1],
+  ) => getClient().listings.update(listingId, data),
   listListingMedia: (listingId: string) => getClient().listings.listMedia(listingId),
   listListingReleases: (listingId: string) => getClient().listings.listReleases(listingId),
   upsertLocalization: (

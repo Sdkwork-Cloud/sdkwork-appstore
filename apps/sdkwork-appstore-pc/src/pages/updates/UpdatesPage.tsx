@@ -9,102 +9,33 @@ import {
   Shield,
   ChevronDown,
   ChevronUp,
+  Zap,
 } from 'lucide-react';
 import { useLibraryUpdates, formatApiError, resolveArtifactDownload } from '@/hooks/useApi';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-
-interface UpdateItem {
-  id: string;
-  appName: string;
-  currentVersion: string;
-  newVersion: string;
-  size: string;
-  releaseDate: string;
-  iconUrl?: string;
-  security: boolean;
-  releaseId: string;
-  artifactId: string;
-  appKey: string;
-  listingSlug: string;
-}
-
-function readString(record: Record<string, unknown>, ...keys: string[]): string {
-  for (const key of keys) {
-    const value = record[key];
-    if (typeof value === 'string' && value.trim()) {
-      return value;
-    }
-  }
-  return '';
-}
-
-function formatBytes(value: unknown): string {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    if (value >= 1_000_000) {
-      return `${(value / 1_000_000).toFixed(1)} MB`;
-    }
-    if (value >= 1_000) {
-      return `${Math.round(value / 1_000)} KB`;
-    }
-    return `${value} B`;
-  }
-  if (typeof value === 'string' && value.trim()) {
-    return value;
-  }
-  return '—';
-}
-
-function mapUpdateRow(
-  update: unknown,
-  index: number,
-  libraryItems: unknown[],
-): UpdateItem {
-  const row = (update ?? {}) as Record<string, unknown>;
-  const appKey = readString(row, 'appKey', 'app_key');
-  const libraryMatch = libraryItems.find((entry) => {
-    const libraryRow = (entry ?? {}) as Record<string, unknown>;
-    return readString(libraryRow, 'appKey', 'app_key') === appKey;
-  });
-  const libraryRecord = (libraryMatch ?? {}) as Record<string, unknown>;
-  const appName =
-    readString(libraryRecord, 'displayName', 'display_name') ||
-    readString(libraryRecord, 'listingId', 'listing_id') ||
-    appKey ||
-    `App ${index + 1}`;
-
-  return {
-    id: readString(row, 'artifactId', 'artifact_id', 'releaseId', 'release_id') || `${index}`,
-    appName,
-    currentVersion: readString(row, 'installedVersionCode', 'installed_version_code') || '—',
-    newVersion: readString(row, 'latestVersionName', 'latest_version_name') || '—',
-    size: formatBytes(row.fileSizeBytes ?? row.file_size_bytes),
-    releaseDate: '可更新',
-    iconUrl: readString(libraryRecord, 'icon_media_resource_id', 'iconMediaResourceId') || undefined,
-    security: false,
-    releaseId: readString(row, 'releaseId', 'release_id'),
-    artifactId: readString(row, 'artifactId', 'artifact_id'),
-    appKey,
-    listingSlug:
-      readString(libraryRecord, 'listingSlug', 'listing_slug') ||
-      readString(libraryRecord, 'listingId', 'listing_id') ||
-      appKey,
-  };
-}
+import { mapLibraryUpdateRow, type LibraryUpdateRow } from '@sdkwork/appstore-library-core';
 
 export function UpdatesPage() {
   const { data, loading, error, execute } = useLibraryUpdates();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number; failed: number } | null>(null);
 
   const updates = useMemo(() => {
     const libraryItems = data?.libraryItems ?? [];
     return (data?.updates ?? []).map((update, index) =>
-      mapUpdateRow(update, index, libraryItems),
+      mapLibraryUpdateRow(update, index, libraryItems),
     );
   }, [data]);
 
-  async function handleUpdateDownload(update: UpdateItem) {
+  const downloadableUpdates = useMemo(
+    () => updates.filter((u) => u.artifactId),
+    [updates],
+  );
+
+  async function handleUpdateDownload(update: LibraryUpdateRow) {
     if (!update.artifactId) {
       setActionError('该更新暂无可下载的安装包。');
       return;
@@ -124,6 +55,31 @@ export function UpdatesPage() {
     }
   }
 
+  async function handleUpdateAll() {
+    if (downloadableUpdates.length === 0) return;
+    setBulkUpdating(true);
+    setActionError(null);
+    setBulkProgress({ done: 0, total: downloadableUpdates.length, failed: 0 });
+    let failed = 0;
+    for (let i = 0; i < downloadableUpdates.length; i++) {
+      const update = downloadableUpdates[i];
+      try {
+        const downloadUrl = await resolveArtifactDownload({
+          artifactId: update.artifactId!,
+          appKey: update.appKey || undefined,
+        });
+        window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+      } catch {
+        failed += 1;
+      }
+      setBulkProgress({ done: i + 1, total: downloadableUpdates.length, failed });
+    }
+    setBulkUpdating(false);
+    if (failed > 0) {
+      setActionError(`${failed} 个应用更新下载失败，请重试或单独更新。`);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
@@ -132,25 +88,60 @@ export function UpdatesPage() {
     );
   }
 
+  const hasDownloadableUpdates = downloadableUpdates.length > 0;
+  const bulkInProgress = bulkUpdating && bulkProgress !== null;
+
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
+      <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
+        <div className="min-w-0">
           <h1 className="text-3xl font-bold text-[var(--text-primary)]">应用更新</h1>
           <p className="text-[var(--text-tertiary)] mt-1">
             {updates.length > 0
               ? `有 ${updates.length} 个可用更新`
               : '所有已安装应用均为最新版本'}
           </p>
+          {bulkInProgress && (
+            <p className="text-sm mt-2" style={{ color: 'var(--accent)' }}>
+              正在批量下载 {bulkProgress.done}/{bulkProgress.total}
+              {bulkProgress.failed > 0 ? `（失败 ${bulkProgress.failed}）` : ''}
+            </p>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={() => execute()}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-[var(--text-inverse)] rounded-full text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-          检查更新
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {hasDownloadableUpdates && (
+            <button
+              type="button"
+              onClick={() => void handleUpdateAll()}
+              disabled={bulkUpdating}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-[var(--text-inverse)] rounded-full text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              aria-label="一键全部更新"
+            >
+              {bulkUpdating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  更新中…
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4" />
+                  全部更新
+                </>
+              )}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => execute()}
+            disabled={bulkUpdating}
+            className="flex items-center gap-2 px-5 py-2.5 border border-[var(--border-default)] rounded-full text-sm font-medium transition-colors hover:bg-[var(--bg-muted)] disabled:opacity-60"
+            style={{ color: 'var(--text-primary)' }}
+            aria-label="检查更新"
+          >
+            <RefreshCw className="w-4 h-4" />
+            检查更新
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -217,7 +208,7 @@ export function UpdatesPage() {
                       <span className="text-sm font-medium text-[var(--accent)]">v{update.newVersion}</span>
                       <span className="text-sm text-[var(--text-tertiary)]">({update.size})</span>
                       {update.security && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 bg-[var(--danger-subtle)] text-[var(--danger)] rounded-full text-xs">
+                        <span className="badge badge-error">
                           <Shield className="w-3 h-3" />
                           安全更新
                         </span>

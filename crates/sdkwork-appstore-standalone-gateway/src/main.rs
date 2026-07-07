@@ -33,8 +33,10 @@ use sdkwork_appstore_standalone_gateway::bootstrap::submission_moderation::submi
 use readiness::AppstoreDatabaseReadinessCheck;
 use sdkwork_appstore_database_host::bootstrap_appstore_database_from_env;
 use sdkwork_appstore_service_host::integrations::{
-    DriveIntegrationAdapter, PlatformIntegrationAdapter,
+    DriveIntegrationAdapter, MarketChannelIntegrationAdapter, PlatformIntegrationAdapter,
+    SearchFederationAdapter, SearchProjectionAdapter,
 };
+use sdkwork_appstore_service_host::integrations::http_market_channel_connector::register_http_market_connectors;
 use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
 use std::sync::Arc;
 use web_bootstrap::wrap_router_with_web_framework_from_env;
@@ -95,6 +97,13 @@ async fn main() {
             }
             Err(error) => tracing::warn!("Drive media validation disabled: {error}"),
         }
+        match SearchProjectionAdapter::from_env() {
+            Ok(adapter) => {
+                tracing::info!("Search index projection enabled for published listings");
+                service = service.with_search_projection(Arc::new(adapter));
+            }
+            Err(error) => tracing::warn!("Search index projection disabled: {error}"),
+        }
         service
     };
 
@@ -118,15 +127,45 @@ async fn main() {
         }
     };
 
+    let catalog_service = {
+        let mut service = CatalogService::new(catalog_repo);
+        match SearchFederationAdapter::from_env() {
+            Ok(adapter) => {
+                tracing::info!("sdkwork-search federation enabled for catalog listings search");
+                service = service.with_search_federation(Arc::new(adapter));
+            }
+            Err(error) => tracing::warn!("Search federation disabled: {error}"),
+        }
+        service
+    };
+
+    let market_service = {
+        let mut service = MarketService::new(market_repo);
+        match MarketChannelIntegrationAdapter::from_env() {
+            Ok(adapter) => match register_http_market_connectors(adapter) {
+                Ok(Some(adapter)) => {
+                    tracing::info!("External market channel HTTP connectors enabled");
+                    service = service.with_market_provider(Arc::new(adapter));
+                }
+                Ok(None) => tracing::warn!(
+                    "Market provider bridge enabled but no APPSTORE_MARKET_*_SUBMIT_URL connectors configured"
+                ),
+                Err(error) => tracing::warn!("Market provider bridge registration failed: {error}"),
+            },
+            Err(error) => tracing::warn!("Market provider bridge disabled: {error}"),
+        }
+        service
+    };
+
     let state = AppState {
         publisher_service: PublisherService::new(publisher_repo),
         listing_service,
         release_service,
-        catalog_service: CatalogService::new(catalog_repo),
+        catalog_service,
         library_service: LibraryService::new(library_repo),
         moderation_service: moderation_service,
         compliance_service: ComplianceService::new(compliance_repo),
-        market_service: MarketService::new(market_repo),
+        market_service,
     };
 
     let cors = cors_layer_from_env();

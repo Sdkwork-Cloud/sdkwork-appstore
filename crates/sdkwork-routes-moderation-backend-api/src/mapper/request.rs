@@ -7,7 +7,7 @@ use sdkwork_appstore_moderation_service::domain::commands::{
 pub fn map_list_moderation_queue(
     review_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListModerationQueueRequest {
     let mut req = ListModerationQueueRequest::new();
     if let Some(v) = review_status {
@@ -16,8 +16,8 @@ pub fn map_list_moderation_queue(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -64,7 +64,7 @@ pub fn map_create_moderation_appeal(
 pub fn map_list_moderation_appeals(
     status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListModerationAppealsRequest {
     let mut req = ListModerationAppealsRequest::new();
     if let Some(v) = status {
@@ -73,8 +73,8 @@ pub fn map_list_moderation_appeals(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

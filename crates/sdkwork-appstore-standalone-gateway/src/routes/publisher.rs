@@ -13,7 +13,7 @@ use sdkwork_web_core::WebRequestContext;
 
 use crate::routes::support::{
     created, map_listing_error, map_publisher_error, ok_item, ok_page, to_listing_context,
-    to_publisher_context, CursorLimitQuery,
+    to_publisher_context, CursorPageSizeQuery,
 };
 use crate::AppState;
 
@@ -104,7 +104,7 @@ async fn publisher_me(
 async fn publisher_me_listings(
     State(state): State<AppState>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let publisher_ctx = match to_publisher_context(context.as_ref()) {
         Ok(ctx) => ctx,
@@ -136,7 +136,7 @@ async fn publisher_me_listings(
         &listing_ctx,
         publisher_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -204,7 +204,7 @@ async fn publisher_members_list_handler(
     State(state): State<AppState>,
     Path(publisher_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_publisher_context(context.as_ref()) {
         Ok(ctx) => ctx,
@@ -215,7 +215,7 @@ async fn publisher_members_list_handler(
         &ctx,
         publisher_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {

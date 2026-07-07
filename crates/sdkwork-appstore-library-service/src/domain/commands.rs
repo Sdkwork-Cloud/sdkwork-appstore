@@ -25,14 +25,13 @@ impl LibraryOperationRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ListLibraryItemsRequest {
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl ListLibraryItemsRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -41,8 +40,8 @@ impl ListLibraryItemsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -116,14 +115,13 @@ impl LibraryUpdatesCheckRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ListWishlistItemsRequest {
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl ListWishlistItemsRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -132,8 +130,8 @@ impl ListWishlistItemsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }

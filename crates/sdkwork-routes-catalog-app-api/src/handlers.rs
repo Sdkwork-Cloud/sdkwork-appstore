@@ -124,9 +124,9 @@ pub async fn catalog_categories_list<S: CatalogOperations>(
     context: &AppstoreRequestContext,
     locale: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<CategoriesListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_categories_list(locale, cursor, limit);
+    let cmd = mapper::request::map_categories_list(locale, cursor, page_size);
     service.categories_list(context, cmd).await
 }
 
@@ -144,7 +144,7 @@ pub async fn catalog_collections_list<S: CatalogOperations>(
     service: &S,
     context: &AppstoreRequestContext,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
     audience_scope: Option<String>,
 ) -> Result<CollectionsListResult, AppstoreServiceError> {
     let cmd = mapper::request::map_collections_list(cursor, limit, audience_scope);
@@ -190,9 +190,9 @@ pub async fn catalog_listings_search<S: CatalogOperations>(
     query: Option<String>,
     category_id: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListingsSearchResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_listings_search(query, category_id, cursor, limit);
+    let cmd = mapper::request::map_listings_search(query, category_id, cursor, page_size);
     service.listings_search(context, cmd).await
 }
 
@@ -202,9 +202,9 @@ pub async fn catalog_recommendations_list<S: CatalogOperations>(
     locale: Option<String>,
     platform: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<RecommendationsListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_recommendations_list(locale, platform, cursor, limit);
+    let cmd = mapper::request::map_recommendations_list(locale, platform, cursor, page_size);
     service.recommendations_list(context, cmd).await
 }
 
@@ -213,9 +213,9 @@ pub async fn catalog_recently_updated_list<S: CatalogOperations>(
     context: &AppstoreRequestContext,
     locale: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<RecentlyUpdatedListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_recently_updated_list(locale, cursor, limit);
+    let cmd = mapper::request::map_recently_updated_list(locale, cursor, page_size);
     service.recently_updated_list(context, cmd).await
 }
 
@@ -223,7 +223,7 @@ pub async fn catalog_events_list<S: CatalogOperations>(
     service: &S,
     context: &AppstoreRequestContext,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
     status: Option<String>,
 ) -> Result<EventsListResult, AppstoreServiceError> {
     let cmd = mapper::request::map_events_list(cursor, limit, status);
@@ -254,9 +254,9 @@ pub async fn catalog_search_trending_list<S: CatalogOperations>(
     service: &S,
     context: &AppstoreRequestContext,
     locale: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<SearchTrendingListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_search_trending_list(locale, limit);
+    let cmd = mapper::request::map_search_trending_list(locale, page_size);
     service.search_trending_list(context, cmd).await
 }
 
@@ -264,9 +264,9 @@ pub async fn catalog_search_history_list<S: CatalogOperations>(
     service: &S,
     context: &AppstoreRequestContext,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<SearchHistoryListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_search_history_list(cursor, limit);
+    let cmd = mapper::request::map_search_history_list(cursor, page_size);
     service.search_history_list(context, cmd).await
 }
 

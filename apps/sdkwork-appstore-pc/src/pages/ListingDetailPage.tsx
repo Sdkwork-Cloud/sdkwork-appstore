@@ -25,7 +25,11 @@ import {
   installListingAndDownload,
   useDeveloperOtherListings,
   useListingReviews,
+  useListingOwnership,
+  purchaseListingViaCommerce,
 } from '@/hooks/useApi';
+import { resolveListingInstallState, isPaidPricingModel } from '@sdkwork/appstore-listing-acquire-core';
+import { openListingReportChannel, LISTING_REPORT_REASONS } from '@sdkwork/appstore-listing-support-core';
 import { getStoreClient } from '@/services/storeClient';
 import { isAuthenticated } from '@/bootstrap/iamRuntime';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -33,6 +37,7 @@ import { RatingStars } from '@/components/listing/RatingStars';
 import { InstallButton, type InstallButtonState } from '@/components/listing/InstallButton';
 import { ListingDetailSkeleton } from '@/components/listing/ListingDetailSkeleton';
 import { StickyInstallBar } from '@/components/listing/StickyInstallBar';
+import { SectionNav } from '@/components/listing/SectionNav';
 import { ScreenshotGallery, type MediaItem } from '@/components/listing/ScreenshotGallery';
 import { AppCard } from '@/components/cards/AppCard';
 import { ReviewCard } from '@/components/listing/ReviewCard';
@@ -72,6 +77,7 @@ interface ListingDetail {
   websiteUrl?: string;
   listingId: string;
   commentsThreadId?: string;
+  commerceProductId?: string;
 }
 
 function readString(record: { [key: string]: unknown }, ...keys: string[]): string {
@@ -125,17 +131,17 @@ function mapListingToDetail(listing: unknown): ListingDetail | null {
     iconUrl: readString(record, 'icon_media_resource_id', 'iconMediaResourceId') || undefined,
     rating: readNumber(record, 'average_rating', 'averageRating'),
     ratingCount: readNumber(record, 'rating_count', 'ratingCount'),
-    ageRating: readString(record, 'age_rating_code', 'ageRatingCode') || '—',
+    ageRating: readString(record, 'age_rating_code', 'ageRatingCode'),
     downloads: formatDownloadCount(readNumber(record, 'download_count', 'downloadCount')),
     pricingModel,
     category: readString(record, 'primary_category_id', 'primaryCategoryId') || '应用',
     categoryId: readString(record, 'primary_category_id', 'primaryCategoryId') || undefined,
     // current_release_id 是 UUID，不能作为版本号展示；待后端补 version_name 字段。
-    version: readString(record, 'version_name', 'versionName') || '—',
-    size: '—',
-    compatibility: '—',
+    version: readString(record, 'version_name', 'versionName'),
+    size: '',
+    compatibility: '',
     languages: [readString(record, 'default_locale', 'defaultLocale')].filter(Boolean),
-    lastUpdated: readString(record, 'updated_at', 'updatedAt') || '—',
+    lastUpdated: readString(record, 'updated_at', 'updatedAt'),
     description: readString(record, 'short_description', 'shortDescription') ||
       '应用详情将在本地化内容发布后展示。',
     whatsNew: readString(record, 'whats_new_summary', 'whatsNewSummary'),
@@ -144,6 +150,7 @@ function mapListingToDetail(listing: unknown): ListingDetail | null {
     websiteUrl: readString(record, 'official_website_url', 'officialWebsiteUrl') || undefined,
     listingId: id,
     commentsThreadId: readString(record, 'comments_thread_id', 'commentsThreadId') || undefined,
+    commerceProductId: readString(record, 'commerce_product_id', 'commerceProductId') || undefined,
   };
 }
 
@@ -162,11 +169,14 @@ export function ListingDetailPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<string>('');
   const [reportNotice, setReportNotice] = useState<{ title: string; message: string } | null>(null);
+  const [purchaseNotice, setPurchaseNotice] = useState<{ title: string; message: string } | null>(null);
 
   const app = useMemo(() => mapListingToDetail(data), [data]);
   const authed = isAuthenticated();
   const reviewsApi = useListingReviews(app?.commentsThreadId);
   const reviewItems = reviewsApi.data?.items ?? [];
+  const ownershipApi = useListingOwnership(app?.listingId ?? '', authed);
+  const owned = ownershipApi.data === true;
 
   const mediaApi = useApi(
     () => getStoreClient().listings.listMedia(app?.listingId ?? ''),
@@ -220,8 +230,31 @@ export function ListingDetailPage() {
       navigate('/login', { state: { from: { pathname: `/app/${slug}` } } });
       return;
     }
-    setInstalling(true);
     setActionError(null);
+    if (isPaidPricingModel(app.pricingModel) && !owned && !installed) {
+      setInstalling(true);
+      try {
+        const checkout = await purchaseListingViaCommerce({
+          listingId: app.listingId,
+          displayName: app.displayName,
+          commerceProductId: app.commerceProductId,
+        });
+        if (checkout.status === 'error' || checkout.status === 'unavailable') {
+          setActionError(checkout.message);
+        } else {
+          setPurchaseNotice({
+            title: checkout.status === 'ready' ? '前往结算' : '购买处理中',
+            message: checkout.message,
+          });
+        }
+      } catch (err) {
+        setActionError(formatApiError(err instanceof Error ? err : new Error(String(err))));
+      } finally {
+        setInstalling(false);
+      }
+      return;
+    }
+    setInstalling(true);
     try {
       const result = await installListingAndDownload({
         listingId: app.listingId,
@@ -317,13 +350,12 @@ export function ListingDetailPage() {
 
   const iapItems = (iapApi.data?.items ?? []) as unknown[];
 
-  const installState: InstallButtonState = installed
-    ? 'installed'
-    : installing
-      ? 'installing'
-      : app.pricingModel === 'PAID'
-        ? 'paid'
-        : 'free';
+  const installState: InstallButtonState = resolveListingInstallState({
+    pricingModel: app.pricingModel,
+    owned,
+    installed,
+    installing,
+  });
 
   const priceLabel = formatPricingLabel(app.pricingModel);
 
@@ -356,7 +388,7 @@ export function ListingDetailPage() {
       </nav>
 
       {/* 2. App Header */}
-      <section className="flex gap-8">
+      <section className="flex gap-8" id="overview">
         <div
           className="w-32 h-32 flex items-center justify-center flex-shrink-0 overflow-hidden app-icon"
           style={{
@@ -371,7 +403,10 @@ export function ListingDetailPage() {
           ) : (
             <div className="text-center" style={{ color: 'var(--text-inverse)' }}>
               <span className="text-5xl font-bold block">{app.displayName[0]}</span>
-              <span className="text-xs mt-1 block" style={{ color: 'rgba(255,255,255,0.8)' }}>
+              <span
+                className="text-xs mt-1 block"
+                style={{ color: 'var(--text-inverse)', opacity: 0.85 }}
+              >
                 {app.category}
               </span>
             </div>
@@ -403,20 +438,16 @@ export function ListingDetailPage() {
                 {app.ratingCount.toLocaleString()} 评分
               </span>
             </div>
-            <span
-              className="px-2 py-0.5 rounded-full text-[var(--text-xs)] font-medium"
-              style={{ backgroundColor: 'var(--bg-muted)', color: 'var(--text-secondary)' }}
-            >
-              {app.ageRating}
-            </span>
+            {app.ageRating && (
+              <span className="badge badge-neutral">
+                {app.ageRating}
+              </span>
+            )}
             <div className="flex items-center gap-1.5 text-[var(--text-sm)]" style={{ color: 'var(--text-secondary)' }}>
               <Download className="w-4 h-4" />
               <span>{app.downloads || '—'}</span>
             </div>
-            <span
-              className="px-3 py-1 rounded-full text-[var(--text-sm)] font-medium"
-              style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
-            >
+            <span className="badge badge-info" style={{ padding: '4px 12px', fontSize: 'var(--text-sm)' }}>
               {priceLabel}
             </span>
           </div>
@@ -467,14 +498,32 @@ export function ListingDetailPage() {
         </div>
       </section>
 
+      {/* Section navigation (sticky) */}
+      <SectionNav
+        sections={[
+          { id: 'screenshots', label: '截图预览' },
+          { id: 'description', label: '应用介绍' },
+          ...(app.whatsNew ? [{ id: 'whats-new', label: '新功能' }] : []),
+          { id: 'reviews', label: '评分评价' },
+          { id: 'version-history', label: '版本历史' },
+          { id: 'privacy', label: '隐私' },
+          { id: 'information', label: '信息' },
+          { id: 'in-app-purchases', label: '应用内购买' },
+          { id: 'similar', label: '相似应用' },
+          { id: 'developer-other', label: '开发者其他应用' },
+          { id: 'editorial', label: '编辑点评' },
+          { id: 'support', label: '支持' },
+        ]}
+      />
+
       {/* 3. Screenshots */}
-      <section>
+      <section id="screenshots">
         <SectionTitle>截图与预览</SectionTitle>
         <ScreenshotGallery items={mediaItems} loading={mediaApi.loading} appName={app.displayName} />
       </section>
 
       {/* 4. Description */}
-      <section>
+      <section id="description">
         <SectionTitle>应用介绍</SectionTitle>
         <div className="card p-6">
           <div className={`relative ${!showFullDescription ? 'max-h-32 overflow-hidden' : ''}`}>
@@ -504,9 +553,9 @@ export function ListingDetailPage() {
         </div>
       </section>
 
-      {/* 5. What's New */}
+      {/* 5a. What's New (更新日志 - 新功能摘要) */}
       {app.whatsNew && (
-        <section>
+        <section id="whats-new">
           <SectionTitle>新功能</SectionTitle>
           <div className="card p-6">
             <div className={`relative ${!showFullWhatsNew ? 'max-h-24 overflow-hidden' : ''}`}>
@@ -538,7 +587,7 @@ export function ListingDetailPage() {
       )}
 
       {/* 6. Ratings & Reviews */}
-      <section>
+      <section id="reviews">
         <SectionTitle>评分与评价</SectionTitle>
         <div className="card p-6">
           <div className="flex flex-col md:flex-row gap-10">
@@ -555,7 +604,24 @@ export function ListingDetailPage() {
             </div>
             <div className="flex-1">
               {app.ratingCount > 0 ? (
-                <RatingDistribution rating={app.rating} count={app.ratingCount} />
+                <div
+                  className="flex h-full flex-col items-center justify-center text-center gap-3"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--text-sm)]">已有</span>
+                    <span
+                      className="text-[var(--text-md)] font-semibold"
+                      style={{ color: 'var(--accent)' }}
+                    >
+                      {app.ratingCount.toLocaleString()}
+                    </span>
+                    <span className="text-[var(--text-sm)]">位用户评分</span>
+                  </div>
+                  <p className="text-[var(--text-xs)] max-w-xs">
+                    评论服务接入后，将展示 5★–1★ 真实评分分布。
+                  </p>
+                </div>
               ) : (
                 <EmptyState
                   icon={<Sparkles className="w-7 h-7" />}
@@ -605,8 +671,8 @@ export function ListingDetailPage() {
         </div>
       </section>
 
-      {/* 10. Version History */}
-      <section>
+      {/* 5b. Version History (更新日志 - 完整版本记录) */}
+      <section id="version-history">
         <SectionTitle>版本历史</SectionTitle>
         {releasesApi.loading ? (
           <div className="card p-6"><div className="skeleton" style={{ height: 120 }} /></div>
@@ -624,13 +690,7 @@ export function ListingDetailPage() {
                   <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                     v{release.versionName}
                   </span>
-                  <span
-                    className="text-[var(--text-xs)] px-2 py-0.5 rounded-full"
-                    style={{
-                      backgroundColor: 'var(--bg-muted)',
-                      color: 'var(--text-tertiary)',
-                    }}
-                  >
+                  <span className="badge badge-neutral">
                     {release.releaseStatus}
                   </span>
                 </div>
@@ -648,8 +708,58 @@ export function ListingDetailPage() {
         )}
       </section>
 
+      {/* 7. Privacy */}
+      <section id="privacy">
+        <SectionTitle>隐私</SectionTitle>
+        <div className="card p-6">
+          <div className="flex items-start gap-4">
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
+            >
+              <Shield className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                隐私详情
+              </h3>
+              <p className="mt-1 text-[var(--text-sm)]" style={{ color: 'var(--text-secondary)' }}>
+                隐私实践信息待开发者声明。实际数据收集行为可能因使用功能而异，详情请参阅开发者的隐私政策。
+              </p>
+              {app.privacyPolicyUrl && (
+                <a
+                  href={app.privacyPolicyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1 text-[var(--text-sm)] font-medium hover:underline"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  隐私政策
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Information */}
+      <section id="information">
+        <SectionTitle>信息</SectionTitle>
+        <div className="card divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+          <InfoRow icon={<Globe className="w-5 h-5" />} label="开发者" value={app.developer} />
+          <InfoRow icon={<Shield className="w-5 h-5" />} label="分类" value={app.category} />
+          <InfoRow icon={<Clock className="w-5 h-5" />} label="更新时间" value={app.lastUpdated} />
+          <InfoRow icon={<Layers className="w-5 h-5" />} label="版本" value={app.version} />
+          <InfoRow icon={<Download className="w-5 h-5" />} label="大小" value={app.size} />
+          <InfoRow icon={<Globe className="w-5 h-5" />} label="兼容性" value={app.compatibility} />
+          <InfoRow icon={<Globe className="w-5 h-5" />} label="语言" value={app.languages.join(', ')} />
+          <InfoRow icon={<Shield className="w-5 h-5" />} label="年龄分级" value={app.ageRating} />
+        </div>
+      </section>
+
       {/* 9. In-App Purchases */}
-      <section>
+      <section id="in-app-purchases">
         <SectionTitle>应用内购买</SectionTitle>
         {iapApi.loading ? (
           <div className="card p-6"><div className="skeleton" style={{ height: 48 }} /></div>
@@ -687,8 +797,8 @@ export function ListingDetailPage() {
         )}
       </section>
 
-      {/* 12. Similar Apps */}
-      <section>
+      {/* 10. Similar Apps */}
+      <section id="similar">
         <SectionTitle>相似应用</SectionTitle>
         {similarApps.length === 0 ? (
           <EmptyState
@@ -706,7 +816,7 @@ export function ListingDetailPage() {
       </section>
 
       {/* 11. Developer Other Apps */}
-      <section>
+      <section id="developer-other">
         <SectionTitle>开发者的其他应用</SectionTitle>
         {developerOtherApi.loading ? (
           <div className="flex gap-4">
@@ -732,7 +842,7 @@ export function ListingDetailPage() {
       </section>
 
       {/* 12. Editorial Review */}
-      <section>
+      <section id="editorial">
         <SectionTitle>编辑点评</SectionTitle>
         {editorialApi.loading ? (
           <div className="card p-6 space-y-2">
@@ -762,58 +872,8 @@ export function ListingDetailPage() {
         )}
       </section>
 
-      {/* 7. Information */}
-      <section>
-        <SectionTitle>信息</SectionTitle>
-        <div className="card divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-          <InfoRow icon={<Globe className="w-5 h-5" />} label="开发者" value={app.developer} />
-          <InfoRow icon={<Shield className="w-5 h-5" />} label="分类" value={app.category} />
-          <InfoRow icon={<Clock className="w-5 h-5" />} label="更新时间" value={app.lastUpdated} />
-          <InfoRow icon={<Layers className="w-5 h-5" />} label="版本" value={app.version} />
-          <InfoRow icon={<Download className="w-5 h-5" />} label="大小" value={app.size} />
-          <InfoRow icon={<Globe className="w-5 h-5" />} label="兼容性" value={app.compatibility} />
-          <InfoRow icon={<Globe className="w-5 h-5" />} label="语言" value={app.languages.join(', ')} />
-          <InfoRow icon={<Shield className="w-5 h-5" />} label="年龄分级" value={app.ageRating} />
-        </div>
-      </section>
-
-      {/* 8. Privacy */}
-      <section>
-        <SectionTitle>隐私</SectionTitle>
-        <div className="card p-6">
-          <div className="flex items-start gap-4">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
-            >
-              <Shield className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                隐私详情
-              </h3>
-              <p className="mt-1 text-[var(--text-sm)]" style={{ color: 'var(--text-secondary)' }}>
-                隐私实践信息待开发者声明。实际数据收集行为可能因使用功能而异，详情请参阅开发者的隐私政策。
-              </p>
-              {app.privacyPolicyUrl && (
-                <a
-                  href={app.privacyPolicyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1 text-[var(--text-sm)] font-medium hover:underline"
-                  style={{ color: 'var(--accent)' }}
-                >
-                  隐私政策
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. Support */}
-      <section>
+      {/* 13. Support */}
+      <section id="support">
         <SectionTitle>支持</SectionTitle>
         <div className="card p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -871,27 +931,40 @@ export function ListingDetailPage() {
         onReasonChange={setReportReason}
         notice={reportNotice}
         onSubmit={() => {
-          if (!reportReason) return;
-          // 诚实占位：举报通道正在接入合规服务，本次提交不会发送至服务器。
+          if (!reportReason || !app) return;
+          const outcome = openListingReportChannel({
+            listingId: app.listingId,
+            displayName: app.displayName,
+            reasonValue: reportReason,
+            reasons: LISTING_REPORT_REASONS,
+            supportUrl: app.supportUrl,
+            platformReportEmail: import.meta.env.VITE_APPSTORE_ABUSE_REPORT_EMAIL,
+          });
           setReportNotice({
-            title: '举报通道即将上线',
-            message: '感谢你的反馈。合规举报服务正在接入中，本次提交暂未发送至服务器。如需紧急联系，请使用上方的技术支持链接。',
+            title: outcome.title,
+            message: outcome.message,
           });
         }}
       />
+
+      <Modal
+        open={purchaseNotice !== null}
+        onClose={() => setPurchaseNotice(null)}
+        title={purchaseNotice?.title ?? '购买'}
+        description={purchaseNotice?.message}
+        size="sm"
+        footer={
+          <button type="button" onClick={() => setPurchaseNotice(null)} className="btn-primary">
+            知道了
+          </button>
+        }
+      >
+        <p className="text-sm text-[var(--text-secondary)]">{purchaseNotice?.message}</p>
+      </Modal>
     </div>
     </>
   );
 }
-
-const REPORT_REASONS: { value: string; label: string; description: string }[] = [
-  { value: 'offensive', label: '冒犯性内容', description: '含仇恨、歧视或令人不适的内容' },
-  { value: 'spam', label: '垃圾信息', description: '误导性描述、关键词堆砌或重复发布' },
-  { value: 'malware', label: '恶意软件', description: '疑似病毒、间谍软件或有害行为' },
-  { value: 'copyright', label: '侵权或抄袭', description: '侵犯版权、商标或其他知识产权' },
-  { value: 'misleading', label: '与描述不符', description: '实际功能与宣传严重不符' },
-  { value: 'other', label: '其他问题', description: '上述未涵盖的问题' },
-];
 
 interface ReportAppModalProps {
   open: boolean;
@@ -915,7 +988,7 @@ function ReportAppModal({
       open={open}
       onClose={onClose}
       title="举报应用"
-      description="选择最符合问题的选项，我们会尽快审核处理。"
+      description="选择最符合的问题类型，将通过开发者或平台支持渠道提交举报。"
       size="md"
       footer={
         notice ? null : (
@@ -955,7 +1028,7 @@ function ReportAppModal({
       ) : (
         <fieldset className="space-y-2">
           <legend className="sr-only">举报原因</legend>
-          {REPORT_REASONS.map((option) => {
+          {LISTING_REPORT_REASONS.map((option) => {
             const selected = reason === option.value;
             return (
               <label
@@ -1004,60 +1077,21 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  const isMissing = !value || value === '—' || value === '-' || value === 'N/A';
   return (
     <div className="flex items-center gap-4 px-6 py-4">
       <div style={{ color: 'var(--text-tertiary)' }}>{icon}</div>
       <span className="w-32 flex-shrink-0" style={{ color: 'var(--text-secondary)' }}>{label}</span>
-      <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{value}</span>
-    </div>
-  );
-}
-
-function RatingDistribution({ rating, count }: { rating: number; count: number }) {
-  // Without a real distribution endpoint, derive an approximate skew from the average.
-  // This avoids hardcoding fake percentages while showing a sensible visualization.
-  const skew = Math.max(0, Math.min(5, rating)) / 5;
-  const distribution = [5, 4, 3, 2, 1].map((stars) => {
-    const weight =
-      stars === 5 ? skew :
-      stars === 4 ? skew * 0.6 :
-      stars === 3 ? (1 - Math.abs(skew - 0.5)) * 0.4 :
-      stars === 2 ? (1 - skew) * 0.3 :
-      (1 - skew) * 0.5;
-    return { stars, percentage: Math.round(weight * 100) };
-  });
-  const total = distribution.reduce((sum, d) => sum + d.percentage, 0) || 1;
-
-  return (
-    <div className="space-y-2">
-      {distribution.map((item) => {
-        const normalized = Math.round((item.percentage / total) * 100);
-        return (
-          <div key={item.stars} className="flex items-center gap-3">
-            <span className="text-[var(--text-sm)] w-8" style={{ color: 'var(--text-secondary)' }}>
-              {item.stars} ★
-            </span>
-            <div
-              className="flex-1 h-2.5 rounded-full overflow-hidden"
-              style={{ backgroundColor: 'var(--bg-muted)' }}
-            >
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${normalized}%`, backgroundColor: 'var(--star)' }}
-              />
-            </div>
-            <span
-              className="text-[var(--text-sm)] w-10 text-right"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
-              {normalized}%
-            </span>
-          </div>
-        );
-      })}
-      <p className="text-[var(--text-xs)] mt-2" style={{ color: 'var(--text-tertiary)' }}>
-        基于 {count.toLocaleString()} 条评分的估算分布
-      </p>
+      {isMissing ? (
+        <span
+          className="font-medium text-[var(--text-sm)] italic"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
+          待开发者提供
+        </span>
+      ) : (
+        <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{value}</span>
+      )}
     </div>
   );
 }

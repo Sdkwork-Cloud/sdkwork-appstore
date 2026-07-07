@@ -18,14 +18,14 @@ pub fn map_list_listing_media(listing_id: String) -> ListListingMediaRequest {
 pub fn map_list_listing_releases(
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListListingReleasesRequest {
     let mut req = ListListingReleasesRequest::new(listing_id);
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -33,14 +33,14 @@ pub fn map_list_listing_releases(
 pub fn map_list_publisher_listings(
     publisher_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListPublisherListingsRequest {
     let mut req = ListPublisherListingsRequest::new(publisher_id);
     if let Some(value) = cursor {
         req = req.with_cursor(value);
     }
-    if let Some(value) = limit {
-        req = req.with_limit(value);
+    if let Some($1) = page_size {
+        req = req.with_page_size(value);
     }
     req
 }
@@ -170,14 +170,14 @@ pub fn map_create_listing_submission(
 pub fn map_list_listing_release_history(
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListListingReleaseHistoryRequest {
     let mut req = ListListingReleaseHistoryRequest::new(listing_id);
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -185,14 +185,14 @@ pub fn map_list_listing_release_history(
 pub fn map_list_similar_listings(
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListSimilarListingsRequest {
     let mut req = ListSimilarListingsRequest::new(listing_id);
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -200,14 +200,14 @@ pub fn map_list_similar_listings(
 pub fn map_list_developer_other_listings(
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListDeveloperOtherListingsRequest {
     let mut req = ListDeveloperOtherListingsRequest::new(listing_id);
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

@@ -55,13 +55,13 @@ const NAV_LINK_ACTIVE =
 export function Sidebar() {
   return (
     <aside
-      className="fixed left-0 top-16 bottom-0 w-60 overflow-y-auto border-r"
+      className="hidden md:flex fixed left-0 top-16 bottom-0 md:w-16 xl:w-60 overflow-y-auto border-r flex-col"
       style={{
         backgroundColor: 'var(--bg-surface)',
         borderColor: 'var(--border-subtle)',
       }}
     >
-      <nav className="p-4 space-y-6">
+      <nav className="p-2 md:p-3 xl:p-4 space-y-4 xl:space-y-6 flex-1">
         <NavSection title="发现" items={discoverItems} />
         <NavSection title="我的库" items={libraryItems} />
         <div
@@ -79,7 +79,7 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
   return (
     <div>
       <h3
-        className="px-3 mb-2 text-[var(--text-xs)] font-semibold uppercase tracking-wider"
+        className="hidden xl:block px-3 mb-2 text-[var(--text-xs)] font-semibold uppercase tracking-wider"
         style={{ color: 'var(--text-tertiary)' }}
       >
         {title}
@@ -90,12 +90,14 @@ function NavSection({ title, items }: { title: string; items: NavItem[] }) {
             <NavLink
               to={item.to}
               end={item.end}
+              title={item.label}
+              aria-label={item.label}
               className={({ isActive }) =>
-                `${NAV_LINK_BASE} ${isActive ? NAV_LINK_ACTIVE : NAV_LINK_INACTIVE}`
+                `${NAV_LINK_BASE} ${isActive ? NAV_LINK_ACTIVE : NAV_LINK_INACTIVE} justify-center xl:justify-start`
               }
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
-              <span>{item.label}</span>
+              <span className="hidden xl:inline">{item.label}</span>
             </NavLink>
           </li>
         ))}

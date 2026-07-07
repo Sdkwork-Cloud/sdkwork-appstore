@@ -6,6 +6,7 @@ export {
   useListingMedia,
   useListingReleases,
   formatApiError,
+  isAppStoreApiError,
   configurePublisherClient,
 } from './hooks/usePublisher';
 export {

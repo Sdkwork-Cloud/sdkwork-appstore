@@ -282,7 +282,7 @@ where
             ));
         }
 
-        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let limit = request.page_size.unwrap_or(20).clamp(1, 200);
         let items = self
             .repository
             .find_iap_items_by_listing(

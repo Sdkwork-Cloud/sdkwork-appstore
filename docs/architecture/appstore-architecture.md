@@ -42,7 +42,7 @@ sdkwork-appstore-standalone-gateway
       moderation | compliance | market
   → sdkwork-appstore-repository-sqlx (SQLite + PostgreSQL dialect)
   → sdkwork-appstore-analytics-worker (projections / scheduled jobs)
-External SDKs: IAM, Drive, Platform (wired); Comments, Commerce, Search federation, Notifications (connectors pending)
+External SDKs: IAM, Drive, Platform, Comments, Notifications, Commerce checkout (clawrouter domains) wired on PC/H5; Search federation + optional index projection (`APPSTORE_SEARCH_*`)
 ```
 
 ## 3. Capability Modules
@@ -57,7 +57,7 @@ External SDKs: IAM, Drive, Platform (wired); Comments, Commerce, Search federati
 | Moderation | moderation-service | `appstore_moderation*` |
 | Compliance | compliance-service | `appstore_compliance*` |
 | Analytics | analytics-worker | metrics snapshots, charts, trending terms |
-| Market | market-service | `appstore_market_*` |
+| Market | market-service | `appstore_market_*`; optional HTTP relay to Apple/Google via `APPSTORE_MARKET_*` |
 
 ## 4. Cross-Domain Boundaries
 
@@ -67,9 +67,9 @@ External SDKs: IAM, Drive, Platform (wired); Comments, Commerce, Search federati
 | App registry | platform | Listing create validates `app_id` |
 | Media / artifacts | drive | Store `drive_node_id` references only |
 | Reviews / threads | comments | `comments_thread_id` + `@sdkwork/comments-app-sdk` on PC/H5 listing detail |
-| Payments / IAP | commerce | Entitlement sync + IAP preview (checkout pending) |
-| Full-text search | search | Phase 2 federation; Phase 1 SQL search |
-| Push / inbox | notifications | Connector pending; UI empty states in place |
+| Payments / IAP | commerce (via clawrouter domains) | `commerce_product_id` on listings; PC/H5 paid acquire via `@sdkwork/appstore-listing-acquire-core` + `@sdkwork/clawrouter-app-sdk/domains` |
+| Full-text search | search | Federation via `SearchFederationAdapter` + SQL fallback; optional index projection (upsert on publish, remove on hide) |
+| Push / inbox | clawrouter notification API | `@sdkwork/clawrouter-app-sdk` + `appstore-notification-core` on PC/H5 |
 
 ## 5. Client Applications
 

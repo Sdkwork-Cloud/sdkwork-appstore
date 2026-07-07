@@ -3,7 +3,7 @@ use sdkwork_appstore_catalog_service::domain::commands::PublicFeaturedListReques
 pub fn map_public_featured_list(
     locale: Option<String>,
     platform: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> PublicFeaturedListRequest {
     let mut req = PublicFeaturedListRequest::new();
     if let Some(v) = locale {
@@ -12,8 +12,8 @@ pub fn map_public_featured_list(
     if let Some(v) = platform {
         req = req.with_platform(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

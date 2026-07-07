@@ -7,7 +7,7 @@ pub fn map_admin_list_listings(
     review_status_filter: Option<String>,
     publisher_id: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> AdminListListingsRequest {
     let mut req = AdminListListingsRequest::new();
     if let Some(v) = status_filter {
@@ -22,8 +22,8 @@ pub fn map_admin_list_listings(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

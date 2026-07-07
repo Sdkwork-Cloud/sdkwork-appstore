@@ -25,14 +25,20 @@ export function FeaturedBanner({
   className = '',
 }: FeaturedBannerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     if (banners.length <= 1 || autoPlayMs <= 0) return;
+    // 兼容 prefers-reduced-motion：用户设置降低动效时，禁用自动轮播。
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion || paused) return;
     const timer = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % banners.length);
     }, autoPlayMs);
     return () => clearInterval(timer);
-  }, [banners.length, autoPlayMs]);
+  }, [banners.length, autoPlayMs, paused]);
 
   if (banners.length === 0) {
     return (
@@ -63,6 +69,19 @@ export function FeaturedBanner({
     <div
       className={`relative overflow-hidden rounded-[var(--radius-2xl)] group ${className}`}
       style={{ height: 360 }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft') {
+          setActiveIndex((prev) => (prev - 1 + banners.length) % banners.length);
+        } else if (e.key === 'ArrowRight') {
+          setActiveIndex((prev) => (prev + 1) % banners.length);
+        }
+      }}
+      tabIndex={0}
+      role="group"
+      aria-roledescription="轮播图"
+      aria-label="精选应用轮播，使用左右箭头键切换"
     >
       {banners.map((banner, i) => (
         <div
@@ -75,6 +94,8 @@ export function FeaturedBanner({
             <img
               src={banner.coverUrl}
               alt=""
+              width={1200}
+              height={360}
               className="w-full h-full object-cover"
               loading={i === 0 ? 'eager' : 'lazy'}
             />
@@ -86,24 +107,34 @@ export function FeaturedBanner({
               }}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2), transparent)' }}
+          />
         </div>
       ))}
 
       <div className="absolute inset-0 flex items-end p-8 md:p-12">
-        <div className="text-white max-w-2xl">
+        <div className="max-w-2xl" style={{ color: 'var(--text-inverse)' }}>
           <h2 className="text-[var(--text-5xl)] font-bold tracking-tight mb-3 drop-shadow-lg">
             {current.title}
           </h2>
           {current.subtitle && (
-            <p className="text-[var(--text-lg)] text-white/85 mb-6 drop-shadow line-clamp-2">
+            <p
+              className="text-[var(--text-lg)] mb-6 drop-shadow line-clamp-2"
+              style={{ color: 'var(--text-inverse)', opacity: 0.85 }}
+            >
               {current.subtitle}
             </p>
           )}
           {current.ctaText && (
             <Link
               to={current.ctaHref ?? '/'}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-full font-medium hover:bg-gray-100 transition-colors active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-colors active:scale-95"
+              style={{
+                backgroundColor: 'var(--bg-elevated)',
+                color: 'var(--text-primary)',
+              }}
             >
               {current.ctaText}
             </Link>
@@ -126,7 +157,7 @@ export function FeaturedBanner({
                   i === activeIndex ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.5)',
               }}
               aria-label={`切换到 Banner ${i + 1}`}
-              aria-current={i === activeIndex}
+              aria-current={i === activeIndex ? 'true' : undefined}
             />
           ))}
         </div>

@@ -78,9 +78,9 @@ pub async fn library_items_list<S: LibraryOperations>(
     service: &S,
     context: &AppstoreRequestContext,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListLibraryItemsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_library_items(cursor, limit);
+    let cmd = mapper::request::map_list_library_items(cursor, page_size);
     service.library_items_list(context, cmd).await
 }
 
@@ -127,9 +127,9 @@ pub async fn wishlist_items_list<S: LibraryOperations>(
     service: &S,
     context: &AppstoreRequestContext,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListWishlistItemsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_wishlist_items(cursor, limit);
+    let cmd = mapper::request::map_list_wishlist_items(cursor, page_size);
     service.wishlist_items_list(context, cmd).await
 }
 

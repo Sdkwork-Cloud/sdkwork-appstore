@@ -42,7 +42,7 @@ pub async fn listings_admin_list<S: ListingOperations>(
     review_status_filter: Option<String>,
     publisher_id: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<AdminListListingsResult, AppstoreServiceError> {
     let cmd = mapper::request::map_admin_list_listings(
         status_filter,

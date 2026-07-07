@@ -30,7 +30,7 @@ pub fn map_analytics_publisher_listings_list(
     date_from: Option<String>,
     date_to: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> AnalyticsPublisherListingsListRequest {
     AnalyticsPublisherListingsListRequest {
         date_from,

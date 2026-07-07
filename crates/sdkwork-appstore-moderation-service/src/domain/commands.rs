@@ -24,7 +24,7 @@ impl ModerationOperationRequest {
 pub struct ListModerationQueueRequest {
     pub review_status: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub idempotency_key: Option<String>,
 }
 
@@ -32,8 +32,7 @@ impl ListModerationQueueRequest {
     pub fn new() -> Self {
         Self {
             review_status: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             idempotency_key: None,
         }
     }
@@ -48,8 +47,8 @@ impl ListModerationQueueRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 
@@ -193,15 +192,14 @@ impl CreateModerationAppealRequest {
 pub struct ListModerationAppealsRequest {
     pub status: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl ListModerationAppealsRequest {
     pub fn new() -> Self {
         Self {
             status: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -215,8 +213,8 @@ impl ListModerationAppealsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }

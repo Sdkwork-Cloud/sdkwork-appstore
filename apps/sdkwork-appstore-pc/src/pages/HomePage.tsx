@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import type { CSSProperties, ReactNode } from 'react';
 import { ChevronRight, TrendingUp, Sparkles, LayoutGrid, Compass } from 'lucide-react';
 import {
   useHomeFeed,
@@ -20,6 +21,7 @@ import {
   mapCategoryToTile,
   formatDownloadCount,
 } from '@/utils/catalogMappers';
+import { getCategoryIcon } from '@/utils/categoryIcons';
 
 interface HomeFeed {
   featuredSlots?: unknown[];
@@ -200,35 +202,43 @@ export function HomePage() {
           <EmptyState
             icon={<LayoutGrid className="w-7 h-7" />}
             title="暂无分类"
-            description="分类将在管理后台配置后出现。"
+            description="当前租户尚未配置分类，可先浏览推荐与排行榜。"
+            action={
+              <Link to="/apps" className="btn-primary text-sm">
+                浏览应用
+              </Link>
+            }
           />
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {categoryTiles.map((tile) => (
-              <Link
-                key={tile.id}
-                to={tile.to}
-                className="card card-hover p-5 flex flex-col items-start gap-3"
-              >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: 'linear-gradient(135deg, var(--accent-subtle), var(--bg-muted))',
-                    color: 'var(--accent)',
-                  }}
+          <div className="flex gap-6 overflow-x-auto pb-2 scroll-x">
+            {categoryTiles.map((tile) => {
+              const { Icon, color } = getCategoryIcon(tile.id, tile.title);
+              return (
+                <Link
+                  key={tile.id}
+                  to={tile.to}
+                  className="flex flex-col items-center gap-2 flex-shrink-0 group"
+                  style={{ width: 88 }}
                 >
-                  <LayoutGrid className="w-6 h-6" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-[var(--text-md)] text-[var(--text-primary)] truncate">
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center transition-transform group-hover:scale-105"
+                    style={{
+                      background: `linear-gradient(135deg, ${color}22, ${color}10)`,
+                      color,
+                      border: `1px solid ${color}33`,
+                    }}
+                  >
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <span
+                    className="text-[var(--text-sm)] text-center truncate w-full"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {tile.title}
-                  </p>
-                  <p className="text-[var(--text-sm)] text-[var(--text-secondary)] mt-0.5 line-clamp-2">
-                    {tile.description}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
@@ -266,8 +276,9 @@ function ChartColumn({ title, entries }: ChartColumnProps) {
             entry ? (
               <li key={entry.id} className="flex items-center gap-3">
                 <span
-                  className="text-[var(--text-md)] font-bold w-6 text-center"
-                  style={{ color: idx < 3 ? 'var(--accent)' : 'var(--text-tertiary)' }}
+                  className="text-[var(--text-md)] font-bold w-7 h-7 flex items-center justify-center flex-shrink-0"
+                  style={getRankStyle(idx)}
+                  aria-label={`第 ${idx + 1} 名`}
                 >
                   {idx + 1}
                 </span>
@@ -289,10 +300,53 @@ function ChartColumn({ title, entries }: ChartColumnProps) {
   );
 }
 
+// 排行榜前三名：金/银/铜视觉区分。
+const RANK_STYLES: CSSProperties[] = [
+  {
+    color: '#BF9100',
+    background: 'linear-gradient(135deg, #FFD700, #D4A300)',
+    border: '1px solid #BF9100',
+    borderRadius: '50%',
+  },
+  {
+    color: '#8A8A8E',
+    background: 'linear-gradient(135deg, #E8E8ED, #B0B0B5)',
+    border: '1px solid #8A8A8E',
+    borderRadius: '50%',
+  },
+  {
+    color: '#9A5A22',
+    background: 'linear-gradient(135deg, #E89968, #B8693A)',
+    border: '1px solid #9A5A22',
+    borderRadius: '50%',
+  },
+];
+const RANK_DEFAULT: CSSProperties = {
+  color: 'var(--text-tertiary)',
+  background: 'transparent',
+};
+
+function getRankStyle(idx: number): CSSProperties {
+  if (idx < 3) {
+    const style = RANK_STYLES[idx];
+    return {
+      ...style,
+      color: '#fff',
+      fontWeight: 700,
+      fontSize: 13,
+    };
+  }
+  return {
+    ...RANK_DEFAULT,
+    fontWeight: 700,
+    fontSize: 13,
+  };
+}
+
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   to?: string;
 }
 

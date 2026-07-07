@@ -245,9 +245,9 @@ pub fn created(
 }
 
 #[derive(Debug, Deserialize)]
-pub struct CursorLimitQuery {
+pub struct CursorPageSizeQuery {
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -261,7 +261,7 @@ pub struct SearchQuery {
     pub q: Option<String>,
     pub category_id: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 pub fn ok_page<T: serde::Serialize>(

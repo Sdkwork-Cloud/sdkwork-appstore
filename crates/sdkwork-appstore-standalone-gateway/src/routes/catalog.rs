@@ -15,7 +15,7 @@ use sdkwork_web_core::WebRequestContext;
 
 use crate::routes::support::{
     map_catalog_error, ok_item, ok_page, to_catalog_context, to_catalog_context_auth,
-    CursorLimitQuery, LocaleQuery, SearchQuery,
+    CursorPageSizeQuery, LocaleQuery, SearchQuery,
 };
 use crate::AppState;
 
@@ -198,7 +198,7 @@ async fn catalog_categories_list_handler(
         &ctx,
         query.locale,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -242,7 +242,7 @@ async fn catalog_collections_list_handler(
         &state.catalog_service,
         &ctx,
         query.cursor,
-        query.limit,
+        query.page_size,
         query.audience_scope,
     )
     .await
@@ -337,7 +337,7 @@ async fn catalog_listings_search_handler(
         query.q,
         query.category_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -366,7 +366,7 @@ async fn catalog_recommendations_list_handler(
         query.locale,
         query.platform,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -394,7 +394,7 @@ async fn catalog_recently_updated_list_handler(
         &ctx,
         query.locale,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -421,7 +421,7 @@ async fn catalog_events_list_handler(
         &state.catalog_service,
         &ctx,
         query.cursor,
-        query.limit,
+        query.page_size,
         query.status,
     )
     .await
@@ -477,7 +477,7 @@ async fn catalog_search_trending_list_handler(
         Ok(ctx) => ctx,
         Err(resp) => return resp,
     };
-    match catalog_search_trending_list(&state.catalog_service, &ctx, query.locale, query.limit)
+    match catalog_search_trending_list(&state.catalog_service, &ctx, query.locale, query.page_size)
         .await
     {
         Ok(result) => ok_page(context.as_ref(), result.terms, None, false),
@@ -488,13 +488,13 @@ async fn catalog_search_trending_list_handler(
 async fn catalog_search_history_list_handler(
     State(state): State<AppState>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_catalog_context_auth(context.as_ref()) {
         Ok(ctx) => ctx,
         Err(resp) => return resp,
     };
-    match catalog_search_history_list(&state.catalog_service, &ctx, query.cursor, query.limit).await
+    match catalog_search_history_list(&state.catalog_service, &ctx, query.cursor, query.page_size).await
     {
         Ok(result) => ok_page(
             context.as_ref(),

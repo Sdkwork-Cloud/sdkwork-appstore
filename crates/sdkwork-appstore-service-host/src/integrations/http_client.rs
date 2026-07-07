@@ -143,6 +143,24 @@ impl IntegrationHttpClient {
         }
         request
     }
+
+    pub async fn delete_envelope(&self, path: &str) -> Result<(), String> {
+        let url = format!("{}{}", self.base_url, path);
+        let mut request = self.client.delete(&url);
+        request = self.apply_auth(request);
+
+        let response = request
+            .send()
+            .await
+            .map_err(|error| format!("integration DELETE {path} failed: {error}"))?;
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            return Err(format!("integration DELETE {path} returned {status}: {body}"));
+        }
+        Ok(())
+    }
 }
 
 fn extract_envelope_item<T: DeserializeOwned>(payload: Value) -> Result<T, String> {

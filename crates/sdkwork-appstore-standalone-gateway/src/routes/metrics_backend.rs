@@ -160,7 +160,7 @@ async fn analytics_publisher_listings_list_handler(
         query.date_from,
         query.date_to,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {

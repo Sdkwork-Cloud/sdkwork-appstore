@@ -106,9 +106,9 @@ pub async fn listings_publisher_list<S: ListingOperations>(
     context: &AppstoreRequestContext,
     publisher_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListPublisherListingsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_publisher_listings(publisher_id, cursor, limit);
+    let cmd = mapper::request::map_list_publisher_listings(publisher_id, cursor, page_size);
     service.list_publisher_listings(context, cmd).await
 }
 
@@ -135,9 +135,9 @@ pub async fn listings_releases_list<S: ListingOperations>(
     context: &AppstoreRequestContext,
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListListingReleasesResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_listing_releases(listing_id, cursor, limit);
+    let cmd = mapper::request::map_list_listing_releases(listing_id, cursor, page_size);
     service.list_releases(context, cmd).await
 }
 
@@ -274,9 +274,9 @@ pub async fn listings_releases_history_list<S: ListingOperations>(
     context: &AppstoreRequestContext,
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListListingReleaseHistoryResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_listing_release_history(listing_id, cursor, limit);
+    let cmd = mapper::request::map_list_listing_release_history(listing_id, cursor, page_size);
     service.list_release_history(context, cmd).await
 }
 
@@ -285,9 +285,9 @@ pub async fn listings_similar_list<S: ListingOperations>(
     context: &AppstoreRequestContext,
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListSimilarListingsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_similar_listings(listing_id, cursor, limit);
+    let cmd = mapper::request::map_list_similar_listings(listing_id, cursor, page_size);
     service.list_similar_listings(context, cmd).await
 }
 
@@ -296,9 +296,9 @@ pub async fn listings_developer_other_list<S: ListingOperations>(
     context: &AppstoreRequestContext,
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListDeveloperOtherListingsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_developer_other_listings(listing_id, cursor, limit);
+    let cmd = mapper::request::map_list_developer_other_listings(listing_id, cursor, page_size);
     service.list_developer_other_listings(context, cmd).await
 }
 

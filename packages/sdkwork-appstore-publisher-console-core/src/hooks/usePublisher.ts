@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { isAppStoreApiError, type AppStoreApiError } from '@sdkwork/appstore-app-sdk';
 import { configurePublisherClient, publisherService } from '../services/publisherService';
 
-export { configurePublisherClient };
+export { configurePublisherClient, isAppStoreApiError };
 
 interface UseApiOptions<T> {
   immediate?: boolean;

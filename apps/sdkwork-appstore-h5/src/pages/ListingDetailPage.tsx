@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Star, Download, Share2, Heart, Shield, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Star, Download, Share2, Heart, Shield, ChevronRight, Flag } from 'lucide-react';
 import {
   usePublicListing,
   useApi,
@@ -8,7 +8,14 @@ import {
   installListingAndDownload,
   useListingSimilar,
   useListingReviews,
+  useListingOwnership,
+  purchaseListingViaCommerce,
 } from '@/hooks/useApi';
+import { resolveListingInstallState, isPaidPricingModel } from '@sdkwork/appstore-listing-acquire-core';
+import {
+  openListingReportChannel,
+  LISTING_REPORT_REASONS,
+} from '@sdkwork/appstore-listing-support-core';
 import { isAuthenticated } from '@/bootstrap/iamRuntime';
 import { getStoreClient } from '@/services/storeClient';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
@@ -24,13 +31,21 @@ export function ListingDetailPage() {
   const [installing, setInstalling] = useState(false);
   const [installed, setInstalled] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [purchaseNotice, setPurchaseNotice] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportNotice, setReportNotice] = useState<{ title: string; message: string } | null>(null);
 
+  const authed = isAuthenticated();
   const row = (data ?? {}) as Record<string, unknown>;
   const listingId = readString(row, 'id', 'listingId', 'listing_id') || slug;
   const commentsThreadId = readString(row, 'commentsThreadId', 'comments_thread_id') || undefined;
+  const commerceProductId = readString(row, 'commerceProductId', 'commerce_product_id') || undefined;
   const { data: similarData } = useListingSimilar(listingId, 6);
   const reviewsApi = useListingReviews(commentsThreadId);
   const reviewItems = reviewsApi.data?.items ?? [];
+  const ownershipApi = useListingOwnership(listingId, authed);
+  const owned = ownershipApi.data === true;
 
   const mediaApi = useApi(
     () => getStoreClient().listings.listMedia(listingId),
@@ -67,6 +82,7 @@ export function ListingDetailPage() {
       '应用详情将在本地化内容发布后展示。',
     whatsNew: readString(row, 'whatsNew', 'whats_new_summary', 'releaseNotes') || '',
     privacyUrl: readString(row, 'privacyPolicyUrl', 'privacy_policy_url'),
+    supportUrl: readString(row, 'supportUrl', 'support_url'),
   };
 
   const similarApps = (similarData?.items ?? []).map((item, index) => {
@@ -79,12 +95,32 @@ export function ListingDetailPage() {
   }).filter((s) => s.id !== slug && s.id !== listingId);
 
   async function handleGetOrInstall() {
-    if (!isAuthenticated()) {
+    if (!authed) {
       navigate('/login', { state: { from: { pathname: `/app/${slug}` } } });
       return;
     }
-    setInstalling(true);
     setActionError(null);
+    if (isPaidPricingModel(app.pricingModel) && !owned && !installed) {
+      setInstalling(true);
+      try {
+        const checkout = await purchaseListingViaCommerce({
+          listingId,
+          displayName: app.name,
+          commerceProductId,
+        });
+        if (checkout.status === 'error' || checkout.status === 'unavailable') {
+          setActionError(checkout.message);
+        } else {
+          setPurchaseNotice(checkout.message);
+        }
+      } catch (err) {
+        setActionError(formatApiError(err instanceof Error ? err : new Error(String(err))));
+      } finally {
+        setInstalling(false);
+      }
+      return;
+    }
+    setInstalling(true);
     try {
       const result = await installListingAndDownload({
         listingId,
@@ -123,6 +159,20 @@ export function ListingDetailPage() {
   }
 
   const priceLabel = app.pricingModel === 'FREE' || app.pricingModel === 'FREEMIUM' ? '免费' : '付费';
+  const installState = resolveListingInstallState({
+    pricingModel: app.pricingModel,
+    owned,
+    installed,
+    installing,
+  });
+  const installLabel =
+    installState === 'installing'
+      ? '安装中…'
+      : installState === 'installed' || installState === 'owned'
+        ? '打开'
+        : installState === 'paid'
+          ? '购买'
+          : '获取';
 
   return (
     <div className="animate-fade-in">
@@ -173,6 +223,16 @@ export function ListingDetailPage() {
           {error ? formatApiError(error) : actionError}
         </div>
       )}
+
+      {purchaseNotice ? (
+        <div
+          className="mx-4 mt-2 rounded-xl px-4 py-3 text-sm"
+          style={{ backgroundColor: 'var(--bg-muted)', color: 'var(--text-primary)' }}
+          role="status"
+        >
+          {purchaseNotice}
+        </div>
+      ) : null}
 
       <div className="pb-28 pt-2">
         <section className="px-4 py-4">
@@ -320,6 +380,25 @@ export function ListingDetailPage() {
         </section>
 
         <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <button
+            type="button"
+            onClick={() => {
+              setReportNotice(null);
+              setReportReason('');
+              setReportOpen(true);
+            }}
+            className="card flex w-full items-center gap-3 p-4 text-left"
+          >
+            <Flag className="h-5 w-5 flex-shrink-0 text-[var(--text-secondary)]" />
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">举报应用</h3>
+              <p className="mt-0.5 text-xs text-[var(--text-secondary)]">通过开发者或平台支持渠道提交</p>
+            </div>
+            <ChevronRight className="ml-auto h-4 w-4 text-[var(--text-tertiary)]" />
+          </button>
+        </section>
+
+        <section className="border-t px-4 py-4" style={{ borderColor: 'var(--border-subtle)' }}>
           <div className="card flex gap-3 p-4">
             <Shield className="h-6 w-6 flex-shrink-0 text-[var(--accent)]" />
             <div>
@@ -338,6 +417,102 @@ export function ListingDetailPage() {
         </section>
       </div>
 
+      {reportOpen ? (
+        <div
+          className="fixed inset-0 z-[60] flex items-end"
+          style={{ backgroundColor: 'color-mix(in srgb, black 40%, transparent)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="report-title"
+        >
+          <div
+            className="w-full max-h-[85vh] overflow-y-auto rounded-t-[var(--radius-2xl)] p-4"
+            style={{ backgroundColor: 'var(--bg-surface)' }}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 id="report-title" className="text-lg font-bold text-[var(--text-primary)]">
+                举报应用
+              </h2>
+              <button
+                type="button"
+                onClick={() => setReportOpen(false)}
+                className="text-sm font-medium text-[var(--accent)]"
+              >
+                关闭
+              </button>
+            </div>
+            {reportNotice ? (
+              <div className="py-6 text-center">
+                <p className="font-semibold text-[var(--text-primary)]">{reportNotice.title}</p>
+                <p className="mt-2 text-sm text-[var(--text-secondary)]">{reportNotice.message}</p>
+                <button
+                  type="button"
+                  onClick={() => setReportOpen(false)}
+                  className="btn-primary mt-6 w-full"
+                >
+                  知道了
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="mb-4 text-sm text-[var(--text-secondary)]">选择最符合的问题类型</p>
+                <div className="space-y-2">
+                  {LISTING_REPORT_REASONS.map((option) => (
+                    <label
+                      key={option.value}
+                      className="card flex cursor-pointer items-start gap-3 p-3"
+                      style={
+                        reportReason === option.value
+                          ? { borderColor: 'var(--accent)' }
+                          : undefined
+                      }
+                    >
+                      <input
+                        type="radio"
+                        name="h5-report-reason"
+                        value={option.value}
+                        checked={reportReason === option.value}
+                        onChange={() => setReportReason(option.value)}
+                        className="mt-1"
+                      />
+                      <span>
+                        <span className="block text-sm font-medium text-[var(--text-primary)]">
+                          {option.label}
+                        </span>
+                        {option.description ? (
+                          <span className="mt-0.5 block text-xs text-[var(--text-tertiary)]">
+                            {option.description}
+                          </span>
+                        ) : null}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  disabled={!reportReason}
+                  onClick={() => {
+                    if (!reportReason) return;
+                    const outcome = openListingReportChannel({
+                      listingId,
+                      displayName: app.name,
+                      reasonValue: reportReason,
+                      reasons: LISTING_REPORT_REASONS,
+                      supportUrl: app.supportUrl,
+                      platformReportEmail: import.meta.env.VITE_APPSTORE_ABUSE_REPORT_EMAIL,
+                    });
+                    setReportNotice({ title: outcome.title, message: outcome.message });
+                  }}
+                  className="btn-primary mt-4 w-full disabled:opacity-50"
+                >
+                  提交举报
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      ) : null}
+
       <div
         className="fixed bottom-0 left-0 right-0 z-50 border-t p-4"
         style={{
@@ -354,7 +529,7 @@ export function ListingDetailPage() {
           className="btn-primary w-full"
         >
           <Download className="h-5 w-5" />
-          {installed ? '已安装' : installing ? '安装中…' : app.pricingModel === 'FREE' ? '获取' : '购买'}
+          {installLabel}
         </button>
       </div>
     </div>

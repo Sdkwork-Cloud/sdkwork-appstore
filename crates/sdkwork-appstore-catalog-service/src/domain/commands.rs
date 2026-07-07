@@ -51,15 +51,14 @@ impl HomeRetrieveRequest {
 pub struct CategoriesListRequest {
     pub locale: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl CategoriesListRequest {
     pub fn new() -> Self {
         Self {
             locale: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -73,8 +72,8 @@ impl CategoriesListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -212,15 +211,14 @@ impl CategoryUpdateRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CollectionsListRequest {
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub audience_scope: Option<String>,
 }
 
 impl CollectionsListRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             audience_scope: None,
         }
     }
@@ -230,8 +228,8 @@ impl CollectionsListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 
@@ -522,7 +520,7 @@ pub struct ListingsSearchRequest {
     pub query: Option<String>,
     pub category_id: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl ListingsSearchRequest {
@@ -530,8 +528,7 @@ impl ListingsSearchRequest {
         Self {
             query: None,
             category_id: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -550,8 +547,8 @@ impl ListingsSearchRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -587,15 +584,14 @@ impl MetricsRetrieveRequest {
 pub struct PublicFeaturedListRequest {
     pub locale: Option<String>,
     pub platform: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl PublicFeaturedListRequest {
     pub fn new() -> Self {
         Self {
             locale: None,
-            platform: None,
-            limit: None,
+            platform: None,$1$2page_size: None,
         }
     }
 
@@ -609,8 +605,8 @@ impl PublicFeaturedListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -620,7 +616,7 @@ pub struct RecommendationsListRequest {
     pub locale: Option<String>,
     pub platform: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl RecommendationsListRequest {
@@ -628,8 +624,7 @@ impl RecommendationsListRequest {
         Self {
             locale: None,
             platform: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -648,8 +643,8 @@ impl RecommendationsListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -658,15 +653,14 @@ impl RecommendationsListRequest {
 pub struct RecentlyUpdatedListRequest {
     pub locale: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl RecentlyUpdatedListRequest {
     pub fn new() -> Self {
         Self {
             locale: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -680,8 +674,8 @@ impl RecentlyUpdatedListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -689,15 +683,14 @@ impl RecentlyUpdatedListRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EventsListRequest {
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub status: Option<String>,
 }
 
 impl EventsListRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             status: None,
         }
     }
@@ -707,8 +700,8 @@ impl EventsListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 
@@ -761,14 +754,13 @@ impl SearchSuggestionsListRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SearchTrendingListRequest {
     pub locale: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl SearchTrendingListRequest {
     pub fn new() -> Self {
         Self {
-            locale: None,
-            limit: None,
+            locale: None,$1$2page_size: None,
         }
     }
 
@@ -777,8 +769,8 @@ impl SearchTrendingListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -786,14 +778,13 @@ impl SearchTrendingListRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SearchHistoryListRequest {
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl SearchHistoryListRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -802,8 +793,8 @@ impl SearchHistoryListRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -864,7 +855,7 @@ pub struct AnalyticsPublisherListingsListRequest {
     pub date_from: Option<String>,
     pub date_to: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl AnalyticsPublisherListingsListRequest {
@@ -872,8 +863,7 @@ impl AnalyticsPublisherListingsListRequest {
         Self {
             date_from: None,
             date_to: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 }

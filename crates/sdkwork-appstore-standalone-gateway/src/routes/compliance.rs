@@ -10,7 +10,7 @@ use sdkwork_routes_compliance_app_api::handlers::{
 use sdkwork_web_core::WebRequestContext;
 
 use crate::routes::support::{
-    map_compliance_error, ok_item, ok_page, to_compliance_context, CursorLimitQuery,
+    map_compliance_error, ok_item, ok_page, to_compliance_context, CursorPageSizeQuery,
 };
 use crate::AppState;
 
@@ -113,7 +113,7 @@ async fn compliance_iap_items_list_handler(
     State(state): State<AppState>,
     Path(listing_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_compliance_context(context.as_ref()) {
         Ok(ctx) => ctx,
@@ -124,7 +124,7 @@ async fn compliance_iap_items_list_handler(
         &ctx,
         listing_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {

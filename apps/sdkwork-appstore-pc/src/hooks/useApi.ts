@@ -3,6 +3,11 @@ import { getStoreClient } from '@/services/storeClient';
 import { getCommentsClient } from '@/services/commentsClient';
 import { isAppStoreApiError, type AppStoreApiError } from '@sdkwork/appstore-app-sdk';
 import type { Comment, CommentsThreadSummary } from '@sdkwork/comments-app-sdk';
+import { getNotificationService } from '@/services/notificationClient';
+import {
+  beginPaidListingCheckout,
+} from '@sdkwork/appstore-listing-acquire-core';
+import { getCommerceDomainsClient } from '@/services/commerceDomainsClient';
 
 interface UseApiOptions<T> {
   immediate?: boolean;
@@ -107,9 +112,45 @@ export function useListingReviews(commentsThreadId: string | undefined) {
   );
 }
 
+export function useNotifications(immediate = true) {
+  return useApi(
+    () => getNotificationService().list({ page: 1, pageSize: 20 }),
+    { immediate },
+  );
+}
+
+export function useListingOwnership(listingId: string, enabled = true) {
+  const client = getStoreClient();
+  return useApi(
+    async () => {
+      if (!listingId) {
+        return false;
+      }
+      const result = await client.library.listItems({ limit: 50 });
+      return (result.items ?? []).some((item) => {
+        const row = item as Record<string, unknown>;
+        const id = readRecordString(row, 'listingId', 'listing_id', 'id');
+        return id === listingId;
+      });
+    },
+    { immediate: enabled && !!listingId },
+  );
+}
+
+export async function purchaseListingViaCommerce(params: {
+  listingId: string;
+  displayName: string;
+  commerceProductId?: string;
+}) {
+  return beginPaidListingCheckout(getCommerceDomainsClient, params);
+}
+
 export function useSearch(query: string) {
   const client = getStoreClient();
-  return useApi(() => client.catalog.searchListings({ q: query }), { immediate: !!query });
+  return useApi(
+    () => client.catalog.searchListings({ q: query, limit: 20 }),
+    { immediate: !!query },
+  );
 }
 
 export function useRecommendations(limit = 12) {

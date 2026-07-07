@@ -70,25 +70,39 @@ export function LoginPage() {
         )}
 
         <form className="space-y-4" onSubmit={handlePasswordLogin}>
-          <label className="block">
-            <span className="text-sm font-medium text-[var(--text-secondary)]">账号或邮箱</span>
+          <div className="block">
+            <label
+              htmlFor="login-account"
+              className="text-sm font-medium text-[var(--text-secondary)]"
+            >
+              账号或邮箱
+            </label>
             <input
+              id="login-account"
               className="mt-1 w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--text-primary)' }}
               value={account}
               onChange={(event) => setAccount(event.target.value)}
               autoComplete="username"
             />
-          </label>
-          <label className="block">
-            <span className="text-sm font-medium text-[var(--text-secondary)]">密码</span>
+          </div>
+          <div className="block">
+            <label
+              htmlFor="login-password"
+              className="text-sm font-medium text-[var(--text-secondary)]"
+            >
+              密码
+            </label>
             <input
+              id="login-password"
               type="password"
               className="mt-1 w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--text-primary)' }}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
             />
-          </label>
+          </div>
           <button
             type="submit"
             disabled={submitting}
@@ -101,26 +115,40 @@ export function LoginPage() {
         {import.meta.env.DEV && (
           <form className="space-y-4 border-t border-[var(--border-subtle)] pt-6" onSubmit={handleDevTokenSubmit}>
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-tertiary)]">开发令牌录入</p>
-            <label className="block">
-              <span className="text-sm font-medium text-[var(--text-secondary)]">Auth-Token</span>
+            <div className="block">
+              <label
+                htmlFor="login-auth-token"
+                className="text-sm font-medium text-[var(--text-secondary)]"
+              >
+                Auth-Token
+              </label>
               <input
+                id="login-auth-token"
                 className="mt-1 w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--text-primary)' }}
                 value={authToken}
                 onChange={(event) => setAuthTokenValue(event.target.value)}
                 placeholder="粘贴 Auth-Token"
                 autoComplete="off"
               />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-[var(--text-secondary)]">Access-Token（可选）</span>
+            </div>
+            <div className="block">
+              <label
+                htmlFor="login-access-token"
+                className="text-sm font-medium text-[var(--text-secondary)]"
+              >
+                Access-Token（可选）
+              </label>
               <input
+                id="login-access-token"
                 className="mt-1 w-full rounded-xl border border-[var(--border-default)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--text-primary)' }}
                 value={accessToken}
                 onChange={(event) => setAccessTokenValue(event.target.value)}
                 placeholder="粘贴 Access-Token"
                 autoComplete="off"
               />
-            </label>
+            </div>
             <button
               type="submit"
               className="w-full rounded-full border border-[var(--border-default)] py-2.5 text-sm font-medium hover:bg-[var(--bg-canvas)] transition-colors"

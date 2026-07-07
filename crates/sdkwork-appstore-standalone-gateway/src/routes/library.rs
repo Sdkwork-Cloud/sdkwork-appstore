@@ -11,7 +11,7 @@ use sdkwork_routes_library_app_api::handlers::{
 use sdkwork_web_core::WebRequestContext;
 
 use crate::routes::support::{
-    created, map_library_error, ok_item, ok_page, to_library_context, CursorLimitQuery,
+    created, map_library_error, ok_item, ok_page, to_library_context, CursorPageSizeQuery,
 };
 use crate::AppState;
 
@@ -82,13 +82,13 @@ pub fn routes() -> Router<AppState> {
 async fn library_items_list_handler(
     State(state): State<AppState>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_library_context(context.as_ref()) {
         Ok(ctx) => ctx,
         Err(resp) => return resp,
     };
-    match library_items_list(&state.library_service, &ctx, query.cursor, query.limit).await {
+    match library_items_list(&state.library_service, &ctx, query.cursor, query.page_size).await {
         Ok(result) => ok_page(
             context.as_ref(),
             result.items,
@@ -177,13 +177,13 @@ async fn library_updates_check_handler(
 async fn wishlist_items_list_handler(
     State(state): State<AppState>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_library_context(context.as_ref()) {
         Ok(ctx) => ctx,
         Err(resp) => return resp,
     };
-    match wishlist_items_list(&state.library_service, &ctx, query.cursor, query.limit).await {
+    match wishlist_items_list(&state.library_service, &ctx, query.cursor, query.page_size).await {
         Ok(result) => ok_page(
             context.as_ref(),
             result.items,

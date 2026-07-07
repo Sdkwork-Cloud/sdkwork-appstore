@@ -214,6 +214,7 @@ pub struct ListingService<R> {
     platform_provider: Option<std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>>,
     media_provider: Option<std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>>,
     moderation_port: Option<std::sync::Arc<dyn crate::ports::moderation::SubmissionModerationPort>>,
+    search_projection: Option<std::sync::Arc<dyn crate::ports::search_projection::ListingSearchProjectionPort>>,
 }
 
 impl<R: std::fmt::Debug> std::fmt::Debug for ListingService<R> {
@@ -223,6 +224,7 @@ impl<R: std::fmt::Debug> std::fmt::Debug for ListingService<R> {
             .field("platform_provider", &self.platform_provider.is_some())
             .field("media_provider", &self.media_provider.is_some())
             .field("moderation_port", &self.moderation_port.is_some())
+            .field("search_projection", &self.search_projection.is_some())
             .finish()
     }
 }
@@ -234,6 +236,7 @@ impl<R> ListingService<R> {
             platform_provider: None,
             media_provider: None,
             moderation_port: None,
+            search_projection: None,
         }
     }
 
@@ -259,6 +262,84 @@ impl<R> ListingService<R> {
     ) -> Self {
         self.moderation_port = Some(port);
         self
+    }
+
+    pub fn with_search_projection(
+        mut self,
+        port: std::sync::Arc<dyn crate::ports::search_projection::ListingSearchProjectionPort>,
+    ) -> Self {
+        self.search_projection = Some(port);
+        self
+    }
+}
+
+impl<R> ListingService<R>
+where
+    R: ListingRepositoryPort,
+{
+    async fn project_search_upsert(
+        &self,
+        context: &AppstoreRequestContext,
+        listing: &Listing,
+    ) {
+        let Some(projection) = &self.search_projection else {
+            return;
+        };
+        let localization = match self
+            .repository
+            .find_localization(context, &listing.id, &listing.default_locale)
+            .await
+        {
+            Ok(value) => value,
+            Err(error) => {
+                tracing::warn!(
+                    listing_id = %listing.id.as_str(),
+                    "search index projection localization lookup failed: {error}"
+                );
+                return;
+            }
+        };
+        let title = localization
+            .as_ref()
+            .map(|value| value.display_name.clone())
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or_else(|| listing.listing_slug.clone());
+        let description = localization
+            .as_ref()
+            .map(|value| value.short_description.clone())
+            .unwrap_or_default();
+        let document = crate::ports::search_projection::PublishedListingSearchDocument::from_listing(
+            listing,
+            title,
+            description,
+        );
+        if let Err(error) = projection.upsert_published_listing(&document).await {
+            tracing::warn!(
+                listing_id = %listing.id.as_str(),
+                "search index projection failed: {error}"
+            );
+        }
+    }
+
+    async fn project_search_remove(&self, listing: &Listing) {
+        let Some(projection) = &self.search_projection else {
+            return;
+        };
+        if let Err(error) = projection
+            .remove_listing(&listing.tenant_id, listing.id.as_str())
+            .await
+        {
+            tracing::warn!(
+                listing_id = %listing.id.as_str(),
+                "search index removal failed: {error}"
+            );
+        }
+    }
+
+    fn listing_is_search_indexed(listing: &Listing) -> bool {
+        listing.listing_status == ListingStatus::Active
+            && listing.published_at.is_some()
+            && listing.storefront_visibility != StorefrontVisibility::Hidden
     }
 }
 
@@ -941,7 +1022,7 @@ where
                 AppstoreServiceError::NotFound(format!("Listing not found: {}", request.listing_id))
             })?;
 
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let releases = self
             .repository
             .find_releases_by_listing(context, &listing_id, request.cursor.as_deref(), limit + 1)
@@ -976,7 +1057,7 @@ where
             ));
         }
 
-        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let limit = request.page_size.unwrap_or(20).clamp(1, 200);
         let listings = self
             .repository
             .find_listings_by_publisher(
@@ -1169,6 +1250,10 @@ where
             .await?;
         self.repository.update_listing(context, &listing).await?;
 
+        if request.decision_type.eq_ignore_ascii_case("APPROVE") {
+            self.project_search_upsert(context, &listing).await;
+        }
+
         Ok(ApplyModerationDecisionResult::applied(
             "appstore.listings.moderation.apply",
             listing,
@@ -1181,7 +1266,7 @@ where
         context: &AppstoreRequestContext,
         request: AdminListListingsRequest,
     ) -> AppstoreServiceResult<AdminListListingsResult> {
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let listings = self
             .repository
             .admin_list_listings(
@@ -1262,11 +1347,16 @@ where
                 ))
             })?;
 
+        let was_indexed = Self::listing_is_search_indexed(&listing);
         listing.storefront_visibility = new_visibility;
         listing.version += 1;
         listing.updated_at = Utc::now();
 
         self.repository.update_listing(context, &listing).await?;
+
+        if was_indexed && listing.storefront_visibility == StorefrontVisibility::Hidden {
+            self.project_search_remove(&listing).await;
+        }
 
         Ok(AdminUpdateListingVisibilityResult::updated(
             "appstore.listings.admin.visibility.update",
@@ -1310,7 +1400,7 @@ where
                 AppstoreServiceError::NotFound(format!("Listing not found: {}", request.listing_id))
             })?;
 
-        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let limit = request.page_size.unwrap_or(20).clamp(1, 200);
         let releases = self
             .repository
             .find_release_history_by_listing(
@@ -1360,7 +1450,7 @@ where
             )
         })?;
 
-        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let limit = request.page_size.unwrap_or(20).clamp(1, 200);
         let listings = self
             .repository
             .find_similar_listings(
@@ -1403,7 +1493,7 @@ where
                 AppstoreServiceError::NotFound(format!("Listing not found: {}", request.listing_id))
             })?;
 
-        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let limit = request.page_size.unwrap_or(20).clamp(1, 200);
         let listings = self
             .repository
             .find_developer_other_listings(

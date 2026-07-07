@@ -12,7 +12,7 @@
       }
     },
     "standard": {
-      "common": ["common/002_default_publisher.sql"],
+      "common": ["common/002_default_publisher.sql", "common/003_catalog_categories.sql"],
       "locales": {
         "zh-CN": []
       }

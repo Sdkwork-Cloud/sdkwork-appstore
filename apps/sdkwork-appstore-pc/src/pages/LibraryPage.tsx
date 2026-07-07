@@ -14,9 +14,15 @@ import {
   Share2,
   Trash2,
   Star,
+  Check,
+  X,
 } from 'lucide-react';
 import { useLibrary, useWishlist, formatApiError } from '@/hooks/useApi';
-import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { getStoreClient } from '@/services/storeClient';
+import {
+  uninstallLibraryItem,
+  removeWishlistListing,
+} from '@sdkwork/appstore-library-core';
 import { EmptyState } from '@/components/common/EmptyState';
 import { RatingStars } from '@/components/listing/RatingStars';
 
@@ -24,6 +30,7 @@ type ItemStatus = 'installed' | 'update-available' | 'not-installed';
 
 interface LibraryItem {
   id: string;
+  listingId: string;
   listingSlug: string;
   displayName: string;
   developer: string;
@@ -51,12 +58,34 @@ function readNumber(record: Record<string, unknown>, ...keys: string[]): number 
   return 0;
 }
 
+// 将形如 "1.2 GB" / "850 MB" / "—" 的体积标签解析为字节数，便于正确排序。
+const SIZE_UNITS: Record<string, number> = {
+  B: 1,
+  KB: 1024,
+  MB: 1024 ** 2,
+  GB: 1024 ** 3,
+  TB: 1024 ** 4,
+};
+
+function parseSizeToBytes(label: string): number {
+  if (!label) return 0;
+  const match = label.trim().match(/^([\d.]+)\s*([A-Z]+)$/i);
+  if (!match) return 0;
+  const value = Number.parseFloat(match[1]);
+  if (!Number.isFinite(value)) return 0;
+  const unit = match[2].toUpperCase();
+  const multiplier = SIZE_UNITS[unit] ?? 0;
+  return value * multiplier;
+}
+
 function mapLibraryRow(item: unknown, index: number): LibraryItem {
   const row = (item ?? {}) as Record<string, unknown>;
   const id = readString(row, 'id', 'libraryItemId') || String(index);
-  const listingSlug = readString(row, 'listingSlug', 'listing_slug', 'listingId', 'listing_id') || id;
+  const listingId = readString(row, 'listingId', 'listing_id') || id;
+  const listingSlug = readString(row, 'listingSlug', 'listing_slug') || listingId;
   return {
     id,
+    listingId,
     listingSlug,
     displayName: readString(row, 'displayName', 'display_name') || listingSlug,
     developer: readString(row, 'developerName', 'publisherId', 'publisher_id') || '未知开发者',
@@ -77,13 +106,26 @@ type SortId = 'name' | 'lastUsed' | 'size';
 
 export function LibraryPage() {
   const navigate = useNavigate();
-  const { data: libraryData, loading: libraryLoading, error: libraryError } = useLibrary();
-  const { data: wishlistData, loading: wishlistLoading, error: wishlistError } = useWishlist();
+  const {
+    data: libraryData,
+    loading: libraryLoading,
+    error: libraryError,
+    execute: refetchLibrary,
+  } = useLibrary();
+  const {
+    data: wishlistData,
+    loading: wishlistLoading,
+    error: wishlistError,
+    execute: refetchWishlist,
+  } = useWishlist();
   const [activeTab, setActiveTab] = useState<TabId>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [sortBy, setSortBy] = useState<SortId>('lastUsed');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [actionBusyId, setActionBusyId] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
   const libraryItems = (libraryData?.items ?? []).map(mapLibraryRow);
   const wishlistItems = (wishlistData?.items ?? []).map((item, index) => ({
@@ -120,30 +162,24 @@ export function LibraryPage() {
 
   const sortedItems = [...filteredItems].sort((a, b) => {
     if (sortBy === 'name') return a.displayName.localeCompare(b.displayName, 'zh-CN');
-    if (sortBy === 'size') return a.size.localeCompare(b.size, 'zh-CN');
+    if (sortBy === 'size') return parseSizeToBytes(b.size) - parseSizeToBytes(a.size);
     return (b.lastUsed ?? '').localeCompare(a.lastUsed ?? '');
   });
 
-  const sortLabels: Record<SortId, string> = {
-    name: '名称',
-    lastUsed: '最近使用',
-    size: '大小',
-  };
-
-  if (loading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  const cycleSort = () =>
-    setSortBy((prev) => (prev === 'lastUsed' ? 'name' : prev === 'name' ? 'size' : 'lastUsed'));
-
   const showToast = useCallback((message: string) => {
+    if (toastTimerRef.current) {
+      window.clearTimeout(toastTimerRef.current);
+    }
     setToast(message);
-    window.setTimeout(() => setToast(null), 2200);
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 3200);
+  }, []);
+
+  const dismissToast = useCallback(() => {
+    if (toastTimerRef.current) {
+      window.clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = null;
+    }
+    setToast(null);
   }, []);
 
   const handleShare = useCallback(
@@ -159,20 +195,40 @@ export function LibraryPage() {
   );
 
   const handleUninstall = useCallback(
-    (item: LibraryItem) => {
-      // 诚实占位：卸载服务正在接入，当前不会真实移除应用。
-      showToast(`卸载服务正在接入中，「${item.displayName}」暂未移除`);
+    async (item: LibraryItem) => {
+      setActionBusyId(item.id);
+      try {
+        await uninstallLibraryItem(getStoreClient(), item.id);
+        await refetchLibrary();
+        showToast(`「${item.displayName}」已卸载`);
+      } catch (err) {
+        showToast(formatApiError(err instanceof Error ? err : new Error(String(err))));
+      } finally {
+        setActionBusyId(null);
+      }
     },
-    [showToast],
+    [refetchLibrary, showToast],
   );
 
   const handleRemoveFromWishlist = useCallback(
-    (item: LibraryItem) => {
-      // 诚实占位：收藏夹服务正在接入，当前不会真实移除。
-      showToast(`收藏夹服务正在接入中，「${item.displayName}」暂未移除`);
+    async (item: LibraryItem) => {
+      setActionBusyId(item.id);
+      try {
+        await removeWishlistListing(getStoreClient(), item.listingId);
+        await refetchWishlist();
+        showToast(`「${item.displayName}」已从收藏夹移除`);
+      } catch (err) {
+        showToast(formatApiError(err instanceof Error ? err : new Error(String(err))));
+      } finally {
+        setActionBusyId(null);
+      }
     },
-    [showToast],
+    [refetchWishlist, showToast],
   );
+
+  if (loading) {
+    return <LibraryPageSkeleton />;
+  }
 
   return (
     <div>
@@ -224,12 +280,7 @@ export function LibraryPage() {
             {tab.label}
             {tab.count > 0 && (
               <span
-                className="px-2 py-0.5 rounded-full text-xs"
-                style={
-                  activeTab === tab.id
-                    ? { backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }
-                    : { backgroundColor: 'var(--bg-muted)', color: 'var(--text-secondary)' }
-                }
+                className={`badge ${activeTab === tab.id ? 'badge-info' : 'badge-neutral'}`}
               >
                 {tab.count}
               </span>
@@ -240,19 +291,16 @@ export function LibraryPage() {
 
       {/* 工具栏 */}
       <div className="flex items-center justify-between mb-6">
-        <button
-          type="button"
-          onClick={cycleSort}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors"
-          style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-default)',
-            color: 'var(--text-primary)',
+        <SortDropdown
+          current={sortBy}
+          open={sortMenuOpen}
+          onToggle={() => setSortMenuOpen((v) => !v)}
+          onClose={() => setSortMenuOpen(false)}
+          onSelect={(id) => {
+            setSortBy(id);
+            setSortMenuOpen(false);
           }}
-        >
-          <ArrowUpDown className="w-4 h-4" />
-          排序：{sortLabels[sortBy]}
-        </button>
+        />
         <div
           className="flex items-center gap-1 rounded-lg p-1 border"
           style={{
@@ -305,8 +353,9 @@ export function LibraryPage() {
                 onGet={() => navigate(`/app/${encodeURIComponent(item.listingSlug)}`)}
                 onUpdate={() => navigate('/updates')}
                 onShare={() => handleShare(item)}
-                onUninstall={() => handleUninstall(item)}
-                onRemoveFromWishlist={() => handleRemoveFromWishlist(item)}
+                onUninstall={() => void handleUninstall(item)}
+                onRemoveFromWishlist={() => void handleRemoveFromWishlist(item)}
+                actionBusy={actionBusyId === item.id}
               />
             ))}
           </div>
@@ -350,7 +399,7 @@ export function LibraryPage() {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[var(--z-toast)] px-5 py-3 rounded-full shadow-lg animate-slide-up"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[var(--z-toast)] pl-5 pr-3 py-3 rounded-full shadow-lg animate-slide-up flex items-center gap-3"
           style={{
             backgroundColor: 'var(--bg-elevated)',
             color: 'var(--text-primary)',
@@ -358,6 +407,14 @@ export function LibraryPage() {
           }}
         >
           <span className="text-[var(--text-sm)] font-medium">{toast}</span>
+          <button
+            type="button"
+            onClick={dismissToast}
+            className="p-1 rounded-full transition-colors hover:bg-[var(--bg-muted)] flex-shrink-0"
+            aria-label="关闭提示"
+          >
+            <X className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+          </button>
         </div>
       )}
     </div>
@@ -376,6 +433,7 @@ interface LibraryRowProps {
   onShare: () => void;
   onUninstall: () => void;
   onRemoveFromWishlist: () => void;
+  actionBusy?: boolean;
 }
 
 function LibraryRow({
@@ -390,6 +448,7 @@ function LibraryRow({
   onShare,
   onUninstall,
   onRemoveFromWishlist,
+  actionBusy = false,
 }: LibraryRowProps) {
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -470,7 +529,8 @@ function LibraryRow({
           <button
             type="button"
             onClick={onToggleMenu}
-            className="p-2 rounded-full transition-colors hover:bg-[var(--bg-muted)]"
+            disabled={actionBusy}
+            className="p-2 rounded-full transition-colors hover:bg-[var(--bg-muted)] disabled:opacity-50"
             aria-label="更多操作"
             aria-haspopup="menu"
             aria-expanded={menuOpen}
@@ -621,6 +681,144 @@ function AppIcon({ iconUrl, name, size, className = '' }: AppIconProps) {
           {name?.[0]?.toUpperCase() ?? '?'}
         </div>
       )}
+    </div>
+  );
+}
+
+interface SortDropdownProps {
+  current: SortId;
+  open: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onSelect: (id: SortId) => void;
+}
+
+const SORT_OPTIONS: { id: SortId; label: string }[] = [
+  { id: 'lastUsed', label: '最近使用' },
+  { id: 'name', label: '名称' },
+  { id: 'size', label: '大小' },
+];
+
+function SortDropdown({ current, open, onToggle, onClose, onSelect }: SortDropdownProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open, onClose]);
+
+  const currentLabel = SORT_OPTIONS.find((o) => o.id === current)?.label ?? '排序';
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors"
+        style={{
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
+          color: 'var(--text-primary)',
+        }}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <ArrowUpDown className="w-4 h-4" />
+        排序：{currentLabel}
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute left-0 top-full mt-1 w-44 rounded-xl shadow-lg overflow-hidden animate-scale-in origin-top-left"
+          style={{
+            backgroundColor: 'var(--bg-elevated)',
+            border: '1px solid var(--border-subtle)',
+            zIndex: 'var(--z-dropdown)',
+          }}
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              role="menuitemradio"
+              aria-checked={current === opt.id}
+              onClick={() => onSelect(opt.id)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-left text-[var(--text-sm)] transition-colors hover:bg-[var(--bg-muted)]"
+              style={{
+                color: current === opt.id ? 'var(--accent)' : 'var(--text-primary)',
+                fontWeight: current === opt.id ? 600 : 500,
+              }}
+            >
+              <span>{opt.label}</span>
+              {current === opt.id && <Check className="w-4 h-4" style={{ color: 'var(--accent)' }} />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LibraryPageSkeleton() {
+  return (
+    <div>
+      {/* 标题占位 */}
+      <div className="mb-8">
+        <div className="skeleton" style={{ width: 160, height: 36, borderRadius: 'var(--radius-md)' }} />
+        <div className="skeleton mt-2" style={{ width: 220, height: 14 }} />
+      </div>
+
+      {/* 标签栏占位 */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="skeleton"
+            style={{ width: 96, height: 40, borderRadius: 'var(--radius-full)' }}
+          />
+        ))}
+      </div>
+
+      {/* 工具栏占位 */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="skeleton" style={{ width: 132, height: 36, borderRadius: 'var(--radius-md)' }} />
+        <div className="skeleton" style={{ width: 72, height: 36, borderRadius: 'var(--radius-md)' }} />
+      </div>
+
+      {/* 列表项占位 */}
+      <div className="space-y-2">
+        {Array.from({ length: 6 }, (_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-4 p-4 rounded-2xl"
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-subtle)',
+            }}
+          >
+            <div className="skeleton flex-shrink-0" style={{ width: 56, height: 56, borderRadius: 'var(--radius-lg)' }} />
+            <div className="flex-1 space-y-2">
+              <div className="skeleton" style={{ width: '40%', height: 16 }} />
+              <div className="skeleton" style={{ width: '28%', height: 12 }} />
+              <div className="skeleton" style={{ width: '32%', height: 12 }} />
+            </div>
+            <div className="skeleton flex-shrink-0" style={{ width: 64, height: 32, borderRadius: 'var(--radius-full)' }} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

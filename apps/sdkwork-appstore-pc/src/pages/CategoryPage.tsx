@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, Grid3X3, List } from 'lucide-react';
 import { useCategoryListings, formatApiError } from '@/hooks/useApi';
-import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { AppCard, type AppCardData } from '@/components/cards/AppCard';
 import { EmptyState } from '@/components/common/EmptyState';
+import { AppCardSkeleton } from '@/components/common/Skeleton';
 
 const CATEGORY_LABELS: Record<string, string> = {
   featured: '精选',
@@ -86,11 +86,7 @@ export function CategoryPage({ categoryId: categoryIdProp }: { categoryId?: stri
   }, [apps, sortBy]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
+    return <CategoryPageSkeleton />;
   }
 
   const sortOptions: { id: SortId; label: string }[] = [
@@ -219,6 +215,46 @@ export function CategoryPage({ categoryId: categoryIdProp }: { categoryId?: stri
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function CategoryPageSkeleton() {
+  return (
+    <div>
+      {/* 面包屑占位 */}
+      <div className="flex items-center gap-2 mb-6">
+        <div className="skeleton" style={{ width: 60, height: 14 }} />
+        <div className="skeleton" style={{ width: 16, height: 16, borderRadius: '50%' }} />
+        <div className="skeleton" style={{ width: 100, height: 14 }} />
+      </div>
+
+      {/* 标题占位 */}
+      <div className="mb-8">
+        <div className="skeleton" style={{ width: 200, height: 36, borderRadius: 'var(--radius-md)' }} />
+        <div className="skeleton mt-2" style={{ width: 240, height: 14 }} />
+      </div>
+
+      {/* 工具栏占位 */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex gap-2">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="skeleton"
+              style={{ width: 88, height: 36, borderRadius: 'var(--radius-full)' }}
+            />
+          ))}
+        </div>
+        <div className="skeleton" style={{ width: 72, height: 36, borderRadius: 'var(--radius-md)' }} />
+      </div>
+
+      {/* 卡片网格占位 */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+        {Array.from({ length: 12 }, (_, i) => (
+          <AppCardSkeleton key={i} />
+        ))}
+      </div>
     </div>
   );
 }

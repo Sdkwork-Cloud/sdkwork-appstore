@@ -54,7 +54,7 @@ async fn admin_listings_list(
         query.review_status_filter,
         query.publisher_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {

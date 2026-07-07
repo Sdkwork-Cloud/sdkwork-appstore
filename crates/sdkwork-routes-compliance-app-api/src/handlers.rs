@@ -85,8 +85,8 @@ pub async fn compliance_iap_items_list<S: ComplianceOperations>(
     context: &AppstoreRequestContext,
     listing_id: String,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<ListIapItemsResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_list_iap_items(listing_id, cursor, limit);
+    let cmd = mapper::request::map_list_iap_items(listing_id, cursor, page_size);
     service.list_iap_items(context, cmd).await
 }

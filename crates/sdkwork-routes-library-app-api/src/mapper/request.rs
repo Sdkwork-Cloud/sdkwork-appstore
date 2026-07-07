@@ -8,14 +8,14 @@ use sdkwork_appstore_library_service::domain::models::UpdateCheckItem;
 
 pub fn map_list_library_items(
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListLibraryItemsRequest {
     let mut req = ListLibraryItemsRequest::new();
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -50,14 +50,14 @@ pub fn map_library_updates_check(items: Vec<UpdateCheckItem>) -> LibraryUpdatesC
 
 pub fn map_list_wishlist_items(
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListWishlistItemsRequest {
     let mut req = ListWishlistItemsRequest::new();
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

@@ -302,7 +302,7 @@ where
             ));
         }
 
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let members = self
             .repository
             .find_members_by_publisher(context, &publisher_id, request.cursor.as_deref(), limit + 1)

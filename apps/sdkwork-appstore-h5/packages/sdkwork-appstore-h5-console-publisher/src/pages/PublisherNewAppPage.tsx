@@ -1,9 +1,9 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { isAppStoreApiError } from '@sdkwork/appstore-app-sdk';
 import {
   formatApiError,
+  isAppStoreApiError,
   publisherService,
   usePublisher,
 } from '@sdkwork/appstore-publisher-console-core';

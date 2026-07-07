@@ -1,5 +1,11 @@
 packages:
   - "packages/sdkwork-appstore-publisher-console-core"
+  - "packages/sdkwork-appstore-notification-core"
+  - "packages/sdkwork-appstore-listing-acquire-core"
+  - "packages/sdkwork-appstore-search-core"
+  - "packages/sdkwork-appstore-library-core"
+  - "packages/sdkwork-appstore-listing-support-core"
+  - "packages/sdkwork-clawrouter-app-sdk"
   - "apps/sdkwork-appstore-h5"
   - "apps/sdkwork-appstore-h5/packages/*"
   - "apps/sdkwork-appstore-pc"
@@ -27,6 +33,7 @@ packages:
   - "../sdkwork-utils/packages/sdkwork-utils-typescript"
   - "../sdkwork-drive/sdks/sdkwork-drive-app-sdk/sdkwork-drive-app-sdk-typescript"
   - "../sdkwork-comments/sdks/sdkwork-comments-app-sdk/sdkwork-comments-app-sdk-typescript"
+  - "../sdkwork-clawrouter/sdks/clawrouter-app-sdk/clawrouter-app-sdk-typescript"
 
 catalog:
   react: ^19.2.4

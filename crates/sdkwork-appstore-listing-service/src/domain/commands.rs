@@ -320,7 +320,7 @@ impl UpdateRegionalAvailabilityRequest {
 pub struct ListPublisherListingsRequest {
     pub publisher_id: String,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub idempotency_key: Option<String>,
 }
 
@@ -328,8 +328,7 @@ impl ListPublisherListingsRequest {
     pub fn new(publisher_id: impl Into<String>) -> Self {
         Self {
             publisher_id: publisher_id.into(),
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             idempotency_key: None,
         }
     }
@@ -339,8 +338,8 @@ impl ListPublisherListingsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -349,7 +348,7 @@ impl ListPublisherListingsRequest {
 pub struct ListListingReleasesRequest {
     pub listing_id: String,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub idempotency_key: Option<String>,
 }
 
@@ -357,8 +356,7 @@ impl ListListingReleasesRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             idempotency_key: None,
         }
     }
@@ -368,8 +366,8 @@ impl ListListingReleasesRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 
@@ -436,7 +434,7 @@ pub struct AdminListListingsRequest {
     pub review_status_filter: Option<String>,
     pub publisher_id: Option<String>,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub idempotency_key: Option<String>,
 }
 
@@ -446,8 +444,7 @@ impl AdminListListingsRequest {
             status_filter: None,
             review_status_filter: None,
             publisher_id: None,
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             idempotency_key: None,
         }
     }
@@ -472,8 +469,8 @@ impl AdminListListingsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 
@@ -571,15 +568,14 @@ impl BootstrapPublisherAppRequest {
 pub struct ListListingReleaseHistoryRequest {
     pub listing_id: String,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl ListListingReleaseHistoryRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -588,8 +584,8 @@ impl ListListingReleaseHistoryRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -598,15 +594,14 @@ impl ListListingReleaseHistoryRequest {
 pub struct ListSimilarListingsRequest {
     pub listing_id: String,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl ListSimilarListingsRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -615,8 +610,8 @@ impl ListSimilarListingsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -625,15 +620,14 @@ impl ListSimilarListingsRequest {
 pub struct ListDeveloperOtherListingsRequest {
     pub listing_id: String,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
 }
 
 impl ListDeveloperOtherListingsRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
         }
     }
 
@@ -642,8 +636,8 @@ impl ListDeveloperOtherListingsRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }

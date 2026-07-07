@@ -104,7 +104,7 @@ async fn moderation_queue_list_handler(
         &ctx,
         query.review_status,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -214,7 +214,7 @@ async fn moderation_appeals_list_handler(
         &ctx,
         query.status,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {

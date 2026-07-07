@@ -13,7 +13,7 @@ use sdkwork_routes_listing_app_api::handlers::{
 use sdkwork_web_core::WebRequestContext;
 
 use crate::routes::support::{
-    created, map_listing_error, ok_item, ok_page, to_listing_context, CursorLimitQuery,
+    created, map_listing_error, ok_item, ok_page, to_listing_context, CursorPageSizeQuery,
 };
 use crate::AppState;
 
@@ -164,7 +164,7 @@ async fn listing_releases_list_handler(
     State(state): State<AppState>,
     Path(listing_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_listing_context(context.as_ref()) {
         Ok(ctx) => ctx,
@@ -175,7 +175,7 @@ async fn listing_releases_list_handler(
         &ctx,
         listing_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -388,7 +388,7 @@ async fn listing_releases_history_list_handler(
     State(state): State<AppState>,
     Path(listing_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_listing_context(context.as_ref()) {
         Ok(ctx) => ctx,
@@ -399,7 +399,7 @@ async fn listing_releases_history_list_handler(
         &ctx,
         listing_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -417,7 +417,7 @@ async fn listing_similar_list_handler(
     State(state): State<AppState>,
     Path(listing_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_listing_context(context.as_ref()) {
         Ok(ctx) => ctx,
@@ -428,7 +428,7 @@ async fn listing_similar_list_handler(
         &ctx,
         listing_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -446,7 +446,7 @@ async fn listing_developer_other_list_handler(
     State(state): State<AppState>,
     Path(listing_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
-    Query(query): Query<CursorLimitQuery>,
+    Query(query): Query<CursorPageSizeQuery>,
 ) -> Response {
     let ctx = match to_listing_context(context.as_ref()) {
         Ok(ctx) => ctx,
@@ -457,7 +457,7 @@ async fn listing_developer_other_list_handler(
         &ctx,
         listing_id,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {

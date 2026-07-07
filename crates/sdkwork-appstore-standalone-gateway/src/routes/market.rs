@@ -89,7 +89,7 @@ async fn market_channels_list_handler(
         &ctx,
         query.channel_status,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {
@@ -171,7 +171,7 @@ async fn market_releases_list_handler(
         query.channel_id,
         query.market_status,
         query.cursor,
-        query.limit,
+        query.page_size,
     )
     .await
     {

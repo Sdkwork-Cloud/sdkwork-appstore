@@ -11,15 +11,11 @@ import {
 } from '@/hooks/useApi';
 import { isAuthenticated } from '@/bootstrap/iamRuntime';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { readSearchTerm, mapListingSearchHit } from '@sdkwork/appstore-search-core';
 
-const trendingSearches = ['Games', 'Social', 'Tools', 'Productivity', 'Photo Editor'];
+const FALLBACK_TRENDING = ['游戏', '社交', '工具', '效率', '摄影'];
 
-function readTerm(item: unknown): string {
-  if (!item || typeof item !== 'object') return '';
-  const record = item as Record<string, unknown>;
-  const value = record.term ?? record.queryText ?? record.query_text;
-  return typeof value === 'string' ? value.trim() : '';
-}
+const BROWSE_CATEGORIES = ['游戏', '社交', '工具', '效率', '娱乐', '教育'];
 
 export function SearchPage() {
   const navigate = useNavigate();
@@ -35,17 +31,9 @@ export function SearchPage() {
     setQuery(activeQuery);
   }, [activeQuery]);
 
-  const results = (searchData?.items ?? []).map((item, index) => {
-    const listing = item as Record<string, unknown>;
-    const slug = String(listing.listingSlug ?? listing.slug ?? listing.id ?? index);
-    return {
-      id: slug,
-      name: String(listing.displayName ?? listing.title ?? 'Listing'),
-      developer: String(listing.developerName ?? listing.publisherId ?? '开发者'),
-      rating: Number(listing.rating ?? 0),
-      iconColor: 'from-blue-500 to-cyan-500',
-    };
-  });
+  const results = (searchData?.items ?? [])
+    .map((item, index) => mapListingSearchHit(item, index))
+    .filter((hit): hit is NonNullable<typeof hit> => hit !== null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,32 +54,52 @@ export function SearchPage() {
   };
 
   const apiTrending = (trendingData?.items ?? [])
-    .map(readTerm)
+    .map(readSearchTerm)
     .filter((term) => term.length > 0);
-  const trendingTerms = apiTrending.length > 0 ? apiTrending : trendingSearches;
+  const trendingTerms = apiTrending.length > 0 ? apiTrending : FALLBACK_TRENDING;
 
   const recentSearches = (historyData?.items ?? [])
-    .map(readTerm)
+    .map(readSearchTerm)
     .filter((term) => term.length > 0);
 
   return (
     <div className="animate-fade-in">
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100">
+      <header
+        className="page-header sticky top-0 z-50 border-b"
+        style={{
+          backgroundColor: 'color-mix(in srgb, var(--bg-surface) 92%, transparent)',
+          backdropFilter: 'blur(16px)',
+          borderColor: 'var(--border-subtle)',
+        }}
+      >
         <div className="flex items-center gap-3 px-4 py-3">
-          <button type="button" onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-            <ArrowLeft className="w-6 h-6" />
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
+            style={{ color: 'var(--text-primary)' }}
+            aria-label="返回"
+          >
+            <ArrowLeft className="h-6 w-6" />
           </button>
-          <form onSubmit={handleSearch} className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <form onSubmit={handleSearch} className="relative flex-1">
+            <Search
+              className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2"
+              style={{ color: 'var(--text-tertiary)' }}
+            />
             <input
-              type="text"
-              placeholder="Search apps..."
+              type="search"
+              placeholder="搜索应用、游戏、开发者…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl py-2.5 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              style={{
+                backgroundColor: 'var(--bg-muted)',
+                color: 'var(--text-primary)',
+              }}
               autoFocus
             />
-            {query && (
+            {query ? (
               <button
                 type="button"
                 onClick={() => {
@@ -99,54 +107,77 @@ export function SearchPage() {
                   setSearchParams({});
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
+                aria-label="清除"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="h-5 w-5" style={{ color: 'var(--text-tertiary)' }} />
               </button>
-            )}
+            ) : null}
           </form>
         </div>
       </header>
 
       <div className="px-4 py-4">
-        {error && (
-          <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        {error ? (
+          <div
+            className="mb-4 rounded-xl px-4 py-3 text-sm"
+            style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
+          >
             {formatApiError(error)}
           </div>
-        )}
+        ) : null}
 
         {loading && activeQuery ? (
           <div className="flex justify-center py-12">
-            <LoadingSpinner />
+            <LoadingSpinner size="lg" />
           </div>
         ) : activeQuery && results.length > 0 ? (
           <div className="space-y-3">
-            <p className="text-xs text-gray-500">{results.length} results for “{activeQuery}”</p>
+            <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+              找到 {results.length} 个与「{activeQuery}」相关的结果
+            </p>
             {results.map((app) => (
-              <Link key={app.id} to={`/app/${app.id}`} className="flex items-center gap-3 p-3 bg-white rounded-xl">
-                <div className={`w-12 h-12 bg-gradient-to-br ${app.iconColor} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                  <span className="text-lg font-bold text-white">{app.name[0]}</span>
+              <Link
+                key={app.listingSlug}
+                to={`/app/${app.listingSlug}`}
+                className="card card-press flex items-center gap-3 p-3"
+              >
+                <div
+                  className="app-icon flex h-12 w-12 flex-shrink-0 items-center justify-center text-lg font-bold text-white"
+                  style={{ background: 'linear-gradient(135deg, var(--accent), #5856d6)' }}
+                >
+                  {app.displayName[0]?.toUpperCase() ?? 'A'}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm text-gray-900 truncate">{app.name}</h3>
-                  <p className="text-xs text-gray-500">{app.developer}</p>
-                  {app.rating > 0 && (
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      <span className="text-xs text-gray-600">{app.rating}</span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    {app.displayName}
+                  </h3>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    {app.developerName ?? '开发者'}
+                  </p>
+                  {(app.averageRating ?? 0) > 0 ? (
+                    <div className="mt-0.5 flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-[var(--star)] text-[var(--star)]" />
+                      <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        {app.averageRating?.toFixed(1)}
+                      </span>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </Link>
             ))}
           </div>
         ) : activeQuery ? (
-          <p className="text-sm text-gray-500 text-center py-12">No results for “{activeQuery}”.</p>
+          <p className="py-12 text-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
+            未找到与「{activeQuery}」相关的结果
+          </p>
         ) : (
           <div>
             <section className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="w-4 h-4 text-orange-500" />
-                <h3 className="text-sm font-semibold text-gray-900">Trending</h3>
+              <div className="mb-3 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  热搜
+                </h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {trendingTerms.map((term) => (
@@ -154,7 +185,12 @@ export function SearchPage() {
                     key={term}
                     type="button"
                     onClick={() => handleQuickSearch(term)}
-                    className="px-3 py-2 bg-white rounded-full text-sm border border-gray-200"
+                    className="rounded-full border px-3 py-2 text-sm"
+                    style={{
+                      backgroundColor: 'var(--bg-surface)',
+                      borderColor: 'var(--border-subtle)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
                     {term}
                   </button>
@@ -164,20 +200,23 @@ export function SearchPage() {
 
             {recentSearches.length > 0 ? (
               <section className="mb-6">
-                <div className="flex items-center justify-between mb-3">
+                <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-gray-400" />
-                    <h3 className="text-sm font-semibold text-gray-900">Recent</h3>
+                    <Clock className="h-4 w-4" style={{ color: 'var(--text-tertiary)' }} />
+                    <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      最近搜索
+                    </h3>
                   </div>
                   {authed ? (
                     <button
                       type="button"
-                      className="text-xs text-blue-500"
+                      className="text-xs font-medium"
+                      style={{ color: 'var(--accent)' }}
                       onClick={() => {
                         void clearSearchHistory().then(() => refreshHistory());
                       }}
                     >
-                      Clear
+                      清除
                     </button>
                   ) : null}
                 </div>
@@ -187,7 +226,8 @@ export function SearchPage() {
                       key={term}
                       type="button"
                       onClick={() => handleQuickSearch(term)}
-                      className="w-full text-left px-3 py-2 bg-white rounded-xl text-sm text-gray-700 border border-gray-100"
+                      className="card w-full rounded-xl px-3 py-2 text-left text-sm"
+                      style={{ color: 'var(--text-secondary)' }}
                     >
                       {term}
                     </button>
@@ -197,17 +237,20 @@ export function SearchPage() {
             ) : null}
 
             <section>
-              <div className="flex items-center gap-2 mb-3">
-                <Clock className="w-4 h-4 text-gray-400" />
-                <h3 className="text-sm font-semibold text-gray-900">Browse by category</h3>
+              <div className="mb-3 flex items-center gap-2">
+                <Clock className="h-4 w-4" style={{ color: 'var(--text-tertiary)' }} />
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  按分类浏览
+                </h3>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {['Games', 'Social', 'Tools', 'Productivity', 'Entertainment', 'Education'].map((cat) => (
+                {BROWSE_CATEGORIES.map((cat) => (
                   <button
                     key={cat}
                     type="button"
                     onClick={() => handleQuickSearch(cat)}
-                    className="p-3 bg-white rounded-xl text-center text-sm font-medium text-gray-700 border border-gray-100"
+                    className="card card-press p-3 text-center text-sm font-medium"
+                    style={{ color: 'var(--text-primary)' }}
                   >
                     {cat}
                   </button>

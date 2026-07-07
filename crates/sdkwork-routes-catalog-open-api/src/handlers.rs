@@ -26,8 +26,8 @@ pub async fn catalog_public_featured_list<S: CatalogOperations>(
     context: &AppstoreRequestContext,
     locale: Option<String>,
     platform: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> Result<PublicFeaturedListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_public_featured_list(locale, platform, limit);
+    let cmd = mapper::request::map_public_featured_list(locale, platform, page_size);
     service.public_featured_list(context, cmd).await
 }

@@ -128,7 +128,7 @@ impl UpdatePublisherRequest {
 pub struct ListPublisherMembersRequest {
     pub publisher_id: String,
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
+    pub page_size: Option<i32>,
     pub idempotency_key: Option<String>,
 }
 
@@ -136,8 +136,7 @@ impl ListPublisherMembersRequest {
     pub fn new(publisher_id: impl Into<String>) -> Self {
         Self {
             publisher_id: publisher_id.into(),
-            cursor: None,
-            limit: None,
+            cursor: None,$1$2page_size: None,
             idempotency_key: None,
         }
     }
@@ -147,8 +146,8 @@ impl ListPublisherMembersRequest {
         self
     }
 
-    pub fn with_limit(mut self, limit: i32) -> Self {
-        self.limit = Some(limit);
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 

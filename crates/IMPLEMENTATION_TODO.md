@@ -2,7 +2,7 @@
 
 Active alignment tracker for `sdkwork-appstore` against `sdkwork-specs`.
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 ## Framework Integration
 
@@ -14,6 +14,9 @@ Last updated: 2026-07-06
 | `sdkwork-discovery` | Deferred | HTTP-only unified-process gateway; adopt when RPC split-services land |
 | `sdkwork-drive` | Integrated | PC/H5 `@sdkwork/drive-app-sdk` upload helpers; Rust `drive_adapter` + `drive_uploader` |
 | `sdkwork-comments` | Integrated | PC/H5 `@sdkwork/comments-app-sdk` listing reviews via `comments_thread_id` |
+| `sdkwork-clawrouter` (notifications) | Integrated | PC/H5 inbox via `@sdkwork/clawrouter-app-sdk` + `appstore-notification-core` |
+| `sdkwork-clawrouter` (commerce checkout) | Integrated | PC/H5 paid listing acquire via `@sdkwork/clawrouter-app-sdk/domains` + `appstore-listing-acquire-core` |
+| `sdkwork-search` | Integrated (optional) | `SearchFederationAdapter` + SQL fallback; env `APPSTORE_SEARCH_BASE_URL` |
 | `sdkwork-appbase` | Integrated | Publisher console bootstraps via appbase shell; app-sdk composition validated by check:app-sdk-consumers |
 | `sdkwork-platform` | Integrated | Platform context resolver wired in standalone gateway preflight; IAM dual-token context propagation |
 
@@ -28,13 +31,20 @@ All catalog, listing, library, publisher, moderation, compliance, analytics, and
 | Publisher console core | Implemented | `@sdkwork/appstore-publisher-console-core` shared service/hooks |
 | PC publisher UI | Implemented | `@sdkwork/appstore-pc-console-publisher` (zh-CN) |
 | H5 publisher UI | Implemented | `@sdkwork/appstore-h5-console-publisher` (zh-CN mobile) |
+| Listing acquire (paid checkout UX) | Implemented | `@sdkwork/appstore-listing-acquire-core`; PC/H5 listing detail ownership + checkout branch |
+| Search UX core | Implemented | `@sdkwork/appstore-search-core`; PC/H5 zh-CN search mappers |
+| Library updates UX core | Implemented | `@sdkwork/appstore-library-core`; PC/H5 updates page shared mapper |
+| Listing support UX core | Implemented | `@sdkwork/appstore-listing-support-core`; PC/H5 listing report via support/mailto channel |
+| Library actions core | Implemented | `@sdkwork/appstore-library-core`; PC/H5 uninstall + wishlist remove wired to app-api |
+| Search index projection | Implemented | `SearchProjectionAdapter` on moderation approve; remove on storefront hide (optional env) |
+| Market channel HTTP connectors | Implemented | Apple/Google/Enterprise relay via `APPSTORE_MARKET_*_SUBMIT_URL` |
 
 ## Client Surfaces
 
 | Surface | Dev command | Status |
 | --- | --- | --- |
 | PC browser | `pnpm dev` (pc app root) | zh-CN shell; IAM profile; publisher console package |
-| H5 mobile web | `pnpm dev` (h5 app root) | 5-tab nav; zh-CN publisher + settings IAM card |
+| H5 mobile web | `pnpm dev` (h5 app root) | 5-tab nav; zh-CN library/report/settings |
 
 ## Verification
 
@@ -45,7 +55,7 @@ pnpm verify
 cargo test --workspace
 ```
 
-Last verified: 2026-07-06 — PC/H5 `pnpm build`, governance checks, comments SDK integration.
+Last verified: 2026-07-07 — PC/H5 `pnpm build`, library uninstall/wishlist + H5 report flow, governance checks.
 
 ## Database (SQLite + PostgreSQL)
 
@@ -59,6 +69,21 @@ Last verified: 2026-07-06 — PC/H5 `pnpm build`, governance checks, comments SD
 
 ## Remaining Production Items
 
-- External connectors: commerce checkout, notifications push, search federation, market_channels sync
+- Commerce: cart line-item body on clawrouter `/cart/items` when wire exposes product attachment (checkout session + best-effort quote wired today)
+- Listing abuse API: optional dedicated `appstore.compliance.reports.submit` when moderation intake table is added (PC/H5 report UX uses support/mailto today)
 - Production LCP / CDN performance validation (requires deployed environment)
 - Optional: dedicated PostgreSQL CI matrix job (dialect code paths exist; default dev remains SQLite)
+
+### Optional integration env
+
+| Variable | Purpose |
+| --- | --- |
+| `APPSTORE_SEARCH_BASE_URL` | Enable sdkwork-search federation for catalog `listings.search` |
+| `APPSTORE_SEARCH_CAPABILITY_IDS` | Comma-separated search capability scope filter |
+| `APPSTORE_SEARCH_PROJECTION_ENABLED` | Upsert published listings into sdkwork-search backend index |
+| `APPSTORE_SEARCH_BACKEND_BASE_URL` | sdkwork-search backend API base for document projection |
+| `APPSTORE_SEARCH_INDEX_ID` | Target search index id for listing documents |
+| `APPSTORE_MARKET_PROVIDER_ENABLED` | Enable external market channel provider bridge |
+| `APPSTORE_MARKET_APPLE_SUBMIT_URL` | Apple App Store HTTP relay submit endpoint |
+| `APPSTORE_MARKET_GOOGLE_SUBMIT_URL` | Google Play HTTP relay submit endpoint |
+| `VITE_APPSTORE_ABUSE_REPORT_EMAIL` | PC/H5 client fallback platform abuse report mailbox |

@@ -97,7 +97,7 @@ async fn public_catalog_featured(
         &ctx,
         query.locale,
         query.platform,
-        query.limit,
+        query.page_size,
     )
     .await
     {

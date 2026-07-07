@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Search, X, TrendingUp, Clock, ArrowRight } from 'lucide-react';
 import {
   useSearch,
@@ -10,61 +10,27 @@ import {
   formatApiError,
 } from '@/hooks/useApi';
 import { isAuthenticated } from '@/bootstrap/iamRuntime';
+import { readSearchTerm, mapListingSearchHit } from '@sdkwork/appstore-search-core';
 import { AppCard, type AppCardData } from '@/components/cards/AppCard';
 import { EmptyState } from '@/components/common/EmptyState';
+import { AppCardSkeleton } from '@/components/common/Skeleton';
 
 const FALLBACK_TRENDING = [
   '效率', '社交', '游戏', '图像处理', '音乐',
   '天气', '健身', '笔记', '安全', '计算器',
 ];
 
-const POPULAR_CATEGORIES = [
-  '效率工具', '游戏', '社交', '娱乐',
-  '实用工具', '教育', '商务', '健康',
+// 热门分类：label 为展示名，to 为分类页路由。
+const POPULAR_CATEGORIES: { label: string; to: string }[] = [
+  { label: '效率', to: '/category/productivity' },
+  { label: '游戏', to: '/games' },
+  { label: '社交', to: '/category/social' },
+  { label: '娱乐', to: '/category/entertainment' },
+  { label: '工具', to: '/category/tools' },
+  { label: '教育', to: '/category/education' },
+  { label: '商务', to: '/category/business' },
+  { label: '健康', to: '/category/health' },
 ];
-
-function readTerm(item: unknown): string {
-  if (!item || typeof item !== 'object') return '';
-  const record = item as Record<string, unknown>;
-  const value = record.term ?? record.queryText ?? record.query_text;
-  return typeof value === 'string' ? value.trim() : '';
-}
-
-function readString(record: Record<string, unknown>, ...keys: string[]): string {
-  for (const key of keys) {
-    const value = record[key];
-    if (typeof value === 'string' && value.trim()) return value.trim();
-  }
-  return '';
-}
-
-function readNumber(record: Record<string, unknown>, ...keys: string[]): number {
-  for (const key of keys) {
-    const value = record[key];
-    if (typeof value === 'number' && Number.isFinite(value)) return value;
-  }
-  return 0;
-}
-
-function mapResultToCard(item: unknown, index: number): AppCardData | null {
-  if (!item || typeof item !== 'object') return null;
-  const row = item as Record<string, unknown>;
-  const id = readString(row, 'id') || String(index);
-  const listingSlug = readString(row, 'listing_slug', 'listingSlug') || id;
-  return {
-    id,
-    listingSlug,
-    displayName: readString(row, 'display_name', 'displayName') || listingSlug,
-    subtitle: readString(row, 'subtitle') || undefined,
-    iconUrl: readString(row, 'icon_media_resource_id', 'iconMediaResourceId') || undefined,
-    averageRating: readNumber(row, 'average_rating', 'averageRating') || undefined,
-    ratingCount: readNumber(row, 'rating_count', 'ratingCount') || undefined,
-    downloadCount: readNumber(row, 'download_count', 'downloadCount') || undefined,
-    pricingModel: readString(row, 'pricing_model', 'pricingModel') || undefined,
-    priceLabel: readString(row, 'price_label', 'priceLabel') || undefined,
-    category: readString(row, 'primary_category_id', 'primaryCategoryId') || undefined,
-  };
-}
 
 type FilterId = 'all' | 'apps' | 'games' | 'free' | 'paid';
 
@@ -86,8 +52,21 @@ export function SearchPage() {
   const allResults: AppCardData[] = useMemo(
     () =>
       (searchData?.items ?? [])
-        .map(mapResultToCard)
-        .filter((a): a is AppCardData => a !== null),
+        .map((item, index) => mapListingSearchHit(item, index))
+        .filter((hit): hit is NonNullable<typeof hit> => hit !== null)
+        .map((hit) => ({
+          id: hit.id,
+          listingSlug: hit.listingSlug,
+          displayName: hit.displayName,
+          subtitle: hit.subtitle,
+          iconUrl: hit.iconUrl,
+          averageRating: hit.averageRating,
+          ratingCount: hit.ratingCount,
+          downloadCount: hit.downloadCount,
+          pricingModel: hit.pricingModel,
+          priceLabel: hit.priceLabel,
+          category: hit.category,
+        })),
     [searchData?.items],
   );
 
@@ -105,12 +84,12 @@ export function SearchPage() {
   }, [allResults, activeFilter, activeQuery]);
 
   const apiTrending = (trendingData?.items ?? [])
-    .map(readTerm)
+    .map(readSearchTerm)
     .filter((term) => term.length > 0);
   const trendingTerms = apiTrending.length > 0 ? apiTrending : FALLBACK_TRENDING;
 
   const recentSearches = (historyData?.items ?? [])
-    .map(readTerm)
+    .map(readSearchTerm)
     .filter((term) => term.length > 0);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -219,25 +198,13 @@ export function SearchPage() {
 
       {/* 内容区 */}
       {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="rounded-2xl p-5"
-              style={{
-                backgroundColor: 'var(--bg-surface)',
-                border: '1px solid var(--border-subtle)',
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <div className="skeleton" style={{ width: 60, height: 60, borderRadius: 'var(--radius-icon)' }} />
-                <div className="flex-1 space-y-2">
-                  <div className="skeleton" style={{ height: 16, width: '33%' }} />
-                  <div className="skeleton" style={{ height: 12, width: '25%' }} />
-                </div>
-              </div>
-            </div>
-          ))}
+        <div>
+          <div className="skeleton mb-4" style={{ width: 160, height: 14 }} />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {Array.from({ length: 10 }, (_, i) => (
+              <AppCardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       ) : results.length > 0 ? (
         <div>
@@ -362,22 +329,18 @@ export function SearchPage() {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {POPULAR_CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => {
-                    setQuery(cat);
-                    setSearchParams({ q: cat });
-                  }}
-                  className="p-4 rounded-xl text-center transition-colors"
+                <Link
+                  key={cat.label}
+                  to={cat.to}
+                  className="p-4 rounded-xl text-center transition-colors card-hover"
                   style={{
                     backgroundColor: 'var(--bg-surface)',
                     border: '1px solid var(--border-subtle)',
                     color: 'var(--text-secondary)',
                   }}
                 >
-                  <span className="text-sm font-medium">{cat}</span>
-                </button>
+                  <span className="text-sm font-medium">{cat.label}</span>
+                </Link>
               ))}
             </div>
           </section>

@@ -285,16 +285,16 @@ function OverviewTab({ stats, hasPublisher }: { stats: StatItem[]; hasPublisher:
           description="开始构建你的新应用"
         />
         <QuickActionCard
-          to="/publisher/analytics"
-          icon={<BarChart3 className="w-6 h-6" />}
-          title="查看数据分析"
-          description="追踪应用表现与下载趋势"
+          to="/publisher/apps"
+          icon={<Package className="w-6 h-6" />}
+          title="管理我的应用"
+          description="查看应用列表、版本与合规"
         />
         <QuickActionCard
-          to="/publisher/verification"
+          to="/publisher"
           icon={<CheckCircle2 className="w-6 h-6" />}
-          title="身份认证"
-          description="完成发布者身份验证"
+          title="发布者设置"
+          description="管理发布者资料与认证状态"
         />
       </div>
     </div>
@@ -356,6 +356,16 @@ function AppsTab({ apps }: { apps: AppItem[] }) {
           暂无应用。创建你的第一个应用以开始发布。
         </div>
       ) : (
+        <>
+        <div className="mb-3 text-right">
+          <Link
+            to="/publisher/apps"
+            className="text-sm transition-colors hover:opacity-80"
+            style={{ color: 'var(--accent)' }}
+          >
+            查看全部应用 →
+          </Link>
+        </div>
         <div className="space-y-3">
           {apps.map((app) => (
             <div
@@ -436,6 +446,7 @@ function AppsTab({ apps }: { apps: AppItem[] }) {
             </div>
           ))}
         </div>
+        </>
       )}
     </div>
   );
@@ -731,12 +742,18 @@ function SettingsTab({
                 : `当前状态：${verificationStatus}`}
             </p>
           </div>
-          <Link
-            to="/publisher/verification"
-            className={isVerified ? 'btn-secondary text-sm' : 'btn-primary text-sm'}
-          >
-            {isVerified ? '已认证' : '提交认证'}
-          </Link>
+          {isVerified ? (
+            <span className="btn-secondary text-sm pointer-events-none opacity-80">
+              已认证
+            </span>
+          ) : (
+            <span
+              className="btn-primary text-sm pointer-events-none opacity-60"
+              title="认证流程将在发布者 API 完善后开放"
+            >
+              提交认证
+            </span>
+          )}
         </div>
       </div>
     </div>

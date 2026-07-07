@@ -20,7 +20,7 @@ pub fn map_home_retrieve(locale: Option<String>, platform: Option<String>) -> Ho
 pub fn map_categories_list(
     locale: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> CategoriesListRequest {
     let mut req = CategoriesListRequest::new();
     if let Some(v) = locale {
@@ -29,8 +29,8 @@ pub fn map_categories_list(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -48,15 +48,15 @@ pub fn map_category_retrieve(
 
 pub fn map_collections_list(
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
     audience_scope: Option<String>,
 ) -> CollectionsListRequest {
     let mut req = CollectionsListRequest::new();
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     if let Some(v) = audience_scope {
         req = req.with_audience_scope(v);
@@ -112,7 +112,7 @@ pub fn map_listings_search(
     query: Option<String>,
     category_id: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListingsSearchRequest {
     let mut req = ListingsSearchRequest::new();
     if let Some(v) = query {
@@ -124,8 +124,8 @@ pub fn map_listings_search(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -134,7 +134,7 @@ pub fn map_recommendations_list(
     locale: Option<String>,
     platform: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> RecommendationsListRequest {
     let mut req = RecommendationsListRequest::new();
     if let Some(v) = locale {
@@ -146,8 +146,8 @@ pub fn map_recommendations_list(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -155,7 +155,7 @@ pub fn map_recommendations_list(
 pub fn map_recently_updated_list(
     locale: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> RecentlyUpdatedListRequest {
     let mut req = RecentlyUpdatedListRequest::new();
     if let Some(v) = locale {
@@ -164,23 +164,23 @@ pub fn map_recently_updated_list(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
 
 pub fn map_events_list(
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
     status: Option<String>,
 ) -> EventsListRequest {
     let mut req = EventsListRequest::new();
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     if let Some(v) = status {
         req = req.with_status(v);
@@ -209,28 +209,28 @@ pub fn map_search_suggestions_list(
 
 pub fn map_search_trending_list(
     locale: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> SearchTrendingListRequest {
     let mut req = SearchTrendingListRequest::new();
     if let Some(v) = locale {
         req = req.with_locale(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
 
 pub fn map_search_history_list(
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> SearchHistoryListRequest {
     let mut req = SearchHistoryListRequest::new();
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }

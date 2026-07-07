@@ -37,6 +37,8 @@ use crate::domain::results::{
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
 use crate::ports::repository::CatalogRepositoryPort;
+use crate::ports::search_federation::CatalogSearchFederationPort;
+use std::sync::Arc;
 
 #[async_trait::async_trait]
 pub trait CatalogOperations {
@@ -221,14 +223,35 @@ pub trait CatalogOperations {
     ) -> AppstoreServiceResult<AnalyticsOperatorSearchResult>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct CatalogService<R> {
     repository: R,
+    search_federation: Option<Arc<dyn CatalogSearchFederationPort>>,
+}
+
+impl<R: std::fmt::Debug> std::fmt::Debug for CatalogService<R> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CatalogService")
+            .field("repository", &self.repository)
+            .field("search_federation", &self.search_federation.is_some())
+            .finish()
+    }
 }
 
 impl<R> CatalogService<R> {
     pub fn new(repository: R) -> Self {
-        Self { repository }
+        Self {
+            repository,
+            search_federation: None,
+        }
+    }
+
+    pub fn with_search_federation(
+        mut self,
+        port: Arc<dyn CatalogSearchFederationPort>,
+    ) -> Self {
+        self.search_federation = Some(port);
+        self
     }
 }
 
@@ -381,7 +404,7 @@ where
         context: &AppstoreRequestContext,
         request: CategoriesListRequest,
     ) -> AppstoreServiceResult<CategoriesListResult> {
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let categories = self
             .repository
             .find_categories(context, request.cursor.as_deref(), limit + 1)
@@ -606,7 +629,7 @@ where
         context: &AppstoreRequestContext,
         request: CollectionsListRequest,
     ) -> AppstoreServiceResult<CollectionsListResult> {
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let collections = self
             .repository
             .find_collections(context, request.cursor.as_deref(), limit + 1)
@@ -1059,17 +1082,83 @@ where
         context: &AppstoreRequestContext,
         request: ListingsSearchRequest,
     ) -> AppstoreServiceResult<ListingsSearchResult> {
-        let limit = request.limit.unwrap_or(20).min(100);
-        let listings = self
-            .repository
-            .search_listings(
-                context,
-                request.query.as_deref(),
-                request.category_id.as_deref(),
-                request.cursor.as_deref(),
-                limit + 1,
-            )
-            .await?;
+        let limit = request.page_size.unwrap_or(20).min(200);
+
+        let mut listings = if let (Some(port), Some(query)) =
+            (&self.search_federation, request.query.as_deref())
+        {
+            let trimmed = query.trim();
+            if trimmed.is_empty() {
+                Vec::new()
+            } else {
+                match port
+                    .resolve_listing_ids(
+                        &context.tenant_id,
+                        trimmed,
+                        request.category_id.as_deref(),
+                        limit + 1,
+                    )
+                    .await
+                {
+                    Ok(listing_ids) if !listing_ids.is_empty() => {
+                        let mut hydrated = self
+                            .repository
+                            .find_listings_by_ids(context, &listing_ids, None)
+                            .await?;
+                        let order: std::collections::HashMap<&str, usize> = listing_ids
+                            .iter()
+                            .enumerate()
+                            .map(|(index, id)| (id.as_str(), index))
+                            .collect();
+                        hydrated.sort_by_key(|listing| order.get(listing.id.as_str()).copied().unwrap_or(usize::MAX));
+                        hydrated
+                    }
+                    Ok(_) => Vec::new(),
+                    Err(error) => {
+                        tracing::warn!("federated search unavailable, falling back to SQL: {error}");
+                        self.repository
+                            .search_listings(
+                                context,
+                                request.query.as_deref(),
+                                request.category_id.as_deref(),
+                                request.cursor.as_deref(),
+                                limit + 1,
+                            )
+                            .await?
+                    }
+                }
+            }
+        } else {
+            self.repository
+                .search_listings(
+                    context,
+                    request.query.as_deref(),
+                    request.category_id.as_deref(),
+                    request.cursor.as_deref(),
+                    limit + 1,
+                )
+                .await?
+        };
+
+        if listings.is_empty()
+            && request
+                .query
+                .as_deref()
+                .map(str::trim)
+                .is_some_and(|value| !value.is_empty())
+            && self.search_federation.is_some()
+        {
+            listings = self
+                .repository
+                .search_listings(
+                    context,
+                    request.query.as_deref(),
+                    request.category_id.as_deref(),
+                    request.cursor.as_deref(),
+                    limit + 1,
+                )
+                .await?;
+        }
 
         let has_more = listings.len() > limit as usize;
         let listings: Vec<ListingSummary> = listings.into_iter().take(limit as usize).collect();
@@ -1133,7 +1222,7 @@ where
             })
             .collect();
 
-        let limit = request.limit.unwrap_or(20).min(100) as usize;
+        let limit = request.page_size.unwrap_or(20).min(200) as usize;
         let slots: Vec<CatalogFeaturedSlot> = filtered.into_iter().take(limit).collect();
 
         Ok(PublicFeaturedListResult::new(
@@ -1154,7 +1243,7 @@ where
             .as_deref()
             .and_then(PlatformScope::from_str)
             .unwrap_or(PlatformScope::All);
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
 
         let chart = self
             .repository
@@ -1208,7 +1297,7 @@ where
         request: RecentlyUpdatedListRequest,
     ) -> AppstoreServiceResult<RecentlyUpdatedListResult> {
         require_scope(context, "appstore.catalog.read")?;
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let listings = self
             .repository
             .find_recently_updated_listings(
@@ -1241,7 +1330,7 @@ where
         request: EventsListRequest,
     ) -> AppstoreServiceResult<EventsListResult> {
         require_scope(context, "appstore.catalog.read")?;
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let collections = self
             .repository
             .find_event_collections(
@@ -1366,7 +1455,7 @@ where
         request: SearchTrendingListRequest,
     ) -> AppstoreServiceResult<SearchTrendingListResult> {
         require_scope(context, "appstore.catalog.read")?;
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let terms = self
             .repository
             .find_trending_terms(context, request.locale.as_deref(), limit)
@@ -1385,7 +1474,7 @@ where
     ) -> AppstoreServiceResult<SearchHistoryListResult> {
         require_scope(context, "appstore.catalog.read")?;
         let user_id = require_user_id(context)?;
-        let limit = request.limit.unwrap_or(20).min(100);
+        let limit = request.page_size.unwrap_or(20).min(200);
         let entries = self
             .repository
             .find_search_history(context, &user_id, request.cursor.as_deref(), limit + 1)
@@ -1487,7 +1576,7 @@ where
     ) -> AppstoreServiceResult<AnalyticsPublisherListingsListResult> {
         require_scope(context, "appstore.analytics.publisher")?;
         let publisher_id = resolve_publisher_id(&self.repository, context).await?;
-        let limit = request.limit.unwrap_or(20).clamp(1, 100);
+        let limit = request.page_size.unwrap_or(20).clamp(1, 200);
         let listings = self
             .repository
             .list_publisher_listing_metrics(

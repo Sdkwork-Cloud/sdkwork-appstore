@@ -57,7 +57,7 @@ paths:
       operationId: appstore.catalog.categories.list
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       - name: locale
         in: query
         schema:
@@ -104,7 +104,7 @@ paths:
       operationId: appstore.catalog.collections.list
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -199,7 +199,7 @@ paths:
         schema:
           type: string
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -223,7 +223,7 @@ paths:
         schema:
           type: string
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -239,7 +239,7 @@ paths:
       operationId: appstore.catalog.recentlyUpdated.list
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       - name: locale
         in: query
         schema:
@@ -259,7 +259,7 @@ paths:
       operationId: appstore.catalog.events.list
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       - name: status
         in: query
         schema:
@@ -324,7 +324,7 @@ paths:
         in: query
         schema:
           type: string
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -340,7 +340,7 @@ paths:
       operationId: appstore.catalog.search.history.list
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -554,7 +554,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -604,7 +604,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -621,7 +621,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -638,7 +638,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -716,7 +716,7 @@ paths:
       operationId: appstore.publishers.me.listings.list
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -1188,7 +1188,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -1204,7 +1204,7 @@ paths:
       operationId: appstore.library.items.list
       parameters:
       - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: Success
@@ -1436,13 +1436,13 @@ components:
       in: query
       schema:
         type: string
-    Limit:
-      name: limit
+    PageSize:
+      name: page_size
       in: query
       schema:
         type: integer
         minimum: 1
-        maximum: 100
+        maximum: 200
         default: 20
     IdempotencyKey:
       name: Idempotency-Key
@@ -1593,6 +1593,9 @@ components:
             type: string
           commentsThreadId:
             type: string
+          commerceProductId:
+            type: string
+            description: Commerce catalog product id for paid checkout (clawrouter/commerce domain).
           currentReleaseId:
             type: string
           categories:

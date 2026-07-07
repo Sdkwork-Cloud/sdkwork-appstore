@@ -6,7 +6,7 @@ use sdkwork_appstore_market_service::domain::commands::{
 pub fn map_list_market_channels(
     channel_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListMarketChannelsRequest {
     let mut req = ListMarketChannelsRequest::new();
     if let Some(v) = channel_status {
@@ -15,8 +15,8 @@ pub fn map_list_market_channels(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -70,7 +70,7 @@ pub fn map_list_market_releases(
     channel_id: Option<String>,
     market_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 ) -> ListMarketReleasesRequest {
     let mut req = ListMarketReleasesRequest::new();
     if let Some(v) = release_id {
@@ -85,8 +85,8 @@ pub fn map_list_market_releases(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some(v) = limit {
-        req = req.with_limit(v);
+    if let Some($1) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
