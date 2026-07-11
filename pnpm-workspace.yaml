@@ -1,11 +1,6 @@
 packages:
-  - "packages/sdkwork-appstore-publisher-console-core"
-  - "packages/sdkwork-appstore-notification-core"
-  - "packages/sdkwork-appstore-listing-acquire-core"
-  - "packages/sdkwork-appstore-search-core"
-  - "packages/sdkwork-appstore-library-core"
-  - "packages/sdkwork-appstore-listing-support-core"
-  - "packages/sdkwork-clawrouter-app-sdk"
+  - "apps/sdkwork-appstore-common"
+  - "apps/sdkwork-appstore-common/packages/*"
   - "apps/sdkwork-appstore-h5"
   - "apps/sdkwork-appstore-h5/packages/*"
   - "apps/sdkwork-appstore-pc"

@@ -16,7 +16,7 @@ struct AdminListingsQuery {
     review_status_filter: Option<String>,
     publisher_id: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]

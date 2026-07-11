@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-appstore-common",
+    "displayName": "SDKWork App Store Common",
+    "version": "0.1.0",
+    "type": "app",
+    "root": "sdkwork-appstore/apps/sdkwork-appstore-common",
+    "domain": "appstore",
+    "capability": "appstore-common",
+    "surface": "common",
+    "languages": ["typescript"],
+    "generated": false,
+    "manifests": [
+      "packages/sdkwork-appstore-library-core/package.json",
+      "packages/sdkwork-appstore-listing-acquire-core/package.json",
+      "packages/sdkwork-appstore-listing-support-core/package.json",
+      "packages/sdkwork-appstore-notification-core/package.json",
+      "packages/sdkwork-appstore-publisher-console-core/package.json",
+      "packages/sdkwork-appstore-search-core/package.json"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "SDKWORK_WORKSPACE_SPEC.md",
+      "path": "../../../sdkwork-specs/SDKWORK_WORKSPACE_SPEC.md",
+      "purpose": "Common application-root package layout."
+    },
+    {
+      "file": "COMPONENT_SPEC.md",
+      "path": "../../../sdkwork-specs/COMPONENT_SPEC.md",
+      "purpose": "Local component contract shape."
+    },
+    {
+      "file": "TYPESCRIPT_CODE_SPEC.md",
+      "path": "../../../sdkwork-specs/TYPESCRIPT_CODE_SPEC.md",
+      "purpose": "TypeScript package boundaries."
+    }
+  ],
+  "contracts": {
+    "layerRole": "frontend-core",
+    "publicExports": [
+      "packages/sdkwork-appstore-library-core",
+      "packages/sdkwork-appstore-listing-acquire-core",
+      "packages/sdkwork-appstore-listing-support-core",
+      "packages/sdkwork-appstore-notification-core",
+      "packages/sdkwork-appstore-publisher-console-core",
+      "packages/sdkwork-appstore-search-core"
+    ],
+    "providedPorts": [
+      {
+        "name": "appstoreSharedPackages",
+        "export": "packages/sdkwork-appstore-library-core"
+      }
+    ],
+    "requiredPorts": [],
+    "runtimeEntrypoints": [],
+    "routeManifest": null,
+    "sdkClients": [],
+    "sdkDependencies": [
+      {
+        "sdkFamily": "sdkwork-appstore-app-sdk",
+        "repository": "sdkwork-appstore",
+        "surfaces": ["app-api"]
+      },
+      {
+        "sdkFamily": "sdkwork-drive-app-sdk",
+        "repository": "sdkwork-drive",
+        "surfaces": ["app-api"]
+      },
+      {
+        "sdkFamily": "sdkwork-clawrouter-app-sdk",
+        "repository": "sdkwork-clawrouter",
+        "surfaces": ["app-api"]
+      }
+    ],
+    "permissionComposition": {},
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": [],
+    "events": [],
+    "configKeys": []
+  },
+  "verification": {
+    "commands": ["node ../sdkwork-specs/tools/check-workspace-packages-layout.mjs --root . --mode enforce"]
+  }
+}

@@ -15,7 +15,7 @@ use crate::AppState;
 struct MarketChannelsQuery {
     channel_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -24,7 +24,7 @@ struct MarketReleasesQuery {
     channel_id: Option<String>,
     market_status: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]

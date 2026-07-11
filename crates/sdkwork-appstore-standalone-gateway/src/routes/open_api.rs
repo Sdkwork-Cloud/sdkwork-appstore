@@ -21,7 +21,7 @@ use crate::AppState;
 struct PublicFeaturedQuery {
     locale: Option<String>,
     platform: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]

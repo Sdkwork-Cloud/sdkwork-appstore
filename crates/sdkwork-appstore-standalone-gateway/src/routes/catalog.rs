@@ -29,13 +29,13 @@ struct CatalogHomeQuery {
 struct CatalogCategoriesListQuery {
     locale: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]
 struct CatalogCollectionsListQuery {
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
     audience_scope: Option<String>,
 }
 
@@ -57,20 +57,20 @@ struct CatalogRecommendationsQuery {
     locale: Option<String>,
     platform: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]
 struct CatalogRecentlyUpdatedQuery {
     locale: Option<String>,
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]
 struct CatalogEventsListQuery {
     cursor: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
     status: Option<String>,
 }
 
@@ -84,7 +84,7 @@ struct CatalogSearchSuggestionsQuery {
 #[derive(Debug, serde::Deserialize)]
 struct CatalogSearchTrendingQuery {
     locale: Option<String>,
-    limit: Option<i32>,
+    page_size: Option<i32>,
 }
 
 #[derive(Debug, serde::Deserialize)]

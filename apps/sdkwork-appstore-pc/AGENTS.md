@@ -27,7 +27,7 @@ Read `../../sdkwork-specs/SOUL.md` before executing tasks in this root. Follow s
 | `sdkwork-appstore-pc-search` | Search functionality |
 | `sdkwork-appstore-pc-console-core` | Console shell, navigation |
 | `sdkwork-appstore-pc-console-publisher` | Publisher management console |
-| `@sdkwork/appstore-publisher-console-core` | Shared publisher service/hooks (PC + H5) |
+| `@sdkwork/appstore-publisher-console-core` | Shared publisher service/hooks (PC + H5), owned by `../sdkwork-appstore-common/packages/sdkwork-appstore-publisher-console-core` |
 
 ## SDK Boundary
 

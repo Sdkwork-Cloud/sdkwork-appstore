@@ -14,6 +14,7 @@ The repository root `sdkwork.app.config.json` governs the primary application ma
 
 | Directory | Surface role | Runnable | Purpose | Entry |
 | --- | --- | --- | --- | --- |
+| sdkwork-appstore-common | common | no | Cross-architecture shared packages consumed by PC and H5 surfaces. | `sdkwork-appstore-common/` |
 | sdkwork-appstore-h5 | h5 | yes | sdkwork-appstore-h5 h5 application root. | `sdkwork-appstore-h5/` |
 | sdkwork-appstore-pc | pc | yes | sdkwork-appstore-pc pc application root. | `sdkwork-appstore-pc/` |
 
