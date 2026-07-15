@@ -196,26 +196,26 @@ async fn main() {
 }
 
 fn cors_layer_from_env() -> CorsLayer {
-    if let Ok(origins) = std::env::var("APPSTORE_CORS_ALLOWED_ORIGINS") {
-        let allowed: Vec<_> = origins
-            .split(',')
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-            .map(|origin| {
-                origin
-                    .parse()
-                    .expect("Invalid APPSTORE_CORS_ALLOWED_ORIGINS entry")
-            })
-            .collect();
-        if allowed.is_empty() {
-            return CorsLayer::permissive();
+    let environment = match std::env::var("SDKWORK_APPSTORE_ENVIRONMENT")
+        .unwrap_or_else(|_| "development".to_owned())
+        .trim()
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "dev" | "development" | "test" | "testing" | "local" => {
+            sdkwork_web_core::WebEnvironment::Dev
         }
-        return CorsLayer::new()
-            .allow_origin(allowed)
-            .allow_methods(tower_http::cors::Any)
-            .allow_headers(tower_http::cors::Any);
-    }
-    CorsLayer::permissive()
+        _ => sdkwork_web_core::WebEnvironment::Prod,
+    };
+    let origins = std::env::var("APPSTORE_CORS_ALLOWED_ORIGINS")
+        .unwrap_or_default()
+        .split(',')
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(ToOwned::to_owned)
+        .collect::<Vec<_>>();
+    let policy = sdkwork_web_bootstrap::security_policy_for_environment(&environment, origins);
+    sdkwork_web_axum::cors_layer_from_policy(policy.cors)
 }
 
 async fn shutdown_signal() {
