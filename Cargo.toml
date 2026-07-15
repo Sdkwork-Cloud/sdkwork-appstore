@@ -4,6 +4,7 @@ members = [
   "crates/sdkwork-appstore-routes-common",
   "crates/sdkwork-appstore-database-host",
   "crates/sdkwork-appstore-standalone-gateway",
+  "crates/sdkwork-appstore-gateway-assembly",
   "crates/sdkwork-appstore-service-host",
   "crates/sdkwork-appstore-repository-sqlx",
   "crates/sdkwork-appstore-analytics-worker",

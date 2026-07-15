@@ -21,7 +21,10 @@ pub struct HttpMarketChannelConnector {
 }
 
 impl HttpMarketChannelConnector {
-    pub fn from_env(channel_code: impl Into<String>, env_prefix: &str) -> Result<Option<Self>, String> {
+    pub fn from_env(
+        channel_code: impl Into<String>,
+        env_prefix: &str,
+    ) -> Result<Option<Self>, String> {
         let submit_url = match std::env::var(format!("{env_prefix}_SUBMIT_URL")) {
             Ok(value) if !value.trim().is_empty() => value,
             _ => return Ok(None),
@@ -31,7 +34,8 @@ impl HttpMarketChannelConnector {
         let store_url_path = std::env::var(format!("{env_prefix}_STORE_URL_PATH")).ok();
         let auth_token = std::env::var(format!("{env_prefix}_AUTH_TOKEN")).ok();
         let access_token = std::env::var(format!("{env_prefix}_ACCESS_TOKEN")).ok();
-        let http = IntegrationHttpClient::with_access_token(submit_url, auth_token, access_token, 60)?;
+        let http =
+            IntegrationHttpClient::with_access_token(submit_url, auth_token, access_token, 60)?;
         Ok(Some(Self {
             channel_code: channel_code.into(),
             http,

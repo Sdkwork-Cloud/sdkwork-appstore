@@ -17,7 +17,7 @@ pub mod search_adapter;
 pub mod search_projection_adapter;
 
 pub use drive_adapter::DriveIntegrationAdapter;
+pub use market_channel_adapter::MarketChannelIntegrationAdapter;
 pub use platform_adapter::PlatformIntegrationAdapter;
 pub use search_adapter::SearchFederationAdapter;
 pub use search_projection_adapter::SearchProjectionAdapter;
-pub use market_channel_adapter::MarketChannelIntegrationAdapter;

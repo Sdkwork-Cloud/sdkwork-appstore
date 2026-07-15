@@ -76,11 +76,7 @@ impl ListingSearchProjectionPort for SearchProjectionAdapter {
         Ok(())
     }
 
-    async fn remove_listing(
-        &self,
-        _tenant_id: &str,
-        listing_id: &str,
-    ) -> Result<(), String> {
+    async fn remove_listing(&self, _tenant_id: &str, listing_id: &str) -> Result<(), String> {
         let path = format!(
             "/backend/v3/api/search/indexes/{}/documents/{}",
             urlencoding::encode(&self.index_id),

@@ -2,17 +2,7 @@ use axum::Router;
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::EnvFilter;
 
-use sdkwork_appstore_catalog_service::service::catalog_service::CatalogService;
-use sdkwork_appstore_compliance_service::service::compliance_service::ComplianceService;
-use sdkwork_appstore_library_service::service::library_service::LibraryService;
-use sdkwork_appstore_listing_service::service::listing_service::ListingService;
-use sdkwork_appstore_market_service::service::market_service::MarketService;
-use sdkwork_appstore_moderation_service::service::moderation_service::ModerationService;
-use sdkwork_appstore_publisher_service::service::publisher_service::PublisherService;
-use sdkwork_appstore_release_service::service::release_service::ReleaseService;
-
 use sdkwork_appstore_repository_sqlx::AppstoreSqlxDb;
-
 use sdkwork_appstore_repository_sqlx::repository::catalog_repository::SqlxCatalogRepository;
 use sdkwork_appstore_repository_sqlx::repository::compliance_repository::SqlxComplianceRepository;
 use sdkwork_appstore_repository_sqlx::repository::library_repository::SqlxLibraryRepository;
@@ -22,14 +12,22 @@ use sdkwork_appstore_repository_sqlx::repository::moderation_repository::SqlxMod
 use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPublisherRepository;
 use sdkwork_appstore_repository_sqlx::repository::release_repository::SqlxReleaseRepository;
 
-mod http_route_manifest;
+use sdkwork_appstore_catalog_service::service::catalog_service::CatalogService;
+use sdkwork_appstore_compliance_service::service::compliance_service::ComplianceService;
+use sdkwork_appstore_library_service::service::library_service::LibraryService;
+use sdkwork_appstore_listing_service::service::listing_service::ListingService;
+use sdkwork_appstore_market_service::service::market_service::MarketService;
+use sdkwork_appstore_moderation_service::service::moderation_service::ModerationService;
+use sdkwork_appstore_publisher_service::service::publisher_service::PublisherService;
+use sdkwork_appstore_release_service::service::release_service::ReleaseService;
+
 mod readiness;
-mod routes;
-mod web_bootstrap;
 
 use sdkwork_appstore_standalone_gateway::bootstrap::decision_listing_projection::decision_listing_projection_port;
 use sdkwork_appstore_standalone_gateway::bootstrap::submission_moderation::submission_moderation_port;
-
+use sdkwork_appstore_standalone_gateway::routes;
+use sdkwork_appstore_standalone_gateway::web_bootstrap::wrap_router_with_web_framework_from_env;
+use sdkwork_appstore_standalone_gateway::AppState;
 use readiness::AppstoreDatabaseReadinessCheck;
 use sdkwork_appstore_database_host::bootstrap_appstore_database_from_env;
 use sdkwork_appstore_service_host::integrations::{
@@ -39,19 +37,6 @@ use sdkwork_appstore_service_host::integrations::{
 use sdkwork_appstore_service_host::integrations::http_market_channel_connector::register_http_market_connectors;
 use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
 use std::sync::Arc;
-use web_bootstrap::wrap_router_with_web_framework_from_env;
-
-#[derive(Clone)]
-pub struct AppState {
-    pub publisher_service: PublisherService<SqlxPublisherRepository>,
-    pub listing_service: ListingService<SqlxListingRepository>,
-    pub release_service: ReleaseService<SqlxReleaseRepository>,
-    pub catalog_service: CatalogService<SqlxCatalogRepository>,
-    pub library_service: LibraryService<SqlxLibraryRepository>,
-    pub moderation_service: ModerationService<SqlxModerationRepository>,
-    pub compliance_service: ComplianceService<SqlxComplianceRepository>,
-    pub market_service: MarketService<SqlxMarketRepository>,
-}
 
 #[tokio::main]
 async fn main() {

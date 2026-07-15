@@ -52,14 +52,9 @@ impl MarketProviderPort for MarketChannelIntegrationAdapter {
         artifact_url: &str,
         metadata: &serde_json::Value,
     ) -> Result<ExternalSubmissionResult, String> {
-        let connector = self
-            .resolve_connector(channel_code)
-            .await
-            .ok_or_else(|| {
-                format!(
-                    "No external market connector registered for channel_code={channel_code}"
-                )
-            })?;
+        let connector = self.resolve_connector(channel_code).await.ok_or_else(|| {
+            format!("No external market connector registered for channel_code={channel_code}")
+        })?;
         let result = connector
             .submit_release(
                 channel_code,
@@ -100,14 +95,9 @@ impl MarketProviderPort for MarketChannelIntegrationAdapter {
         channel_code: &str,
         external_release_id: &str,
     ) -> Result<ExternalReleaseStatus, String> {
-        let connector = self
-            .resolve_connector(channel_code)
-            .await
-            .ok_or_else(|| {
-                format!(
-                    "No external market connector registered for channel_code={channel_code}"
-                )
-            })?;
+        let connector = self.resolve_connector(channel_code).await.ok_or_else(|| {
+            format!("No external market connector registered for channel_code={channel_code}")
+        })?;
         let result = connector
             .poll_status(channel_code, external_release_id)
             .await?;
@@ -125,14 +115,9 @@ impl MarketProviderPort for MarketChannelIntegrationAdapter {
         channel_code: &str,
         external_app_id: &str,
     ) -> Result<Option<String>, String> {
-        let connector = self
-            .resolve_connector(channel_code)
-            .await
-            .ok_or_else(|| {
-                format!(
-                    "No external market connector registered for channel_code={channel_code}"
-                )
-            })?;
+        let connector = self.resolve_connector(channel_code).await.ok_or_else(|| {
+            format!("No external market connector registered for channel_code={channel_code}")
+        })?;
         connector
             .resolve_store_url(channel_code, external_app_id)
             .await

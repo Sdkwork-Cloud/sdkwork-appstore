@@ -1,0 +1,40 @@
+{
+  "kind": "sdkwork.gateway.assembly",
+  "schemaVersion": 1,
+  "applicationCode": "appstore",
+  "packageName": "sdkwork-appstore-gateway-assembly",
+  "crateDir": "crates/sdkwork-appstore-gateway-assembly",
+  "generatedAt": "2026-07-13T00:00:00.000Z",
+  "routeCrates": [
+    {
+      "packageName": "sdkwork-routes-catalog-app-api",
+      "memberDir": "crates/sdkwork-routes-catalog-app-api",
+      "libName": "sdkwork_routes_catalog_app_api",
+      "surface": "app-api",
+      "pathPrefix": "/app/v3/api",
+      "mountOrder": 0,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-catalog-backend-api",
+      "memberDir": "crates/sdkwork-routes-catalog-backend-api",
+      "libName": "sdkwork_routes_catalog_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": "/backend/v3/api",
+      "mountOrder": 1,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-catalog-open-api",
+      "memberDir": "crates/sdkwork-routes-catalog-open-api",
+      "libName": "sdkwork_routes_catalog_open_api",
+      "surface": "open-api",
+      "pathPrefix": "/store/v3/api",
+      "mountOrder": 2,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    }
+  ]
+}

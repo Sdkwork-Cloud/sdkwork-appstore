@@ -1,0 +1,27 @@
+[package]
+name = "sdkwork-appstore-gateway-assembly"
+version = "0.1.0"
+edition = "2021"
+description = "Generated gateway assembly for sdkwork-appstore application HTTP plane."
+
+[lib]
+name = "sdkwork_appstore_gateway_assembly"
+path = "src/lib.rs"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+sdkwork-appstore-standalone-gateway = { path = "../sdkwork-appstore-standalone-gateway" }
+sdkwork-appstore-database-host = { path = "../sdkwork-appstore-database-host" }
+sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
+sdkwork-appstore-catalog-service = { path = "../sdkwork-appstore-catalog-service" }
+sdkwork-appstore-listing-service = { path = "../sdkwork-appstore-listing-service" }
+sdkwork-appstore-release-service = { path = "../sdkwork-appstore-release-service" }
+sdkwork-appstore-publisher-service = { path = "../sdkwork-appstore-publisher-service" }
+sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service" }
+sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
+sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
+sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
+sdkwork-appstore-service-host = { path = "../sdkwork-appstore-service-host" }
+sdkwork-appstore-routes-common = { path = "../sdkwork-appstore-routes-common" }
+sdkwork-web-bootstrap = { workspace = true }
