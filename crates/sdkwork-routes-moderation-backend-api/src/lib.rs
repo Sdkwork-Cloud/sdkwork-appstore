@@ -17,3 +17,11 @@ pub use web_bootstrap::{
     appstore_backend_api_prefixes, appstore_backend_api_public_path_prefixes,
     wrap_router_with_web_framework, wrap_router_with_web_framework_from_env,
 };
+
+pub fn gateway_route_manifest() -> RouteManifest {
+    route_manifest()
+}
+
+pub fn gateway_mount() -> RouteManifest {
+    gateway_route_manifest()
+}

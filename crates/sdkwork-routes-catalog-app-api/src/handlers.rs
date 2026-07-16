@@ -147,7 +147,7 @@ pub async fn catalog_collections_list<S: CatalogOperations>(
     page_size: Option<i32>,
     audience_scope: Option<String>,
 ) -> Result<CollectionsListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_collections_list(cursor, limit, audience_scope);
+    let cmd = mapper::request::map_collections_list(cursor, page_size, audience_scope);
     service.collections_list(context, cmd).await
 }
 
@@ -226,7 +226,7 @@ pub async fn catalog_events_list<S: CatalogOperations>(
     page_size: Option<i32>,
     status: Option<String>,
 ) -> Result<EventsListResult, AppstoreServiceError> {
-    let cmd = mapper::request::map_events_list(cursor, limit, status);
+    let cmd = mapper::request::map_events_list(cursor, page_size, status);
     service.events_list(context, cmd).await
 }
 

@@ -111,7 +111,7 @@ pub async fn market_releases_list<S: MarketOperations>(
         channel_id,
         market_status,
         cursor,
-        limit,
+        page_size,
     );
     service.list_releases(context, cmd).await
 }

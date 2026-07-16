@@ -12,7 +12,7 @@ pub fn map_public_featured_list(
     if let Some(v) = platform {
         req = req.with_platform(v);
     }
-    if let Some($1) = page_size {
+    if let Some(v) = page_size {
         req = req.with_page_size(v);
     }
     req

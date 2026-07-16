@@ -20,3 +20,11 @@ pub use web_bootstrap::{
 pub fn route_crate_name() -> &'static str {
     "sdkwork-routes-catalog-app-api"
 }
+
+pub fn gateway_route_manifest() -> RouteManifest {
+    build_route_manifest()
+}
+
+pub fn gateway_mount() -> RouteManifest {
+    gateway_route_manifest()
+}

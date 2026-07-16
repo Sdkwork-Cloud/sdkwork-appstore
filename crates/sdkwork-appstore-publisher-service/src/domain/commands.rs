@@ -136,7 +136,8 @@ impl ListPublisherMembersRequest {
     pub fn new(publisher_id: impl Into<String>) -> Self {
         Self {
             publisher_id: publisher_id.into(),
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             idempotency_key: None,
         }
     }

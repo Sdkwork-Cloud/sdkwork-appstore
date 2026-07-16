@@ -46,7 +46,7 @@ pub fn map_list_iap_items(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some($1) = page_size {
+    if let Some(v) = page_size {
         req = req.with_page_size(v);
     }
     req

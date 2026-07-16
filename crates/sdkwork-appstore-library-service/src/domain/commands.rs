@@ -31,7 +31,8 @@ pub struct ListLibraryItemsRequest {
 impl ListLibraryItemsRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -121,7 +122,8 @@ pub struct ListWishlistItemsRequest {
 impl ListWishlistItemsRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 

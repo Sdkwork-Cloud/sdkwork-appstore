@@ -49,7 +49,7 @@ pub async fn listings_admin_list<S: ListingOperations>(
         review_status_filter,
         publisher_id,
         cursor,
-        limit,
+        page_size,
     );
     service.admin_list_listings(context, cmd).await
 }

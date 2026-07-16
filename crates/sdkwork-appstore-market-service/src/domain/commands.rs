@@ -12,7 +12,8 @@ impl ListMarketChannelsRequest {
     pub fn new() -> Self {
         Self {
             channel_status: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             idempotency_key: None,
         }
     }
@@ -151,7 +152,8 @@ impl ListMarketReleasesRequest {
             release_id: None,
             channel_id: None,
             market_status: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             idempotency_key: None,
         }
     }

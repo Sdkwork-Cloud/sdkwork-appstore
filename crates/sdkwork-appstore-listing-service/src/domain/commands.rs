@@ -328,7 +328,8 @@ impl ListPublisherListingsRequest {
     pub fn new(publisher_id: impl Into<String>) -> Self {
         Self {
             publisher_id: publisher_id.into(),
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             idempotency_key: None,
         }
     }
@@ -356,7 +357,8 @@ impl ListListingReleasesRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             idempotency_key: None,
         }
     }
@@ -444,7 +446,8 @@ impl AdminListListingsRequest {
             status_filter: None,
             review_status_filter: None,
             publisher_id: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             idempotency_key: None,
         }
     }
@@ -575,7 +578,8 @@ impl ListListingReleaseHistoryRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -601,7 +605,8 @@ impl ListSimilarListingsRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -627,7 +632,8 @@ impl ListDeveloperOtherListingsRequest {
     pub fn new(listing_id: impl Into<String>) -> Self {
         Self {
             listing_id: listing_id.into(),
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 

@@ -188,7 +188,7 @@ paths:
       tags:
       - catalog
       summary: Search public listings
-      operationId: appstore.catalog.listings.search
+      operationId: appstore.catalog.listings.list
       parameters:
       - name: q
         in: query
@@ -352,7 +352,7 @@ paths:
       tags:
       - catalog
       summary: Upsert search history entry
-      operationId: appstore.catalog.search.history.upsert
+      operationId: appstore.catalog.search.history.update
       requestBody:
         required: true
         content:
@@ -370,7 +370,7 @@ paths:
       tags:
       - catalog
       summary: Clear search history
-      operationId: appstore.catalog.search.history.clear
+      operationId: appstore.catalog.search.history.delete
       responses:
         '204':
           description: Removed
@@ -435,7 +435,7 @@ paths:
       tags:
       - listings
       summary: Upsert listing localization
-      operationId: appstore.listings.localization.upsert
+      operationId: appstore.listings.localization.update
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Locale'
@@ -471,7 +471,7 @@ paths:
       tags:
       - listings
       summary: Attach listing media
-      operationId: appstore.listings.media.attach
+      operationId: appstore.listings.media.create
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -492,7 +492,7 @@ paths:
       tags:
       - listings
       summary: Remove listing media
-      operationId: appstore.listings.media.remove
+      operationId: appstore.listings.media.delete
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - name: mediaId
@@ -508,7 +508,7 @@ paths:
       tags:
       - listings
       summary: Bind listing categories
-      operationId: appstore.listings.categories.bind
+      operationId: appstore.listings.categories.update
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -677,7 +677,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ListingSubmissionCreateRequest'
       responses:
-        '202':
+        '201':
           description: Accepted
           content:
             application/json:
@@ -729,7 +729,7 @@ paths:
       tags:
       - publishers
       summary: Bootstrap appstore_app and draft listing for the current publisher
-      operationId: appstore.publishers.me.apps.bootstrap
+      operationId: appstore.publishers.me.apps.create
       parameters:
       - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -840,7 +840,7 @@ paths:
       tags:
       - publishers
       summary: Invite publisher member
-      operationId: appstore.publishers.members.invite
+      operationId: appstore.publishers.members.create
       parameters:
       - $ref: '#/components/parameters/PublisherId'
       requestBody:
@@ -873,7 +873,7 @@ paths:
       tags:
       - publishers
       summary: Submit publisher verification
-      operationId: appstore.publishers.verifications.submit
+      operationId: appstore.publishers.verifications.create
       parameters:
       - $ref: '#/components/parameters/PublisherId'
       requestBody:
@@ -883,7 +883,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PublisherVerificationSubmitRequest'
       responses:
-        '202':
+        '201':
           description: Accepted
           content:
             application/json:
@@ -965,7 +965,7 @@ paths:
       tags:
       - releases
       summary: Upsert localized release notes
-      operationId: appstore.releases.notes.upsert
+      operationId: appstore.releases.notes.update
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       - $ref: '#/components/parameters/Locale'
@@ -999,7 +999,7 @@ paths:
       tags:
       - releases
       summary: Attach release artifact
-      operationId: appstore.releases.artifacts.attach
+      operationId: appstore.releases.artifacts.create
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       requestBody:
@@ -1331,7 +1331,7 @@ paths:
       tags:
       - wishlist
       summary: Add wishlist item
-      operationId: appstore.wishlist.items.add
+      operationId: appstore.wishlist.items.create
       requestBody:
         required: true
         content:
@@ -1350,7 +1350,7 @@ paths:
       tags:
       - wishlist
       summary: Remove wishlist item
-      operationId: appstore.wishlist.items.remove
+      operationId: appstore.wishlist.items.delete
       parameters:
       - $ref: '#/components/parameters/ListingId'
       responses:
@@ -1436,13 +1436,13 @@ components:
       in: query
       schema:
         type: string
-    Limit:
-      $1page_size
+    PageSize:
+      name: page_size
       in: query
       schema:
         type: integer
         minimum: 1
-        maximum: 100
+        maximum: 200
         default: 20
     IdempotencyKey:
       name: Idempotency-Key
@@ -1516,6 +1516,13 @@ components:
           type: string
           format: uuid
           description: Server-owned request correlation id.
+        i18nKey:
+          type: string
+          description: Optional stable localization key such as errors.result.40001.
+        locale:
+          type: string
+          description: Optional effective BCP 47 locale used by framework message
+            mapping.
         errors:
           type: array
           items:
@@ -1593,6 +1600,10 @@ components:
             type: string
           commentsThreadId:
             type: string
+          commerceProductId:
+            type: string
+            description: Commerce catalog product id for paid checkout (clawrouter/commerce
+              domain).
           currentReleaseId:
             type: string
           categories:
@@ -2171,6 +2182,16 @@ components:
           format: int32
           minimum: 40011
           maximum: 40099
+        i18nKey:
+          type: string
+        params:
+          type: object
+          additionalProperties:
+            oneOf:
+            - type: string
+            - type: number
+            - type: integer
+            - type: boolean
     SdkWorkResourceResponse:
       allOf:
       - $ref: '#/components/schemas/SdkWorkApiResponse'

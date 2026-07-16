@@ -36,7 +36,7 @@ pub fn map_analytics_publisher_listings_list(
         date_from,
         date_to,
         cursor,
-        limit,
+        page_size,
     }
 }
 

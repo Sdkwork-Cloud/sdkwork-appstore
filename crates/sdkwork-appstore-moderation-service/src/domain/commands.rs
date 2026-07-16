@@ -32,7 +32,8 @@ impl ListModerationQueueRequest {
     pub fn new() -> Self {
         Self {
             review_status: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             idempotency_key: None,
         }
     }
@@ -199,7 +200,8 @@ impl ListModerationAppealsRequest {
     pub fn new() -> Self {
         Self {
             status: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 

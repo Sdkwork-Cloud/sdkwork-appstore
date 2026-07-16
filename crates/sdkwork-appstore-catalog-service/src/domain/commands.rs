@@ -58,7 +58,8 @@ impl CategoriesListRequest {
     pub fn new() -> Self {
         Self {
             locale: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -218,7 +219,8 @@ pub struct CollectionsListRequest {
 impl CollectionsListRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             audience_scope: None,
         }
     }
@@ -528,7 +530,8 @@ impl ListingsSearchRequest {
         Self {
             query: None,
             category_id: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -591,7 +594,8 @@ impl PublicFeaturedListRequest {
     pub fn new() -> Self {
         Self {
             locale: None,
-            platform: None,$1$2page_size: None,
+            platform: None,
+            page_size: None,
         }
     }
 
@@ -624,7 +628,8 @@ impl RecommendationsListRequest {
         Self {
             locale: None,
             platform: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -660,7 +665,8 @@ impl RecentlyUpdatedListRequest {
     pub fn new() -> Self {
         Self {
             locale: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -690,7 +696,8 @@ pub struct EventsListRequest {
 impl EventsListRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
             status: None,
         }
     }
@@ -760,7 +767,8 @@ pub struct SearchTrendingListRequest {
 impl SearchTrendingListRequest {
     pub fn new() -> Self {
         Self {
-            locale: None,$1$2page_size: None,
+            locale: None,
+            page_size: None,
         }
     }
 
@@ -784,7 +792,8 @@ pub struct SearchHistoryListRequest {
 impl SearchHistoryListRequest {
     pub fn new() -> Self {
         Self {
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 
@@ -863,7 +872,8 @@ impl AnalyticsPublisherListingsListRequest {
         Self {
             date_from: None,
             date_to: None,
-            cursor: None,$1$2page_size: None,
+            cursor: None,
+            page_size: None,
         }
     }
 }

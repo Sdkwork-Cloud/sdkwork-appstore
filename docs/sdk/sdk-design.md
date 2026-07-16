@@ -115,4 +115,4 @@ Contract tests must prove:
 
 ## Assembly Metadata
 
-Each SDK family root requires `.sdkwork-assembly.json` (see `sdks/sdkwork-appstore-*-sdk/`).
+Each SDK family root requires `sdk-manifest.json` (see `sdks/sdkwork-appstore-*-sdk/`).

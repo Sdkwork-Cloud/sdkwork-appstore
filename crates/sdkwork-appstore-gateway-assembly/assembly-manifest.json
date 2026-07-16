@@ -4,15 +4,25 @@
   "applicationCode": "appstore",
   "packageName": "sdkwork-appstore-gateway-assembly",
   "crateDir": "crates/sdkwork-appstore-gateway-assembly",
-  "generatedAt": "2026-07-13T00:00:00.000Z",
+  "generatedAt": "2026-07-16T05:24:29.021Z",
   "routeCrates": [
+    {
+      "packageName": "sdkwork-routes-automation-open-api",
+      "memberDir": "crates/sdkwork-routes-automation-open-api",
+      "libName": "sdkwork_routes_automation_open_api",
+      "surface": "open-api",
+      "pathPrefix": null,
+      "mountOrder": 0,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
     {
       "packageName": "sdkwork-routes-catalog-app-api",
       "memberDir": "crates/sdkwork-routes-catalog-app-api",
       "libName": "sdkwork_routes_catalog_app_api",
       "surface": "app-api",
-      "pathPrefix": "/app/v3/api",
-      "mountOrder": 0,
+      "pathPrefix": null,
+      "mountOrder": 1,
       "hasGatewayMount": true,
       "hasGatewayRouteManifest": true
     },
@@ -21,8 +31,8 @@
       "memberDir": "crates/sdkwork-routes-catalog-backend-api",
       "libName": "sdkwork_routes_catalog_backend_api",
       "surface": "backend-api",
-      "pathPrefix": "/backend/v3/api",
-      "mountOrder": 1,
+      "pathPrefix": null,
+      "mountOrder": 2,
       "hasGatewayMount": true,
       "hasGatewayRouteManifest": true
     },
@@ -31,8 +41,128 @@
       "memberDir": "crates/sdkwork-routes-catalog-open-api",
       "libName": "sdkwork_routes_catalog_open_api",
       "surface": "open-api",
-      "pathPrefix": "/store/v3/api",
-      "mountOrder": 2,
+      "pathPrefix": null,
+      "mountOrder": 3,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-compliance-app-api",
+      "memberDir": "crates/sdkwork-routes-compliance-app-api",
+      "libName": "sdkwork_routes_compliance_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 4,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-library-app-api",
+      "memberDir": "crates/sdkwork-routes-library-app-api",
+      "libName": "sdkwork_routes_library_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 5,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-listing-app-api",
+      "memberDir": "crates/sdkwork-routes-listing-app-api",
+      "libName": "sdkwork_routes_listing_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 6,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-listing-backend-api",
+      "memberDir": "crates/sdkwork-routes-listing-backend-api",
+      "libName": "sdkwork_routes_listing_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 7,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-listing-open-api",
+      "memberDir": "crates/sdkwork-routes-listing-open-api",
+      "libName": "sdkwork_routes_listing_open_api",
+      "surface": "open-api",
+      "pathPrefix": null,
+      "mountOrder": 8,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-market-backend-api",
+      "memberDir": "crates/sdkwork-routes-market-backend-api",
+      "libName": "sdkwork_routes_market_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 9,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-metrics-backend-api",
+      "memberDir": "crates/sdkwork-routes-metrics-backend-api",
+      "libName": "sdkwork_routes_metrics_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 10,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-moderation-backend-api",
+      "memberDir": "crates/sdkwork-routes-moderation-backend-api",
+      "libName": "sdkwork_routes_moderation_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 11,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-publisher-app-api",
+      "memberDir": "crates/sdkwork-routes-publisher-app-api",
+      "libName": "sdkwork_routes_publisher_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 12,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-publisher-backend-api",
+      "memberDir": "crates/sdkwork-routes-publisher-backend-api",
+      "libName": "sdkwork_routes_publisher_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 13,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-release-app-api",
+      "memberDir": "crates/sdkwork-routes-release-app-api",
+      "libName": "sdkwork_routes_release_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 14,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": true
+    },
+    {
+      "packageName": "sdkwork-routes-release-open-api",
+      "memberDir": "crates/sdkwork-routes-release-open-api",
+      "libName": "sdkwork_routes_release_open_api",
+      "surface": "open-api",
+      "pathPrefix": null,
+      "mountOrder": 15,
       "hasGatewayMount": true,
       "hasGatewayRouteManifest": true
     }

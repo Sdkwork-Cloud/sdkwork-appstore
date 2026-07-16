@@ -24,7 +24,7 @@ pub fn map_list_listing_releases(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some($1) = page_size {
+    if let Some(v) = page_size {
         req = req.with_page_size(v);
     }
     req
@@ -39,8 +39,8 @@ pub fn map_list_publisher_listings(
     if let Some(value) = cursor {
         req = req.with_cursor(value);
     }
-    if let Some($1) = page_size {
-        req = req.with_page_size(value);
+    if let Some(v) = page_size {
+        req = req.with_page_size(v);
     }
     req
 }
@@ -176,7 +176,7 @@ pub fn map_list_listing_release_history(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some($1) = page_size {
+    if let Some(v) = page_size {
         req = req.with_page_size(v);
     }
     req
@@ -191,7 +191,7 @@ pub fn map_list_similar_listings(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some($1) = page_size {
+    if let Some(v) = page_size {
         req = req.with_page_size(v);
     }
     req
@@ -206,7 +206,7 @@ pub fn map_list_developer_other_listings(
     if let Some(v) = cursor {
         req = req.with_cursor(v);
     }
-    if let Some($1) = page_size {
+    if let Some(v) = page_size {
         req = req.with_page_size(v);
     }
     req
