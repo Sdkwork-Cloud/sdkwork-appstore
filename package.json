@@ -6,7 +6,8 @@
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "stop": "node ../sdkwork-specs/tools/stop-sdkwork-workspace-processes.mjs --workspace .",    "dev": "pnpm dev:browser",
+    "stop": "node ../sdkwork-specs/tools/stop-sdkwork-workspace-processes.mjs --workspace .",
+    "dev": "pnpm dev:browser",
     "dev:browser": "node scripts/sdkwork-command.mjs dev --runtime-target browser --database postgres --service-layout unified-process --deployment-profile standalone --renderer desktop",
     "dev:browser:mobile": "node scripts/sdkwork-command.mjs dev --runtime-target browser --database postgres --service-layout unified-process --deployment-profile standalone --renderer mobile",
     "dev:browser:postgres:unified-process:standalone": "pnpm dev:browser",
@@ -47,7 +48,9 @@
     "gateway:package:cloud": "node scripts/sdkwork-command.mjs gateway:package:cloud",
     "gateway:validate:cloud": "node scripts/sdkwork-command.mjs gateway:validate:cloud",
     "deploy:validate": "node scripts/sdkwork-command.mjs deploy:validate",
-    "check:app-composition": "node ../sdkwork-specs/tools/verify-repo.mjs --root ."
+    "check:app-composition": "node ../sdkwork-specs/tools/verify-repo.mjs --root .",
+    "gateway:assembly:materialize": "node scripts/gateway/assembly-materialize.mjs",
+    "gateway:assembly:validate": "node scripts/gateway/assembly-validate.mjs"
   },
   "exports": {
     ".": {

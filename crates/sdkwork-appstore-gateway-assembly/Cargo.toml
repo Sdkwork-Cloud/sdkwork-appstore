@@ -11,7 +11,6 @@ path = "src/lib.rs"
 [dependencies]
 axum = "0.8"
 tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
-sdkwork-appstore-standalone-gateway = { path = "../sdkwork-appstore-standalone-gateway" }
 sdkwork-appstore-database-host = { path = "../sdkwork-appstore-database-host" }
 sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
 sdkwork-appstore-catalog-service = { path = "../sdkwork-appstore-catalog-service" }
@@ -25,6 +24,22 @@ sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" 
 sdkwork-appstore-service-host = { path = "../sdkwork-appstore-service-host" }
 sdkwork-appstore-routes-common = { path = "../sdkwork-appstore-routes-common" }
 sdkwork-web-bootstrap = { workspace = true }
+sdkwork-database-config.workspace = true
+sdkwork-database-sqlx.workspace = true
+sdkwork-iam-web-adapter.workspace = true
+sdkwork-web-axum.workspace = true
+sdkwork-web-core.workspace = true
+sdkwork-utils-rust.workspace = true
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "postgres", "chrono"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+tracing = "0.1"
+uuid = { version = "1", features = ["v4"] }
 sdkwork-routes-automation-open-api = { path = "../sdkwork-routes-automation-open-api" }
 sdkwork-routes-catalog-app-api = { path = "../sdkwork-routes-catalog-app-api" }
 sdkwork-routes-catalog-backend-api = { path = "../sdkwork-routes-catalog-backend-api" }

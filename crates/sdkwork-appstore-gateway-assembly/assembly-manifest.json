@@ -4,7 +4,7 @@
   "applicationCode": "appstore",
   "packageName": "sdkwork-appstore-gateway-assembly",
   "crateDir": "crates/sdkwork-appstore-gateway-assembly",
-  "generatedAt": "2026-07-16T05:24:29.021Z",
+  "generatedAt": "2026-07-16T17:34:00.456Z",
   "routeCrates": [
     {
       "packageName": "sdkwork-routes-automation-open-api",

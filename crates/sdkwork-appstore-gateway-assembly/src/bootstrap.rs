@@ -1,5 +1,8 @@
 //! Gateway bootstrap for sdkwork-appstore.
 
+mod decision_listing_projection;
+mod submission_moderation;
+
 use std::sync::Arc;
 
 use axum::Router;
@@ -26,14 +29,17 @@ use sdkwork_appstore_service_host::integrations::{
     DriveIntegrationAdapter, MarketChannelIntegrationAdapter, PlatformIntegrationAdapter,
     SearchFederationAdapter, SearchProjectionAdapter,
 };
-use sdkwork_appstore_standalone_gateway::bootstrap::decision_listing_projection::decision_listing_projection_port;
-use sdkwork_appstore_standalone_gateway::bootstrap::submission_moderation::submission_moderation_port;
-use sdkwork_appstore_standalone_gateway::routes;
-use sdkwork_appstore_standalone_gateway::web_bootstrap::wrap_router_with_web_framework_from_env;
-use sdkwork_appstore_standalone_gateway::AppState;
+use sdkwork_database_sqlx::DatabasePool;
+
+use self::decision_listing_projection::decision_listing_projection_port;
+use self::submission_moderation::submission_moderation_port;
+use crate::routes;
+use crate::web_bootstrap::wrap_router_with_web_framework_from_env;
+use crate::AppState;
 
 pub struct ApplicationAssembly {
     pub router: Router,
+    pub database_pool: DatabasePool,
 }
 
 /// Assemble the appstore application router from environment variables.
@@ -136,5 +142,8 @@ pub async fn assemble_application_router() -> Result<ApplicationAssembly, String
     )
     .await;
 
-    Ok(ApplicationAssembly { router: business })
+    Ok(ApplicationAssembly {
+        router: business,
+        database_pool: pool,
+    })
 }
