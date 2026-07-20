@@ -290,7 +290,7 @@ for (const surface of openApiSurfaces) {
   }
 
   if (surface.materialized && surface.source !== surface.materialized) {
-    errors.push(`${surface.materializedPath} is stale; run pnpm run openapi:materialize`);
+    errors.push(`${surface.materializedPath} is stale; run pnpm run api:materialize:models`);
   }
 
   if (surface.manifest) {

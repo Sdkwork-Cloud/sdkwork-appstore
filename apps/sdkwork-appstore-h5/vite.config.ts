@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import path from 'node:path';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '');
@@ -13,10 +13,6 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        '@sdkwork/sdk-common': path.resolve(
-          __dirname,
-          '../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript/src/index.ts',
-        ),
       },
     },
     server: {

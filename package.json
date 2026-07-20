@@ -6,18 +6,17 @@
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "stop": "node ../sdkwork-specs/tools/stop-sdkwork-workspace-processes.mjs --workspace .",
-    "dev": "pnpm dev:browser",
-    "dev:browser": "node scripts/sdkwork-command.mjs dev --runtime-target browser --database postgres --service-layout unified-process --deployment-profile standalone --renderer desktop",
-    "dev:browser:mobile": "node scripts/sdkwork-command.mjs dev --runtime-target browser --database postgres --service-layout unified-process --deployment-profile standalone --renderer mobile",
-    "dev:browser:postgres:unified-process:standalone": "pnpm dev:browser",
-    "build": "node scripts/sdkwork-command.mjs build",
+    "stop": "pnpm exec sdkwork-app stop",
+    "dev": "pnpm dev:standalone",
+    "dev:browser": "pnpm dev:browser:postgres:standalone",
+    "dev:browser:postgres:standalone:local": "node scripts/sdkwork-command.mjs dev --runtime-target browser --database postgres --deployment-profile standalone --renderer mobile",
+    "build": "pnpm exec sdkwork-app build",
     "preview": "node scripts/sdkwork-command.mjs preview",
     "start": "pnpm preview",
-    "test": "node scripts/sdkwork-command.mjs test",
-    "check": "node scripts/sdkwork-command.mjs check",
-    "verify": "node scripts/sdkwork-command.mjs verify",
-    "clean": "node scripts/sdkwork-command.mjs clean",
+    "test": "pnpm exec sdkwork-app test",
+    "check": "pnpm exec sdkwork-app check",
+    "verify": "pnpm exec sdkwork-app verify",
+    "clean": "pnpm exec sdkwork-app clean",
     "typecheck": "pnpm --filter sdkwork-appstore-pc exec tsc --noEmit && pnpm --filter sdkwork-appstore-h5 exec tsc --noEmit",
     "verify:rust": "cargo fmt --all --check && cargo test --workspace",
     "check:api-envelope": "node ../sdkwork-specs/tools/check-api-response-envelope.mjs --workspace ..",
@@ -45,12 +44,20 @@
     "db:postgres:migrate": "node scripts/sdkwork-command.mjs db:postgres:migrate",
     "topology:validate": "node scripts/sdkwork-command.mjs topology:validate",
     "topology:plan": "node scripts/sdkwork-command.mjs topology:plan",
-    "gateway:package:cloud": "node scripts/sdkwork-command.mjs gateway:package:cloud",
-    "gateway:validate:cloud": "node scripts/sdkwork-command.mjs gateway:validate:cloud",
     "deploy:validate": "node scripts/sdkwork-command.mjs deploy:validate",
     "check:app-composition": "node ../sdkwork-specs/tools/verify-repo.mjs --root .",
-    "gateway:assembly:materialize": "node scripts/gateway/assembly-materialize.mjs",
-    "gateway:assembly:validate": "node scripts/gateway/assembly-validate.mjs"
+    "api:assembly:materialize": "node scripts/gateway/assembly-materialize.mjs",
+    "api:assembly:validate": "node scripts/gateway/assembly-validate.mjs",
+    "dev:standalone": "pnpm exec sdkwork-app dev --deployment-profile standalone",
+    "dev:cloud": "pnpm exec sdkwork-app dev --deployment-profile cloud",
+    "_sdkwork:build": "node scripts/sdkwork-command.mjs build",
+    "_sdkwork:test": "node scripts/sdkwork-command.mjs test",
+    "_sdkwork:check": "node scripts/sdkwork-command.mjs check",
+    "_sdkwork:verify": "node scripts/sdkwork-command.mjs verify",
+    "_sdkwork:clean": "node scripts/sdkwork-command.mjs clean",
+    "deploy:validate:standalone": "pnpm exec sdkwork-app deploy:validate --deployment-profile standalone",
+    "deploy:validate:cloud": "pnpm exec sdkwork-app deploy:validate --deployment-profile cloud",
+    "dev:browser:postgres:standalone": "pnpm exec sdkwork-app dev --runtime-target browser --deployment-profile standalone"
   },
   "exports": {
     ".": {
@@ -58,5 +65,8 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     }
+  },
+  "devDependencies": {
+    "@sdkwork/app-topology": "workspace:*"
   }
 }

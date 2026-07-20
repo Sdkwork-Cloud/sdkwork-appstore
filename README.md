@@ -98,7 +98,7 @@ Follow `../sdkwork-specs/README.md`. Key specs for this repository:
 ```bash
 pnpm install
 pnpm dev:browser          # PC web (default)
-pnpm dev:browser:mobile   # H5 mobile web
+pnpm dev:browser:postgres:standalone:local   # H5 mobile web
 pnpm build
 pnpm check
 pnpm verify

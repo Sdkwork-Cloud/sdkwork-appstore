@@ -1,0 +1,44 @@
+{
+  "name": "sdkwork-appstore-h5",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3001",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
+  },
+  "dependencies": {
+    "@sdkwork/appstore-app-sdk": "workspace:*",
+    "@sdkwork/appstore-h5-commons": "workspace:*",
+    "@sdkwork/appstore-library-core": "workspace:*",
+    "@sdkwork/appstore-listing-acquire-core": "workspace:*",
+    "@sdkwork/appstore-listing-support-core": "workspace:*",
+    "@sdkwork/appstore-notification-core": "workspace:*",
+    "@sdkwork/appstore-publisher-console-core": "workspace:*",
+    "@sdkwork/auth-runtime-pc-react": "workspace:*",
+    "@sdkwork/clawrouter-app-sdk": "workspace:*",
+    "@sdkwork/comments-app-sdk": "workspace:*",
+    "@sdkwork/drive-app-sdk": "workspace:*",
+    "@sdkwork/sdk-common": "workspace:*",
+    "@sdkwork/utils": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "clsx": "catalog:",
+    "lucide-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
