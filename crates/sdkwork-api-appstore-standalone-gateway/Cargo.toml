@@ -1,5 +1,5 @@
 [package]
-name = "sdkwork-appstore-standalone-gateway"
+name = "sdkwork-api-appstore-standalone-gateway"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,13 +7,13 @@ edition = "2021"
 path = "src/lib.rs"
 
 [[bin]]
-name = "sdkwork-appstore-standalone-gateway"
+name = "sdkwork-api-appstore-standalone-gateway"
 path = "src/main.rs"
 
 [dependencies]
 axum = "0.8"
 dotenvy = "0.15"
-sdkwork-appstore-gateway-assembly.workspace = true
+sdkwork-api-appstore-assembly.workspace = true
 sdkwork-database-sqlx.workspace = true
 sdkwork-web-axum.workspace = true
 sdkwork-web-bootstrap.workspace = true

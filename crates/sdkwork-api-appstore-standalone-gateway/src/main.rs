@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use sdkwork_appstore_gateway_assembly::assemble_application_router;
+use sdkwork_api_appstore_assembly::assemble_application_router;
 use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::EnvFilter;
@@ -30,7 +30,7 @@ async fn main() {
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "18090".to_owned());
     let addr = format!("0.0.0.0:{port}");
-    tracing::info!(%addr, "starting sdkwork-appstore-standalone-gateway");
+    tracing::info!(%addr, "starting sdkwork-api-appstore-standalone-gateway");
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect("bind appstore standalone gateway");

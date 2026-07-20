@@ -63,7 +63,7 @@ future agents should add provider-specific connectors behind service ports.
 
 ## Implementation Status
 
-- All required dependencies are bound through `sdkwork-appstore-service-host::integrations` connector traits and `sdkwork-appstore-standalone-gateway::bootstrap::adapters` configuration.
+- All required dependencies are bound through `sdkwork-appstore-service-host::integrations` connector traits and `sdkwork-api-appstore-standalone-gateway::bootstrap::adapters` configuration.
 - Integration connector traits are defined for: comments, commerce, notifications, search, market_channels.
 - Provider port traits are defined for each service: publisher, listing, release, catalog, library, moderation, compliance, market.
 - Preflight validation checks required dependency adapter configurations before serving traffic.

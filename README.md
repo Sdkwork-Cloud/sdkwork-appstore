@@ -107,5 +107,5 @@ pnpm verify
 Backend gateway (Rust):
 
 ```bash
-cargo run -p sdkwork-appstore-standalone-gateway
+cargo run -p sdkwork-api-appstore-standalone-gateway
 ```

@@ -7,8 +7,8 @@ deploymentProfiles:
     serviceLayout: unified-process
     processes:
       - id: application.public-ingress
-        crate: sdkwork-appstore-standalone-gateway
-        binary: sdkwork-appstore-standalone-gateway
+        crate: sdkwork-api-appstore-standalone-gateway
+        binary: sdkwork-api-appstore-standalone-gateway
     clientSurfaces:
       - id: sdkwork-appstore-pc
         package: apps/sdkwork-appstore-pc
@@ -24,6 +24,6 @@ deploymentProfiles:
       configGlob: configs/sdkwork-api-cloud-gateway.appstore.*.toml
     processes:
       - id: application.public-ingress
-        crate: sdkwork-appstore-standalone-gateway
-        binary: sdkwork-appstore-standalone-gateway
+        crate: sdkwork-api-appstore-standalone-gateway
+        binary: sdkwork-api-appstore-standalone-gateway
 topologySpec: specs/topology.spec.json

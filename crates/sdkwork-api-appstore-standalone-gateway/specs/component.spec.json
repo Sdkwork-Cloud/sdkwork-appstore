@@ -2,16 +2,21 @@
   "schemaVersion": 1,
   "kind": "sdkwork.component.spec",
   "component": {
-    "name": "sdkwork-appstore-standalone-gateway",
+    "name": "sdkwork-api-appstore-standalone-gateway",
     "displayName": "Standalone Gateway",
     "version": "0.1.0",
-    "type": "rust-standalone-gateway",
-    "root": "crates/sdkwork-appstore-standalone-gateway",
+    "type": "rust-api-standalone-gateway",
+    "root": "crates/sdkwork-api-appstore-standalone-gateway",
     "domain": "appstore",
-    "capability": "standalone-gateway",
-    "languages": ["rust"],
+    "capability": "api-gateway",
+    "languages": [
+      "rust"
+    ],
     "generated": false,
-    "manifests": ["Cargo.toml"]
+    "manifests": [
+      "Cargo.toml"
+    ],
+    "surface": "gateway-api"
   },
   "canonicalSpecs": [
     {
@@ -21,17 +26,24 @@
     }
   ],
   "contracts": {
-    "publicExports": ["."],
-    "runtimeEntrypoints": ["Cargo.toml#lib"],
+    "publicExports": [
+      "."
+    ],
+    "runtimeEntrypoints": [
+      "Cargo.toml#lib"
+    ],
     "routeManifest": null,
     "sdkClients": [],
     "sdkDependencies": [],
     "dependencyApiExports": [],
     "dependencyApiSurfaces": [],
     "events": [],
-    "configKeys": []
+    "configKeys": [],
+    "layerRole": "runtime-gateway"
   },
   "verification": {
-    "commands": ["cargo check -p sdkwork-appstore-standalone-gateway"]
+    "commands": [
+      "cargo check -p sdkwork-api-appstore-standalone-gateway"
+    ]
   }
 }

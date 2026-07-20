@@ -1,4 +1,4 @@
-# sdkwork-appstore-standalone-gateway
+# sdkwork-api-appstore-standalone-gateway
 
 Unified HTTP entrypoint for the SDKWork App Store backend in standalone deployment mode.
 
@@ -25,7 +25,7 @@ export APPSTORE_DRIVE_SERVICE_ACCESS_TOKEN="<service-access-token>"
 # Optional: sdkwork-platform (registered app validation on listing create)
 export APPSTORE_PLATFORM_BASE_URL="http://127.0.0.1:18080"
 export APPSTORE_PLATFORM_SERVICE_AUTH_TOKEN="<service-auth-token>"
-cargo run -p sdkwork-appstore-standalone-gateway
+cargo run -p sdkwork-api-appstore-standalone-gateway
 ```
 
 Default listen port: `18090` (`PORT` env override).

@@ -36,7 +36,7 @@ SDKWork App Store is SDKWork’s **professional application marketplace**, align
 ```text
 Client (apps/sdkwork-appstore-pc | h5)
   → @sdkwork/appstore-app-sdk (composed facade)
-sdkwork-appstore-standalone-gateway
+sdkwork-api-appstore-standalone-gateway
   → sdkwork-appstore-service-host
       publisher | listing | release | catalog | library
       moderation | compliance | market
@@ -93,7 +93,7 @@ Package layout:
 | Gateway bootstrap | `sdkwork-appstore-database-host` init + migrate on startup |
 | Standalone gateway | Port `18090` (override with `PORT`) |
 
-See [standalone-gateway README](../../crates/sdkwork-appstore-standalone-gateway/README.md) for env vars.
+See [standalone-gateway README](../../crates/sdkwork-api-appstore-standalone-gateway/README.md) for env vars.
 
 ## 7. Implementation Status (2026-07-06)
 

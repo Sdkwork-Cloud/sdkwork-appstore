@@ -43,7 +43,7 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 └──────────────────────────────────────────────────────────────────────┘
                                 ↓ HTTPS
 ┌──────────────────────────────────────────────────────────────────────┐
-│  网关层 sdkwork-appstore-standalone-gateway                              │
+│  网关层 sdkwork-api-appstore-standalone-gateway                              │
 │  · 挂载 sdkwork-routes-*-{app,backend,open}-api 路由 crate              │
 │  · 鉴权、限流、信封映射、ProblemDetail、Idempotency-Key                 │
 │  · 单 HTTP 入口（single HTTP ingress）                                  │
@@ -100,7 +100,7 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 | 持久化 | SQLx + PostgreSQL / SQLite | 编译期 SQL 校验、读写分离、keyset 分页 |
 | 异步任务 | tokio + cron 调度 | 榜单快照、指标聚合 |
 | 事件 | sdkwork async events（领域事件） | 解耦、索引同步、通知触发 |
-| 网关 | sdkwork-appstore-standalone-gateway | 单入口、路由聚合、鉴权 |
+| 网关 | sdkwork-api-appstore-standalone-gateway | 单入口、路由聚合、鉴权 |
 | 前端框架 | React 18 + Vite + TypeScript | 生态成熟、HMR 快、类型安全 |
 | UI 样式 | Tailwind CSS + 设计 token | 原子化、主题化、深色模式 |
 | 路由 | react-router-dom | 客户端路由、嵌套路由 |
@@ -132,7 +132,7 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 | Analytics | `sdkwork-appstore-analytics-worker` | `sdkwork-routes-metrics-backend-api` | 指标快照、榜单生成、推荐画像 |
 | Market | `sdkwork-appstore-market-service` | `sdkwork-routes-market-backend-api` | 外部市场渠道分发 |
 | 通用 | `sdkwork-appstore-routes-common`、`sdkwork-appstore-authorization` | — | 信封、ProblemDetail、鉴权 |
-| 主机 | `sdkwork-appstore-service-host`、`sdkwork-appstore-standalone-gateway`、`sdkwork-appstore-database-host` | — | 服务装配、HTTP 入口、DB 主机 |
+| 主机 | `sdkwork-appstore-service-host`、`sdkwork-api-appstore-standalone-gateway`、`sdkwork-appstore-database-host` | — | 服务装配、HTTP 入口、DB 主机 |
 
 ### 3.2 跨域边界
 

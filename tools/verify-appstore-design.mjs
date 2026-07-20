@@ -206,7 +206,7 @@ const routeCrates = [
 }));
 
 const backendCrates = [
-  { name: "sdkwork-appstore-standalone-gateway", path: "crates/sdkwork-appstore-standalone-gateway" },
+  { name: "sdkwork-api-appstore-standalone-gateway", path: "crates/sdkwork-api-appstore-standalone-gateway" },
   { name: "sdkwork-appstore-service-host", path: "crates/sdkwork-appstore-service-host" },
   {
     name: "sdkwork-appstore-repository-sqlx",
@@ -372,8 +372,8 @@ const rootCargoToml = readRequired("Cargo.toml");
 const implementationTodo = readRequired("crates/IMPLEMENTATION_TODO.md");
 const integrationDocs = readRequired("docs/integration/appstore-integration-capabilities.md");
 const serviceHostLib = readRequired("crates/sdkwork-appstore-service-host/src/lib.rs");
-const apiServerBootstrap = readRequired("crates/sdkwork-appstore-standalone-gateway/src/bootstrap/mod.rs");
-const apiServerPreflight = readRequired("crates/sdkwork-appstore-standalone-gateway/src/preflight/mod.rs");
+const apiServerBootstrap = readRequired("crates/sdkwork-api-appstore-standalone-gateway/src/bootstrap/mod.rs");
+const apiServerPreflight = readRequired("crates/sdkwork-api-appstore-standalone-gateway/src/preflight/mod.rs");
 
 const integrationCapabilities = [
   "appbase",
@@ -395,8 +395,8 @@ const serviceHostIntegrationFiles = [
 ];
 
 const apiServerIntegrationFiles = [
-  "crates/sdkwork-appstore-standalone-gateway/src/bootstrap/adapters.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/preflight/dependency_surfaces.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/bootstrap/adapters.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/preflight/dependency_surfaces.rs",
 ];
 
 for (const crate of backendCrates) {
@@ -453,16 +453,16 @@ for (const { path } of routeCrates) {
 }
 
 for (const file of [
-  "crates/sdkwork-appstore-standalone-gateway/src/main.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/bootstrap/mod.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/bootstrap/config.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/bootstrap/adapters.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/bootstrap/state.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/bootstrap/routers.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/server/mod.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/preflight/mod.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/preflight/dependency_surfaces.rs",
-  "crates/sdkwork-appstore-standalone-gateway/src/health.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/main.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/bootstrap/mod.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/bootstrap/config.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/bootstrap/adapters.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/bootstrap/state.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/bootstrap/routers.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/server/mod.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/preflight/mod.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/preflight/dependency_surfaces.rs",
+  "crates/sdkwork-api-appstore-standalone-gateway/src/health.rs",
   "crates/sdkwork-appstore-service-host/src/bootstrap/mod.rs",
   "crates/sdkwork-appstore-service-host/src/bootstrap/config.rs",
   "crates/sdkwork-appstore-service-host/src/bootstrap/repositories.rs",
@@ -500,12 +500,12 @@ assertContains(
 assertContains(
   apiServerBootstrap,
   "pub mod adapters;",
-  "sdkwork-appstore-standalone-gateway bootstrap must export adapters module",
+  "sdkwork-api-appstore-standalone-gateway bootstrap must export adapters module",
 );
 assertContains(
   apiServerPreflight,
   "pub mod dependency_surfaces;",
-  "sdkwork-appstore-standalone-gateway preflight must export dependency_surfaces module",
+  "sdkwork-api-appstore-standalone-gateway preflight must export dependency_surfaces module",
 );
 
 for (const capability of integrationCapabilities) {

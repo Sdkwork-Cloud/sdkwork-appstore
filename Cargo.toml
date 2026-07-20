@@ -1,10 +1,11 @@
 [workspace]
 members = [
+    "crates/sdkwork-api-appstore-assembly",
   "crates/sdkwork-appstore-authorization",
   "crates/sdkwork-appstore-routes-common",
   "crates/sdkwork-appstore-database-host",
-  "crates/sdkwork-appstore-standalone-gateway",
-  "crates/sdkwork-appstore-gateway-assembly",
+  "crates/sdkwork-api-appstore-standalone-gateway",
+  "crates/sdkwork-api-appstore-assembly",
   "crates/sdkwork-appstore-service-host",
   "crates/sdkwork-appstore-repository-sqlx",
   "crates/sdkwork-appstore-analytics-worker",
@@ -46,5 +47,5 @@ sdkwork-database-lifecycle = { path = "../sdkwork-database/crates/sdkwork-databa
 sdkwork-database-spi = { path = "../sdkwork-database/crates/sdkwork-database-spi" }
 sdkwork-appstore-routes-common = { path = "crates/sdkwork-appstore-routes-common" }
 sdkwork-appstore-database-host = { path = "crates/sdkwork-appstore-database-host" }
-sdkwork-appstore-gateway-assembly = { path = "crates/sdkwork-appstore-gateway-assembly" }
+sdkwork-api-appstore-assembly = { path = "crates/sdkwork-api-appstore-assembly" }
 sdkwork-web-bootstrap = { path = "../sdkwork-web-framework/crates/sdkwork-web-bootstrap" }

@@ -55,7 +55,7 @@ flowchart TB
   end
 
   subgraph appstore [sdkwork-appstore]
-    GW[sdkwork-appstore-standalone-gateway]
+    GW[sdkwork-api-appstore-standalone-gateway]
     SH[sdkwork-appstore-service-host]
     subgraph services [Domain services]
       PS[publisher-service]
@@ -161,7 +161,7 @@ Domain events use prefix `appstore.store.*` with outbox pattern (implementation 
 
 ## Verification
 
-- Schema registry ï¿?migration SQL static review.
+- Schema registry ï¿½?migration SQL static review.
 - OpenAPI prefix and operationId lint (implementation: `pnpm run sdk:check`).
 - Dependency boundary test: no `/app/v3/api/auth/*` routes in appstore manifests.
 - Contract test placeholders under `tests/` (implementation phase).

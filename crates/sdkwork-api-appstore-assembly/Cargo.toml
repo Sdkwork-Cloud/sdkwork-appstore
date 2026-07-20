@@ -1,11 +1,11 @@
 [package]
-name = "sdkwork-appstore-gateway-assembly"
+name = "sdkwork-api-appstore-assembly"
 edition = "2021"
 version = "0.1.0"
-description = "Generated gateway assembly for sdkwork-appstore application HTTP plane."
+description = "Generated API assembly for sdkwork-appstore application HTTP plane."
 
 [lib]
-name = "sdkwork_appstore_gateway_assembly"
+name = "sdkwork_api_appstore_assembly"
 path = "src/lib.rs"
 
 [dependencies]
