@@ -783,7 +783,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         sql.push_str("LIMIT ?\n");
 
         let __adapted_sql = self.db.adapt_sql(&sql);
-        let mut q = self.db.query_as::<ListingSearchRow>(&__adapted_sql);
+        let mut q = self
+            .db
+            .query_as::<ListingSearchRow>(&__adapted_sql)
+            .bind(&context.tenant_id);
 
         if let Some(qs) = query {
             let pattern = format!("%{}%", qs);

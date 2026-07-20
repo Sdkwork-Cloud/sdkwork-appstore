@@ -12,3 +12,12 @@ axum = { version = "0.8", default-features = false, features = ["json"] }
 serde = { version = "1", features = ["derive"] }
 sdkwork-utils-rust = { workspace = true }
 sdkwork-web-core = { workspace = true }
+sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
+sdkwork-appstore-publisher-service = { path = "../sdkwork-appstore-publisher-service" }
+sdkwork-appstore-listing-service = { path = "../sdkwork-appstore-listing-service" }
+sdkwork-appstore-release-service = { path = "../sdkwork-appstore-release-service" }
+sdkwork-appstore-catalog-service = { path = "../sdkwork-appstore-catalog-service" }
+sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service" }
+sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
+sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
+sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }

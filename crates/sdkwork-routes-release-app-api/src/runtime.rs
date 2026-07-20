@@ -1,15 +1,17 @@
+use crate::handlers::{
+    releases_artifacts_attach, releases_create, releases_notes_upsert, releases_retire,
+    releases_retrieve, releases_rollout_update, releases_update,
+};
 use axum::extract::{Extension, Json, Path, State};
 use axum::response::Response;
 use axum::routing::{get, post, put};
 use axum::Router;
-use sdkwork_routes_release_app_api::handlers::{
-    releases_artifacts_attach, releases_create, releases_notes_upsert, releases_retire,
-    releases_retrieve, releases_rollout_update, releases_update,
-};
 use sdkwork_web_core::WebRequestContext;
 
-use crate::routes::support::{created, map_release_error, ok_item, to_release_context};
-use crate::AppState;
+use sdkwork_appstore_routes_common::http_support::{
+    created, map_release_error, ok_item, to_release_context,
+};
+use sdkwork_appstore_routes_common::AppState;
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

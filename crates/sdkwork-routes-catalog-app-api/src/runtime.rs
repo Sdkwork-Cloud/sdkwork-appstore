@@ -1,9 +1,4 @@
-use axum::extract::{Extension, Json, Path, Query, State};
-use axum::http::StatusCode;
-use axum::response::Response;
-use axum::routing::{delete, get, put};
-use axum::Router;
-use sdkwork_routes_catalog_app_api::handlers::{
+use crate::handlers::{
     catalog_categories_list, catalog_categories_retrieve, catalog_charts_retrieve,
     catalog_collections_list, catalog_collections_retrieve, catalog_events_list,
     catalog_events_retrieve, catalog_featured_list, catalog_home_retrieve, catalog_listings_search,
@@ -11,13 +6,18 @@ use sdkwork_routes_catalog_app_api::handlers::{
     catalog_search_history_list, catalog_search_history_upsert, catalog_search_suggestions_list,
     catalog_search_trending_list,
 };
+use axum::extract::{Extension, Json, Path, Query, State};
+use axum::http::StatusCode;
+use axum::response::Response;
+use axum::routing::{delete, get, put};
+use axum::Router;
 use sdkwork_web_core::WebRequestContext;
 
-use crate::routes::support::{
+use sdkwork_appstore_routes_common::http_support::{
     map_catalog_error, ok_item, ok_page, to_catalog_context, to_catalog_context_auth,
     CursorPageSizeQuery, LocaleQuery, SearchQuery,
 };
-use crate::AppState;
+use sdkwork_appstore_routes_common::AppState;
 
 #[derive(Debug, serde::Deserialize)]
 struct CatalogHomeQuery {
@@ -494,7 +494,8 @@ async fn catalog_search_history_list_handler(
         Ok(ctx) => ctx,
         Err(resp) => return resp,
     };
-    match catalog_search_history_list(&state.catalog_service, &ctx, query.cursor, query.page_size).await
+    match catalog_search_history_list(&state.catalog_service, &ctx, query.cursor, query.page_size)
+        .await
     {
         Ok(result) => ok_page(
             context.as_ref(),

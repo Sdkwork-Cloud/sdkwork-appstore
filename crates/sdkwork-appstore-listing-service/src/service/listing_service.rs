@@ -213,7 +213,8 @@ pub struct ListingService<R> {
     platform_provider: Option<std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>>,
     media_provider: Option<std::sync::Arc<dyn crate::ports::provider::ListingProviderPort>>,
     moderation_port: Option<std::sync::Arc<dyn crate::ports::moderation::SubmissionModerationPort>>,
-    search_projection: Option<std::sync::Arc<dyn crate::ports::search_projection::ListingSearchProjectionPort>>,
+    search_projection:
+        Option<std::sync::Arc<dyn crate::ports::search_projection::ListingSearchProjectionPort>>,
 }
 
 impl<R: std::fmt::Debug> std::fmt::Debug for ListingService<R> {
@@ -276,11 +277,7 @@ impl<R> ListingService<R>
 where
     R: ListingRepositoryPort,
 {
-    async fn project_search_upsert(
-        &self,
-        context: &AppstoreRequestContext,
-        listing: &Listing,
-    ) {
+    async fn project_search_upsert(&self, context: &AppstoreRequestContext, listing: &Listing) {
         let Some(projection) = &self.search_projection else {
             return;
         };
@@ -307,11 +304,12 @@ where
             .as_ref()
             .map(|value| value.short_description.clone())
             .unwrap_or_default();
-        let document = crate::ports::search_projection::PublishedListingSearchDocument::from_listing(
-            listing,
-            title,
-            description,
-        );
+        let document =
+            crate::ports::search_projection::PublishedListingSearchDocument::from_listing(
+                listing,
+                title,
+                description,
+            );
         if let Err(error) = projection.upsert_published_listing(&document).await {
             tracing::warn!(
                 listing_id = %listing.id.as_str(),

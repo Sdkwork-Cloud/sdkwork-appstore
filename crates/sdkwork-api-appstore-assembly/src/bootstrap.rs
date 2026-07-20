@@ -24,6 +24,7 @@ use sdkwork_appstore_repository_sqlx::repository::moderation_repository::SqlxMod
 use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPublisherRepository;
 use sdkwork_appstore_repository_sqlx::repository::release_repository::SqlxReleaseRepository;
 use sdkwork_appstore_repository_sqlx::AppstoreSqlxDb;
+use sdkwork_appstore_routes_common::AppState;
 use sdkwork_appstore_service_host::integrations::http_market_channel_connector::register_http_market_connectors;
 use sdkwork_appstore_service_host::integrations::{
     DriveIntegrationAdapter, MarketChannelIntegrationAdapter, PlatformIntegrationAdapter,
@@ -33,9 +34,7 @@ use sdkwork_database_sqlx::DatabasePool;
 
 use self::decision_listing_projection::decision_listing_projection_port;
 use self::submission_moderation::submission_moderation_port;
-use crate::routes;
 use crate::web_bootstrap::wrap_router_with_web_framework_from_env;
-use crate::AppState;
 
 pub struct ApiAssembly {
     pub router: Router,
@@ -125,20 +124,44 @@ pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
 
     let business = wrap_router_with_web_framework_from_env(
         Router::new()
-            .merge(routes::catalog::routes())
-            .merge(routes::catalog_backend::routes())
-            .merge(routes::listing::routes())
-            .merge(routes::listing_backend::routes())
-            .merge(routes::publisher::routes())
-            .merge(routes::publisher_backend::routes())
-            .merge(routes::release_routes::routes())
-            .merge(routes::library::routes())
-            .merge(routes::moderation::routes())
-            .merge(routes::compliance::routes())
-            .merge(routes::market::routes())
-            .merge(routes::metrics_backend::routes())
-            .merge(routes::open_api::routes())
-            .with_state(state),
+            .merge(sdkwork_routes_catalog_app_api::gateway_mount(state.clone()))
+            .merge(sdkwork_routes_catalog_backend_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_listing_app_api::gateway_mount(state.clone()))
+            .merge(sdkwork_routes_listing_backend_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_publisher_app_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_publisher_backend_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_release_app_api::gateway_mount(state.clone()))
+            .merge(sdkwork_routes_library_app_api::gateway_mount(state.clone()))
+            .merge(sdkwork_routes_moderation_backend_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_compliance_app_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_market_backend_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_metrics_backend_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_catalog_open_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_listing_open_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_release_open_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_automation_open_api::gateway_mount(state)),
     )
     .await;
 

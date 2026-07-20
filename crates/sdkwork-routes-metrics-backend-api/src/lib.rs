@@ -1,5 +1,7 @@
 //! Route crate skeleton for sdkwork-routes-metrics-backend-api.
 
+mod runtime;
+
 pub mod error;
 pub mod handlers;
 pub mod http_route_manifest;
@@ -22,6 +24,6 @@ pub fn gateway_route_manifest() -> RouteManifest {
     route_manifest()
 }
 
-pub fn gateway_mount() -> RouteManifest {
-    gateway_route_manifest()
+pub fn gateway_mount(state: sdkwork_appstore_routes_common::AppState) -> axum::Router {
+    runtime::routes().with_state(state)
 }

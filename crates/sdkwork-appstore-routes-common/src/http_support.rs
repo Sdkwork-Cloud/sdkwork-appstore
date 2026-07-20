@@ -1,12 +1,12 @@
 //! Gateway HTTP helpers delegating to sdkwork-appstore-routes-common.
 
-use axum::extract::Extension;
-use axum::response::Response;
-use sdkwork_appstore_routes_common::{
+use crate::{
     authenticated_context_from_web, created_item, map_appstore_service_error,
     request_context_from_web, success_item, success_page, AppstoreRequestContext,
     AppstoreServiceErrorKind,
 };
+use axum::extract::Extension;
+use axum::response::Response;
 use sdkwork_web_core::WebRequestContext;
 use serde::Deserialize;
 
@@ -38,24 +38,14 @@ fn require_user_id(base: &AppstoreRequestContext) -> Result<String, Response> {
     base.user_id
         .clone()
         .filter(|id| !id.trim().is_empty())
-        .ok_or_else(|| {
-            sdkwork_appstore_routes_common::unauthorized_response(
-                None,
-                "Authenticated user is required",
-            )
-        })
+        .ok_or_else(|| crate::unauthorized_response(None, "Authenticated user is required"))
 }
 
 fn require_org_id(base: &AppstoreRequestContext) -> Result<String, Response> {
     base.organization_id
         .clone()
         .filter(|id| !id.trim().is_empty())
-        .ok_or_else(|| {
-            sdkwork_appstore_routes_common::unauthorized_response(
-                None,
-                "Organization context is required",
-            )
-        })
+        .ok_or_else(|| crate::unauthorized_response(None, "Organization context is required"))
 }
 
 pub fn to_catalog_context(

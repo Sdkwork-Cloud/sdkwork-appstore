@@ -21,11 +21,7 @@ pub trait ListingSearchProjectionPort: Send + Sync {
         document: &PublishedListingSearchDocument,
     ) -> Result<(), String>;
 
-    async fn remove_listing(
-        &self,
-        tenant_id: &str,
-        listing_id: &str,
-    ) -> Result<(), String>;
+    async fn remove_listing(&self, tenant_id: &str, listing_id: &str) -> Result<(), String>;
 }
 
 impl PublishedListingSearchDocument {

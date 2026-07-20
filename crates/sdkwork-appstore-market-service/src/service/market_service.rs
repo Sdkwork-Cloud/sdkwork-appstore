@@ -362,7 +362,10 @@ where
                             "external_app_id is required for provider push_release".to_string(),
                         )
                     })?;
-                    let metadata = request.external_status.clone().unwrap_or_else(|| serde_json::json!({}));
+                    let metadata = request
+                        .external_status
+                        .clone()
+                        .unwrap_or_else(|| serde_json::json!({}));
                     let artifact_url = metadata
                         .get("artifactUrl")
                         .or_else(|| metadata.get("artifact_url"))

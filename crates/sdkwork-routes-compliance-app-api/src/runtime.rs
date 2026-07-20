@@ -1,18 +1,18 @@
+use crate::handlers::{
+    compliance_iap_items_list, compliance_permissions_update, compliance_profile_retrieve,
+    compliance_profile_update,
+};
 use axum::extract::{Extension, Json, Path, Query, State};
 use axum::response::Response;
 use axum::routing::{get, put};
 use axum::Router;
 use sdkwork_appstore_compliance_service::domain::commands::PermissionDisclosureItem;
-use sdkwork_routes_compliance_app_api::handlers::{
-    compliance_iap_items_list, compliance_permissions_update, compliance_profile_retrieve,
-    compliance_profile_update,
-};
 use sdkwork_web_core::WebRequestContext;
 
-use crate::routes::support::{
+use sdkwork_appstore_routes_common::http_support::{
     map_compliance_error, ok_item, ok_page, to_compliance_context, CursorPageSizeQuery,
 };
-use crate::AppState;
+use sdkwork_appstore_routes_common::AppState;
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

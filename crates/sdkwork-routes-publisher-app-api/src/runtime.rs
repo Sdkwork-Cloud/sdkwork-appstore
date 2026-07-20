@@ -1,3 +1,7 @@
+use crate::handlers::{
+    publishers_create, publishers_me_retrieve, publishers_members_invite, publishers_members_list,
+    publishers_update, publishers_verifications_submit,
+};
 use axum::extract::{Extension, Json, Path, Query, State};
 use axum::response::Response;
 use axum::routing::{get, patch, post};
@@ -5,17 +9,13 @@ use axum::Router;
 use sdkwork_routes_listing_app_api::handlers::{
     listings_publisher_list, publishers_me_apps_bootstrap,
 };
-use sdkwork_routes_publisher_app_api::handlers::{
-    publishers_create, publishers_me_retrieve, publishers_members_invite, publishers_members_list,
-    publishers_update, publishers_verifications_submit,
-};
 use sdkwork_web_core::WebRequestContext;
 
-use crate::routes::support::{
+use sdkwork_appstore_routes_common::http_support::{
     created, map_listing_error, map_publisher_error, ok_item, ok_page, to_listing_context,
     to_publisher_context, CursorPageSizeQuery,
 };
-use crate::AppState;
+use sdkwork_appstore_routes_common::AppState;
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,15 +1,17 @@
+use crate::handlers::{
+    market_channels_create, market_channels_list, market_channels_update, market_releases_list,
+    market_releases_sync,
+};
 use axum::extract::{Extension, Json, Path, Query, State};
 use axum::response::Response;
 use axum::routing::{get, patch, post};
 use axum::Router;
-use sdkwork_routes_market_backend_api::handlers::{
-    market_channels_create, market_channels_list, market_channels_update, market_releases_list,
-    market_releases_sync,
-};
 use sdkwork_web_core::WebRequestContext;
 
-use crate::routes::support::{created, map_market_error, ok_item, ok_page, to_market_context};
-use crate::AppState;
+use sdkwork_appstore_routes_common::http_support::{
+    created, map_market_error, ok_item, ok_page, to_market_context,
+};
+use sdkwork_appstore_routes_common::AppState;
 
 #[derive(Debug, serde::Deserialize)]
 struct MarketChannelsQuery {

@@ -83,8 +83,9 @@ pub async fn analytics_publisher_listings_list<S: CatalogOperations>(
     cursor: Option<String>,
     page_size: Option<i32>,
 ) -> Result<AnalyticsPublisherListingsListResult, AppstoreServiceError> {
-    let cmd =
-        mapper::request::map_analytics_publisher_listings_list(date_from, date_to, cursor, page_size);
+    let cmd = mapper::request::map_analytics_publisher_listings_list(
+        date_from, date_to, cursor, page_size,
+    );
     service
         .analytics_publisher_listings_list(context, cmd)
         .await

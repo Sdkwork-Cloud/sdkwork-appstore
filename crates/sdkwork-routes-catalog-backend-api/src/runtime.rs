@@ -1,3 +1,7 @@
+use crate::handlers::{
+    catalog_categories_create, catalog_categories_update, catalog_collections_create,
+    catalog_collections_items_upsert, catalog_collections_update, catalog_featured_upsert,
+};
 use axum::extract::{Extension, Json, Path, State};
 use axum::response::Response;
 use axum::routing::{patch, post, put};
@@ -5,16 +9,12 @@ use axum::Router;
 use sdkwork_appstore_catalog_service::domain::commands::{
     CategoryLocalizationInput, CollectionItemInput, CollectionLocalizationInput,
 };
-use sdkwork_routes_catalog_backend_api::handlers::{
-    catalog_categories_create, catalog_categories_update, catalog_collections_create,
-    catalog_collections_items_upsert, catalog_collections_update, catalog_featured_upsert,
-};
 use sdkwork_web_core::WebRequestContext;
 
-use crate::routes::support::{
+use sdkwork_appstore_routes_common::http_support::{
     created, map_catalog_error, ok_item, ok_page, to_catalog_context_auth,
 };
-use crate::AppState;
+use sdkwork_appstore_routes_common::AppState;
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

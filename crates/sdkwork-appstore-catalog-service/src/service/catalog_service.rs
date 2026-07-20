@@ -246,10 +246,7 @@ impl<R> CatalogService<R> {
         }
     }
 
-    pub fn with_search_federation(
-        mut self,
-        port: Arc<dyn CatalogSearchFederationPort>,
-    ) -> Self {
+    pub fn with_search_federation(mut self, port: Arc<dyn CatalogSearchFederationPort>) -> Self {
         self.search_federation = Some(port);
         self
     }
@@ -1110,12 +1107,19 @@ where
                             .enumerate()
                             .map(|(index, id)| (id.as_str(), index))
                             .collect();
-                        hydrated.sort_by_key(|listing| order.get(listing.id.as_str()).copied().unwrap_or(usize::MAX));
+                        hydrated.sort_by_key(|listing| {
+                            order
+                                .get(listing.id.as_str())
+                                .copied()
+                                .unwrap_or(usize::MAX)
+                        });
                         hydrated
                     }
                     Ok(_) => Vec::new(),
                     Err(error) => {
-                        tracing::warn!("federated search unavailable, falling back to SQL: {error}");
+                        tracing::warn!(
+                            "federated search unavailable, falling back to SQL: {error}"
+                        );
                         self.repository
                             .search_listings(
                                 context,

@@ -1,12 +1,14 @@
+use crate::handlers::publishers_admin_verify;
 use axum::extract::{Extension, Json, Path, State};
 use axum::response::Response;
 use axum::routing::post;
 use axum::Router;
-use sdkwork_routes_publisher_backend_api::handlers::publishers_admin_verify;
 use sdkwork_web_core::WebRequestContext;
 
-use crate::routes::support::{map_publisher_error, ok_item, to_publisher_context};
-use crate::AppState;
+use sdkwork_appstore_routes_common::http_support::{
+    map_publisher_error, ok_item, to_publisher_context,
+};
+use sdkwork_appstore_routes_common::AppState;
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
