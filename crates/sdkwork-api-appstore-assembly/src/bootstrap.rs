@@ -37,7 +37,7 @@ use crate::routes;
 use crate::web_bootstrap::wrap_router_with_web_framework_from_env;
 use crate::AppState;
 
-pub struct ApplicationAssembly {
+pub struct ApiAssembly {
     pub router: Router,
     pub database_pool: DatabasePool,
 }
@@ -47,7 +47,7 @@ pub struct ApplicationAssembly {
 /// This function bootstraps the appstore database from environment variables,
 /// creates all repositories and services, builds the router with all route
 /// modules, and wraps it with the web framework layer.
-pub async fn assemble_application_router() -> Result<ApplicationAssembly, String> {
+pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
     let database_host = bootstrap_appstore_database_from_env().await?;
 
     let pool = database_host.pool().clone();
@@ -142,7 +142,7 @@ pub async fn assemble_application_router() -> Result<ApplicationAssembly, String
     )
     .await;
 
-    Ok(ApplicationAssembly {
+    Ok(ApiAssembly {
         router: business,
         database_pool: pool,
     })

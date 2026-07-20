@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use sdkwork_api_appstore_assembly::assemble_application_router;
+use sdkwork_api_appstore_assembly::assemble_api_router;
 use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::EnvFilter;
@@ -16,7 +16,7 @@ async fn main() {
         .init();
     let _ = dotenvy::dotenv();
 
-    let assembly = assemble_application_router()
+    let assembly = assemble_api_router()
         .await
         .expect("appstore gateway assembly failed");
     let readiness = Arc::new(AppstoreDatabaseReadinessCheck::new(

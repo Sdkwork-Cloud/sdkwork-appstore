@@ -37,7 +37,7 @@ pub struct AppState {
     pub market_service: MarketService<SqlxMarketRepository>,
 }
 
-pub use bootstrap::{assemble_application_router, ApplicationAssembly};
+pub use bootstrap::{assemble_api_router, ApiAssembly};
 
 pub fn assembly_route_count() -> usize {
     generated::ROUTE_CRATE_COUNT
