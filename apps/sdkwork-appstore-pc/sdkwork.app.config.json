@@ -33,6 +33,10 @@
       "purpose": "Store catalog, listings, publishers, releases, library"
     },
     {
+      "sdkFamily": "sdkwork-appstore-sdk",
+      "purpose": "Public catalog reads and API-key protected distribution operations"
+    },
+    {
       "sdkFamily": "sdkwork-iam-app-sdk",
       "purpose": "IAM session, organization context"
     },

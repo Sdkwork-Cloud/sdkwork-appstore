@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getStoreClient } from '@/services/storeClient';
+import { getOpenStoreClient } from '@/services/openStoreClient';
 import { getCommentsClient } from '@/services/commentsClient';
 import { isAppStoreApiError, type AppStoreApiError } from '@sdkwork/appstore-app-sdk';
 import type { Comment, CommentsThreadSummary } from '@sdkwork/comments-app-sdk';
@@ -79,8 +80,8 @@ export function useListingReleases(listingId: string) {
 }
 
 export function usePublicListing(listingSlug: string) {
-  const client = getStoreClient();
-  return useApi(() => client.store.getPublicListing(listingSlug), { immediate: !!listingSlug });
+  const client = getOpenStoreClient();
+  return useApi(() => client.getPublicListing(listingSlug), { immediate: !!listingSlug });
 }
 
 export interface ListingReviewsResult {
@@ -127,19 +128,13 @@ export function useListingOwnership(listingId: string, enabled = true) {
         return false;
       }
       const result = await client.library.listItems({ limit: 50 });
-      return (result.items ?? []).some((item) => {
-        const row = item as Record<string, unknown>;
-        const id = readRecordString(row, 'listingId', 'listing_id', 'id');
-        return id === listingId;
-      });
+      return (result.items ?? []).some((item) => item.listingId === listingId);
     },
     { immediate: enabled && !!listingId },
   );
 }
 
 export async function purchaseListingViaCommerce(params: {
-  listingId: string;
-  displayName: string;
   commerceProductId?: string;
 }) {
   return beginPaidListingCheckout(getCommerceDomainsClient, params);
@@ -197,7 +192,7 @@ export async function recordSearchHistory(query: string, resultCount = 0) {
   const client = getStoreClient();
   await client.catalog.upsertSearchHistory({
     queryText: trimmed,
-    resultCount,
+    filters: { resultCount },
   });
 }
 
@@ -231,30 +226,23 @@ export function useLibraryUpdates() {
     const libraryRows = library.items ?? [];
     const checkItems = libraryRows
       .map((row) => {
-        const item = row as Record<string, unknown>;
-        const listingId = String(item.listingId ?? item.listing_id ?? '').trim();
-        const installedVersionCode = String(
-          item.installedVersionCode ?? item.installed_version_code ?? '0',
-        ).trim();
-        if (!listingId) {
+        const appKey = row.appKey.trim();
+        const platform = row.platform.trim();
+        const installedVersionCode = (row.installedVersionCode ?? '0').trim();
+        if (!appKey || !platform) {
           return null;
         }
-        return { listingId, installedVersionCode };
+        return { appKey, platform, installedVersionCode };
       })
       .filter(
-        (item): item is { listingId: string; installedVersionCode: string } => item !== null,
+        (item): item is { appKey: string; platform: string; installedVersionCode: string } => item !== null,
       );
 
     if (checkItems.length === 0) {
       return { updates: [] as unknown[], libraryItems: libraryRows };
     }
 
-    const platform = String(
-      (libraryRows[0] as Record<string, unknown>)?.platform ??
-      (libraryRows[0] as Record<string, unknown>)?.platformScope ??
-      'WINDOWS',
-    ).trim();
-    const checkResult = await client.library.checkUpdates({ platform, items: checkItems });
+    const checkResult = await client.library.checkUpdates({ items: checkItems });
     return {
       updates: checkResult.items ?? [],
       libraryItems: libraryRows,
@@ -279,32 +267,22 @@ export function formatApiError(error: AppStoreApiError | Error | null): string {
   return error.message;
 }
 
-function readRecordString(record: Record<string, unknown>, ...keys: string[]): string {
-  for (const key of keys) {
-    const value = record[key];
-    if (typeof value === 'string' && value.trim()) {
-      return value.trim();
-    }
-  }
-  return '';
-}
-
 /** Creates a download grant and resolves a presigned artifact URL via open-api. */
 export async function resolveArtifactDownload(params: {
   artifactId: string;
   appKey?: string;
 }): Promise<string> {
-  const client = getStoreClient();
-  const grantRow = (await client.downloadGrants.create({
+  const appClient = getStoreClient();
+  const openClient = getOpenStoreClient();
+  const grant = await appClient.downloadGrants.create({
     artifactId: params.artifactId,
-  })) as Record<string, unknown>;
-  const grantId = readRecordString(grantRow, 'id', 'grantId', 'grant_id');
-  const resolved = (await client.store.resolveDownload({
+  });
+  const resolved = await openClient.resolveDownload({
     artifactId: params.artifactId,
-    ...(grantId ? { grantId } : {}),
+    grantId: grant.id,
     ...(params.appKey ? { appKey: params.appKey } : {}),
-  })) as Record<string, unknown>;
-  const downloadUrl = readRecordString(resolved, 'downloadUrl', 'download_url');
+  });
+  const downloadUrl = resolved.downloadUrl?.trim();
   if (!downloadUrl) {
     throw new Error('Download URL was not returned by the store API');
   }
@@ -317,33 +295,32 @@ export async function installListingAndDownload(params: {
   platform: string;
   appKey?: string;
 }): Promise<{ libraryItem: unknown; downloadUrl?: string }> {
-  const client = getStoreClient();
-  const installPayload = (await client.library.install({
+  const appClient = getStoreClient();
+  const openClient = getOpenStoreClient();
+  const installPayload = await appClient.library.install({
     listingId: params.listingId,
     platform: params.platform,
-  })) as Record<string, unknown>;
+  });
 
-  const libraryItemRaw = installPayload.libraryItem ?? installPayload;
-  const libraryItem = libraryItemRaw as Record<string, unknown>;
-  const appKey =
-    params.appKey || readRecordString(libraryItem, 'appKey', 'app_key');
+  const libraryItem = installPayload.libraryItem;
+  const appKey = params.appKey || libraryItem.appKey;
 
   if (!appKey) {
-    return { libraryItem: libraryItemRaw };
+    return { libraryItem };
   }
 
-  const updateRow = (await client.store.checkUpdate({
+  const update = await openClient.checkUpdate({
     appKey,
     platform: params.platform,
     installedVersionCode: '0',
     channelCode: 'stable',
-  })) as Record<string, unknown>;
+  });
 
-  const artifactId = readRecordString(updateRow, 'artifactId', 'artifact_id');
+  const artifactId = update.artifactId?.trim();
   if (!artifactId) {
-    return { libraryItem: libraryItemRaw };
+    return { libraryItem };
   }
 
   const downloadUrl = await resolveArtifactDownload({ artifactId, appKey });
-  return { libraryItem: libraryItemRaw, downloadUrl };
+  return { libraryItem, downloadUrl };
 }

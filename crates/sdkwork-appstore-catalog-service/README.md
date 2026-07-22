@@ -21,11 +21,11 @@ All operations implemented with async hexagonal architecture:
 | appstore.catalog.collections.retrieve | catalog_collections_retrieve |
 | appstore.catalog.featured.list | catalog_featured_list |
 | appstore.catalog.charts.retrieve | catalog_charts_retrieve |
-| appstore.catalog.listings.search | catalog_listings_search |
+| appstore.catalog.listings.list | catalog_listings_search |
 | appstore.catalog.collections.create | catalog_collections_create |
 | appstore.catalog.collections.update | catalog_collections_update |
-| appstore.catalog.collections.items.upsert | catalog_collections_items_upsert |
-| appstore.catalog.featured.upsert | catalog_featured_upsert |
+| appstore.catalog.collections.items.update | catalog_collections_items_upsert |
+| appstore.catalog.featured.update | catalog_featured_upsert |
 | appstore.catalog.categories.create | catalog_categories_create |
 | appstore.catalog.categories.update | catalog_categories_update |
 | appstore.metrics.listings.retrieve | metrics_listings_retrieve |

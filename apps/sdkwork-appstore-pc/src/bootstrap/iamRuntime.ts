@@ -26,6 +26,12 @@ let currentUser: IamUser | null = null;
 
 export const appstoreTokenManager: AuthTokenManager = createTokenManager();
 
+function toIamEnvironment(name: ReturnType<typeof getEnvironment>['name']): 'dev' | 'test' | 'prod' {
+  if (name === 'development') return 'dev';
+  if (name === 'test') return 'test';
+  return 'prod';
+}
+
 function readStoredSession() {
   const authToken = localStorage.getItem(AUTH_TOKEN_KEY)?.trim();
   const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY)?.trim();
@@ -92,7 +98,7 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
     app: {
       appId: 'sdkwork-appstore-pc',
       deploymentMode: 'saas',
-      environment: env.name === 'development' ? 'dev' : env.name,
+      environment: toIamEnvironment(env.name),
       platform: 'pc',
     },
     baseUrls: {
@@ -117,8 +123,8 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
             resetStoreClient();
             resetDriveClient();
             resetCommentsClient();
-  resetNotificationClient();
-  resetCommerceDomainsClient();
+            resetNotificationClient();
+            resetCommerceDomainsClient();
           }
         },
       },
@@ -128,8 +134,8 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
         resetStoreClient();
         resetDriveClient();
         resetCommentsClient();
-  resetNotificationClient();
-  resetCommerceDomainsClient();
+        resetNotificationClient();
+        resetCommerceDomainsClient();
       },
     },
   });

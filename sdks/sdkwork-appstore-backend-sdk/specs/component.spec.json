@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-appstore-backend-sdk",
+    "displayName": "SDKWork Appstore Backend SDK",
+    "version": "0.1.0",
+    "type": "sdk-family",
+    "root": "sdks/sdkwork-appstore-backend-sdk",
+    "domain": "appstore",
+    "capability": "appstore-backend-sdk",
+    "surface": "backend-api",
+    "status": "standardized",
+    "languages": ["typescript"],
+    "generated": true,
+    "private": false,
+    "manifests": ["sdk-manifest.json"]
+  },
+  "canonicalSpecs": [
+    { "file": "SDK_MANIFEST_SPEC.md", "path": "../../../sdkwork-specs/SDK_MANIFEST_SPEC.md" },
+    { "file": "SDK_SPEC.md", "path": "../../../sdkwork-specs/SDK_SPEC.md" },
+    { "file": "SDK_WORKSPACE_GENERATION_SPEC.md", "path": "../../../sdkwork-specs/SDK_WORKSPACE_GENERATION_SPEC.md" },
+    { "file": "APP_SDK_INTEGRATION_SPEC.md", "path": "../../../sdkwork-specs/APP_SDK_INTEGRATION_SPEC.md" },
+    { "file": "API_SPEC.md", "path": "../../../sdkwork-specs/API_SPEC.md" },
+    { "file": "TEST_SPEC.md", "path": "../../../sdkwork-specs/TEST_SPEC.md" }
+  ],
+  "sdk": {
+    "family": "sdkwork-appstore-backend-sdk",
+    "authority": "sdkwork-appstore-backend-api",
+    "sdkOwner": "sdkwork-appstore",
+    "apiPrefix": "/backend/v3/api",
+    "packageName": "@sdkwork/appstore-backend-sdk",
+    "sdkName": "sdkwork-appstore-backend-sdk",
+    "sdkType": "backend",
+    "sdkSurface": "backend",
+    "generatedOutput": "sdkwork-appstore-backend-sdk-typescript/generated/server-openapi",
+    "standardProfile": "sdkwork-v3"
+  },
+  "contracts": {
+    "apiAuthority": {
+      "name": "sdkwork-appstore-backend-api",
+      "owner": "sdkwork-appstore",
+      "prefix": "/backend/v3/api",
+      "authorityOpenApi": "openapi/sdkwork-appstore-backend-api.openapi.yaml",
+      "derivedOpenApi": ["openapi/sdkwork-appstore-backend-api.sdkgen.yaml"]
+    },
+    "publicExports": ["sdkwork-appstore-backend-sdk-typescript/src/index.ts"],
+    "runtimeEntrypoints": ["sdk-manifest.json"],
+    "routeManifest": null,
+    "sdkDependencies": ["sdkwork-iam-backend-sdk"],
+    "dependencyApiExports": [],
+    "sdkClients": ["SdkworkAppstoreBackendClient"],
+    "events": [],
+    "configKeys": ["sdk-manifest.json"]
+  },
+  "verification": {
+    "commands": [
+      "pnpm sdk:generate:check",
+      "node ../sdkwork-specs/tools/check-sdk-standard.mjs --workspace ."
+    ]
+  }
+}

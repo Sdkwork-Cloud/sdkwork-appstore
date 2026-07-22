@@ -40,7 +40,7 @@ We need a store backend that mirrors professional marketplace patterns (Apple Ap
 | Auth/session | sdkwork-appbase | SDK dependency; no local auth routes |
 | Reviews/ratings | sdkwork-comments | `comments_thread_id` + comments SDK |
 | Media/binaries | sdkwork-drive | `drive_node_id`, `media_resource_id` |
-| Paid apps/IAP | sdkwork-commerce (deleted) | Optional `commerce_product_id`; no checkout in store API |
+| Paid apps/IAP | sdkwork-catalog + sdkwork-order + sdkwork-payment | `commerce_product_id` references a Catalog product; clients resolve its SKU and create Order checkout through the Clawrouter facade |
 | Notifications | sdkwork-appbase / messaging | Events only in phase 1 |
 
 ### 4. Runtime topology
@@ -76,7 +76,7 @@ flowchart TB
     IAM[sdkwork-iam]
     DRV[sdkwork-drive]
     CMT[sdkwork-comments]
-    CMRC[sdkwork-commerce (deleted)]
+    CMRC[Catalog / Order / Payment via Clawrouter]
   end
 
   PC --> GW
@@ -97,13 +97,13 @@ Phase 1 delivers **contracts and crate map** only. Implementation mounts route c
 
 | Route crate | Surface | Capability |
 | --- | --- | --- |
-| `sdkwork-routes-catalog-app-api` | app-api | catalog, search |
+| `sdkwork-routes-appstore-catalog-app-api` | app-api | catalog, search |
 | `sdkwork-routes-listing-app-api` | app-api | listings, submissions |
 | `sdkwork-routes-release-app-api` | app-api | releases (publisher) |
 | `sdkwork-routes-library-app-api` | app-api | library, wishlist |
 | `sdkwork-routes-publisher-app-api` | app-api | publisher profile |
 | `sdkwork-routes-moderation-backend-api` | backend-api | moderation |
-| `sdkwork-routes-catalog-backend-api` | backend-api | collections, featured |
+| `sdkwork-routes-appstore-catalog-backend-api` | backend-api | collections, featured |
 | `sdkwork-routes-listing-backend-api` | backend-api | operator listing admin |
 | `sdkwork-routes-release-open-api` | open-api | update check, artifact resolve |
 

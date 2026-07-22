@@ -1,23 +1,47 @@
 {
   "schemaVersion": 1,
+  "sdkFamily": "sdkwork-appstore-backend-sdk",
   "sdkName": "sdkwork-appstore-backend-sdk",
+  "packageName": "@sdkwork/appstore-backend-sdk",
+  "transportPackageName": "sdkwork-appstore-backend-sdk-generated-typescript",
   "sdkOwner": "sdkwork-appstore",
   "apiAuthority": "sdkwork-appstore-backend-api",
-  "sdkFamily": "sdkwork-appstore-backend-sdk",
-  "sdkType": "custom",
+  "sdkType": "backend",
+  "sdkSurface": "backend",
+  "language": "typescript",
   "apiPrefix": "/backend/v3/api",
-  "generationInputSpec": "../../apis/backend-api/store/openapi.yaml",
-  "generatedPackages": {},
+  "authoritySpec": "openapi/sdkwork-appstore-backend-api.openapi.yaml",
+  "generationInputSpec": "openapi/sdkwork-appstore-backend-api.sdkgen.yaml",
+  "derivedSpecs": {
+    "default": "openapi/sdkwork-appstore-backend-api.sdkgen.yaml"
+  },
+  "generatedOutput": "sdkwork-appstore-backend-sdk-typescript/generated/server-openapi",
+  "standardProfile": "sdkwork-v3",
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 29,
   "sdkDependencies": [
     "sdkwork-iam-backend-sdk"
   ],
   "dependencyApiExports": [],
   "generatorName": "sdkwork-sdk-generator",
-  "baseUrl": "http://127.0.0.1:18091",
-  "standardProfile": "sdkwork-appstore-backend-v3",
-  "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 20,
-  "managedBy": "tools/appstore_sdk_generate.mjs",
-  "packageName": "@sdkwork/appstore-backend-sdk",
-  "transportPackageName": "sdkwork-appstore-backend-sdk-generated-typescript"
+  "managedBy": "scripts/generate-appstore-sdk.mjs",
+  "typescript": {
+    "composedRoot": "sdkwork-appstore-backend-sdk-typescript",
+    "composedEntry": "sdkwork-appstore-backend-sdk-typescript/src/index.ts",
+    "transportRoot": "sdkwork-appstore-backend-sdk-typescript/generated/server-openapi",
+    "transportEntry": "sdkwork-appstore-backend-sdk-typescript/generated/server-openapi/src/index.ts"
+  },
+  "languages": [
+    {
+      "language": "typescript",
+      "workspace": "sdkwork-appstore-backend-sdk-typescript",
+      "generationState": "materialized",
+      "releaseState": "not_published",
+      "generatedPath": "sdkwork-appstore-backend-sdk-typescript/generated/server-openapi",
+      "manifestPath": "sdkwork-appstore-backend-sdk-typescript/generated/server-openapi/package.json",
+      "version": "0.1.0",
+      "consumerPackageName": "@sdkwork/appstore-backend-sdk",
+      "transportPackageName": "sdkwork-appstore-backend-sdk-generated-typescript"
+    }
+  ]
 }

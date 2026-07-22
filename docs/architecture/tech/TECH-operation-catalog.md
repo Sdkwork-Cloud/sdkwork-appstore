@@ -15,14 +15,14 @@ Prefix lock:
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
-| `appstore.catalog.home.retrieve` | GET | `/app/v3/api/catalog/home` | `appstore.catalog.read` |
-| `appstore.catalog.categories.list` | GET | `/app/v3/api/catalog/categories` | `appstore.catalog.read` |
-| `appstore.catalog.categories.retrieve` | GET | `/app/v3/api/catalog/categories/{categoryId}` | `appstore.catalog.read` |
-| `appstore.catalog.collections.list` | GET | `/app/v3/api/catalog/collections` | `appstore.catalog.read` |
-| `appstore.catalog.collections.retrieve` | GET | `/app/v3/api/catalog/collections/{collectionId}` | `appstore.catalog.read` |
-| `appstore.catalog.featured.list` | GET | `/app/v3/api/catalog/featured` | `appstore.catalog.read` |
-| `appstore.catalog.charts.retrieve` | GET | `/app/v3/api/catalog/charts/{chartCode}` | `appstore.catalog.read` |
-| `appstore.catalog.listings.search` | GET | `/app/v3/api/catalog/listings/search` | `appstore.catalog.read` |
+| `appstore.catalog.home.retrieve` | GET | `/app/v3/api/appstore/catalog/home` | `appstore.catalog.read` |
+| `appstore.catalog.categories.list` | GET | `/app/v3/api/appstore/catalog/categories` | `appstore.catalog.read` |
+| `appstore.catalog.categories.retrieve` | GET | `/app/v3/api/appstore/catalog/categories/{categoryId}` | `appstore.catalog.read` |
+| `appstore.catalog.collections.list` | GET | `/app/v3/api/appstore/catalog/collections` | `appstore.catalog.read` |
+| `appstore.catalog.collections.retrieve` | GET | `/app/v3/api/appstore/catalog/collections/{collectionId}` | `appstore.catalog.read` |
+| `appstore.catalog.featured.list` | GET | `/app/v3/api/appstore/catalog/featured` | `appstore.catalog.read` |
+| `appstore.catalog.charts.retrieve` | GET | `/app/v3/api/appstore/catalog/charts/{chartCode}` | `appstore.catalog.read` |
+| `appstore.catalog.listings.list` | GET | `/app/v3/api/appstore/catalog/listings/search` | `appstore.catalog.read` |
 
 ## App API �?Listings
 
@@ -33,10 +33,10 @@ Prefix lock:
 | `appstore.listings.releases.list` | GET | `/app/v3/api/listings/{listingId}/releases` | `appstore.listings.read` |
 | `appstore.listings.create` | POST | `/app/v3/api/listings` | `appstore.listings.write` |
 | `appstore.listings.update` | PATCH | `/app/v3/api/listings/{listingId}` | `appstore.listings.write` |
-| `appstore.listings.localization.upsert` | PUT | `/app/v3/api/listings/{listingId}/localizations/{locale}` | `appstore.listings.write` |
-| `appstore.listings.media.attach` | POST | `/app/v3/api/listings/{listingId}/media` | `appstore.listings.write` |
-| `appstore.listings.media.remove` | DELETE | `/app/v3/api/listings/{listingId}/media/{mediaId}` | `appstore.listings.write` |
-| `appstore.listings.categories.bind` | PUT | `/app/v3/api/listings/{listingId}/categories` | `appstore.listings.write` |
+| `appstore.listings.localization.update` | PUT | `/app/v3/api/listings/{listingId}/localizations/{locale}` | `appstore.listings.write` |
+| `appstore.listings.media.create` | POST | `/app/v3/api/listings/{listingId}/media` | `appstore.listings.write` |
+| `appstore.listings.media.delete` | DELETE | `/app/v3/api/listings/{listingId}/media/{mediaId}` | `appstore.listings.write` |
+| `appstore.listings.categories.update` | PUT | `/app/v3/api/listings/{listingId}/categories` | `appstore.listings.write` |
 | `appstore.listings.regions.update` | PUT | `/app/v3/api/listings/{listingId}/regions` | `appstore.listings.write` |
 | `appstore.listings.submissions.create` | POST | `/app/v3/api/listings/{listingId}/submissions` | `appstore.listings.submit` |
 
@@ -48,8 +48,8 @@ Prefix lock:
 | `appstore.publishers.create` | POST | `/app/v3/api/publishers` | `appstore.publishers.write` |
 | `appstore.publishers.update` | PATCH | `/app/v3/api/publishers/{publisherId}` | `appstore.publishers.write` |
 | `appstore.publishers.members.list` | GET | `/app/v3/api/publishers/{publisherId}/members` | `appstore.publishers.read` |
-| `appstore.publishers.members.invite` | POST | `/app/v3/api/publishers/{publisherId}/members` | `appstore.publishers.admin` |
-| `appstore.publishers.verifications.submit` | POST | `/app/v3/api/publishers/{publisherId}/verifications` | `appstore.publishers.verify` |
+| `appstore.publishers.members.create` | POST | `/app/v3/api/publishers/{publisherId}/members` | `appstore.publishers.admin` |
+| `appstore.publishers.verifications.create` | POST | `/app/v3/api/publishers/{publisherId}/verifications` | `appstore.publishers.verify` |
 
 ## App API �?Releases
 
@@ -58,8 +58,8 @@ Prefix lock:
 | `appstore.releases.create` | POST | `/app/v3/api/listings/{listingId}/releases` | `appstore.releases.write` |
 | `appstore.releases.retrieve` | GET | `/app/v3/api/releases/{releaseId}` | `appstore.releases.read` |
 | `appstore.releases.update` | PATCH | `/app/v3/api/releases/{releaseId}` | `appstore.releases.write` |
-| `appstore.releases.notes.upsert` | PUT | `/app/v3/api/releases/{releaseId}/notes/{locale}` | `appstore.releases.write` |
-| `appstore.releases.artifacts.attach` | POST | `/app/v3/api/releases/{releaseId}/artifacts` | `appstore.releases.write` |
+| `appstore.releases.notes.update` | PUT | `/app/v3/api/releases/{releaseId}/notes/{locale}` | `appstore.releases.write` |
+| `appstore.releases.artifacts.create` | POST | `/app/v3/api/releases/{releaseId}/artifacts` | `appstore.releases.write` |
 | `appstore.releases.rollout.update` | PUT | `/app/v3/api/releases/{releaseId}/rollout` | `appstore.releases.rollout` |
 | `appstore.releases.retire` | POST | `/app/v3/api/releases/{releaseId}/retire` | `appstore.releases.write` |
 
@@ -81,8 +81,8 @@ Prefix lock:
 | `appstore.library.uninstall` | POST | `/app/v3/api/library/uninstall` | `appstore.library.write` |
 | `appstore.library.updates.check` | POST | `/app/v3/api/library/updates/check` | `appstore.library.read` |
 | `appstore.wishlist.items.list` | GET | `/app/v3/api/wishlist/items` | `appstore.wishlist.read` |
-| `appstore.wishlist.items.add` | POST | `/app/v3/api/wishlist/items` | `appstore.wishlist.write` |
-| `appstore.wishlist.items.remove` | DELETE | `/app/v3/api/wishlist/items/{listingId}` | `appstore.wishlist.write` |
+| `appstore.wishlist.items.create` | POST | `/app/v3/api/wishlist/items` | `appstore.wishlist.write` |
+| `appstore.wishlist.items.delete` | DELETE | `/app/v3/api/wishlist/items/{listingId}` | `appstore.wishlist.write` |
 | `appstore.downloadGrants.create` | POST | `/app/v3/api/download_grants` | `appstore.downloads.request` |
 | `appstore.downloadGrants.consume` | POST | `/app/v3/api/download_grants/{grantId}/consume` | `appstore.downloads.consume` |
 
@@ -99,12 +99,12 @@ Prefix lock:
 
 | operationId | Method | Path | Permission |
 | --- | --- | --- | --- |
-| `appstore.catalog.collections.create` | POST | `/backend/v3/api/catalog/collections` | `appstore.catalog.admin` |
-| `appstore.catalog.collections.update` | PATCH | `/backend/v3/api/catalog/collections/{collectionId}` | `appstore.catalog.admin` |
-| `appstore.catalog.collections.items.upsert` | PUT | `/backend/v3/api/catalog/collections/{collectionId}/items` | `appstore.catalog.admin` |
-| `appstore.catalog.featured.upsert` | PUT | `/backend/v3/api/catalog/featured/{slotCode}` | `appstore.catalog.admin` |
-| `appstore.catalog.categories.create` | POST | `/backend/v3/api/catalog/categories` | `appstore.catalog.admin` |
-| `appstore.catalog.categories.update` | PATCH | `/backend/v3/api/catalog/categories/{categoryId}` | `appstore.catalog.admin` |
+| `appstore.catalog.collections.create` | POST | `/backend/v3/api/appstore/catalog/collections` | `appstore.catalog.admin` |
+| `appstore.catalog.collections.update` | PATCH | `/backend/v3/api/appstore/catalog/collections/{collectionId}` | `appstore.catalog.admin` |
+| `appstore.catalog.collections.items.update` | PUT | `/backend/v3/api/appstore/catalog/collections/{collectionId}/items` | `appstore.catalog.admin` |
+| `appstore.catalog.featured.update` | PUT | `/backend/v3/api/appstore/catalog/featured/{slotCode}` | `appstore.catalog.admin` |
+| `appstore.catalog.categories.create` | POST | `/backend/v3/api/appstore/catalog/categories` | `appstore.catalog.admin` |
+| `appstore.catalog.categories.update` | PATCH | `/backend/v3/api/appstore/catalog/categories/{categoryId}` | `appstore.catalog.admin` |
 
 ## Backend API �?Operator listing admin
 

@@ -124,8 +124,10 @@ pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
 
     let business = wrap_router_with_web_framework_from_env(
         Router::new()
-            .merge(sdkwork_routes_catalog_app_api::gateway_mount(state.clone()))
-            .merge(sdkwork_routes_catalog_backend_api::gateway_mount(
+            .merge(sdkwork_routes_appstore_catalog_app_api::gateway_mount(
+                state.clone(),
+            ))
+            .merge(sdkwork_routes_appstore_catalog_backend_api::gateway_mount(
                 state.clone(),
             ))
             .merge(sdkwork_routes_listing_app_api::gateway_mount(state.clone()))
@@ -152,7 +154,7 @@ pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
             .merge(sdkwork_routes_metrics_backend_api::gateway_mount(
                 state.clone(),
             ))
-            .merge(sdkwork_routes_catalog_open_api::gateway_mount(
+            .merge(sdkwork_routes_appstore_catalog_open_api::gateway_mount(
                 state.clone(),
             ))
             .merge(sdkwork_routes_listing_open_api::gateway_mount(

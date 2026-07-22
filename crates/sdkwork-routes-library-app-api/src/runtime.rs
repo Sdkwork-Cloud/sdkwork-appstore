@@ -3,6 +3,10 @@ use crate::handlers::{
     library_items_retrieve, library_uninstall, library_updates_check, wishlist_items_add,
     wishlist_items_list, wishlist_items_remove,
 };
+use crate::mapper::response::{
+    map_download_grant, map_library_install, map_library_item, map_update_available,
+    map_wishlist_item,
+};
 use axum::extract::{Extension, Json, Path, Query, State};
 use axum::response::Response;
 use axum::routing::{delete, get, post};
@@ -91,7 +95,11 @@ async fn library_items_list_handler(
     match library_items_list(&state.library_service, &ctx, query.cursor, query.page_size).await {
         Ok(result) => ok_page(
             context.as_ref(),
-            result.items,
+            result
+                .items
+                .into_iter()
+                .map(map_library_item)
+                .collect::<Vec<_>>(),
             result.next_cursor,
             result.has_more,
         ),
@@ -109,7 +117,7 @@ async fn library_item_retrieve(
         Err(resp) => return resp,
     };
     match library_items_retrieve(&state.library_service, &ctx, library_item_id).await {
-        Ok(result) => ok_item(context.as_ref(), result.item),
+        Ok(result) => ok_item(context.as_ref(), map_library_item(result.item)),
         Err(error) => map_library_error(context.as_ref(), error),
     }
 }
@@ -133,13 +141,7 @@ async fn library_install_handler(
     )
     .await
     {
-        Ok(result) => ok_item(
-            context.as_ref(),
-            serde_json::json!({
-                "libraryItem": result.library_item,
-                "installEvent": result.install_event,
-            }),
-        ),
+        Ok(result) => ok_item(context.as_ref(), map_library_install(result)),
         Err(error) => map_library_error(context.as_ref(), error),
     }
 }
@@ -169,7 +171,16 @@ async fn library_updates_check_handler(
         Err(resp) => return resp,
     };
     match library_updates_check(&state.library_service, &ctx, body.items).await {
-        Ok(result) => ok_page(context.as_ref(), result.updates, None, false),
+        Ok(result) => ok_page(
+            context.as_ref(),
+            result
+                .updates
+                .into_iter()
+                .map(map_update_available)
+                .collect::<Vec<_>>(),
+            None,
+            false,
+        ),
         Err(error) => map_library_error(context.as_ref(), error),
     }
 }
@@ -186,7 +197,11 @@ async fn wishlist_items_list_handler(
     match wishlist_items_list(&state.library_service, &ctx, query.cursor, query.page_size).await {
         Ok(result) => ok_page(
             context.as_ref(),
-            result.items,
+            result
+                .items
+                .into_iter()
+                .map(map_wishlist_item)
+                .collect::<Vec<_>>(),
             result.next_cursor,
             result.has_more,
         ),
@@ -204,7 +219,7 @@ async fn wishlist_add(
         Err(resp) => return resp,
     };
     match wishlist_items_add(&state.library_service, &ctx, body.listing_id).await {
-        Ok(result) => created(context.as_ref(), result.item),
+        Ok(result) => created(context.as_ref(), map_wishlist_item(result.item)),
         Err(error) => map_library_error(context.as_ref(), error),
     }
 }
@@ -234,7 +249,7 @@ async fn download_grant_create(
         Err(resp) => return resp,
     };
     match download_grants_create(&state.library_service, &ctx, body.artifact_id).await {
-        Ok(result) => created(context.as_ref(), result.grant),
+        Ok(result) => created(context.as_ref(), map_download_grant(result.grant)),
         Err(error) => map_library_error(context.as_ref(), error),
     }
 }
@@ -249,7 +264,7 @@ async fn download_grant_consume_handler(
         Err(resp) => return resp,
     };
     match download_grants_consume(&state.library_service, &ctx, grant_id).await {
-        Ok(result) => ok_item(context.as_ref(), result.grant),
+        Ok(result) => ok_item(context.as_ref(), map_download_grant(result.grant)),
         Err(error) => map_library_error(context.as_ref(), error),
     }
 }

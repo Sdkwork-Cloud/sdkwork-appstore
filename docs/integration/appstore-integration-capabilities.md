@@ -8,8 +8,8 @@ or explicit upstream dependency surfaces.
 
 ## Boundary Rules
 
-- All dependency integrations (appbase, Drive, comments, commerce) are consumed through provider port traits or connector traits defined in service crates.
-- Appbase IAM, Drive upload/storage, comments/review threads, and commerce checkout/settlement remain outside App Store generated API authorities.
+- Dependency integrations are consumed through owner SDKs, approved composed facades, provider ports, or connector traits.
+- Appbase IAM, Drive upload/storage, comments/review threads, Catalog products/SKUs, Order checkout, and Payment settlement remain outside App Store generated API authorities.
 - Startup preflight validates required dependency adapter configurations (base URLs, API keys) before serving traffic.
 - Dependency API exports are explicit; App Store SDK families remain owner-only.
 
@@ -21,7 +21,7 @@ or explicit upstream dependency surfaces.
 | `platform` | `sdkwork-appbase` | registered app registration, app identity, manifest projection, workspace visibility. | appbase/platform dependency SDK or service port. | Required for publishable apps; references `app_id`, `app_key`, and `manifest_snapshot_json`. |
 | `drive` | `sdkwork-drive` | Icons, screenshots, preview videos, install artifacts, release binaries, and moderation evidence media. | Drive app/backend SDK, Drive uploader, or server-side Drive service facade. | Required for rich listings and releases; App Store stores Drive references only. |
 | `comments` | `sdkwork-comments` | Review threads, rating summaries, favorites, visit history, and abuse-report linkage. | comments app/backend SDK or service port. | Required for social proof; App Store stores `comments_thread_id` and cached aggregates. |
-| `commerce` | `sdkwork-commerce (deleted)` | Paid apps, in-app purchase product references, entitlement billing linkage. | commerce SDK or service port. | Optional in phase 1; no checkout, settlement, invoice, or payment routes in App Store. |
+| `commerce` | `sdkwork-catalog`, `sdkwork-order`, `sdkwork-payment` | Paid apps, product/SKU references, checkout, quote, payment, and entitlement linkage. | `@sdkwork/clawrouter-app-sdk/domains` for app clients; owner service ports for server composition. | Required for paid acquisition; App Store owns no checkout, settlement, invoice, or payment routes. |
 | `notifications` | SDKWork notification/event provider | Review decisions, release approval, install/update lifecycle, publisher alerts. | event bus, notification SDK, or provider adapter. | Planned; emit appstore events first, bind provider later. |
 | `search` | SDKWork search/index provider | Catalog search, ranking projections, keyword indexing, category discovery. | search SDK, index writer, or async projection worker. | Planned; phase 1 uses App Store DB snapshots and deterministic ranking fields. |
 | `market_channels` | App Store owned connector boundary | Apple App Store, Google Play, private enterprise channels, and external marketplace release projection. | connector service ports under App Store ownership; external provider SDKs later. | Planned; use `appstore_market_channel` and `appstore_market_release`, no connector implementation yet. |
@@ -44,9 +44,10 @@ records instead of storing files or presign state.
 App Store can cache rating aggregates for sorting and display, but write-side
 review behavior remains comments-owned.
 
-`commerce` owns checkout, payment, invoices, settlement, refunds, and paid
-entitlement financial state. App Store may link paid app or IAP product IDs, but
-does not own money movement.
+Catalog owns product and SKU identity; Order owns checkout sessions, quotes, and
+orders; Payment owns payment, settlement, refund, and financial state. App Store
+links paid listings through `commerce_product_id`, resolves a purchasable SKU through
+the typed Clawrouter Catalog surface, and does not own money movement.
 
 `notifications` is a delivery integration for state changes. App Store emits
 domain events and later maps those events to notification templates and

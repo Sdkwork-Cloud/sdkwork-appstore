@@ -1,2 +1,2 @@
-export { AppStoreClient, createAppStoreClient } from './client';
-export type { AppStoreClientConfig, TokenManager } from './client';
+export { AppStoreClient, createAppStoreClient, isAppStoreApiError } from './client';
+export type { AppStoreApiError, AppStoreClientConfig, TokenManager } from './client';

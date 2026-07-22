@@ -1,7 +1,7 @@
 {
   "name": "@sdkwork/appstore-app-sdk",
   "version": "0.1.0",
-  "description": "SDKWork App Store App SDK composed consumer facade.",
+  "description": "SDKWork Appstore app SDK composed consumer facade.",
   "type": "module",
   "private": false,
   "main": "./src/index.ts",
@@ -12,18 +12,10 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts",
       "default": "./src/index.ts"
-    },
-    "./generated": {
-      "types": "./generated/server-openapi/index.ts",
-      "import": "./generated/server-openapi/index.ts",
-      "default": "./generated/server-openapi/index.ts"
     }
   },
   "dependencies": {
     "@sdkwork/sdk-common": "workspace:*"
-  },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
   },
   "publishConfig": {
     "access": "public",
@@ -37,13 +29,6 @@
     "generated/server-openapi/src",
     "generated/server-openapi/sdkwork-sdk.json",
     "generated/server-openapi/README.md",
-    "generated/server-openapi/LICENSE",
-    "generated/domains/server-openapi/dist",
-    "generated/domains/server-openapi/src",
-    "generated/domains/server-openapi/sdkwork-sdk.json",
-    "generated/domains/server-openapi/README.md",
-    "generated/domains/server-openapi/LICENSE",
-    "README.md",
-    "LICENSE"
+    "generated/server-openapi/LICENSE"
   ]
 }

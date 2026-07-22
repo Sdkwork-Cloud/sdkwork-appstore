@@ -1,19 +1,14 @@
 //! Route registration descriptors for sdkwork-routes-metrics-backend-api.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct RouteDefinition {
-    pub method: &'static str,
-    pub path: &'static str,
-    pub operation_id: &'static str,
-    pub handler: &'static str,
-    pub service_method: &'static str,
-}
+pub use sdkwork_appstore_routes_common::RouteDefinition;
+use sdkwork_web_core::RouteAuth;
 
 pub const ROUTES: &[RouteDefinition] = &[
     RouteDefinition {
         method: "GET",
         path: "/backend/v3/api/metrics/listings/{listingId}",
         operation_id: "appstore.metrics.listings.retrieve",
+        auth: RouteAuth::DualToken,
         handler: "metrics_listings_retrieve",
         service_method: "metrics_listings_retrieve",
     },
@@ -21,6 +16,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "GET",
         path: "/backend/v3/api/analytics/publisher/overview",
         operation_id: "appstore.analytics.publisher.overview.retrieve",
+        auth: RouteAuth::DualToken,
         handler: "analytics_publisher_overview_retrieve",
         service_method: "analytics_publisher_overview_retrieve",
     },
@@ -28,6 +24,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "GET",
         path: "/backend/v3/api/analytics/publisher/listings",
         operation_id: "appstore.analytics.publisher.listings.list",
+        auth: RouteAuth::DualToken,
         handler: "analytics_publisher_listings_list",
         service_method: "analytics_publisher_listings_list",
     },
@@ -35,6 +32,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "GET",
         path: "/backend/v3/api/analytics/publisher/listings/{listingId}",
         operation_id: "appstore.analytics.publisher.listings.retrieve",
+        auth: RouteAuth::DualToken,
         handler: "analytics_publisher_listings_retrieve",
         service_method: "analytics_publisher_listings_retrieve",
     },
@@ -42,6 +40,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "GET",
         path: "/backend/v3/api/analytics/operator/dashboard",
         operation_id: "appstore.analytics.operator.dashboard.retrieve",
+        auth: RouteAuth::DualToken,
         handler: "analytics_operator_dashboard_retrieve",
         service_method: "analytics_operator_dashboard_retrieve",
     },
@@ -49,6 +48,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "GET",
         path: "/backend/v3/api/analytics/operator/search",
         operation_id: "appstore.analytics.operator.search.retrieve",
+        auth: RouteAuth::DualToken,
         handler: "analytics_operator_search_retrieve",
         service_method: "analytics_operator_search_retrieve",
     },

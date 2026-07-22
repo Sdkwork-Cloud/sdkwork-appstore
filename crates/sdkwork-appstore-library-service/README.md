@@ -20,7 +20,7 @@ All operations implemented with async hexagonal architecture:
 | appstore.library.uninstall | library_uninstall |
 | appstore.library.updates.check | library_updates_check |
 | appstore.wishlist.items.list | wishlist_items_list |
-| appstore.wishlist.items.add | wishlist_items_add |
-| appstore.wishlist.items.remove | wishlist_items_remove |
+| appstore.wishlist.items.create | wishlist_items_add |
+| appstore.wishlist.items.delete | wishlist_items_remove |
 | appstore.downloadGrants.create | download_grants_create |
 | appstore.downloadGrants.consume | download_grants_consume |

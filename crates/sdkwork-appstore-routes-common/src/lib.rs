@@ -3,6 +3,7 @@
 pub mod api_response;
 pub mod context;
 pub mod http_support;
+pub mod route_definition;
 pub mod service_error;
 pub mod state;
 
@@ -13,5 +14,6 @@ pub use context::{
     authenticated_context_from_web, public_tenant_id, request_context_from_web,
     unauthorized_response, AppstoreRequestContext,
 };
+pub use route_definition::RouteDefinition;
 pub use service_error::{map_appstore_service_error, map_display_error, AppstoreServiceErrorKind};
 pub use state::AppState;

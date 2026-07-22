@@ -205,7 +205,6 @@ export function PublisherListingManagePage() {
     setLocalizationMessage(null);
     try {
       await publisherService.upsertLocalization(listingId, locale.trim(), {
-        locale: locale.trim(),
         displayName: localizationDisplayName.trim(),
         shortDescription: localizationShortDescription.trim(),
         fullDescription: localizationFullDescription.trim(),
@@ -238,7 +237,7 @@ export function PublisherListingManagePage() {
         submissionType,
         ...(submissionType === 'RELEASE' ? { releaseId: selectedReleaseId } : {}),
       });
-      const status = result.status ?? 'submitted';
+      const status = result.submissionStatus ?? 'submitted';
       setSubmissionMessage({
         kind: 'success',
         text: `提交已受理（状态：${status}），审核团队将尽快处理。`,

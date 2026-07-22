@@ -17,8 +17,8 @@ All operations implemented with async hexagonal architecture:
 | appstore.releases.create | releases_create |
 | appstore.releases.retrieve | releases_retrieve |
 | appstore.releases.update | releases_update |
-| appstore.releases.notes.upsert | releases_notes_upsert |
-| appstore.releases.artifacts.attach | releases_artifacts_attach |
+| appstore.releases.notes.update | releases_notes_upsert |
+| appstore.releases.artifacts.create | releases_artifacts_attach |
 | appstore.releases.rollout.update | releases_rollout_update |
 | appstore.releases.retire | releases_retire |
 | appstore.releases.checkUpdate | releases_check_update |

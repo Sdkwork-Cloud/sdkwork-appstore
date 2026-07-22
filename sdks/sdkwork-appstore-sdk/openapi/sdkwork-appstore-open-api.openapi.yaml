@@ -10,7 +10,7 @@ info:
   x-sdkwork-api-authority: sdkwork-appstore-open-api
   x-sdkwork-sdk-family: sdkwork-appstore-sdk
   x-sdkwork-domain: appstore
-  x-sdkwork-standard-profile: sdkwork-appstore-open-v3
+  x-sdkwork-standard-profile: sdkwork-v3
   x-sdkwork-audience: Update clients, CI publish automation, public catalog integrations
 servers:
 - url: http://127.0.0.1:18092
@@ -42,19 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseCheckUpdateResponse'
+                $ref: '#/components/schemas/ReleaseCheckUpdateResponse'
   /store/v3/api/artifacts/resolve_download:
     post:
       tags:
@@ -75,25 +63,15 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ArtifactResolveDownloadResponse'
+                $ref: '#/components/schemas/ArtifactResolveDownloadResponse'
   /store/v3/api/listings/{listingSlug}:
     get:
       tags:
       - listings
       operationId: appstore.listings.public.retrieve
       summary: Retrieve public listing by slug
+      security: []
+      x-sdkwork-auth-mode: anonymous
       parameters:
       - name: listingSlug
         in: path
@@ -110,13 +88,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/PublicListingResponse'
   /store/v3/api/releases/{releaseId}:
     get:
       tags:
       - releases
       operationId: appstore.releases.public.retrieve
       summary: Retrieve public release metadata
+      security: []
+      x-sdkwork-auth-mode: anonymous
       parameters:
       - name: releaseId
         in: path
@@ -129,13 +109,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkResourceResponse'
+                $ref: '#/components/schemas/PublicReleaseResponse'
   /store/v3/api/catalog/featured:
     get:
       tags:
       - catalog
       operationId: appstore.catalog.public.featured.list
       summary: List public featured listings
+      security: []
+      x-sdkwork-auth-mode: anonymous
       parameters:
       - name: platform
         in: query
@@ -151,7 +133,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/PublicFeaturedListResponse'
   /store/v3/api/automation/submissions:
     post:
       tags:
@@ -174,13 +156,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkResourceResponse'
+                $ref: '#/components/schemas/AutomationSubmissionResponse'
 components:
   securitySchemes:
     ApiKey:
       type: apiKey
       in: header
-      name: X-Api-Key
+      name: X-API-Key
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -317,6 +299,200 @@ components:
                 type: string
               checksumSha256:
                 type: string
+              fileSizeBytes:
+                type: string
+    PublicListing:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - publisherId
+      - appId
+      - appKey
+      - listingSlug
+      - listingType
+      - pricingModel
+      - listingStatus
+      - defaultLocale
+      - downloadCount
+      - ratingCount
+      properties:
+        id:
+          type: string
+        publisherId:
+          type: string
+        appId:
+          type: string
+        appKey:
+          type: string
+        listingSlug:
+          type: string
+        listingType:
+          type: string
+        pricingModel:
+          type: string
+        listingStatus:
+          type: string
+        primaryCategoryId:
+          type: string
+        defaultLocale:
+          type: string
+        ageRatingCode:
+          type: string
+        officialWebsiteUrl:
+          type: string
+        supportUrl:
+          type: string
+        privacyPolicyUrl:
+          type: string
+        commentsThreadId:
+          type: string
+        commerceProductId:
+          type: string
+        currentReleaseId:
+          type: string
+        downloadCount:
+          type: integer
+        averageRating:
+          type: string
+        ratingCount:
+          type: integer
+        publishedAt:
+          type: string
+          format: date-time
+    PublicListingResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/PublicListing'
+    PublicRelease:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - listingId
+      - releaseNo
+      - versionName
+      - versionCode
+      - releaseStatus
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        releaseNo:
+          type: string
+        versionName:
+          type: string
+        versionCode:
+          type: string
+        buildNumber:
+          type: string
+        releaseStatus:
+          type: string
+        minimumOsVersion:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+    PublicReleaseResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/PublicRelease'
+    PublicFeaturedSlot:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - slotCode
+      - listingId
+      - status
+      - platformScope
+      - startsAt
+      - endsAt
+      properties:
+        id:
+          type: string
+        slotCode:
+          type: string
+        listingId:
+          type: string
+        status:
+          type: string
+        platformScope:
+          type: string
+        regionScope:
+          type: array
+          items:
+            type: string
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+    PublicFeaturedListResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicFeaturedSlot'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
+    AutomationSubmission:
+      type: object
+      additionalProperties: false
+      required:
+      - accepted
+      properties:
+        accepted:
+          type: boolean
+        releaseId:
+          type: string
+    AutomationSubmissionResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/AutomationSubmission'
     SdkWorkApiResponse:
       type: object
       additionalProperties: false

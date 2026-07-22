@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@sdkwork/appstore-app-sdk": "workspace:*",
+    "@sdkwork/appstore-sdk": "workspace:*",
     "@sdkwork/appstore-pc-catalog": "workspace:*",
     "@sdkwork/appstore-pc-commons": "workspace:*",
     "@sdkwork/appstore-pc-console-publisher": "workspace:*",

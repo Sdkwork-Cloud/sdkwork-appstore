@@ -44,20 +44,20 @@ not copy dependency-owned APIs or call raw HTTP to fill missing SDK methods.
 - `sdkwork-appstore-moderation-service`
 - `sdkwork-appstore-compliance-service`
 - `sdkwork-appstore-market-service`
-- `sdkwork-routes-catalog-app-api`
+- `sdkwork-routes-appstore-catalog-app-api`
 - `sdkwork-routes-listing-app-api`
 - `sdkwork-routes-release-app-api`
 - `sdkwork-routes-library-app-api`
 - `sdkwork-routes-publisher-app-api`
 - `sdkwork-routes-compliance-app-api`
 - `sdkwork-routes-moderation-backend-api`
-- `sdkwork-routes-catalog-backend-api`
+- `sdkwork-routes-appstore-catalog-backend-api`
 - `sdkwork-routes-listing-backend-api`
 - `sdkwork-routes-publisher-backend-api`
 - `sdkwork-routes-market-backend-api`
 - `sdkwork-routes-metrics-backend-api`
 - `sdkwork-routes-release-open-api`
-- `sdkwork-routes-catalog-open-api`
+- `sdkwork-routes-appstore-catalog-open-api`
 - `sdkwork-routes-listing-open-api`
 - `sdkwork-routes-automation-open-api`
 

@@ -2,6 +2,7 @@ use crate::handlers::{
     publishers_create, publishers_me_retrieve, publishers_members_invite, publishers_members_list,
     publishers_update, publishers_verifications_submit,
 };
+use crate::mapper::response::{map_publisher, map_publisher_member, map_publisher_verification};
 use axum::extract::{Extension, Json, Path, Query, State};
 use axum::response::Response;
 use axum::routing::{get, patch, post};
@@ -96,7 +97,15 @@ async fn publisher_me(
         Err(resp) => return resp,
     };
     match publishers_me_retrieve(&state.publisher_service, &ctx).await {
-        Ok(result) => ok_item(context.as_ref(), result.publisher),
+        Ok(result) => match result.publisher {
+            Some(publisher) => ok_item(context.as_ref(), map_publisher(publisher)),
+            None => map_publisher_error(
+                context.as_ref(),
+                sdkwork_appstore_publisher_service::error::AppstoreServiceError::NotFound(
+                    "Publisher profile not found".to_string(),
+                ),
+            ),
+        },
         Err(error) => map_publisher_error(context.as_ref(), error),
     }
 }
@@ -170,7 +179,7 @@ async fn publisher_create(
     )
     .await
     {
-        Ok(result) => created(context.as_ref(), result.publisher),
+        Ok(result) => created(context.as_ref(), map_publisher(result.publisher)),
         Err(error) => map_publisher_error(context.as_ref(), error),
     }
 }
@@ -195,7 +204,7 @@ async fn publisher_update(
     )
     .await
     {
-        Ok(result) => ok_item(context.as_ref(), result.publisher),
+        Ok(result) => ok_item(context.as_ref(), map_publisher(result.publisher)),
         Err(error) => map_publisher_error(context.as_ref(), error),
     }
 }
@@ -221,7 +230,11 @@ async fn publisher_members_list_handler(
     {
         Ok(result) => ok_page(
             context.as_ref(),
-            result.members,
+            result
+                .members
+                .into_iter()
+                .map(map_publisher_member)
+                .collect::<Vec<_>>(),
             result.next_cursor,
             result.has_more,
         ),
@@ -248,7 +261,7 @@ async fn publisher_members_invite_handler(
     )
     .await
     {
-        Ok(result) => created(context.as_ref(), result.member),
+        Ok(result) => created(context.as_ref(), map_publisher_member(result.member)),
         Err(error) => map_publisher_error(context.as_ref(), error),
     }
 }
@@ -273,7 +286,10 @@ async fn publisher_verifications_submit(
     )
     .await
     {
-        Ok(result) => created(context.as_ref(), result.verification),
+        Ok(result) => created(
+            context.as_ref(),
+            map_publisher_verification(result.verification),
+        ),
         Err(error) => map_publisher_error(context.as_ref(), error),
     }
 }

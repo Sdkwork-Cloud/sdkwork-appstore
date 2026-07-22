@@ -20,7 +20,7 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 
 ---
 
-## 1. 架构总览
+## 1. 架构总览（Architecture Overview）
 
 ### 1.1 设计目标
 
@@ -124,7 +124,7 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 | --- | --- | --- | --- |
 | Publisher | `sdkwork-appstore-publisher-service` | `sdkwork-routes-publisher-app-api` | 开发者入驻、成员、实名认证 |
 | Listing | `sdkwork-appstore-listing-service` | `sdkwork-routes-listing-{app,backend,open}-api` | 上架信息、本地化、媒体、提交 |
-| Release | `sdkwork-appstore-release-service` | `sdkwork-routes-catalog-app-api`（部分） | 版本、制品、渠道、灰度、退役 |
+| Release | `sdkwork-appstore-release-service` | `sdkwork-routes-appstore-catalog-app-api`（部分） | 版本、制品、渠道、灰度、退役 |
 | Catalog | `sdkwork-appstore-catalog-service` | `sdkwork-routes-catalog-{app,backend,open}-api` | 首页、分类、合集、榜单、搜索、推荐 |
 | Library | `sdkwork-appstore-library-service` | `sdkwork-routes-library-app-api` | 用户库、收藏、安装、下载凭证 |
 | Moderation | `sdkwork-appstore-moderation-service` | `sdkwork-routes-moderation-backend-api` | 审核队列、决议、申诉 |
@@ -478,7 +478,7 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 
 #### 4.4.16 appstore_listing_iap_item（IAP 预览项）
 
-由 commerce 域同步或开发者填报的 IAP 预览，不持有结算。
+由 Catalog SKU 投影或开发者关联的 IAP 预览，不持有结算。
 
 | 列 | 类型 | 约束 | 说明 |
 | --- | --- | --- | --- |
@@ -489,7 +489,7 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 | `price_cents` | BIGINT | NULL | 价格（分） |
 | `currency` | VARCHAR(8) | NULL | 币种 |
 | `iap_kind` | TEXT | NOT NULL CHECK in (consumable, non_consumable, subscription) | 类型 |
-| `external_product_id` | TEXT | NULL | commerce 域产品 ID |
+| `external_product_id` | TEXT | NULL | Catalog 产品或 SKU ID |
 | `sort_order` | INT | NOT NULL DEFAULT 0 | 排序 |
 | `status` | TEXT | NOT NULL CHECK in (active, hidden) DEFAULT 'active' | 状态 |
 
@@ -713,14 +713,14 @@ Authority: [PRD.md](../../product/prd/PRD.md)、[appstore-architecture.md](../ap
 
 #### 4.4.30 appstore_entitlement（权益）
 
-由 commerce 域同步的权益快照。
+由 Order/Payment entitlement 流程同步的权益快照。
 
 | 列 | 类型 | 约束 | 说明 |
 | --- | --- | --- | --- |
 | `subject_id` | BIGINT | NOT NULL | 用户 |
 | `listing_id` | BIGINT | NOT NULL FK → listing | 应用 |
 | `entitlement_kind` | TEXT | NOT NULL CHECK in (purchase, subscription, iap, promo) | 权益类型 |
-| `external_entitlement_id` | TEXT | NOT NULL | commerce 域权益 ID |
+| `external_entitlement_id` | TEXT | NOT NULL | Order/Payment 权益 ID |
 | `status` | TEXT | NOT NULL CHECK in (active, expired, refunded, suspended) | 状态 |
 | `granted_at` | TIMESTAMPTZ | NOT NULL | 授予时间 |
 | `expires_at` | TIMESTAMPTZ | NULL | 过期时间 |
@@ -1614,7 +1614,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
 | --- | --- | --- |
 | comments 域未就绪 | 评分评论缺失 | Phase 1 占位 + 缓存字段；Phase 2 集成 |
 | search 域未就绪 | 搜索降级 | Phase 1 DB 全文索引兜底 |
-| commerce 域已删 | 付费/IAP 缺失 | entitlement connector 预留；付费延后 |
+| 商品包含多个 SKU | 用户无法确定购买规格 | 未提供规格选择前 fail closed；不得任取 SKU |
 | drive 配额 | 媒体/制品受限 | 配额协商 + 冷热分层 |
 | 多端壳差异 | 体验不一致 | 统一设计系统 + Phase 3 原生壳 |
 | 个性化算法 | 推荐质量 | Phase 1 规则兜底 + Phase 2 接入推荐域 |

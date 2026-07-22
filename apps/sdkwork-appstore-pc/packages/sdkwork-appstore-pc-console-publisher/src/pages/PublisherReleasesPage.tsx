@@ -161,16 +161,15 @@ export function PublisherReleasesPage() {
     setCreatingRelease(true);
     setReleaseMessage(null);
     try {
-      const created = (await publisherService.createRelease(listingId, {
-        listingId,
+      const created = await publisherService.createRelease(listingId, {
         channelCode: channelCode.trim(),
         versionName: versionName.trim(),
         versionCode: versionCode.trim(),
         ...(releaseNotes.trim()
           ? { releaseNotes: releaseNotes.trim() }
           : {}),
-      })) as Record<string, unknown>;
-      const newId = readString(created, 'id');
+      });
+      const newId = created.id;
       if (newId) setActiveReleaseId(newId);
       setReleaseMessage({
         kind: 'success',

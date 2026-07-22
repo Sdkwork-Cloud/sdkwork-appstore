@@ -83,7 +83,7 @@ fn ${testName}() {
 }
 
 $appCrates = @(
-  "sdkwork-routes-catalog-app-api",
+  "sdkwork-routes-appstore-catalog-app-api",
   "sdkwork-routes-compliance-app-api",
   "sdkwork-routes-library-app-api",
   "sdkwork-routes-publisher-app-api",
@@ -91,7 +91,7 @@ $appCrates = @(
   "sdkwork-routes-listing-app-api"
 )
 $backendCrates = @(
-  "sdkwork-routes-catalog-backend-api",
+  "sdkwork-routes-appstore-catalog-backend-api",
   "sdkwork-routes-listing-backend-api",
   "sdkwork-routes-publisher-backend-api",
   "sdkwork-routes-moderation-backend-api",

@@ -12,8 +12,14 @@
       "default": "./src/index.ts"
     }
   },
+  "scripts": {
+    "test": "vitest run"
+  },
   "dependencies": {
     "@sdkwork/clawrouter-app-sdk": "workspace:*",
     "@sdkwork/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
   }
 }

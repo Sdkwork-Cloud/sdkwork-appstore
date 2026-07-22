@@ -43,7 +43,7 @@ Optional future dependency:
 
 | Dependency | Purpose |
 | --- | --- |
-| `sdkwork-commerce (deleted)-app-sdk` | Paid listing purchase and IAP metadata |
+| `@sdkwork/clawrouter-app-sdk/domains` | Typed Catalog SKU resolution and Order checkout for paid listings |
 
 ## Client Construction
 

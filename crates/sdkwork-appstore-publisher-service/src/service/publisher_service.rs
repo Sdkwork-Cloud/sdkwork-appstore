@@ -410,7 +410,7 @@ where
         self.repository.insert_member(context, &member).await?;
 
         Ok(InvitePublisherMemberResult::invited(
-            "appstore.publishers.members.invite",
+            "appstore.publishers.members.create",
             member,
         ))
     }
@@ -509,7 +509,7 @@ where
         }
 
         Ok(SubmitPublisherVerificationResult::submitted(
-            "appstore.publishers.verifications.submit",
+            "appstore.publishers.verifications.create",
             verification,
         ))
     }

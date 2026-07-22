@@ -10,7 +10,7 @@ info:
   x-sdkwork-api-authority: sdkwork-appstore-app-api
   x-sdkwork-sdk-family: sdkwork-appstore-app-sdk
   x-sdkwork-domain: appstore
-  x-sdkwork-standard-profile: sdkwork-appstore-app-v3
+  x-sdkwork-standard-profile: sdkwork-v3
   x-sdkwork-audience: Store clients, publisher console, mobile/H5/PC apps
 servers:
 - url: http://127.0.0.1:18090
@@ -36,7 +36,7 @@ security:
 - AuthToken: []
   AccessToken: []
 paths:
-  /app/v3/api/catalog/home:
+  /app/v3/api/appstore/catalog/home:
     get:
       tags:
       - catalog
@@ -48,8 +48,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /app/v3/api/catalog/categories:
+                $ref: '#/components/schemas/HomeFeedResponse'
+  /app/v3/api/appstore/catalog/categories:
     get:
       tags:
       - catalog
@@ -68,8 +68,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/categories/{categoryId}:
+                $ref: '#/components/schemas/CategoryListResponse'
+  /app/v3/api/appstore/catalog/categories/{categoryId}:
     get:
       tags:
       - catalog
@@ -95,8 +95,8 @@ paths:
                       - item
                       properties:
                         item:
-                          $ref: '#/components/schemas/CategoryResponse'
-  /app/v3/api/catalog/collections:
+                          $ref: '#/components/schemas/Category'
+  /app/v3/api/appstore/catalog/collections:
     get:
       tags:
       - catalog
@@ -111,8 +111,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/collections/{collectionId}:
+                $ref: '#/components/schemas/CollectionListResponse'
+  /app/v3/api/appstore/catalog/collections/{collectionId}:
     get:
       tags:
       - catalog
@@ -138,8 +138,8 @@ paths:
                       - item
                       properties:
                         item:
-                          $ref: '#/components/schemas/CollectionResponse'
-  /app/v3/api/catalog/featured:
+                          $ref: '#/components/schemas/CatalogCollection'
+  /app/v3/api/appstore/catalog/featured:
     get:
       tags:
       - catalog
@@ -151,8 +151,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/charts/{chartCode}:
+                $ref: '#/components/schemas/FeaturedListResponse'
+  /app/v3/api/appstore/catalog/charts/{chartCode}:
     get:
       tags:
       - catalog
@@ -182,8 +182,8 @@ paths:
                       - item
                       properties:
                         item:
-                          $ref: '#/components/schemas/ChartResponse'
-  /app/v3/api/catalog/listings/search:
+                          $ref: '#/components/schemas/CatalogChartSnapshot'
+  /app/v3/api/appstore/catalog/listings/search:
     get:
       tags:
       - catalog
@@ -206,8 +206,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/recommendations:
+                $ref: '#/components/schemas/ListingSummaryListResponse'
+  /app/v3/api/appstore/catalog/recommendations:
     get:
       tags:
       - catalog
@@ -231,7 +231,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/recently_updated:
+  /app/v3/api/appstore/catalog/recently_updated:
     get:
       tags:
       - catalog
@@ -251,7 +251,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/events:
+  /app/v3/api/appstore/catalog/events:
     get:
       tags:
       - catalog
@@ -271,7 +271,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/events/{eventId}:
+  /app/v3/api/appstore/catalog/events/{eventId}:
     get:
       tags:
       - catalog
@@ -290,7 +290,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /app/v3/api/catalog/search/suggestions:
+  /app/v3/api/appstore/catalog/search/suggestions:
     get:
       tags:
       - catalog
@@ -313,7 +313,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/search/trending:
+  /app/v3/api/appstore/catalog/search/trending:
     get:
       tags:
       - catalog
@@ -332,7 +332,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkListResponse'
-  /app/v3/api/catalog/search/history:
+  /app/v3/api/appstore/catalog/search/history:
     get:
       tags:
       - catalog
@@ -394,7 +394,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingResponse'
   /app/v3/api/listings/{listingId}:
     get:
       tags:
@@ -409,7 +409,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingResponse'
     patch:
       tags:
       - listings
@@ -429,7 +429,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingResponse'
   /app/v3/api/listings/{listingId}/localizations/{locale}:
     put:
       tags:
@@ -451,7 +451,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingLocalizationResponse'
   /app/v3/api/listings/{listingId}/media:
     get:
       tags:
@@ -466,7 +466,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingMediaListResponse'
     post:
       tags:
       - listings
@@ -486,7 +486,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingMediaResponse'
   /app/v3/api/listings/{listingId}/media/{mediaId}:
     delete:
       tags:
@@ -561,7 +561,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingReleaseListResponse'
     post:
       tags:
       - releases
@@ -582,19 +582,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseResponse'
+                $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/listings/{listingId}/releases/history:
     get:
       tags:
@@ -611,7 +599,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingReleaseListResponse'
   /app/v3/api/listings/{listingId}/similar:
     get:
       tags:
@@ -682,7 +670,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/ListingSubmissionResponse'
   /app/v3/api/publishers/me:
     get:
       tags:
@@ -695,19 +683,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/PublisherResponse'
+                $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers/me/listings:
     get:
       tags:
@@ -775,19 +751,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/PublisherResponse'
+                $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers/{publisherId}:
     patch:
       tags:
@@ -808,19 +772,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/PublisherResponse'
+                $ref: '#/components/schemas/PublisherResponse'
   /app/v3/api/publishers/{publisherId}/members:
     get:
       tags:
@@ -835,7 +787,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/PublisherMemberListResponse'
     post:
       tags:
       - publishers
@@ -855,19 +807,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/PublisherMemberResponse'
+                $ref: '#/components/schemas/PublisherMemberResponse'
   /app/v3/api/publishers/{publisherId}/verifications:
     post:
       tags:
@@ -888,19 +828,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/PublisherVerificationResponse'
+                $ref: '#/components/schemas/PublisherVerificationResponse'
   /app/v3/api/releases/{releaseId}:
     get:
       tags:
@@ -915,19 +843,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseResponse'
+                $ref: '#/components/schemas/ReleaseResponse'
     patch:
       tags:
       - releases
@@ -947,19 +863,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseResponse'
+                $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/releases/{releaseId}/notes/{locale}:
     put:
       tags:
@@ -981,19 +885,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseNotesResponse'
+                $ref: '#/components/schemas/ReleaseNotesResponse'
   /app/v3/api/releases/{releaseId}/artifacts:
     post:
       tags:
@@ -1014,19 +906,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseArtifactResponse'
+                $ref: '#/components/schemas/ReleaseArtifactResponse'
   /app/v3/api/releases/{releaseId}/rollout:
     put:
       tags:
@@ -1047,19 +927,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseRolloutResponse'
+                $ref: '#/components/schemas/ReleaseRolloutResponse'
   /app/v3/api/releases/{releaseId}/retire:
     post:
       tags:
@@ -1074,19 +942,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ReleaseResponse'
+                $ref: '#/components/schemas/ReleaseResponse'
   /app/v3/api/listings/{listingId}/compliance:
     get:
       tags:
@@ -1101,19 +957,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ComplianceProfileResponse'
+                $ref: '#/components/schemas/ComplianceProfileResponse'
     put:
       tags:
       - compliance
@@ -1133,19 +977,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/ComplianceProfileResponse'
+                $ref: '#/components/schemas/ComplianceProfileResponse'
   /app/v3/api/listings/{listingId}/compliance/permissions:
     put:
       tags:
@@ -1166,19 +998,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/CompliancePermissionListResponse'
+                $ref: '#/components/schemas/CompliancePermissionListResponse'
   /app/v3/api/listings/{listingId}/compliance/iap_items:
     get:
       tags:
@@ -1211,7 +1031,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/LibraryItemListResponse'
   /app/v3/api/library/items/{libraryItemId}:
     get:
       tags:
@@ -1230,19 +1050,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/LibraryItemResponse'
+                $ref: '#/components/schemas/LibraryItemResponse'
   /app/v3/api/library/install:
     post:
       tags:
@@ -1263,19 +1071,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/LibraryInstallResponse'
+                $ref: '#/components/schemas/LibraryInstallResponse'
   /app/v3/api/library/uninstall:
     post:
       tags:
@@ -1313,7 +1109,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/LibraryUpdatesCheckResponse'
   /app/v3/api/wishlist/items:
     get:
       tags:
@@ -1326,7 +1122,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/WishlistItemListResponse'
     post:
       tags:
       - wishlist
@@ -1344,7 +1140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SdkWorkListResponse'
+                $ref: '#/components/schemas/WishlistItemResponse'
   /app/v3/api/wishlist/items/{listingId}:
     delete:
       tags:
@@ -1376,19 +1172,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/DownloadGrantResponse'
+                $ref: '#/components/schemas/DownloadGrantResponse'
   /app/v3/api/download_grants/{grantId}/consume:
     post:
       tags:
@@ -1407,25 +1191,13 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/SdkWorkApiResponse'
-                - type: object
-                  required:
-                  - data
-                  properties:
-                    data:
-                      type: object
-                      required:
-                      - item
-                      properties:
-                        item:
-                          $ref: '#/components/schemas/DownloadGrantConsumeResponse'
+                $ref: '#/components/schemas/DownloadGrantResponse'
 components:
   securitySchemes:
     AuthToken:
-      type: apiKey
-      in: header
-      name: Auth-Token
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
     AccessToken:
       type: apiKey
       in: header
@@ -1730,18 +1502,285 @@ components:
                     - 'null'
                   hasMore:
                     type: boolean
-    CategoryResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+    Category:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - categoryCode
+      - categoryLevel
+      - status
+      - sortOrder
+      - localizations
+      properties:
+        id:
+          type: string
+        categoryCode:
+          type: string
+        parentCategoryId:
+          type: string
+        categoryLevel:
+          type: integer
+        status:
+          type: string
+        sortOrder:
+          type: integer
+        iconMediaResourceId:
+          type: string
+        localizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryLocalization'
+    CategoryLocalization:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - locale
+      - displayName
+      properties:
+        id:
+          type: string
+        locale:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+    CatalogCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - collectionCode
+      - collectionType
+      - status
+      - audienceScope
+      - sortOrder
+      - localizations
+      - items
+      properties:
+        id:
+          type: string
+        collectionCode:
+          type: string
+        collectionType:
+          type: string
+        status:
+          type: string
+        audienceScope:
+          type: string
+        sortOrder:
+          type: integer
+        coverMediaResourceId:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        localizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogCollectionLocalization'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogCollectionItem'
+    CatalogCollectionLocalization:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - locale
+      - displayName
+      properties:
+        id:
+          type: string
+        locale:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+    CatalogCollectionItem:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - listingId
+      - sortOrder
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        sortOrder:
+          type: integer
+        highlight:
+          type: object
+          additionalProperties: true
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+    CatalogFeaturedSlot:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - slotCode
+      - listingId
+      - status
+      - audienceScope
+      - platformScope
+      - regionScope
+      - startsAt
+      - endsAt
+      properties:
+        id:
+          type: string
+        slotCode:
+          type: string
+        listingId:
+          type: string
+        status:
+          type: string
+        audienceScope:
+          type: string
+        platformScope:
+          type: string
+        regionScope:
+          type: array
+          items:
+            type: string
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+    CatalogChartSnapshot:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - chartCode
+      - snapshotDate
+      - locale
+      - platformScope
+      - rankingJson
+      - generatedAt
+      properties:
+        id:
+          type: string
+        chartCode:
+          type: string
+        snapshotDate:
+          type: string
+          format: date
+        locale:
+          type: string
+        platformScope:
+          type: string
+        rankingJson: {}
+        generatedAt:
+          type: string
+          format: date-time
+    HomeFeedData:
+      type: object
+      additionalProperties: false
+      required:
+      - featuredSlots
+      - collections
+      - charts
+      properties:
+        featuredSlots:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogFeaturedSlot'
+        collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogCollection'
+        charts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogChartSnapshot'
+    HomeFeedResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/HomeFeedData'
     CategoryListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
-    CollectionResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     CollectionListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogCollection'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     FeaturedListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
-    ChartResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogFeaturedSlot'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     ListingLocalizationUpsertRequest:
       type: object
       required:
@@ -1761,8 +1800,48 @@ components:
           type: array
           items:
             type: string
+    ListingLocalization:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - locale
+      - displayName
+      - shortDescription
+      - fullDescription
+      properties:
+        id:
+          type: string
+        locale:
+          type: string
+        displayName:
+          type: string
+        subtitle:
+          type: string
+        shortDescription:
+          type: string
+        fullDescription:
+          type: string
+        whatsNewSummary:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
     ListingLocalizationResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ListingLocalization'
     ListingMediaAttachRequest:
       type: object
       required:
@@ -1782,12 +1861,82 @@ components:
           type: string
         locale:
           type: string
+    ListingMedia:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - mediaRole
+      - mediaResourceId
+      - platformScope
+      - sortOrder
+      properties:
+        id:
+          type: string
+        mediaRole:
+          type: string
+        mediaResourceId:
+          type: string
+        driveNodeId:
+          type: string
+        platformScope:
+          type: string
+        sortOrder:
+          type: integer
+        locale:
+          type: string
     ListingMediaResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ListingMedia'
     ListingMediaListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListingMedia'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     ListingReleaseListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Release'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     ListingCategoryBindRequest:
       type: object
       required:
@@ -1831,8 +1980,46 @@ components:
           - RELEASE
         releaseId:
           type: string
+    ListingSubmission:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - submissionNo
+      - submissionType
+      - submissionStatus
+      - submittedBy
+      - submittedAt
+      properties:
+        id:
+          type: string
+        submissionNo:
+          type: string
+        submissionType:
+          type: string
+        submissionStatus:
+          type: string
+        submittedBy:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        releaseId:
+          type: string
     ListingSubmissionResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ListingSubmission'
     PublisherCreateRequest:
       type: object
       required:
@@ -1844,6 +2031,10 @@ components:
           type: string
         supportEmail:
           type: string
+        websiteUrl:
+          type: string
+        publisherType:
+          type: string
     PublisherUpdateRequest:
       type: object
       properties:
@@ -1853,10 +2044,57 @@ components:
           type: string
         supportEmail:
           type: string
+    Publisher:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - publisherNo
+      - publisherType
+      - displayName
+      - status
+      - verificationStatus
+      - ownerUserId
+      properties:
+        id:
+          type: string
+        publisherNo:
+          type: string
+        publisherType:
+          type: string
+        displayName:
+          type: string
+        legalName:
+          type: string
+        status:
+          type: string
+        verificationStatus:
+          type: string
+        websiteUrl:
+          type: string
+        supportEmail:
+          type: string
+        logoMediaResourceId:
+          type: string
+        ownerUserId:
+          type: string
+        verifiedAt:
+          type: string
+          format: date-time
     PublisherResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
-    PublisherMemberListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/Publisher'
     PublisherMemberInviteRequest:
       type: object
       required:
@@ -1867,8 +2105,61 @@ components:
           type: string
         memberRole:
           type: string
+    PublisherMember:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - userId
+      - memberRole
+      - memberStatus
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        memberRole:
+          type: string
+        memberStatus:
+          type: string
+        invitedBy:
+          type: string
+        joinedAt:
+          type: string
+          format: date-time
+    PublisherMemberListResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublisherMember'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     PublisherMemberResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/PublisherMember'
     PublisherVerificationSubmitRequest:
       type: object
       required:
@@ -1879,8 +2170,44 @@ components:
         credentialSnapshot:
           type: object
           additionalProperties: true
+        evidenceMediaResourceId:
+          type: string
+    PublisherVerification:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - verificationType
+      - verificationStatus
+      properties:
+        id:
+          type: string
+        verificationType:
+          type: string
+        verificationStatus:
+          type: string
+        reviewedBy:
+          type: string
+        reviewedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
     PublisherVerificationResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/PublisherVerification'
     ReleaseCreateRequest:
       type: object
       required:
@@ -1896,6 +2223,8 @@ components:
           type: string
         buildNumber:
           type: string
+        minimumOsVersion:
+          type: string
     ReleaseUpdateRequest:
       type: object
       properties:
@@ -1903,8 +2232,62 @@ components:
           type: string
         releaseStatus:
           type: string
+    Release:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - releaseNo
+      - listingId
+      - channelId
+      - versionName
+      - versionCode
+      - releaseStatus
+      properties:
+        id:
+          type: string
+        releaseNo:
+          type: string
+        listingId:
+          type: string
+        channelId:
+          type: string
+        versionName:
+          type: string
+        versionCode:
+          type: string
+        buildNumber:
+          type: string
+        releaseStatus:
+          type: string
+        minimumOsVersion:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        approvedAt:
+          type: string
+          format: date-time
+        publishedAt:
+          type: string
+          format: date-time
+        retiredAt:
+          type: string
+          format: date-time
     ReleaseResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/Release'
     ReleaseNotesUpsertRequest:
       type: object
       required:
@@ -1912,8 +2295,34 @@ components:
       properties:
         releaseNotes:
           type: string
+    ReleaseNoteLocalization:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - locale
+      - releaseNotes
+      properties:
+        id:
+          type: string
+        locale:
+          type: string
+        releaseNotes:
+          type: string
     ReleaseNotesResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ReleaseNoteLocalization'
     ReleaseArtifactAttachRequest:
       type: object
       required:
@@ -1936,8 +2345,63 @@ components:
           type: string
         fileSizeBytes:
           type: string
+        contentType:
+          type: string
+        mediaResourceId:
+          type: string
+        minOsVersion:
+          type: string
+    ReleaseArtifact:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - artifactNo
+      - platform
+      - architecture
+      - packageFormat
+      - artifactStatus
+      - driveNodeId
+      - fileSizeBytes
+      - contentType
+      - checksumSha256
+      properties:
+        id:
+          type: string
+        artifactNo:
+          type: string
+        platform:
+          type: string
+        architecture:
+          type: string
+        packageFormat:
+          type: string
+        artifactStatus:
+          type: string
+        driveNodeId:
+          type: string
+        fileSizeBytes:
+          type: string
+        contentType:
+          type: string
+        checksumSha256:
+          type: string
+        minOsVersion:
+          type: string
     ReleaseArtifactResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ReleaseArtifact'
     ReleaseRolloutUpdateRequest:
       type: object
       required:
@@ -1954,10 +2418,100 @@ components:
           type: integer
           minimum: 0
           maximum: 100
+        regionFilter:
+          type: array
+          items:
+            type: string
+        deviceFilter:
+          type: object
+          additionalProperties: true
+    ReleaseRollout:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - rolloutStrategy
+      - rolloutStatus
+      - targetPercentage
+      - currentPercentage
+      properties:
+        id:
+          type: string
+        rolloutStrategy:
+          type: string
+        rolloutStatus:
+          type: string
+        targetPercentage:
+          type: integer
+        currentPercentage:
+          type: integer
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        pausedAt:
+          type: string
+          format: date-time
     ReleaseRolloutResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ReleaseRollout'
+    ComplianceProfile:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - listingId
+      - complianceVersion
+      - privacyNutrition
+      - contentRatingQuestionnaire
+      - dataSafety
+      - targetAudience
+      - complianceStatus
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        complianceVersion:
+          type: integer
+        privacyNutrition: {}
+        contentRatingQuestionnaire: {}
+        dataSafety: {}
+        targetAudience: {}
+        complianceStatus:
+          type: string
+        reviewedBy:
+          type: string
+        reviewedAt:
+          type: string
+          format: date-time
     ComplianceProfileResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ComplianceProfile'
     ComplianceProfileUpdateRequest:
       type: object
       properties:
@@ -1968,6 +2522,9 @@ components:
           type: object
           additionalProperties: true
         dataSafety:
+          type: object
+          additionalProperties: true
+        targetAudience:
           type: object
           additionalProperties: true
     CompliancePermissionUpdateRequest:
@@ -1989,12 +2546,118 @@ components:
                 type: string
               isRequired:
                 type: boolean
+    CompliancePermissionDisclosure:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - listingId
+      - permissionCode
+      - usagePurpose
+      - isRequired
+      - disclosureStatus
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        permissionCode:
+          type: string
+        usagePurpose:
+          type: string
+        isRequired:
+          type: boolean
+        disclosureStatus:
+          type: string
     CompliancePermissionListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompliancePermissionDisclosure'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
+    UserLibraryItem:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - listingId
+      - appKey
+      - libraryStatus
+      - installSource
+      - platform
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        appKey:
+          type: string
+        libraryStatus:
+          type: string
+        installedReleaseId:
+          type: string
+        installedVersionCode:
+          type: string
+        installSource:
+          type: string
+        platform:
+          type: string
+        architecture:
+          type: string
+        deviceId:
+          type: string
+        installedAt:
+          type: string
+          format: date-time
+        removedAt:
+          type: string
+          format: date-time
     LibraryItemListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserLibraryItem'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     LibraryItemResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/UserLibraryItem'
     LibraryInstallRequest:
       type: object
       required:
@@ -2009,8 +2672,57 @@ components:
           type: string
         deviceId:
           type: string
+    InstallEvent:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - eventNo
+      - listingId
+      - eventType
+      - platform
+      - occurredAt
+      properties:
+        id:
+          type: string
+        eventNo:
+          type: string
+        listingId:
+          type: string
+        releaseId:
+          type: string
+        eventType:
+          type: string
+        platform:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+    LibraryInstallResult:
+      type: object
+      additionalProperties: false
+      required:
+      - libraryItem
+      - installEvent
+      properties:
+        libraryItem:
+          $ref: '#/components/schemas/UserLibraryItem'
+        installEvent:
+          $ref: '#/components/schemas/InstallEvent'
     LibraryInstallResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/LibraryInstallResult'
     LibraryUninstallRequest:
       type: object
       required:
@@ -2038,10 +2750,89 @@ components:
                 type: string
               installedVersionCode:
                 type: string
+    UpdateAvailable:
+      type: object
+      additionalProperties: false
+      required:
+      - appKey
+      - platform
+      - installedVersionCode
+      - latestVersionCode
+      - latestVersionName
+      - releaseId
+      properties:
+        appKey:
+          type: string
+        platform:
+          type: string
+        installedVersionCode:
+          type: string
+        latestVersionCode:
+          type: string
+        latestVersionName:
+          type: string
+        releaseId:
+          type: string
+        artifactId:
+          type: string
+        fileSizeBytes:
+          type: string
     LibraryUpdatesCheckResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UpdateAvailable'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
+    WishlistItem:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - listingId
+      - wishlistStatus
+      - createdAt
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        wishlistStatus:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
     WishlistItemListResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WishlistItem'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
     WishlistItemAddRequest:
       type: object
       required:
@@ -2050,7 +2841,19 @@ components:
         listingId:
           type: string
     WishlistItemResponse:
-      $ref: '#/components/schemas/SdkWorkListResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/WishlistItem'
     DownloadGrantCreateRequest:
       type: object
       required:
@@ -2058,19 +2861,69 @@ components:
       properties:
         artifactId:
           type: string
+    DownloadGrant:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - grantNo
+      - listingId
+      - releaseId
+      - artifactId
+      - grantStatus
+      - grantReason
+      - expiresAt
+      - downloadCount
+      - maxDownloadCount
+      properties:
+        id:
+          type: string
+        grantNo:
+          type: string
+        listingId:
+          type: string
+        releaseId:
+          type: string
+        artifactId:
+          type: string
+        grantStatus:
+          type: string
+        grantReason:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        consumedAt:
+          type: string
+          format: date-time
+        downloadCount:
+          type: integer
+        maxDownloadCount:
+          type: integer
     DownloadGrantResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
-    DownloadGrantConsumeResponse:
-      $ref: '#/components/schemas/SdkWorkResourceResponse'
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/DownloadGrant'
     SearchHistoryUpsertRequest:
       type: object
       required:
-      - query_text
+      - queryText
       properties:
-        query_text:
+        queryText:
           type: string
-        filters_json:
-          type: string
+        filters:
+          type: object
+          additionalProperties: true
     SdkWorkApiResponse:
       type: object
       additionalProperties: false

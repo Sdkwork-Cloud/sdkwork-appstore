@@ -190,7 +190,10 @@ export function ListingDetailPage() {
     () =>
       app?.listingId
         ? getStoreClient().listings.listSimilar(app.listingId, { limit: 6 })
-        : Promise.resolve({ items: [] as unknown[], pageInfo: null }),
+        : Promise.resolve({
+            items: [] as Record<string, unknown>[],
+            pageInfo: { mode: 'cursor' as const, nextCursor: null, hasMore: false },
+          }),
     { immediate: false },
   );
   const developerOtherApi = useDeveloperOtherListings(app?.listingId ?? '', 6);
@@ -205,7 +208,10 @@ export function ListingDetailPage() {
     () =>
       app?.listingId
         ? getStoreClient().compliance.listIapItems(app.listingId, { limit: 12 })
-        : Promise.resolve({ items: [] as unknown[], pageInfo: null }),
+        : Promise.resolve({
+            items: [] as Record<string, unknown>[],
+            pageInfo: { mode: 'cursor' as const, nextCursor: null, hasMore: false },
+          }),
     { immediate: !!app?.listingId },
   );
 
@@ -235,15 +241,13 @@ export function ListingDetailPage() {
       setInstalling(true);
       try {
         const checkout = await purchaseListingViaCommerce({
-          listingId: app.listingId,
-          displayName: app.displayName,
           commerceProductId: app.commerceProductId,
         });
         if (checkout.status === 'error' || checkout.status === 'unavailable') {
           setActionError(checkout.message);
         } else {
           setPurchaseNotice({
-            title: checkout.status === 'ready' ? '前往结算' : '购买处理中',
+            title: '前往结算',
             message: checkout.message,
           });
         }

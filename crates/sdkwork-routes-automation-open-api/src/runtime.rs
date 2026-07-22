@@ -10,16 +10,47 @@ use sdkwork_appstore_routes_common::AppState;
 use sdkwork_web_core::WebRequestContext;
 
 use crate::handlers::publish_automation_submissions_create;
+use crate::mapper::response::map_automation_submission;
+
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AutomationReleaseBody {
+    channel_code: String,
+    version_name: String,
+    version_code: String,
+}
+
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AutomationArtifactBody {
+    platform: String,
+    architecture: String,
+    package_format: String,
+    drive_node_id: String,
+    checksum_sha256: String,
+    file_size_bytes: Option<String>,
+}
+
+impl From<AutomationArtifactBody> for AutomationArtifactSpec {
+    fn from(value: AutomationArtifactBody) -> Self {
+        Self {
+            platform: value.platform,
+            architecture: value.architecture,
+            package_format: value.package_format,
+            drive_node_id: value.drive_node_id,
+            checksum_sha256: value.checksum_sha256,
+            file_size_bytes: value.file_size_bytes,
+        }
+    }
+}
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct AutomationSubmissionBody {
     app_key: String,
     submission_type: String,
-    channel_code: String,
-    version_name: String,
-    version_code: String,
-    artifacts: Vec<AutomationArtifactSpec>,
+    release: AutomationReleaseBody,
+    artifacts: Option<Vec<AutomationArtifactBody>>,
 }
 
 pub fn routes() -> Router<AppState> {
@@ -40,20 +71,18 @@ async fn automation_submissions_create(
         &ctx,
         body.app_key,
         body.submission_type,
-        body.channel_code,
-        body.version_name,
-        body.version_code,
-        body.artifacts,
+        body.release.channel_code,
+        body.release.version_name,
+        body.release.version_code,
+        body.artifacts
+            .unwrap_or_default()
+            .into_iter()
+            .map(AutomationArtifactSpec::from)
+            .collect(),
     )
     .await
     {
-        Ok(result) => created(
-            context.as_ref(),
-            serde_json::json!({
-                "accepted": result.accepted,
-                "releaseId": result.release_id,
-            }),
-        ),
+        Ok(result) => created(context.as_ref(), map_automation_submission(result)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }

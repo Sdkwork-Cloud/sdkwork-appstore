@@ -21,7 +21,7 @@ It does **not** own:
 - IAM login/session (`sdkwork-appbase`)
 - registered app registration projection (`platform` / app manifest pipeline)
 - Comment threads, star ratings, favorites (`sdkwork-comments`)
-- Paid checkout and IAP settlement (`sdkwork-commerce (deleted)`, integration only)
+- Catalog SKU ownership, checkout, payment, and settlement (`sdkwork-catalog`, `sdkwork-order`, and `sdkwork-payment`; integrated through Clawrouter)
 - Binary bytes (`sdkwork-drive`)
 
 ## Standard Layout
@@ -72,7 +72,7 @@ Frontend application roots live under `apps/` and are developed in a separate pr
 
 The backend implementation is complete with all 8 service crates, 8 SQLx repositories, 16 route crates, API server, service host, and analytics worker fully implemented. All business logic, domain models, repository persistence, and route handlers are in place.
 
-Integration capabilities are represented as service-host connector traits and API-server preflight validation. Required integrations (`appbase`, `platform`, `drive`, `comments`) have provider ports and adapter configs; optional integrations (`commerce`, `notifications`, `search`, `market_channels`) have connector trait definitions ready for concrete SDK-backed implementations.
+Integration capabilities are represented by explicit provider ports, dependency SDKs, and API-server preflight validation. Required integrations (`appbase`, `platform`, `drive`, `comments`) have provider ports and adapter configs. Paid acquisition uses the typed `@sdkwork/clawrouter-app-sdk/domains` Catalog and Order surfaces; notifications, search, and market-channel connectors remain independently owned integrations.
 
 ## Standards
 

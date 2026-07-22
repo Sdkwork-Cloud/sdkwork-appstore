@@ -104,8 +104,6 @@ export function ListingDetailPage() {
       setInstalling(true);
       try {
         const checkout = await purchaseListingViaCommerce({
-          listingId,
-          displayName: app.name,
           commerceProductId,
         });
         if (checkout.status === 'error' || checkout.status === 'unavailable') {

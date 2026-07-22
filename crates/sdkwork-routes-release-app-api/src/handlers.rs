@@ -31,12 +31,12 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         service_method: "update_release",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.releases.notes.upsert",
+        operation_id: "appstore.releases.notes.update",
         handler_name: "releases_notes_upsert",
         service_method: "upsert_release_notes",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.releases.artifacts.attach",
+        operation_id: "appstore.releases.artifacts.create",
         handler_name: "releases_artifacts_attach",
         service_method: "attach_artifact",
     },

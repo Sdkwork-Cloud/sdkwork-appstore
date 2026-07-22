@@ -9,7 +9,6 @@ export function getStoreClient(): AppStoreClient {
     const env = getEnvironment();
     client = createAppStoreClient({
       baseUrl: import.meta.env.VITE_APPSTORE_API_URL || env.appstoreAppApiBaseUrl,
-      openApiBaseUrl: import.meta.env.VITE_APPSTORE_OPEN_API_URL || env.appstoreOpenApiBaseUrl,
       tokenManager: appstoreTokenManager,
     });
   }

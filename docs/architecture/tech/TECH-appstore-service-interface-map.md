@@ -10,22 +10,22 @@ method name. It is a handoff artifact for later implementation agents.
 
 | operationId | routeCrate | handler | serviceCrate | serviceMethod | TODO |
 | --- | --- | --- | --- | --- | --- |
-| `appstore.catalog.home.retrieve` | `sdkwork-routes-catalog-app-api` | `catalog_home_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_home_retrieve` | Implemented|
-| `appstore.catalog.categories.list` | `sdkwork-routes-catalog-app-api` | `catalog_categories_list` | `sdkwork-appstore-catalog-service` | `catalog_categories_list` | Implemented|
-| `appstore.catalog.categories.retrieve` | `sdkwork-routes-catalog-app-api` | `catalog_categories_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_categories_retrieve` | Implemented|
-| `appstore.catalog.collections.list` | `sdkwork-routes-catalog-app-api` | `catalog_collections_list` | `sdkwork-appstore-catalog-service` | `catalog_collections_list` | Implemented|
-| `appstore.catalog.collections.retrieve` | `sdkwork-routes-catalog-app-api` | `catalog_collections_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_collections_retrieve` | Implemented|
-| `appstore.catalog.featured.list` | `sdkwork-routes-catalog-app-api` | `catalog_featured_list` | `sdkwork-appstore-catalog-service` | `catalog_featured_list` | Implemented|
-| `appstore.catalog.charts.retrieve` | `sdkwork-routes-catalog-app-api` | `catalog_charts_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_charts_retrieve` | Implemented|
-| `appstore.catalog.listings.search` | `sdkwork-routes-catalog-app-api` | `catalog_listings_search` | `sdkwork-appstore-catalog-service` | `catalog_listings_search` | Implemented|
-| `appstore.catalog.collections.create` | `sdkwork-routes-catalog-backend-api` | `catalog_collections_create` | `sdkwork-appstore-catalog-service` | `catalog_collections_create` | Implemented|
-| `appstore.catalog.collections.update` | `sdkwork-routes-catalog-backend-api` | `catalog_collections_update` | `sdkwork-appstore-catalog-service` | `catalog_collections_update` | Implemented|
-| `appstore.catalog.collections.items.upsert` | `sdkwork-routes-catalog-backend-api` | `catalog_collections_items_upsert` | `sdkwork-appstore-catalog-service` | `catalog_collections_items_upsert` | Implemented|
-| `appstore.catalog.featured.upsert` | `sdkwork-routes-catalog-backend-api` | `catalog_featured_upsert` | `sdkwork-appstore-catalog-service` | `catalog_featured_upsert` | Implemented|
-| `appstore.catalog.categories.create` | `sdkwork-routes-catalog-backend-api` | `catalog_categories_create` | `sdkwork-appstore-catalog-service` | `catalog_categories_create` | Implemented|
-| `appstore.catalog.categories.update` | `sdkwork-routes-catalog-backend-api` | `catalog_categories_update` | `sdkwork-appstore-catalog-service` | `catalog_categories_update` | Implemented|
+| `appstore.catalog.home.retrieve` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_home_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_home_retrieve` | Implemented|
+| `appstore.catalog.categories.list` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_categories_list` | `sdkwork-appstore-catalog-service` | `catalog_categories_list` | Implemented|
+| `appstore.catalog.categories.retrieve` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_categories_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_categories_retrieve` | Implemented|
+| `appstore.catalog.collections.list` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_collections_list` | `sdkwork-appstore-catalog-service` | `catalog_collections_list` | Implemented|
+| `appstore.catalog.collections.retrieve` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_collections_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_collections_retrieve` | Implemented|
+| `appstore.catalog.featured.list` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_featured_list` | `sdkwork-appstore-catalog-service` | `catalog_featured_list` | Implemented|
+| `appstore.catalog.charts.retrieve` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_charts_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_charts_retrieve` | Implemented|
+| `appstore.catalog.listings.list` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_listings_search` | `sdkwork-appstore-catalog-service` | `catalog_listings_search` | Implemented|
+| `appstore.catalog.collections.create` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_collections_create` | `sdkwork-appstore-catalog-service` | `catalog_collections_create` | Implemented|
+| `appstore.catalog.collections.update` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_collections_update` | `sdkwork-appstore-catalog-service` | `catalog_collections_update` | Implemented|
+| `appstore.catalog.collections.items.update` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_collections_items_upsert` | `sdkwork-appstore-catalog-service` | `catalog_collections_items_upsert` | Implemented|
+| `appstore.catalog.featured.update` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_featured_upsert` | `sdkwork-appstore-catalog-service` | `catalog_featured_upsert` | Implemented|
+| `appstore.catalog.categories.create` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_categories_create` | `sdkwork-appstore-catalog-service` | `catalog_categories_create` | Implemented|
+| `appstore.catalog.categories.update` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_categories_update` | `sdkwork-appstore-catalog-service` | `catalog_categories_update` | Implemented|
 | `appstore.metrics.listings.retrieve` | `sdkwork-routes-metrics-backend-api` | `metrics_listings_retrieve` | `sdkwork-appstore-catalog-service` | `metrics_listings_retrieve` | Implemented|
-| `appstore.catalog.public.featured.list` | `sdkwork-routes-catalog-open-api` | `catalog_public_featured_list` | `sdkwork-appstore-catalog-service` | `catalog_public_featured_list` | Implemented|
+| `appstore.catalog.public.featured.list` | `sdkwork-routes-appstore-catalog-open-api` | `catalog_public_featured_list` | `sdkwork-appstore-catalog-service` | `catalog_public_featured_list` | Implemented|
 
 ## sdkwork-appstore-compliance-service
 
@@ -45,8 +45,8 @@ method name. It is a handoff artifact for later implementation agents.
 | `appstore.library.uninstall` | `sdkwork-routes-library-app-api` | `library_uninstall` | `sdkwork-appstore-library-service` | `library_uninstall` | Implemented|
 | `appstore.library.updates.check` | `sdkwork-routes-library-app-api` | `library_updates_check` | `sdkwork-appstore-library-service` | `library_updates_check` | Implemented|
 | `appstore.wishlist.items.list` | `sdkwork-routes-library-app-api` | `wishlist_items_list` | `sdkwork-appstore-library-service` | `wishlist_items_list` | Implemented|
-| `appstore.wishlist.items.add` | `sdkwork-routes-library-app-api` | `wishlist_items_add` | `sdkwork-appstore-library-service` | `wishlist_items_add` | Implemented|
-| `appstore.wishlist.items.remove` | `sdkwork-routes-library-app-api` | `wishlist_items_remove` | `sdkwork-appstore-library-service` | `wishlist_items_remove` | Implemented|
+| `appstore.wishlist.items.create` | `sdkwork-routes-library-app-api` | `wishlist_items_add` | `sdkwork-appstore-library-service` | `wishlist_items_add` | Implemented|
+| `appstore.wishlist.items.delete` | `sdkwork-routes-library-app-api` | `wishlist_items_remove` | `sdkwork-appstore-library-service` | `wishlist_items_remove` | Implemented|
 | `appstore.downloadGrants.create` | `sdkwork-routes-library-app-api` | `download_grants_create` | `sdkwork-appstore-library-service` | `download_grants_create` | Implemented|
 | `appstore.downloadGrants.consume` | `sdkwork-routes-library-app-api` | `download_grants_consume` | `sdkwork-appstore-library-service` | `download_grants_consume` | Implemented|
 
@@ -59,10 +59,10 @@ method name. It is a handoff artifact for later implementation agents.
 | `appstore.listings.releases.list` | `sdkwork-routes-listing-app-api` | `listings_releases_list` | `sdkwork-appstore-listing-service` | `listings_releases_list` | Implemented|
 | `appstore.listings.create` | `sdkwork-routes-listing-app-api` | `listings_create` | `sdkwork-appstore-listing-service` | `listings_create` | Implemented|
 | `appstore.listings.update` | `sdkwork-routes-listing-app-api` | `listings_update` | `sdkwork-appstore-listing-service` | `listings_update` | Implemented|
-| `appstore.listings.localization.upsert` | `sdkwork-routes-listing-app-api` | `listings_localization_upsert` | `sdkwork-appstore-listing-service` | `listings_localization_upsert` | Implemented|
-| `appstore.listings.media.attach` | `sdkwork-routes-listing-app-api` | `listings_media_attach` | `sdkwork-appstore-listing-service` | `listings_media_attach` | Implemented|
-| `appstore.listings.media.remove` | `sdkwork-routes-listing-app-api` | `listings_media_remove` | `sdkwork-appstore-listing-service` | `listings_media_remove` | Implemented|
-| `appstore.listings.categories.bind` | `sdkwork-routes-listing-app-api` | `listings_categories_bind` | `sdkwork-appstore-listing-service` | `listings_categories_bind` | Implemented|
+| `appstore.listings.localization.update` | `sdkwork-routes-listing-app-api` | `listings_localization_upsert` | `sdkwork-appstore-listing-service` | `listings_localization_upsert` | Implemented|
+| `appstore.listings.media.create` | `sdkwork-routes-listing-app-api` | `listings_media_attach` | `sdkwork-appstore-listing-service` | `listings_media_attach` | Implemented|
+| `appstore.listings.media.delete` | `sdkwork-routes-listing-app-api` | `listings_media_remove` | `sdkwork-appstore-listing-service` | `listings_media_remove` | Implemented|
+| `appstore.listings.categories.update` | `sdkwork-routes-listing-app-api` | `listings_categories_bind` | `sdkwork-appstore-listing-service` | `listings_categories_bind` | Implemented|
 | `appstore.listings.regions.update` | `sdkwork-routes-listing-app-api` | `listings_regions_update` | `sdkwork-appstore-listing-service` | `listings_regions_update` | Implemented|
 | `appstore.listings.submissions.create` | `sdkwork-routes-listing-app-api` | `listings_submissions_create` | `sdkwork-appstore-listing-service` | `listings_submissions_create` | Implemented|
 | `appstore.listings.admin.list` | `sdkwork-routes-listing-backend-api` | `listings_admin_list` | `sdkwork-appstore-listing-service` | `listings_admin_list` | Implemented|
@@ -97,8 +97,8 @@ method name. It is a handoff artifact for later implementation agents.
 | `appstore.publishers.create` | `sdkwork-routes-publisher-app-api` | `publishers_create` | `sdkwork-appstore-publisher-service` | `publishers_create` | Implemented|
 | `appstore.publishers.update` | `sdkwork-routes-publisher-app-api` | `publishers_update` | `sdkwork-appstore-publisher-service` | `publishers_update` | Implemented|
 | `appstore.publishers.members.list` | `sdkwork-routes-publisher-app-api` | `publishers_members_list` | `sdkwork-appstore-publisher-service` | `publishers_members_list` | Implemented|
-| `appstore.publishers.members.invite` | `sdkwork-routes-publisher-app-api` | `publishers_members_invite` | `sdkwork-appstore-publisher-service` | `publishers_members_invite` | Implemented|
-| `appstore.publishers.verifications.submit` | `sdkwork-routes-publisher-app-api` | `publishers_verifications_submit` | `sdkwork-appstore-publisher-service` | `publishers_verifications_submit` | Implemented|
+| `appstore.publishers.members.create` | `sdkwork-routes-publisher-app-api` | `publishers_members_invite` | `sdkwork-appstore-publisher-service` | `publishers_members_invite` | Implemented|
+| `appstore.publishers.verifications.create` | `sdkwork-routes-publisher-app-api` | `publishers_verifications_submit` | `sdkwork-appstore-publisher-service` | `publishers_verifications_submit` | Implemented|
 | `appstore.publishers.admin.verify` | `sdkwork-routes-publisher-backend-api` | `publishers_admin_verify` | `sdkwork-appstore-publisher-service` | `publishers_admin_verify` | Implemented|
 
 ## sdkwork-appstore-release-service
@@ -108,8 +108,8 @@ method name. It is a handoff artifact for later implementation agents.
 | `appstore.releases.create` | `sdkwork-routes-release-app-api` | `releases_create` | `sdkwork-appstore-release-service` | `releases_create` | Implemented|
 | `appstore.releases.retrieve` | `sdkwork-routes-release-app-api` | `releases_retrieve` | `sdkwork-appstore-release-service` | `releases_retrieve` | Implemented|
 | `appstore.releases.update` | `sdkwork-routes-release-app-api` | `releases_update` | `sdkwork-appstore-release-service` | `releases_update` | Implemented|
-| `appstore.releases.notes.upsert` | `sdkwork-routes-release-app-api` | `releases_notes_upsert` | `sdkwork-appstore-release-service` | `releases_notes_upsert` | Implemented|
-| `appstore.releases.artifacts.attach` | `sdkwork-routes-release-app-api` | `releases_artifacts_attach` | `sdkwork-appstore-release-service` | `releases_artifacts_attach` | Implemented|
+| `appstore.releases.notes.update` | `sdkwork-routes-release-app-api` | `releases_notes_upsert` | `sdkwork-appstore-release-service` | `releases_notes_upsert` | Implemented|
+| `appstore.releases.artifacts.create` | `sdkwork-routes-release-app-api` | `releases_artifacts_attach` | `sdkwork-appstore-release-service` | `releases_artifacts_attach` | Implemented|
 | `appstore.releases.rollout.update` | `sdkwork-routes-release-app-api` | `releases_rollout_update` | `sdkwork-appstore-release-service` | `releases_rollout_update` | Implemented|
 | `appstore.releases.retire` | `sdkwork-routes-release-app-api` | `releases_retire` | `sdkwork-appstore-release-service` | `releases_retire` | Implemented|
 | `appstore.releases.checkUpdate` | `sdkwork-routes-release-open-api` | `releases_check_update` | `sdkwork-appstore-release-service` | `releases_check_update` | Implemented|

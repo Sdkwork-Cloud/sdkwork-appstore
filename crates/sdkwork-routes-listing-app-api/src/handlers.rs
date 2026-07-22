@@ -46,22 +46,22 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         service_method: "update_listing",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.listings.localization.upsert",
+        operation_id: "appstore.listings.localization.update",
         handler_name: "listings_localization_upsert",
         service_method: "upsert_listing_localization",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.listings.media.attach",
+        operation_id: "appstore.listings.media.create",
         handler_name: "listings_media_attach",
         service_method: "attach_listing_media",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.listings.media.remove",
+        operation_id: "appstore.listings.media.delete",
         handler_name: "listings_media_remove",
         service_method: "remove_listing_media",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.listings.categories.bind",
+        operation_id: "appstore.listings.categories.update",
         handler_name: "listings_categories_bind",
         service_method: "bind_listing_categories",
     },

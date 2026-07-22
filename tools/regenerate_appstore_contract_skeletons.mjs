@@ -225,7 +225,8 @@ function routeHandlerNameFor(operation) {
 
 function routeCrateNameFor(operation) {
   const routeKey = routeKeyFor(operation);
-  return `sdkwork-routes-${routeKey.capability}-${routeKey.surface}`;
+  const capability = routeKey.capability === "catalog" ? "appstore-catalog" : routeKey.capability;
+  return `sdkwork-routes-${capability}-${routeKey.surface}`;
 }
 
 function serviceCrateNameFor(operation) {
@@ -447,7 +448,15 @@ pub use routes::{route_definitions, RouteDefinition};
 }
 
 function renderRoutePaths(capability, surface) {
-  const prefix = surface === "app-api" ? "/app/v3/api" : surface === "backend-api" ? "/backend/v3/api" : "/store/v3/api";
+  const prefix = capability === "catalog" && surface === "app-api"
+    ? "/app/v3/api/appstore/catalog"
+    : capability === "catalog" && surface === "backend-api"
+      ? "/backend/v3/api/appstore/catalog"
+      : surface === "app-api"
+        ? "/app/v3/api"
+        : surface === "backend-api"
+          ? "/backend/v3/api"
+          : "/store/v3/api";
   const authority = surface === "app-api" ? "sdkwork-appstore-app-api" : surface === "backend-api" ? "sdkwork-appstore-backend-api" : "sdkwork-appstore-open-api";
   const sdkFamily = surface === "app-api" ? "sdkwork-appstore-app-sdk" : surface === "backend-api" ? "sdkwork-appstore-backend-sdk" : "sdkwork-appstore-sdk";
   return `//! Canonical path constants for ${capability} ${surface}.
@@ -891,7 +900,8 @@ async function main() {
 
   for (const routeKey of routeCrates) {
     const [capability, surface] = routeKey.split(":");
-    const crateName = `sdkwork-routes-${capability}-${surface}`;
+    const crateCapability = capability === "catalog" ? "appstore-catalog" : capability;
+    const crateName = `sdkwork-routes-${crateCapability}-${surface}`;
     const operationsForCrate = operations.filter((operation) => {
       const key = routeKeyFor(operation);
       return key.capability === capability && key.surface === surface;

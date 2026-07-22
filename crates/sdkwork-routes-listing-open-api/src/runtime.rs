@@ -9,6 +9,7 @@ use sdkwork_appstore_routes_common::AppState;
 use sdkwork_web_core::WebRequestContext;
 
 use crate::handlers::listings_public_retrieve;
+use crate::mapper::response::map_public_listing;
 
 pub fn routes() -> Router<AppState> {
     Router::new().route(
@@ -24,7 +25,15 @@ async fn public_listing_retrieve(
 ) -> Response {
     let ctx = to_listing_context_public(context.as_ref());
     match listings_public_retrieve(&state.listing_service, &ctx, listing_slug).await {
-        Ok(result) => ok_item(context.as_ref(), result.listing),
+        Ok(result) => match result.listing {
+            Some(listing) => ok_item(context.as_ref(), map_public_listing(listing)),
+            None => map_listing_error(
+                context.as_ref(),
+                sdkwork_appstore_listing_service::error::AppstoreServiceError::NotFound(
+                    "Public listing not found".to_string(),
+                ),
+            ),
+        },
         Err(error) => map_listing_error(context.as_ref(), error),
     }
 }

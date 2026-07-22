@@ -7,7 +7,7 @@ export interface UploadListingMediaParams {
   file: File;
   organizationId: string;
   listingId: string;
-  mediaRole: string;
+  mediaRole: 'ICON' | 'SCREENSHOT' | 'PREVIEW_VIDEO' | 'FEATURE_GRAPHIC';
   platformScope?: string;
   locale?: string;
   onProgress?: (progress: DriveUploaderProgress) => void;

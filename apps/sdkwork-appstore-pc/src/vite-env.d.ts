@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_APPSTORE_API_URL: string;
+  readonly VITE_APPBASE_API_URL?: string;
   readonly VITE_APPSTORE_ABUSE_REPORT_EMAIL?: string;
 }
 

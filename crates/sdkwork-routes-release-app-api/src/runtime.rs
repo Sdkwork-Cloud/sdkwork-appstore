@@ -2,6 +2,9 @@ use crate::handlers::{
     releases_artifacts_attach, releases_create, releases_notes_upsert, releases_retire,
     releases_retrieve, releases_rollout_update, releases_update,
 };
+use crate::mapper::response::{
+    map_release, map_release_artifact, map_release_note, map_release_rollout,
+};
 use axum::extract::{Extension, Json, Path, State};
 use axum::response::Response;
 use axum::routing::{get, post, put};
@@ -109,7 +112,7 @@ async fn release_create(
     )
     .await
     {
-        Ok(result) => created(context.as_ref(), result.release),
+        Ok(result) => created(context.as_ref(), map_release(result.release)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -124,7 +127,15 @@ async fn release_retrieve(
         Err(resp) => return resp,
     };
     match releases_retrieve(&state.release_service, &ctx, release_id).await {
-        Ok(result) => ok_item(context.as_ref(), result.release),
+        Ok(result) => match result.release {
+            Some(release) => ok_item(context.as_ref(), map_release(release)),
+            None => map_release_error(
+                context.as_ref(),
+                sdkwork_appstore_release_service::error::AppstoreServiceError::NotFound(
+                    "Release not found".to_string(),
+                ),
+            ),
+        },
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -148,7 +159,7 @@ async fn release_update(
     )
     .await
     {
-        Ok(result) => ok_item(context.as_ref(), result.release),
+        Ok(result) => ok_item(context.as_ref(), map_release(result.release)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -172,7 +183,7 @@ async fn release_notes_upsert(
     )
     .await
     {
-        Ok(result) => ok_item(context.as_ref(), result.localization),
+        Ok(result) => ok_item(context.as_ref(), map_release_note(result.localization)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -203,7 +214,7 @@ async fn release_artifacts_attach(
     )
     .await
     {
-        Ok(result) => created(context.as_ref(), result.artifact),
+        Ok(result) => created(context.as_ref(), map_release_artifact(result.artifact)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -229,7 +240,7 @@ async fn release_rollout_update(
     )
     .await
     {
-        Ok(result) => ok_item(context.as_ref(), result.rollout),
+        Ok(result) => ok_item(context.as_ref(), map_release_rollout(result.rollout)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -244,7 +255,7 @@ async fn release_retire(
         Err(resp) => return resp,
     };
     match releases_retire(&state.release_service, &ctx, release_id).await {
-        Ok(result) => ok_item(context.as_ref(), result.release),
+        Ok(result) => ok_item(context.as_ref(), map_release(result.release)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }

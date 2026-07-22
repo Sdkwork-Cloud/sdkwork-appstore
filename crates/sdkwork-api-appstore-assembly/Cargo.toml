@@ -40,10 +40,10 @@ tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
 uuid = { version = "1", features = ["v4"] }
+sdkwork-routes-appstore-catalog-app-api = { path = "../sdkwork-routes-appstore-catalog-app-api" }
+sdkwork-routes-appstore-catalog-backend-api = { path = "../sdkwork-routes-appstore-catalog-backend-api" }
+sdkwork-routes-appstore-catalog-open-api = { path = "../sdkwork-routes-appstore-catalog-open-api" }
 sdkwork-routes-automation-open-api = { path = "../sdkwork-routes-automation-open-api" }
-sdkwork-routes-catalog-app-api = { path = "../sdkwork-routes-catalog-app-api" }
-sdkwork-routes-catalog-backend-api = { path = "../sdkwork-routes-catalog-backend-api" }
-sdkwork-routes-catalog-open-api = { path = "../sdkwork-routes-catalog-open-api" }
 sdkwork-routes-compliance-app-api = { path = "../sdkwork-routes-compliance-app-api" }
 sdkwork-routes-library-app-api = { path = "../sdkwork-routes-library-app-api" }
 sdkwork-routes-listing-app-api = { path = "../sdkwork-routes-listing-app-api" }

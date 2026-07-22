@@ -49,12 +49,12 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         service_method: "list_wishlist_items",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.wishlist.items.add",
+        operation_id: "appstore.wishlist.items.create",
         handler_name: "wishlist_items_add",
         service_method: "add_wishlist_item",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.wishlist.items.remove",
+        operation_id: "appstore.wishlist.items.delete",
         handler_name: "wishlist_items_remove",
         service_method: "remove_wishlist_item",
     },

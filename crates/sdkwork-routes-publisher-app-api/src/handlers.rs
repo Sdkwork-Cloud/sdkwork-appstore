@@ -36,12 +36,12 @@ pub const ROUTE_HANDLER_PLANS: &[RouteHandlerPlan] = &[
         service_method: "list_publisher_members",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.publishers.members.invite",
+        operation_id: "appstore.publishers.members.create",
         handler_name: "publishers_members_invite",
         service_method: "invite_publisher_member",
     },
     RouteHandlerPlan {
-        operation_id: "appstore.publishers.verifications.submit",
+        operation_id: "appstore.publishers.verifications.create",
         handler_name: "publishers_verifications_submit",
         service_method: "submit_publisher_verification",
     },

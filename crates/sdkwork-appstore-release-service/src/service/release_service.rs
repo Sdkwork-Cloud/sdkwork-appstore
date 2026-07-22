@@ -425,7 +425,7 @@ where
         }
 
         Ok(UpsertReleaseNotesResult::upserted(
-            "appstore.releases.notes.upsert",
+            "appstore.releases.notes.update",
             notes,
         ))
     }
@@ -521,7 +521,7 @@ where
         self.repository.insert_artifact(context, &artifact).await?;
 
         Ok(AttachArtifactResult::attached(
-            "appstore.releases.artifacts.attach",
+            "appstore.releases.artifacts.create",
             artifact,
         ))
     }

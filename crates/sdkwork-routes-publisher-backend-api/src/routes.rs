@@ -1,18 +1,13 @@
 //! Route registration descriptors for sdkwork-routes-publisher-backend-api.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct RouteDefinition {
-    pub method: &'static str,
-    pub path: &'static str,
-    pub operation_id: &'static str,
-    pub handler: &'static str,
-    pub service_method: &'static str,
-}
+pub use sdkwork_appstore_routes_common::RouteDefinition;
+use sdkwork_web_core::RouteAuth;
 
 pub const ROUTES: &[RouteDefinition] = &[RouteDefinition {
     method: "POST",
     path: "/backend/v3/api/publishers/{publisherId}/verify",
     operation_id: "appstore.publishers.admin.verify",
+    auth: RouteAuth::DualToken,
     handler: "publishers_admin_verify",
     service_method: "publishers_admin_verify",
 }];

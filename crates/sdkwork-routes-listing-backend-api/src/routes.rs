@@ -1,19 +1,14 @@
 //! Route registration descriptors for sdkwork-routes-listing-backend-api.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct RouteDefinition {
-    pub method: &'static str,
-    pub path: &'static str,
-    pub operation_id: &'static str,
-    pub handler: &'static str,
-    pub service_method: &'static str,
-}
+pub use sdkwork_appstore_routes_common::RouteDefinition;
+use sdkwork_web_core::RouteAuth;
 
 pub const ROUTES: &[RouteDefinition] = &[
     RouteDefinition {
         method: "GET",
         path: "/backend/v3/api/listings",
         operation_id: "appstore.listings.admin.list",
+        auth: RouteAuth::DualToken,
         handler: "listings_admin_list",
         service_method: "listings_admin_list",
     },
@@ -21,6 +16,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "GET",
         path: "/backend/v3/api/listings/{listingId}",
         operation_id: "appstore.listings.admin.retrieve",
+        auth: RouteAuth::DualToken,
         handler: "listings_admin_retrieve",
         service_method: "listings_admin_retrieve",
     },
@@ -28,6 +24,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "PATCH",
         path: "/backend/v3/api/listings/{listingId}/visibility",
         operation_id: "appstore.listings.admin.visibility.update",
+        auth: RouteAuth::DualToken,
         handler: "listings_admin_visibility_update",
         service_method: "listings_admin_visibility_update",
     },

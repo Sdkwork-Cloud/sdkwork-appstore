@@ -8,7 +8,7 @@ info:
   x-sdkwork-api-authority: sdkwork-appstore-backend-api
   x-sdkwork-sdk-family: sdkwork-appstore-backend-sdk
   x-sdkwork-domain: appstore
-  x-sdkwork-standard-profile: sdkwork-appstore-backend-v3
+  x-sdkwork-standard-profile: sdkwork-v3
   x-sdkwork-audience: Store operators, platform administrators, trusted automation
 servers:
 - url: http://127.0.0.1:18091
@@ -182,7 +182,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /backend/v3/api/catalog/collections:
+  /backend/v3/api/appstore/catalog/collections:
     post:
       tags:
       - catalog
@@ -201,7 +201,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /backend/v3/api/catalog/collections/{collectionId}:
+  /backend/v3/api/appstore/catalog/collections/{collectionId}:
     patch:
       tags:
       - catalog
@@ -222,7 +222,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /backend/v3/api/catalog/collections/{collectionId}/items:
+  /backend/v3/api/appstore/catalog/collections/{collectionId}/items:
     put:
       tags:
       - catalog
@@ -257,7 +257,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /backend/v3/api/catalog/featured/{slotCode}:
+  /backend/v3/api/appstore/catalog/featured/{slotCode}:
     put:
       tags:
       - catalog
@@ -282,7 +282,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /backend/v3/api/catalog/categories:
+  /backend/v3/api/appstore/catalog/categories:
     post:
       tags:
       - catalog
@@ -301,7 +301,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
-  /backend/v3/api/catalog/categories/{categoryId}:
+  /backend/v3/api/appstore/catalog/categories/{categoryId}:
     patch:
       tags:
       - catalog
@@ -667,9 +667,9 @@ paths:
 components:
   securitySchemes:
     AuthToken:
-      type: apiKey
-      in: header
-      name: Auth-Token
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
     AccessToken:
       type: apiKey
       in: header

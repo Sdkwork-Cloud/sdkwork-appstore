@@ -478,7 +478,7 @@ where
             self.repository.update_wishlist_item(context, &item).await?;
 
             return Ok(AddWishlistItemResult::added(
-                "appstore.wishlist.items.add",
+                "appstore.wishlist.items.create",
                 item,
             ));
         }
@@ -497,7 +497,7 @@ where
         self.repository.insert_wishlist_item(context, &item).await?;
 
         Ok(AddWishlistItemResult::added(
-            "appstore.wishlist.items.add",
+            "appstore.wishlist.items.create",
             item,
         ))
     }
@@ -532,7 +532,7 @@ where
         self.repository.update_wishlist_item(context, &item).await?;
 
         Ok(RemoveWishlistItemResult::removed(
-            "appstore.wishlist.items.remove",
+            "appstore.wishlist.items.delete",
         ))
     }
 

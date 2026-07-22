@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-appstore-app-sdk",
+    "displayName": "SDKWork Appstore App SDK",
+    "version": "0.1.0",
+    "type": "sdk-family",
+    "root": "sdks/sdkwork-appstore-app-sdk",
+    "domain": "appstore",
+    "capability": "appstore-app-sdk",
+    "surface": "app-api",
+    "status": "standardized",
+    "languages": ["typescript"],
+    "generated": true,
+    "private": false,
+    "manifests": ["sdk-manifest.json"]
+  },
+  "canonicalSpecs": [
+    { "file": "SDK_MANIFEST_SPEC.md", "path": "../../../sdkwork-specs/SDK_MANIFEST_SPEC.md" },
+    { "file": "SDK_SPEC.md", "path": "../../../sdkwork-specs/SDK_SPEC.md" },
+    { "file": "SDK_WORKSPACE_GENERATION_SPEC.md", "path": "../../../sdkwork-specs/SDK_WORKSPACE_GENERATION_SPEC.md" },
+    { "file": "APP_SDK_INTEGRATION_SPEC.md", "path": "../../../sdkwork-specs/APP_SDK_INTEGRATION_SPEC.md" },
+    { "file": "API_SPEC.md", "path": "../../../sdkwork-specs/API_SPEC.md" },
+    { "file": "TEST_SPEC.md", "path": "../../../sdkwork-specs/TEST_SPEC.md" }
+  ],
+  "sdk": {
+    "family": "sdkwork-appstore-app-sdk",
+    "authority": "sdkwork-appstore-app-api",
+    "sdkOwner": "sdkwork-appstore",
+    "apiPrefix": "/app/v3/api",
+    "packageName": "@sdkwork/appstore-app-sdk",
+    "sdkName": "sdkwork-appstore-app-sdk",
+    "sdkType": "app",
+    "sdkSurface": "app",
+    "generatedOutput": "sdkwork-appstore-app-sdk-typescript/generated/server-openapi",
+    "standardProfile": "sdkwork-v3"
+  },
+  "contracts": {
+    "apiAuthority": {
+      "name": "sdkwork-appstore-app-api",
+      "owner": "sdkwork-appstore",
+      "prefix": "/app/v3/api",
+      "authorityOpenApi": "openapi/sdkwork-appstore-app-api.openapi.yaml",
+      "derivedOpenApi": ["openapi/sdkwork-appstore-app-api.sdkgen.yaml"]
+    },
+    "publicExports": ["sdkwork-appstore-app-sdk-typescript/src/index.ts"],
+    "runtimeEntrypoints": ["sdk-manifest.json"],
+    "routeManifest": null,
+    "sdkDependencies": ["sdkwork-iam-app-sdk", "sdkwork-comments-app-sdk", "sdkwork-drive-app-sdk"],
+    "dependencyApiExports": [],
+    "sdkClients": ["SdkworkAppstoreAppClient"],
+    "events": [],
+    "configKeys": ["sdk-manifest.json"]
+  },
+  "verification": {
+    "commands": [
+      "pnpm sdk:generate:check",
+      "node ../sdkwork-specs/tools/check-sdk-standard.mjs --workspace ."
+    ]
+  }
+}

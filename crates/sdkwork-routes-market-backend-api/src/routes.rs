@@ -1,19 +1,14 @@
 //! Route registration descriptors for sdkwork-routes-market-backend-api.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct RouteDefinition {
-    pub method: &'static str,
-    pub path: &'static str,
-    pub operation_id: &'static str,
-    pub handler: &'static str,
-    pub service_method: &'static str,
-}
+pub use sdkwork_appstore_routes_common::RouteDefinition;
+use sdkwork_web_core::RouteAuth;
 
 pub const ROUTES: &[RouteDefinition] = &[
     RouteDefinition {
         method: "GET",
         path: "/backend/v3/api/market_channels",
         operation_id: "appstore.marketChannels.list",
+        auth: RouteAuth::DualToken,
         handler: "market_channels_list",
         service_method: "market_channels_list",
     },
@@ -21,6 +16,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "POST",
         path: "/backend/v3/api/market_channels",
         operation_id: "appstore.marketChannels.create",
+        auth: RouteAuth::DualToken,
         handler: "market_channels_create",
         service_method: "market_channels_create",
     },
@@ -28,6 +24,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "PATCH",
         path: "/backend/v3/api/market_channels/{marketChannelId}",
         operation_id: "appstore.marketChannels.update",
+        auth: RouteAuth::DualToken,
         handler: "market_channels_update",
         service_method: "market_channels_update",
     },
@@ -35,6 +32,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "GET",
         path: "/backend/v3/api/market_releases",
         operation_id: "appstore.marketReleases.list",
+        auth: RouteAuth::DualToken,
         handler: "market_releases_list",
         service_method: "market_releases_list",
     },
@@ -42,6 +40,7 @@ pub const ROUTES: &[RouteDefinition] = &[
         method: "POST",
         path: "/backend/v3/api/market_releases/{marketReleaseId}/sync",
         operation_id: "appstore.marketReleases.sync",
+        auth: RouteAuth::DualToken,
         handler: "market_releases_sync",
         service_method: "market_releases_sync",
     },

@@ -6,6 +6,8 @@ packages:
   - "apps/sdkwork-appstore-pc"
   - "apps/sdkwork-appstore-pc/packages/*"
   - "sdks/sdkwork-appstore-app-sdk/sdkwork-appstore-app-sdk-typescript"
+  - "sdks/sdkwork-appstore-backend-sdk/sdkwork-appstore-backend-sdk-typescript"
+  - "sdks/sdkwork-appstore-sdk/sdkwork-appstore-sdk-typescript"
   - "../sdkwork-iam/apps/sdkwork-iam-common/packages/sdkwork-iam-contracts"
   - "../sdkwork-iam/apps/sdkwork-iam-common/packages/sdkwork-iam-runtime"
   - "../sdkwork-iam/apps/sdkwork-iam-common/packages/sdkwork-iam-sdk-ports"
@@ -29,6 +31,12 @@ packages:
   - "../sdkwork-app-topology"
   - "../sdkwork-drive/sdks/sdkwork-drive-app-sdk/sdkwork-drive-app-sdk-typescript"
   - "../sdkwork-clawrouter/sdks/clawrouter-app-sdk/clawrouter-app-sdk-typescript"
+  - "../sdkwork-account/sdks/sdkwork-account-app-sdk/sdkwork-account-app-sdk-typescript"
+  - "../sdkwork-catalog/sdks/sdkwork-catalog-app-sdk/sdkwork-catalog-app-sdk-typescript"
+  - "../sdkwork-membership/sdks/sdkwork-membership-app-sdk/sdkwork-membership-app-sdk-typescript"
+  - "../sdkwork-order/sdks/sdkwork-order-app-sdk/sdkwork-order-app-sdk-typescript"
+  - "../sdkwork-payment/sdks/sdkwork-payment-app-sdk/sdkwork-payment-app-sdk-typescript"
+  - "../sdkwork-promotion/sdks/sdkwork-promotion-app-sdk/sdkwork-promotion-app-sdk-typescript"
   - "../sdkwork-comments/sdks/sdkwork-comments-app-sdk/sdkwork-comments-app-sdk-typescript"
 
 catalog:

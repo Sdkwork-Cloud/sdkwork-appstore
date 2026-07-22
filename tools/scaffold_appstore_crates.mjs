@@ -20,9 +20,9 @@ const routeCrates = [
     surface: "app-api",
     prefix: "/app/v3/api",
     routes: [
-      ["GET", "/app/v3/api/catalog/home", "appstore.catalog.home.retrieve"],
-      ["GET", "/app/v3/api/catalog/categories", "appstore.catalog.categories.list"],
-      ["GET", "/app/v3/api/catalog/listings/search", "appstore.catalog.listings.search"],
+      ["GET", "/app/v3/api/appstore/catalog/home", "appstore.catalog.home.retrieve"],
+      ["GET", "/app/v3/api/appstore/catalog/categories", "appstore.catalog.categories.list"],
+      ["GET", "/app/v3/api/appstore/catalog/listings/search", "appstore.catalog.listings.list"],
     ],
   },
   {
@@ -42,7 +42,7 @@ const routeCrates = [
     routes: [
       ["POST", "/app/v3/api/listings/{listingId}/releases", "appstore.releases.create"],
       ["GET", "/app/v3/api/releases/{releaseId}", "appstore.releases.retrieve"],
-      ["POST", "/app/v3/api/releases/{releaseId}/artifacts", "appstore.releases.artifacts.attach"],
+      ["POST", "/app/v3/api/releases/{releaseId}/artifacts", "appstore.releases.artifacts.create"],
     ],
   },
   {
@@ -62,7 +62,7 @@ const routeCrates = [
     routes: [
       ["GET", "/app/v3/api/publishers/me", "appstore.publishers.me.retrieve"],
       ["POST", "/app/v3/api/publishers", "appstore.publishers.create"],
-      ["POST", "/app/v3/api/publishers/{publisherId}/verifications", "appstore.publishers.verifications.submit"],
+      ["POST", "/app/v3/api/publishers/{publisherId}/verifications", "appstore.publishers.verifications.create"],
     ],
   },
   {
@@ -90,9 +90,9 @@ const routeCrates = [
     surface: "backend-api",
     prefix: "/backend/v3/api",
     routes: [
-      ["POST", "/backend/v3/api/catalog/collections", "appstore.catalog.collections.create"],
-      ["PUT", "/backend/v3/api/catalog/collections/{collectionId}/items", "appstore.catalog.collections.items.upsert"],
-      ["PUT", "/backend/v3/api/catalog/featured/{slotCode}", "appstore.catalog.featured.upsert"],
+      ["POST", "/backend/v3/api/appstore/catalog/collections", "appstore.catalog.collections.create"],
+      ["PUT", "/backend/v3/api/appstore/catalog/collections/{collectionId}/items", "appstore.catalog.collections.items.update"],
+      ["PUT", "/backend/v3/api/appstore/catalog/featured/{slotCode}", "appstore.catalog.featured.update"],
     ],
   },
   {

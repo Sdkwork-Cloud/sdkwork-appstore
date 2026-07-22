@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-appstore-sdk",
+    "displayName": "SDKWork Appstore Open SDK",
+    "version": "0.1.0",
+    "type": "sdk-family",
+    "root": "sdks/sdkwork-appstore-sdk",
+    "domain": "appstore",
+    "capability": "appstore-open-sdk",
+    "surface": "open-api",
+    "status": "standardized",
+    "languages": ["typescript"],
+    "generated": true,
+    "private": false,
+    "manifests": ["sdk-manifest.json"]
+  },
+  "canonicalSpecs": [
+    { "file": "SDK_MANIFEST_SPEC.md", "path": "../../../sdkwork-specs/SDK_MANIFEST_SPEC.md" },
+    { "file": "SDK_SPEC.md", "path": "../../../sdkwork-specs/SDK_SPEC.md" },
+    { "file": "SDK_WORKSPACE_GENERATION_SPEC.md", "path": "../../../sdkwork-specs/SDK_WORKSPACE_GENERATION_SPEC.md" },
+    { "file": "API_SPEC.md", "path": "../../../sdkwork-specs/API_SPEC.md" },
+    { "file": "SECURITY_SPEC.md", "path": "../../../sdkwork-specs/SECURITY_SPEC.md" },
+    { "file": "TEST_SPEC.md", "path": "../../../sdkwork-specs/TEST_SPEC.md" }
+  ],
+  "sdk": {
+    "family": "sdkwork-appstore-sdk",
+    "authority": "sdkwork-appstore-open-api",
+    "sdkOwner": "sdkwork-appstore",
+    "apiPrefix": "/store/v3/api",
+    "packageName": "@sdkwork/appstore-sdk",
+    "sdkName": "sdkwork-appstore-sdk",
+    "sdkType": "custom",
+    "sdkSurface": "open",
+    "generatedOutput": "sdkwork-appstore-sdk-typescript/generated/server-openapi",
+    "standardProfile": "sdkwork-v3"
+  },
+  "contracts": {
+    "apiAuthority": {
+      "name": "sdkwork-appstore-open-api",
+      "owner": "sdkwork-appstore",
+      "prefix": "/store/v3/api",
+      "authorityOpenApi": "openapi/sdkwork-appstore-open-api.openapi.yaml",
+      "derivedOpenApi": ["openapi/sdkwork-appstore-open-api.sdkgen.yaml"]
+    },
+    "publicExports": ["sdkwork-appstore-sdk-typescript/src/index.ts"],
+    "runtimeEntrypoints": ["sdk-manifest.json"],
+    "routeManifest": null,
+    "sdkDependencies": ["sdkwork-drive-sdk"],
+    "dependencyApiExports": [],
+    "sdkClients": ["SdkworkAppstoreOpenClient"],
+    "credentialMode": "api-key",
+    "events": [],
+    "configKeys": ["sdk-manifest.json"]
+  },
+  "verification": {
+    "commands": [
+      "pnpm sdk:generate:check",
+      "node ../sdkwork-specs/tools/check-sdk-standard.mjs --workspace ."
+    ]
+  }
+}

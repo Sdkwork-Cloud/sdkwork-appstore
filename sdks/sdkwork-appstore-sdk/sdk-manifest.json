@@ -1,23 +1,47 @@
 {
   "schemaVersion": 1,
+  "sdkFamily": "sdkwork-appstore-sdk",
   "sdkName": "sdkwork-appstore-sdk",
+  "packageName": "@sdkwork/appstore-sdk",
+  "transportPackageName": "sdkwork-appstore-sdk-generated-typescript",
   "sdkOwner": "sdkwork-appstore",
   "apiAuthority": "sdkwork-appstore-open-api",
-  "sdkFamily": "sdkwork-appstore-sdk",
   "sdkType": "custom",
+  "sdkSurface": "open",
+  "language": "typescript",
   "apiPrefix": "/store/v3/api",
-  "generationInputSpec": "../../apis/open-api/store/openapi.yaml",
-  "generatedPackages": {},
+  "authoritySpec": "openapi/sdkwork-appstore-open-api.openapi.yaml",
+  "generationInputSpec": "openapi/sdkwork-appstore-open-api.sdkgen.yaml",
+  "derivedSpecs": {
+    "default": "openapi/sdkwork-appstore-open-api.sdkgen.yaml"
+  },
+  "generatedOutput": "sdkwork-appstore-sdk-typescript/generated/server-openapi",
+  "standardProfile": "sdkwork-v3",
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 6,
   "sdkDependencies": [
     "sdkwork-drive-sdk"
   ],
   "dependencyApiExports": [],
   "generatorName": "sdkwork-sdk-generator",
-  "baseUrl": "http://127.0.0.1:18092",
-  "standardProfile": "sdkwork-appstore-open-v3",
-  "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 6,
-  "managedBy": "tools/appstore_sdk_generate.mjs",
-  "packageName": "@sdkwork/appstore-sdk",
-  "transportPackageName": "sdkwork-appstore-sdk-generated-typescript"
+  "managedBy": "scripts/generate-appstore-sdk.mjs",
+  "typescript": {
+    "composedRoot": "sdkwork-appstore-sdk-typescript",
+    "composedEntry": "sdkwork-appstore-sdk-typescript/src/index.ts",
+    "transportRoot": "sdkwork-appstore-sdk-typescript/generated/server-openapi",
+    "transportEntry": "sdkwork-appstore-sdk-typescript/generated/server-openapi/src/index.ts"
+  },
+  "languages": [
+    {
+      "language": "typescript",
+      "workspace": "sdkwork-appstore-sdk-typescript",
+      "generationState": "materialized",
+      "releaseState": "not_published",
+      "generatedPath": "sdkwork-appstore-sdk-typescript/generated/server-openapi",
+      "manifestPath": "sdkwork-appstore-sdk-typescript/generated/server-openapi/package.json",
+      "version": "0.1.0",
+      "consumerPackageName": "@sdkwork/appstore-sdk",
+      "transportPackageName": "sdkwork-appstore-sdk-generated-typescript"
+    }
+  ]
 }

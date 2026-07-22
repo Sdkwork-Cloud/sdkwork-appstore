@@ -604,7 +604,7 @@ where
             .await?;
 
         Ok(BootstrapPublisherAppResult::created(
-            "appstore.publishers.me.apps.bootstrap",
+            "appstore.publishers.me.apps.create",
             app,
             listing,
         ))
@@ -749,7 +749,7 @@ where
             .await?;
 
         Ok(UpsertListingLocalizationResult::upserted(
-            "appstore.listings.localization.upsert",
+            "appstore.listings.localization.update",
             localization,
         ))
     }
@@ -846,7 +846,7 @@ where
         self.repository.insert_media(context, &media).await?;
 
         Ok(AttachListingMediaResult::attached(
-            "appstore.listings.media.attach",
+            "appstore.listings.media.create",
             media,
         ))
     }
@@ -891,7 +891,7 @@ where
             .await?;
 
         Ok(RemoveListingMediaResult::removed(
-            "appstore.listings.media.remove",
+            "appstore.listings.media.delete",
         ))
     }
 
@@ -949,7 +949,7 @@ where
         self.repository.update_listing(context, &listing).await?;
 
         Ok(BindListingCategoriesResult::bound(
-            "appstore.listings.categories.bind",
+            "appstore.listings.categories.update",
             listing,
             bindings,
         ))

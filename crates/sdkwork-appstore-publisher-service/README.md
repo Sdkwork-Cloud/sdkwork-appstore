@@ -18,6 +18,6 @@ All operations implemented with async hexagonal architecture:
 | appstore.publishers.create | publishers_create |
 | appstore.publishers.update | publishers_update |
 | appstore.publishers.members.list | publishers_members_list |
-| appstore.publishers.members.invite | publishers_members_invite |
-| appstore.publishers.verifications.submit | publishers_verifications_submit |
+| appstore.publishers.members.create | publishers_members_invite |
+| appstore.publishers.verifications.create | publishers_verifications_submit |
 | appstore.publishers.admin.verify | publishers_admin_verify |

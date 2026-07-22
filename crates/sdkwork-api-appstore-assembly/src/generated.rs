@@ -4,10 +4,10 @@ pub const ROUTE_CRATE_COUNT: usize = 16;
 
 #[allow(dead_code)]
 pub const ROUTE_CRATE_PACKAGES: &[&str] = &[
+    "sdkwork-routes-appstore-catalog-app-api",
+    "sdkwork-routes-appstore-catalog-backend-api",
+    "sdkwork-routes-appstore-catalog-open-api",
     "sdkwork-routes-automation-open-api",
-    "sdkwork-routes-catalog-app-api",
-    "sdkwork-routes-catalog-backend-api",
-    "sdkwork-routes-catalog-open-api",
     "sdkwork-routes-compliance-app-api",
     "sdkwork-routes-library-app-api",
     "sdkwork-routes-listing-app-api",

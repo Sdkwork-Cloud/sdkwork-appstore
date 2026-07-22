@@ -954,7 +954,7 @@ where
         }
 
         Ok(CollectionItemsUpsertResult::upserted(
-            "appstore.catalog.collections.items.upsert",
+            "appstore.catalog.collections.items.update",
             items,
         ))
     }
@@ -1040,7 +1040,7 @@ where
         self.repository.upsert_featured_slot(context, &slot).await?;
 
         Ok(FeaturedUpsertResult::upserted(
-            "appstore.catalog.featured.upsert",
+            "appstore.catalog.featured.update",
             slot,
         ))
     }
@@ -1173,7 +1173,7 @@ where
         };
 
         Ok(ListingsSearchResult::new(
-            "appstore.catalog.listings.search",
+            "appstore.catalog.listings.list",
             listings,
             next_cursor,
             has_more,
@@ -1529,7 +1529,7 @@ where
             .await?;
 
         Ok(SearchHistoryUpsertResult::upserted(
-            "appstore.catalog.search.history.upsert",
+            "appstore.catalog.search.history.update",
             entry,
         ))
     }
@@ -1546,7 +1546,7 @@ where
             .await?;
 
         Ok(SearchHistoryClearResult::cleared(
-            "appstore.catalog.search.history.clear",
+            "appstore.catalog.search.history.delete",
         ))
     }
 

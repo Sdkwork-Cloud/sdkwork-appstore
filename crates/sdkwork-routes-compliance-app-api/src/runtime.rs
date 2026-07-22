@@ -2,6 +2,7 @@ use crate::handlers::{
     compliance_iap_items_list, compliance_permissions_update, compliance_profile_retrieve,
     compliance_profile_update,
 };
+use crate::mapper::response::{map_compliance_permission, map_compliance_profile};
 use axum::extract::{Extension, Json, Path, Query, State};
 use axum::response::Response;
 use axum::routing::{get, put};
@@ -55,7 +56,15 @@ async fn compliance_profile_retrieve_handler(
         Err(resp) => return resp,
     };
     match compliance_profile_retrieve(&state.compliance_service, &ctx, listing_id).await {
-        Ok(result) => ok_item(context.as_ref(), result.profile),
+        Ok(result) => match result.profile {
+            Some(profile) => ok_item(context.as_ref(), map_compliance_profile(profile)),
+            None => map_compliance_error(
+                context.as_ref(),
+                sdkwork_appstore_compliance_service::error::AppstoreServiceError::NotFound(
+                    "Compliance profile not found".to_string(),
+                ),
+            ),
+        },
         Err(error) => map_compliance_error(context.as_ref(), error),
     }
 }
@@ -81,7 +90,7 @@ async fn compliance_profile_update_handler(
     )
     .await
     {
-        Ok(result) => ok_item(context.as_ref(), result.profile),
+        Ok(result) => ok_item(context.as_ref(), map_compliance_profile(result.profile)),
         Err(error) => map_compliance_error(context.as_ref(), error),
     }
 }
@@ -104,7 +113,16 @@ async fn compliance_permissions_update_handler(
     )
     .await
     {
-        Ok(result) => ok_page(context.as_ref(), result.disclosures, None, false),
+        Ok(result) => ok_page(
+            context.as_ref(),
+            result
+                .disclosures
+                .into_iter()
+                .map(map_compliance_permission)
+                .collect::<Vec<_>>(),
+            None,
+            false,
+        ),
         Err(error) => map_compliance_error(context.as_ref(), error),
     }
 }

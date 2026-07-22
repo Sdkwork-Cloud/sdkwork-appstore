@@ -11,6 +11,7 @@ use sdkwork_web_core::WebRequestContext;
 use crate::handlers::{
     artifacts_resolve_download, releases_check_update, releases_public_retrieve,
 };
+use crate::mapper::response::{map_check_update, map_public_release, map_resolve_download};
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -67,16 +68,7 @@ async fn releases_check_update_handler(
     )
     .await
     {
-        Ok(result) => ok_item(
-            context.as_ref(),
-            serde_json::json!({
-                "updateAvailable": result.update_available,
-                "releaseId": result.release_id,
-                "versionName": result.version_name,
-                "versionCode": result.version_code,
-                "artifactId": result.artifact_id,
-            }),
-        ),
+        Ok(result) => ok_item(context.as_ref(), map_check_update(result)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -96,15 +88,7 @@ async fn artifacts_resolve_download_handler(
     )
     .await
     {
-        Ok(result) => ok_item(
-            context.as_ref(),
-            serde_json::json!({
-                "downloadUrl": result.download_url,
-                "expiresAt": result.expires_at,
-                "checksumSha256": result.checksum_sha256,
-                "fileSizeBytes": result.file_size_bytes,
-            }),
-        ),
+        Ok(result) => ok_item(context.as_ref(), map_resolve_download(result)),
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }
@@ -116,7 +100,15 @@ async fn public_release_retrieve(
 ) -> Response {
     let ctx = to_release_context_public(context.as_ref());
     match releases_public_retrieve(&state.release_service, &ctx, release_id).await {
-        Ok(result) => ok_item(context.as_ref(), result.release),
+        Ok(result) => match result.release {
+            Some(release) => ok_item(context.as_ref(), map_public_release(release)),
+            None => map_release_error(
+                context.as_ref(),
+                sdkwork_appstore_release_service::error::AppstoreServiceError::NotFound(
+                    "Public release not found".to_string(),
+                ),
+            ),
+        },
         Err(error) => map_release_error(context.as_ref(), error),
     }
 }

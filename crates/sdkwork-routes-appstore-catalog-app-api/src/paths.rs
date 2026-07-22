@@ -1,0 +1,7 @@
+//! Canonical path constants for catalog app-api.
+
+pub const CAPABILITY: &str = "catalog";
+pub const SURFACE: &str = "app-api";
+pub const PREFIX: &str = "/app/v3/api/appstore/catalog";
+pub const API_AUTHORITY: &str = "sdkwork-appstore-app-api";
+pub const SDK_FAMILY: &str = "sdkwork-appstore-app-sdk";

@@ -5,6 +5,7 @@ export {
 } from './pricing';
 export {
   beginPaidListingCheckout,
+  type PaidCheckoutClient,
   type PaidCheckoutResult,
   type PaidCheckoutStatus,
   type PaidListingCheckoutContext,
