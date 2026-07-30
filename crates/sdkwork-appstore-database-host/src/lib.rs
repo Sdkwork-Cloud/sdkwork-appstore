@@ -26,6 +26,9 @@ impl AppstoreDatabaseHost {
 pub async fn bootstrap_appstore_database(
     pool: DatabasePool,
 ) -> Result<AppstoreDatabaseHost, String> {
+    if pool.as_postgres().is_none() {
+        return Err("appstore authoritative persistence requires PostgreSQL".to_string());
+    }
     let app_root = resolve_app_root();
     let module = Arc::new(
         DefaultDatabaseModule::from_app_root(&app_root)

@@ -29,7 +29,7 @@
     "dependencyApiExports": [],
     "dependencyApiSurfaces": [],
     "events": [],
-    "configKeys": []
+    "configKeys": ["SDKWORK_DATABASE_ENGINE", "SDKWORK_DATABASE_URL", "SDKWORK_DATABASE_SCHEMA"]
   },
   "verification": {
     "commands": ["cargo check -p sdkwork-appstore-service-host"]

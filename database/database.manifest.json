@@ -1,21 +1,22 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "kind": "sdkwork.database.module",
+  "databaseRole": "authoritative-server",
   "moduleId": "appstore",
   "serviceCode": "APPSTORE",
   "displayName": "APPSTORE Database",
   "owner": "appstore-platform",
   "engines": [
-    "postgres",
-    "sqlite"
+    "postgres"
   ],
-  "defaultEngine": "sqlite",
+  "defaultEngine": "postgres",
   "tablePrefix": "appstore_",
   "contractVersion": "1.0.0",
   "baselineStrategy": "baseline-plus-migrations",
+  "baselineAnchorTable": "appstore_idempotency_key",
   "modules": [],
   "lifecycle": {
-    "autoMigrate": true,
+    "autoMigrate": false,
     "seedOnBoot": false,
     "defaultSeedLocale": "zh-CN",
     "defaultSeedProfile": "standard",

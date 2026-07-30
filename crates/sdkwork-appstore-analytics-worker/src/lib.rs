@@ -15,13 +15,13 @@ use tracing::{error, info};
 
 pub async fn run_worker(config: WorkerConfig) -> Result<(), String> {
     let host = sdkwork_appstore_database_host::bootstrap_appstore_database_from_env().await?;
-    let sqlite_pool = host
-        .pool()
-        .as_sqlite()
-        .ok_or_else(|| "analytics worker requires SQLite pool in current deployment".to_string())?
-        .clone();
+    if host.pool().as_postgres().is_none() {
+        return Err("analytics worker authoritative persistence requires PostgreSQL".to_string());
+    }
+    let database =
+        sdkwork_appstore_repository_sqlx::AppstoreSqlxDb::from_database_pool(host.pool())?;
 
-    let repos = Arc::new(WorkerRepositories::new(sqlite_pool));
+    let repos = Arc::new(WorkerRepositories::new(database));
     let tenant_id = config.tenant_id.clone();
 
     let metrics_job = ListingMetricsJob::new(repos.projection.clone());

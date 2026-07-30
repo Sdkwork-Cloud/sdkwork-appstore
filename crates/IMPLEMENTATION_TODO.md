@@ -57,15 +57,15 @@ cargo test --workspace
 
 Last verified: 2026-07-07 — PC/H5 `pnpm build`, library uninstall/wishlist + H5 report flow, governance checks.
 
-## Database (SQLite + PostgreSQL)
+## Database (PostgreSQL Authority)
 
 | Item | Status |
 | --- | --- |
 | Dialect SQL adaptation | Implemented (`repository-sqlx/db/dialect.rs`) |
 | Unified `AppstoreSqlxDb` pool | Implemented |
 | `BindValue` reference / optional binds | Implemented (Postgres + SQLite) |
-| Gateway `APPSTORE_DATABASE_URL` | SQLite default; PostgreSQL via `postgres://` URL |
-| PostgreSQL CI matrix | Optional follow-up |
+| Gateway `SDKWORK_DATABASE_*` | Canonical workspace PostgreSQL profile; SQLite server fallback removed |
+| PostgreSQL CI matrix | Required release evidence |
 
 ## Remaining Production Items
 

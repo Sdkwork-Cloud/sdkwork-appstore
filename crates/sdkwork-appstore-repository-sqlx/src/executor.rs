@@ -19,8 +19,9 @@ impl AppstoreExecuteResult {
     }
 }
 
+#[doc(hidden)]
 #[derive(Clone)]
-pub(crate) enum SqlBind {
+pub enum SqlBind {
     Text(String),
     I32(i32),
     I64(i64),
@@ -107,13 +108,13 @@ pub enum AppstoreTransaction<'a> {
     Postgres(sqlx::Transaction<'a, Postgres>),
 }
 
-pub(crate) struct AppstoreQuery {
+pub struct AppstoreQuery {
     db: AppstoreSqlxDb,
     sql: String,
     binds: Vec<SqlBind>,
 }
 
-pub(crate) struct AppstoreQueryAs<O> {
+pub struct AppstoreQueryAs<O> {
     _db: AppstoreSqlxDb,
     sql: String,
     binds: Vec<SqlBind>,
@@ -121,7 +122,7 @@ pub(crate) struct AppstoreQueryAs<O> {
 }
 
 impl AppstoreSqlxDb {
-    pub(crate) fn query(&self, template: &str) -> AppstoreQuery {
+    pub fn query(&self, template: &str) -> AppstoreQuery {
         AppstoreQuery {
             db: self.clone(),
             sql: template.to_string(),
@@ -129,7 +130,7 @@ impl AppstoreSqlxDb {
         }
     }
 
-    pub(crate) fn query_as<O>(&self, template: &str) -> AppstoreQueryAs<O> {
+    pub fn query_as<O>(&self, template: &str) -> AppstoreQueryAs<O> {
         AppstoreQueryAs {
             _db: self.clone(),
             sql: template.to_string(),
@@ -162,7 +163,7 @@ impl AppstoreTransaction<'_> {
 }
 
 impl AppstoreQuery {
-    pub(crate) fn bind(mut self, value: impl BindValue) -> Self {
+    pub fn bind(mut self, value: impl BindValue) -> Self {
         self.binds.push(value.into_sql_bind());
         self
     }
@@ -235,7 +236,7 @@ impl AppstoreQuery {
 }
 
 impl<O> AppstoreQueryAs<O> {
-    pub(crate) fn bind(mut self, value: impl BindValue) -> Self {
+    pub fn bind(mut self, value: impl BindValue) -> Self {
         self.binds.push(value.into_sql_bind());
         self
     }
@@ -321,7 +322,7 @@ impl<O> AppstoreQueryAs<O> {
     }
 }
 
-pub(crate) trait BindValue {
+pub trait BindValue {
     fn into_sql_bind(self) -> SqlBind;
 }
 

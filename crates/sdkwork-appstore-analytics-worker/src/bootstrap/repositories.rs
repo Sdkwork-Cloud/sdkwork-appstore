@@ -1,4 +1,4 @@
-use sqlx::{Pool, Sqlite};
+use sdkwork_appstore_repository_sqlx::AppstoreSqlxDb;
 
 use crate::projection::AnalyticsProjectionRepository;
 
@@ -7,9 +7,9 @@ pub struct WorkerRepositories {
 }
 
 impl WorkerRepositories {
-    pub fn new(pool: Pool<Sqlite>) -> Self {
+    pub fn new(database: AppstoreSqlxDb) -> Self {
         Self {
-            projection: AnalyticsProjectionRepository::new(pool),
+            projection: AnalyticsProjectionRepository::new(database),
         }
     }
 }

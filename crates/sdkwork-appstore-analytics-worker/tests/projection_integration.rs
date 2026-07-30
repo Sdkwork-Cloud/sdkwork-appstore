@@ -2,6 +2,7 @@ use chrono::{NaiveDate, Utc};
 use sqlx::SqlitePool;
 
 use sdkwork_appstore_analytics_worker::projection::AnalyticsProjectionRepository;
+use sdkwork_appstore_repository_sqlx::AppstoreSqlxDb;
 
 const FOUNDATION_SQL: &str =
     include_str!("../../../specs/database/migrations/0001_appstore_foundation.sql");
@@ -24,7 +25,7 @@ async fn setup_db() -> SqlitePool {
 #[tokio::test]
 async fn project_listing_metrics_from_install_events() {
     let pool = setup_db().await;
-    let repo = AnalyticsProjectionRepository::new(pool.clone());
+    let repo = AnalyticsProjectionRepository::new(AppstoreSqlxDb::sqlite(pool.clone()));
     let tenant_id = "100001";
     let listing_id = "listing-1";
     let now = Utc::now().to_rfc3339();
@@ -66,7 +67,7 @@ async fn project_listing_metrics_from_install_events() {
 #[tokio::test]
 async fn project_trending_terms_from_search_history() {
     let pool = setup_db().await;
-    let repo = AnalyticsProjectionRepository::new(pool.clone());
+    let repo = AnalyticsProjectionRepository::new(AppstoreSqlxDb::sqlite(pool.clone()));
     let tenant_id = "100001";
     let now = Utc::now().to_rfc3339();
 

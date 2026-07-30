@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppstoreRuntimeConfig {
-    pub database_url: String,
     pub app_api_port: u16,
     pub backend_api_port: u16,
     pub open_api_port: u16,
@@ -17,8 +16,6 @@ pub struct AppstoreRuntimeConfig {
 impl AppstoreRuntimeConfig {
     pub fn from_env() -> Self {
         Self {
-            database_url: std::env::var("APPSTORE_DATABASE_URL")
-                .unwrap_or_else(|_| "sqlite:appstore.db".to_string()),
             app_api_port: std::env::var("APPSTORE_APP_API_PORT")
                 .ok()
                 .and_then(|p| p.parse().ok())
