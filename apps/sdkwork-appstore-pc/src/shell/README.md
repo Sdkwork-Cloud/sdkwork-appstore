@@ -1,3 +1,0 @@
-# Shell
-
-Shell composition.

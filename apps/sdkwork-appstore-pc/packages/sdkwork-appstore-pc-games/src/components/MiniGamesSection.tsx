@@ -1,0 +1,24 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Flame } from 'lucide-react';
+import { AppItem } from '../../../../src/types';
+import { MiniGamesCarousel } from '../../../../src/components/discover/MiniGamesCarousel';
+
+interface MiniGamesSectionProps {
+  games: AppItem[];
+}
+
+export const MiniGamesSection: React.FC<MiniGamesSectionProps> = ({ games }) => {
+  const { t } = useTranslation();
+  if (games.length === 0) return null;
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-gray-100">
+        <Flame className="w-4 h-4 text-amber-500" />
+        <span>{t('games.sections.miniGames', '热门微信小游戏')}</span>
+      </div>
+      <MiniGamesCarousel apps={games} />
+    </section>
+  );
+};

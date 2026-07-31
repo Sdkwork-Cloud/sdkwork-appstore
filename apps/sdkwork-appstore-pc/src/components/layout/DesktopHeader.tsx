@@ -1,0 +1,65 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { HeaderSearchBar } from './HeaderSearchBar';
+import { HeaderUserBadge } from './HeaderUserBadge';
+import { HeaderWindowControls } from './HeaderWindowControls';
+import { HeaderUpdateNav } from './HeaderUpdateNav';
+import { HeaderThemeToggle } from './HeaderThemeToggle';
+import { HeaderLanguageToggle } from './HeaderLanguageToggle';
+
+interface DesktopHeaderProps {
+  pendingUpdatesCount?: number;
+}
+
+export function DesktopHeader({ pendingUpdatesCount = 2 }: DesktopHeaderProps) {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate('/search');
+    }
+  };
+
+  return (
+    <header className="hidden md:flex h-14 items-center justify-between px-6 border-b border-gray-200 dark:border-[#22252c] bg-white/95 dark:bg-[#181a20]/95 backdrop-blur-md shrink-0 transition-colors duration-200 z-20">
+      {/* Brand / Title or Left Indicator */}
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-semibold tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+          Sdkwork Store
+        </span>
+      </div>
+
+      {/* Sub-component: Centered Search Bar */}
+      <HeaderSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        onSubmit={handleSearchSubmit}
+      />
+
+      {/* Right User & Window Actions */}
+      <div className="flex items-center gap-3">
+        {/* Sub-component: Language Switcher */}
+        <HeaderLanguageToggle />
+
+        {/* Sub-component: Updates Link */}
+        <HeaderUpdateNav pendingUpdatesCount={pendingUpdatesCount} />
+
+        {/* Sub-component: Theme Toggle */}
+        <HeaderThemeToggle />
+
+        {/* Sub-component: User Account Avatar */}
+        <HeaderUserBadge initials="CL" />
+
+        {/* Sub-component: Desktop Window Controls (_ [] X) */}
+        <HeaderWindowControls />
+      </div>
+    </header>
+  );
+}
+
+

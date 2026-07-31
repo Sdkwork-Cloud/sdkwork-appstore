@@ -1,0 +1,18 @@
+{
+  "productName": "Nexus App Store",
+  "version": "1.0.0",
+  "identifier": "com.sdkwork.appstore.pc",
+  "build": {
+    "frontendDist": "../../../dist",
+    "devUrl": "http://localhost:3000"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Nexus App Store",
+        "width": 1280,
+        "height": 800
+      }
+    ]
+  }
+}

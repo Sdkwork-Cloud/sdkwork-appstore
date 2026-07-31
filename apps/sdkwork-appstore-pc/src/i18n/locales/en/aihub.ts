@@ -1,0 +1,124 @@
+export const aihub = {
+  header: {
+    badge: 'AI Hub & Sandbox',
+    title: 'AI Assistants & Generative Toolkit',
+    subtitle: 'Explore state-of-the-art AI agents, prompt presets, and test real-time AI responses directly in the client sandbox.',
+    chatAssistant: 'AI Chat Assistant',
+    knowledgeCopilot: 'Personal Knowledge Copilot'
+  },
+  sandbox: {
+    title: 'AI Sandbox Assistant',
+    subtitle: 'Select model and preset prompts to evaluate live AI execution',
+    modelSelect: 'Select AI Model',
+    presetSelect: 'Select Preset Prompt',
+    inputPlaceholder: 'Enter instructions or questions for the AI assistant...',
+    send: 'Send Command',
+    generating: 'Generating response...',
+    responseTitle: 'AI Sandbox Output',
+    modelBadge: 'Engine',
+    tokens: 'Tokens Used',
+    latency: 'Latency',
+    confidence: 'Confidence',
+    copyResponse: 'Copy Response',
+    clearHistory: 'Clear History',
+    presetsLabel: 'Presets:',
+    usedModel: 'Model',
+    latencyLabel: 'Latency',
+    testEngine: 'Test Engine:',
+    errorText: '[Error]: Model inference failed, please try again later.',
+    testingWith: 'Testing in sandbox with {{name}}',
+    resetContext: 'Reset Expert Context',
+    presets: {
+      p1: 'Recommend an AI coding tool for TypeScript development',
+      p2: 'Summarize 100-page PDF research papers and reports',
+      p3: 'Real-time audiovisual multimodal analysis & screen assistant',
+      p4: 'Design high-performance cloud-native microservices & Docker configs'
+    }
+  },
+  gridTitle: 'Featured AI Native Applications',
+  gridTitleWithCount: 'Featured AI Tools ({{count}})',
+  tabs: {
+    sandbox: 'AI Agents & Sandbox',
+    experts: 'AI Experts Roster',
+    tools: 'Featured AI Tools'
+  },
+  experts: {
+    searchPlaceholder: 'Search expert title, nickname or description...',
+    myExperts: 'My Experts',
+    customExpert: 'Custom Expert',
+    featuredScenarios: 'Featured Scenarios',
+    rosterTitle: 'AI Expert Marketplace',
+    rosterSubtitle: 'Select domain experts with built-in system prompts for instant task execution',
+    scenarioCount: '{{count}} Experts Available',
+    sort: {
+      comprehensive: 'Comprehensive',
+      hottest: 'Hottest',
+      newest: 'Newest'
+    },
+    filterTags: {
+      all: 'All',
+      opc: 'OPC: Solo Co.',
+      tencent: 'Tencent Experts',
+      productDesign: 'Product Design',
+      engineering: 'Tech Engineering',
+      finance: 'Financial Invest',
+      globalDev: 'Global Growth',
+      education: 'Education',
+      gaming: 'Game Space',
+      dataIntelligence: 'Data Intelligence',
+      marketing: 'Marketing Growth',
+      contentCreation: 'Content Creation',
+      salesBiz: 'Sales Business',
+      operations: 'HR & Ops',
+      quality: 'Project Quality',
+      legalSecurity: 'Legal & Compliance',
+      consultant: 'Industry Consultant'
+    },
+    card: {
+      chatWithExpert: 'Chat with Expert',
+      testInSandbox: 'Test in Sandbox',
+      addedToMine: 'Added',
+      addToMine: '+ My Experts',
+      official: 'Official',
+      featured: 'Featured'
+    },
+    modal: {
+      title: 'Expert Assistant Details',
+      systemPrompt: 'System Instructions (Prompt)',
+      testPromptPlaceholder: 'Ask this expert a question or give instructions...',
+      sendToExpert: 'Execute via Sandbox',
+      copyPrompt: 'Copy System Prompt',
+      promptCopied: 'Prompt Copied!',
+      close: 'Close'
+    },
+    customModal: {
+      title: 'Create Custom AI Expert',
+      subtitle: 'Configure custom title, System Prompt, and skill tags',
+      nameLabel: 'Expert Title / Name *',
+      namePlaceholder: 'e.g. Quantitative Trading Expert / React Refactoring Master',
+      nicknameLabel: 'Author / Nickname',
+      nicknamePlaceholder: 'e.g. DevGeek',
+      categoryLabel: 'Category',
+      descLabel: 'Role Description *',
+      descPlaceholder: 'Specializes in specific tech to solve key problems...',
+      promptLabel: 'System Prompt',
+      promptPlaceholder: 'You are a senior expert, please assist users following these standards...',
+      tagsLabel: 'Skill Tags (Comma separated)',
+      tagsPlaceholder: 'e.g. High-frequency trading, Backtesting, Python',
+      cancel: 'Cancel',
+      create: 'Create Expert'
+    },
+    scenarios: {
+      content: 'Content Creation',
+      invest: 'Investment Analysis',
+      legal: 'Legal Consulting',
+      business: 'Small Business',
+      ecom: 'E-commerce Ops',
+      data: 'Data Analysis',
+      doc: 'Professional Docs',
+      design: 'Product Design',
+      dev: 'Engineering Dev'
+    }
+  }
+};
+

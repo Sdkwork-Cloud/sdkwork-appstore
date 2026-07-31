@@ -1,0 +1,11 @@
+export { default as DiscoverPage } from '@/src/pages/Discover';
+export { DiscoverHeader } from '@/src/components/discover/DiscoverHeader';
+export { AppSection } from '@/src/components/discover/AppSection';
+export { EssentialAppsGrid } from '@/src/components/discover/EssentialAppsGrid';
+export { FeaturedTodayCard } from '@/src/components/discover/FeaturedTodayCard';
+export { CollectionGridSection } from '@/src/components/discover/CollectionGridSection';
+export { MiniGamesCarousel } from '@/src/components/discover/MiniGamesCarousel';
+export { MiniGameCard } from '@/src/components/discover/MiniGameCard';
+export { HandheldGamesGrid } from '@/src/components/discover/HandheldGamesGrid';
+export { HandheldGameCard } from '@/src/components/discover/HandheldGameCard';
+export * from './routes';

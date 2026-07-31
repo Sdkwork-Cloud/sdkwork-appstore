@@ -1,3 +1,2 @@
-# SDKWork Plugins
-
-Local plugins for the App Store PC application.
+# Application Plugins
+Contains repository and application runtime plugins.

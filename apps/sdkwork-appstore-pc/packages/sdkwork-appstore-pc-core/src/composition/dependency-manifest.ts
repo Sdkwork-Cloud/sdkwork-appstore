@@ -1,1 +1,13 @@
-export const sdkworkComponentSpecPath = "../../../specs/component.spec.json" as const;
+export const dependencyManifest = {
+  applicationCode: "appstore",
+  version: "1.0.0",
+  capabilities: [
+    "discover",
+    "charts",
+    "search",
+    "updates",
+    "app-detail",
+    "console-settings",
+    "admin-monitor"
+  ]
+};

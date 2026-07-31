@@ -1,58 +1,13 @@
-import type { RouteObject } from 'react-router-dom';
+import { discoverRoute } from '@sdkwork/appstore-pc-discover';
+import { chartsRoute } from '@sdkwork/appstore-pc-charts';
+import { searchRoute } from '@sdkwork/appstore-pc-search';
+import { updatesRoute } from '@sdkwork/appstore-pc-updates';
+import { appDetailRoute } from '@sdkwork/appstore-pc-app-detail';
 
-export interface AppRoute {
-  path: string;
-  component: React.LazyExoticComponent<React.ComponentType>;
-  meta?: {
-    title?: string;
-    requiresAuth?: boolean;
-    capability?: string;
-  };
-}
-
-export function createAppRoutes(): RouteObject[] {
-  return [
-    {
-      path: '/',
-      lazy: () =>
-        import('../pages/HomePage').then((module) => ({
-          Component: module.HomePage,
-        })),
-    },
-    {
-      path: '/category/:categoryId',
-      lazy: () =>
-        import('../pages/CategoryPage').then((module) => ({
-          Component: module.CategoryPage,
-        })),
-    },
-    {
-      path: '/app/:listingSlug',
-      lazy: () =>
-        import('../pages/ListingDetailPage').then((module) => ({
-          Component: module.ListingDetailPage,
-        })),
-    },
-    {
-      path: '/search',
-      lazy: () =>
-        import('../pages/SearchPage').then((module) => ({
-          Component: module.SearchPage,
-        })),
-    },
-    {
-      path: '/library',
-      lazy: () =>
-        import('../pages/LibraryPage').then((module) => ({
-          Component: module.LibraryPage,
-        })),
-    },
-    {
-      path: '/publisher/*',
-      lazy: () =>
-        import('@sdkwork/appstore-pc-console-publisher').then((module) => ({
-          Component: module.PublisherRoutes,
-        })),
-    },
-  ];
-}
+export const appRoutes = [
+  discoverRoute,
+  chartsRoute,
+  searchRoute,
+  updatesRoute,
+  appDetailRoute,
+];

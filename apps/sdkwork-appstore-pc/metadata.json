@@ -1,0 +1,8 @@
+{
+  "name": "sdkwork-appstore8",
+  "description": "A professional, industry-standard application store prototype featuring discoverability, charts, search, and detailed app pages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

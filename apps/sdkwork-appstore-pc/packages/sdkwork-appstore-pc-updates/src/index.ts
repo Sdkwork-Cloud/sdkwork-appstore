@@ -1,0 +1,10 @@
+export { default as UpdatesPage } from '@/src/pages/Updates';
+export { UpdatesHeader } from '@/src/components/updates/UpdatesHeader';
+export { UpdateItem } from '@/src/components/updates/UpdateItem';
+export { UpdatesEmptyState } from '@/src/components/updates/UpdatesEmptyState';
+export { UpdatesTabNav } from '@/src/components/updates/UpdatesTabNav';
+export { StorageStatsBanner } from '@/src/components/updates/StorageStatsBanner';
+export { DownloadQueueCard } from '@/src/components/updates/DownloadQueueCard';
+export { LibraryAppsGrid } from '@/src/components/updates/LibraryAppsGrid';
+export { ReleaseNotesSection } from '@/src/components/updates/ReleaseNotesSection';
+export * from './routes';

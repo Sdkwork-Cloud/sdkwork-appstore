@@ -1,3 +1,2 @@
-# SDKWork Skills
-
-Reusable agent skills for the App Store PC application.
+# Application Skills
+Contains repository and application capability skills.

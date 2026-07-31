@@ -1,0 +1,124 @@
+export const aihub = {
+  header: {
+    badge: 'AI 实验室 & 智能沙盒',
+    title: '智能体助手与生成式 AI 工具库',
+    subtitle: '探索最新的 AI 助手、提示词预设与智能协同工具，实时在本地沙盒验证 Prompt 效能。',
+    chatAssistant: '智能对话助手',
+    knowledgeCopilot: '个人知识库 Copilot'
+  },
+  sandbox: {
+    title: 'AI 智能交互沙盒',
+    subtitle: '选择模型与预设提示词，体验实时智能响应',
+    modelSelect: '选择 AI 模型',
+    presetSelect: '选择预设 Prompt',
+    inputPlaceholder: '请输入给 AI 助手的指令或问题...',
+    send: '发送指令',
+    generating: '思考生成中...',
+    responseTitle: 'AI 沙盒响应结果',
+    modelBadge: '引擎',
+    tokens: '消耗 Tokens',
+    latency: '响应延时',
+    confidence: '置信度',
+    copyResponse: '复制回答',
+    clearHistory: '清空历史',
+    presetsLabel: '快捷推荐:',
+    usedModel: '使用模型',
+    latencyLabel: '耗时',
+    testEngine: '测试引擎:',
+    errorText: '【错误】：模型推理过程异常，请稍后重试。',
+    testingWith: '正在与 {{name}} 进行沙盒测试',
+    resetContext: '重置专家上下文',
+    presets: {
+      p1: '推荐一款适合写代码和重构 TypeScript 的 AI 工具',
+      p2: '整理和总结 100 页 PDF 论文与深度报告',
+      p3: '实时音视频多模态分析与桌面截屏助手',
+      p4: '设计高性能云原生微服务架构与 Docker 配置'
+    }
+  },
+  gridTitle: '精选 AI 原生应用',
+  gridTitleWithCount: '精选 AI 工具列表 ({{count}})',
+  tabs: {
+    sandbox: 'AI 智能体与沙盒',
+    experts: '专家团',
+    tools: '精选 AI 工具'
+  },
+  experts: {
+    searchPlaceholder: '搜索专家职称或描述...',
+    myExperts: '我的专家',
+    customExpert: '自定义专家',
+    featuredScenarios: '精选场景',
+    rosterTitle: '专家团',
+    rosterSubtitle: '精选行业领域 AI 专家，内置专业 Prompt 与系统指令，即刻协同解决复杂问题',
+    scenarioCount: '包含 {{count}} 位专家',
+    sort: {
+      comprehensive: '综合',
+      hottest: '最热',
+      newest: '最新'
+    },
+    filterTags: {
+      all: '全部',
+      opc: 'OPC:一人公司',
+      tencent: '腾讯专家',
+      productDesign: '产品设计',
+      engineering: '技术工程',
+      finance: '金融投资',
+      globalDev: '全球发展',
+      education: '教育学习',
+      gaming: '游戏空间',
+      dataIntelligence: '数据智能',
+      marketing: '营销增长',
+      contentCreation: '内容创作',
+      salesBiz: '销售商务',
+      operations: '运营人力',
+      quality: '项目质量',
+      legalSecurity: '法务安全',
+      consultant: '行业顾问'
+    },
+    card: {
+      chatWithExpert: '与专家对话',
+      testInSandbox: '沙盒中测试',
+      addedToMine: '已加入我的专家',
+      addToMine: '+ 加入我的专家',
+      official: '官方',
+      featured: '精选'
+    },
+    modal: {
+      title: '专家助手详情',
+      systemPrompt: '专家系统提示词 (System Prompt)',
+      testPromptPlaceholder: '向该专家提出具体问题或下达指令...',
+      sendToExpert: '在沙盒中测试',
+      copyPrompt: '复制系统提示词',
+      promptCopied: '提示词已复制！',
+      close: '关闭'
+    },
+    customModal: {
+      title: '创建自定义 AI 专家',
+      subtitle: '设定专属专家职称、系统提示词 (System Prompt) 与专业技能标签',
+      nameLabel: '专家职称 / 名称 *',
+      namePlaceholder: '例如：量化高频交易专家 / React 重构大师',
+      nicknameLabel: '作者 / 昵称',
+      nicknamePlaceholder: '例如：极客小王',
+      categoryLabel: '所属场景分类',
+      descLabel: '专家职责描述 *',
+      descPlaceholder: '精通某项技术的专家，擅长解决什么核心痛点...',
+      promptLabel: '系统提示词 (System Prompt)',
+      promptPlaceholder: '你是一名资深专家，请按照以下标准为用户服务...',
+      tagsLabel: '能力标签 (逗号分隔)',
+      tagsPlaceholder: '例如：高频交易, 回测, Python',
+      cancel: '取消',
+      create: '确认创建'
+    },
+    scenarios: {
+      content: '内容创作',
+      invest: '投资分析',
+      legal: '法律咨询',
+      business: '小微企业',
+      ecom: '电商运营',
+      data: '数据分析',
+      doc: '专业文档',
+      design: '产品设计',
+      dev: '工程开发'
+    }
+  }
+};
+

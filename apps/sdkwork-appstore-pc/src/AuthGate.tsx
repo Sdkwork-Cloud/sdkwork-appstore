@@ -1,21 +1,10 @@
-import { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { isAuthenticated } from '@/services/storeClient';
+import React from 'react';
 
 interface AuthGateProps {
-  children: ReactNode;
-  fallback?: ReactNode;
+  children: React.ReactNode;
 }
 
-export function AuthGate({ children, fallback }: AuthGateProps) {
-  const location = useLocation();
-
-  if (!isAuthenticated()) {
-    if (fallback) {
-      return <>{fallback}</>;
-    }
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
+export function AuthGate({ children }: AuthGateProps) {
+  // Pass-through AuthGate for the application
   return <>{children}</>;
 }

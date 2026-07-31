@@ -1,0 +1,4 @@
+[container]
+app = "sdkwork-appstore-pc"
+profile = "standalone"
+environment = "development"

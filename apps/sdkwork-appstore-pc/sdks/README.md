@@ -1,3 +1,2 @@
-# SDKs
-
-Application SDK workspaces.
+# SDK Workspaces
+Contains generated SDK workspaces and API definitions.

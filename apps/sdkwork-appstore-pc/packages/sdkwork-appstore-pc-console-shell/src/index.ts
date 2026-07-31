@@ -1,2 +1,4 @@
-export { ConsoleShell } from './layout/ConsoleShell';
-export { ConsoleNavigation } from './navigation/ConsoleNavigation';
+export const consoleShellConfig = {
+  prefix: '/console',
+  title: 'Developer Console'
+};

@@ -12,6 +12,7 @@ path = "src/lib.rs"
 axum = "0.8"
 tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
 sdkwork-web-bootstrap.workspace = true
+sdkwork-web-core.workspace = true
 sdkwork-appstore-database-host = { path = "../sdkwork-appstore-database-host" }
 sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
 sdkwork-appstore-catalog-service = { path = "../sdkwork-appstore-catalog-service" }
@@ -28,7 +29,6 @@ sdkwork-database-config.workspace = true
 sdkwork-database-sqlx.workspace = true
 sdkwork-iam-web-adapter.workspace = true
 sdkwork-web-axum.workspace = true
-sdkwork-web-core.workspace = true
 sdkwork-utils-rust.workspace = true
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }

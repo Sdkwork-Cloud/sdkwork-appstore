@@ -1,0 +1,5 @@
+[application]
+code = "appstore"
+profile = "standalone"
+environment = "development"
+target = "desktop"
