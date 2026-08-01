@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 3,
+  "kind": "sdkwork.app",
+  "app": {
+    "key": "sdkwork-appstore-pc",
+    "name": "SDKWork App Store PC",
+    "displayName": "SDKWork App Store",
+    "description": "SDKWork marketplace client for discovering, installing, publishing, and operating commercial applications and AI capabilities.",
+    "vendor": "SDKWork",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-appstore-pc",
+    "supportUrl": "https://sdkwork.com/support",
+    "privacyPolicyUrl": "https://sdkwork.com/privacy",
+    "termsOfServiceUrl": "https://sdkwork.com/terms",
+    "appType": "APP_REACT",
+    "versionSource": "package.json",
+    "identifiers": {
+      "desktopAppId": "com.sdkwork.appstore.pc",
+      "containerImage": "registry.sdkwork.com/apps/sdkwork-appstore-pc"
+    }
+  },
+  "backend": {
+    "profileKey": "backend-root-admin",
+    "ownerMode": "tenant",
+    "grantMode": "current",
+    "platform": "WEB",
+    "appId": "sdkwork-appstore-pc",
+    "organizationId": "0",
+    "tenantId": "100001",
+    "accessTokenPermissionScope": []
+  },
+  "runtime": {
+    "family": "desktop",
+    "framework": "react",
+    "runtimes": ["BROWSER", "DESKTOP", "TABLET"],
+    "deliveryModes": ["WEB_URL", "DIRECT_DOWNLOAD"],
+    "defaultPlatform": "WEB",
+    "defaultArchitecture": "x64",
+    "supportedDeploymentProfiles": ["standalone", "cloud"],
+    "defaultDeploymentProfile": "standalone"
+  },
+  "media": {
+    "icons": {
+      "primary": {
+        "id": "sdkwork-appstore-pc-primary-icon",
+        "type": "ICON",
+        "purpose": "PRIMARY",
+        "platform": "DESKTOP",
+        "format": "PNG",
+        "width": 1024,
+        "height": 1024,
+        "enabled": true,
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-appstore/assets/icon-1024.png",
+        "metadata": {
+          "generatedPlaceholder": true
+        }
+      },
+      "platform": []
+    },
+    "screenshots": [],
+    "previews": []
+  },
+  "publish": {
+    "status": "DRAFT",
+    "platforms": ["WEB", "DESKTOP"],
+    "installPlatforms": ["WEB", "DESKTOP"],
+    "installSkill": false
+  },
+  "artifacts": {
+    "installConfig": {
+      "packages": []
+    }
+  },
+  "release": {
+    "currentVersion": "1.0.0",
+    "defaultChannel": "BETA",
+    "latest": {
+      "BETA": "1.0.0"
+    },
+    "notes": [
+      {
+        "version": "1.0.0",
+        "channel": "BETA",
+        "current": true,
+        "packageIds": []
+      }
+    ]
+  },
+  "security": {
+    "checksumRequired": true,
+    "signatureRequired": true,
+    "sbomRequired": true
+  },
+  "devApp": {
+    "sourceRoot": "apps/sdkwork-appstore-pc",
+    "build": {
+      "targets": ["browser", "desktop", "tablet-ipados", "tablet-android"]
+    }
+  },
+  "metadata": {
+    "domain": "appstore",
+    "capability": "store",
+    "standardOwner": "sdkwork-appstore",
+    "deploymentConfig": "etc/sdkwork.deployment.config.json"
+  }
+}

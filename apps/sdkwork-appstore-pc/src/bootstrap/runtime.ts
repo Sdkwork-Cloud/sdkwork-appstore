@@ -1,14 +1,41 @@
-import { AppRuntime } from '@sdkwork/appstore-pc-core';
-import { loadEnvironment } from './environment';
-import { initializeIamRuntime } from './iamRuntime';
-import { initializeSdkClients } from './sdkClients';
+import {
+  resolveAppstorePcRuntimeConfig,
+  type AppstorePcRuntimeConfig,
+} from './environment';
+import { createAppstorePcIamRuntime, type AppstorePcIamRuntime } from './iamRuntime';
+import {
+  createAppstorePcSdkClients,
+  type AppstorePcSdkClientInventory,
+} from './sdkClients';
+import { createAppstorePcSessionStore, type AppstorePcSessionStore } from './sessionStore';
+import { createAppstorePcSessionTokenManager } from './sessionTokenManager';
+import { configureAppstorePcAIHub } from './aiHub';
+import { configureAppstorePcMcp } from './mcp';
+import { configureAppstorePcSkills } from './skills';
 
-export function bootstrapApplication() {
-  const env = loadEnvironment();
-  const runtime = AppRuntime.getInstance();
-  runtime.init();
-  const iam = initializeIamRuntime();
-  const sdks = initializeSdkClients();
+export interface AppstorePcRuntime {
+  config: AppstorePcRuntimeConfig;
+  iamRuntime: AppstorePcIamRuntime;
+  sdkClients: AppstorePcSdkClientInventory;
+  session: AppstorePcSessionStore;
+}
 
-  return { env, iam, sdks };
+export function createAppstorePcRuntime(): AppstorePcRuntime {
+  const config = resolveAppstorePcRuntimeConfig();
+  const session = createAppstorePcSessionStore(
+    typeof window === 'undefined' ? undefined : window.sessionStorage,
+  );
+  const tokenManager = createAppstorePcSessionTokenManager(session);
+  const sdkClients = createAppstorePcSdkClients(config, tokenManager);
+  const iamRuntime = createAppstorePcIamRuntime({
+    config,
+    sdkClients,
+    session,
+    tokenManager,
+  });
+  configureAppstorePcAIHub(sdkClients.agents, config.aiPreviewAgentId);
+  configureAppstorePcSkills(sdkClients.skills);
+  configureAppstorePcMcp(sdkClients.mcp);
+
+  return { config, iamRuntime, sdkClients, session };
 }

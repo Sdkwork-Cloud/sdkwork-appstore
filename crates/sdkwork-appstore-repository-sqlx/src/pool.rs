@@ -1,4 +1,4 @@
-//! Unified SQLx pool handle for SQLite and PostgreSQL.
+//! PostgreSQL runtime pool with an isolated SQLite test-fixture adapter.
 
 use sdkwork_database_sqlx::DatabasePool;
 use sqlx::{Pool, Postgres, Sqlite};
@@ -26,16 +26,13 @@ impl AppstoreSqlxDb {
     }
 
     pub fn from_database_pool(database_pool: &DatabasePool) -> Result<Self, String> {
-        if let Some(pool) = database_pool.as_sqlite() {
-            return Ok(Self::sqlite(pool.clone()));
-        }
         if let Some(pool) = database_pool.as_postgres() {
             return Ok(Self {
                 pool: AppstoreDbPool::Postgres(pool.clone()),
                 dialect: AppstoreSqlDialect::Postgres,
             });
         }
-        Err("DatabasePool is not SQLite or PostgreSQL".to_string())
+        Err("appstore authoritative persistence requires PostgreSQL".to_string())
     }
 
     pub fn adapt_sql(&self, template: &str) -> String {

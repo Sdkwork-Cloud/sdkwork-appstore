@@ -1,4 +1,8 @@
 export const admin = {
+  accessDenied: {
+    title: 'Operations access denied',
+    description: 'Your account does not have system monitoring permission.'
+  },
   header: {
     badge: 'Operations Hub',
     title: 'Cluster Monitoring & System Audit Logs',
@@ -50,4 +54,3 @@ export const admin = {
   },
   loading: 'Loading system monitoring data...'
 };
-

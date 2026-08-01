@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "@sdkwork/appstore-pc-console-core",
+    "displayName": "SDKWork App Store PC Console Core",
+    "version": "1.0.0",
+    "type": "typescript-package",
+    "root": "apps/sdkwork-appstore-pc/packages/sdkwork-appstore-pc-console-core",
+    "domain": "appstore",
+    "capability": "console-core",
+    "surface": "user-console",
+    "languages": ["typescript"],
+    "generated": false,
+    "status": "active",
+    "manifests": ["package.json", "specs/component.spec.json"]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "APP_PC_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_PC_ARCHITECTURE_SPEC.md",
+      "purpose": "User-console package boundary."
+    },
+    {
+      "file": "APP_SDK_INTEGRATION_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_SDK_INTEGRATION_SPEC.md",
+      "purpose": "App SDK-only console integration."
+    }
+  ],
+  "contracts": {
+    "publicExports": [".", "./sdk", "./modules", "./host", "./session", "./composition"],
+    "sdkDependencies": [
+      {
+        "workspace": "sdkwork-appstore-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-comments-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-drive-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      },
+      {
+        "workspace": "sdkwork-iam-app-sdk",
+        "surface": "app-api",
+        "credentialMode": "authenticated-app-api"
+      }
+    ],
+    "sdkClients": [
+      "@sdkwork/appstore-app-sdk",
+      "@sdkwork/comments-app-sdk",
+      "@sdkwork/drive-app-sdk",
+      "@sdkwork/iam-app-sdk"
+    ],
+    "permissionComposition": {
+      "inheritanceMode": "module-catalog-with-overrides",
+      "applicationModule": {
+        "manifestRef": "../../../../specs/iam.module.manifest.json"
+      },
+      "moduleCatalogRefs": [
+        {
+          "moduleId": "appstore",
+          "manifestRef": "../../../../specs/iam.module.manifest.json",
+          "inheritPermissions": true,
+          "inheritRoles": true
+        },
+        {
+          "moduleId": "comments",
+          "manifestRef": "../../../../../sdkwork-comments/specs/iam.module.manifest.json",
+          "inheritPermissions": true,
+          "inheritRoles": true
+        },
+        {
+          "moduleId": "drive",
+          "manifestRef": "../../../../../sdkwork-iam/iam/modules/drive/iam.module.manifest.json",
+          "inheritPermissions": true,
+          "inheritRoles": false
+        },
+        {
+          "moduleId": "iam-kernel",
+          "manifestRef": "../../../../../sdkwork-iam/iam/modules/iam-kernel/iam.module.manifest.json",
+          "inheritPermissions": true,
+          "inheritRoles": false
+        }
+      ],
+      "bootstrapAccessTokenScope": {
+        "inheritFrom": "sdkwork.app.config.json#backend.accessTokenPermissionScope",
+        "supplement": [],
+        "overrideReplace": false
+      },
+      "routePermissionHints": {
+        "inheritFromOpenApi": true,
+        "inheritFromModuleManifests": true,
+        "overrides": []
+      },
+      "consumerPolicy": {
+        "forbidLocalPermissionCatalogForDependencyDomains": true,
+        "allowExplicitOverridesOnly": true,
+        "allowFrontendHintsWithoutServerDuplication": true
+      }
+    },
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": []
+  },
+  "verification": {
+    "commands": ["pnpm --dir apps/sdkwork-appstore-pc typecheck"]
+  }
+}

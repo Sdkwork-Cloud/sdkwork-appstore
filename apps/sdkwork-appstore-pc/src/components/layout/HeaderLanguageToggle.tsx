@@ -15,11 +15,11 @@ export const HeaderLanguageToggle: React.FC = () => {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/80 dark:border-slate-700/80"
+      className="flex items-center gap-1.5 px-2 xl:px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/80 dark:border-slate-700/80 whitespace-nowrap"
       title={currentLang.startsWith('zh') ? '切换为 English' : 'Switch to 简体中文'}
     >
       <Languages className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-      <span>{currentLang.startsWith('zh') ? '中文' : 'EN'}</span>
+      <span className="hidden xl:inline">{currentLang.startsWith('zh') ? '中文' : 'EN'}</span>
     </button>
   );
 };

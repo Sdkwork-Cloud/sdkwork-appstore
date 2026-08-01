@@ -1,7 +1,6 @@
-export class SdkClientFactory {
-  public static createClient() {
-    return {
-      appApi: "/app/v3/api",
-    };
-  }
+export interface AppstorePcSdkPort<TClients = unknown> {
+  readonly clients: TClients;
 }
+
+export type AppstorePcSdkPortFactory<TClients = unknown> = () =>
+  AppstorePcSdkPort<TClients>;

@@ -19,7 +19,7 @@ export const HeaderSearchBar: React.FC<HeaderSearchBarProps> = ({
   const searchPlaceholder = placeholder || t('nav.header.searchPlaceholder');
 
   return (
-    <form onSubmit={onSubmit} className="relative w-[480px] max-w-full">
+    <form onSubmit={onSubmit} className="relative min-w-0 flex-1 max-w-[480px]">
       <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
       <input
         id="layout-search-input"
@@ -39,4 +39,3 @@ export const HeaderSearchBar: React.FC<HeaderSearchBarProps> = ({
     </form>
   );
 };
-

@@ -4,7 +4,15 @@ export interface ConsoleUser {
   role: string;
 }
 
-export const consoleContext = {
-  activeTenantId: 'tenant_default',
-  permissions: ['console.read', 'console.write']
-};
+export interface ConsoleContext {
+  activeTenantId: string;
+  permissions: readonly string[];
+  user: ConsoleUser;
+}
+
+export function createConsoleContext(context: ConsoleContext): ConsoleContext {
+  return {
+    ...context,
+    permissions: [...context.permissions],
+  };
+}

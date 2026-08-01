@@ -1,4 +1,8 @@
 export const admin = {
+  accessDenied: {
+    title: '无权访问运维中心',
+    description: '当前账号缺少系统监控权限。'
+  },
   header: {
     badge: '运维中心',
     title: '系统集群监控与审计日志',
@@ -50,4 +54,3 @@ export const admin = {
   },
   loading: '加载系统监控数据中...'
 };
-

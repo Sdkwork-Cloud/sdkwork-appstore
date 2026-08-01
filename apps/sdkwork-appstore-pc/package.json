@@ -24,15 +24,24 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "tsc --noEmit",
+    "test": "vitest run",
     "test:config": "tsc --noEmit"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
+    "@sdkwork/agents-app-sdk": "workspace:*",
+    "@sdkwork/appstore-app-sdk": "workspace:*",
+    "@sdkwork/auth-pc-react": "workspace:*",
+    "@sdkwork/auth-runtime-pc-react": "workspace:*",
+    "@sdkwork/iam-app-sdk": "workspace:*",
+    "@sdkwork/iam-contracts": "workspace:*",
+    "@sdkwork/iam-credential-entry": "workspace:*",
+    "@sdkwork/iam-runtime": "workspace:*",
+    "@sdkwork/mcp-app-sdk": "workspace:*",
+    "@sdkwork/sdk-common": "workspace:*",
+    "@sdkwork/skills-app-sdk": "workspace:*",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "clsx": "^2.1.1",
-    "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "i18next": "^26.3.6",
     "lucide-react": "^0.546.0",
@@ -53,6 +62,7 @@
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.2",
+    "vitest": "catalog:"
   }
 }

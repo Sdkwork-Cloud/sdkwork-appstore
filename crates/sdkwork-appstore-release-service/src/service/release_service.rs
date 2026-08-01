@@ -1037,8 +1037,7 @@ where
             updated_at: now,
         };
 
-        self.repository.insert_release(context, &release).await?;
-
+        let mut artifacts = Vec::with_capacity(request.artifacts.len());
         for spec in &request.artifacts {
             if spec.drive_node_id.trim().is_empty() {
                 return Err(AppstoreServiceError::ValidationFailed(
@@ -1085,8 +1084,12 @@ where
                 updated_at: now,
             };
 
-            self.repository.insert_artifact(context, &artifact).await?;
+            artifacts.push(artifact);
         }
+
+        self.repository
+            .insert_release_with_artifacts(context, &release, &artifacts)
+            .await?;
 
         Ok(AutomationSubmissionResult::accepted(
             "appstore.publish.automation.submissions.create",

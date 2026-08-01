@@ -253,6 +253,36 @@
       "owner": "appstore-platform",
       "compliance_level": "L2",
       "lifecycle_status": "active"
+    },
+    {
+      "table_name": "appstore_listing_iap_item",
+      "owner": "appstore-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "appstore_catalog_search_history",
+      "owner": "appstore-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "appstore_catalog_trending_term",
+      "owner": "appstore-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "appstore_moderation_appeal",
+      "owner": "appstore-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "appstore_release_beta_invite",
+      "owner": "appstore-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
     }
   ]
 }

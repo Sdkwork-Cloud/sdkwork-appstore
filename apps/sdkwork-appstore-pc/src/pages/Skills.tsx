@@ -18,6 +18,7 @@ export function SkillsPage() {
   const [selectedSkill, setSelectedSkill] = useState<SkillItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPublishOpen, setIsPublishOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const categories = [
     t('skills.categories.all'),
@@ -44,7 +45,13 @@ export function SkillsPage() {
   }, [selectedCategory, searchQuery]);
 
   const handleToggleInstall = async (id: string) => {
-    await SkillsService.toggleInstallSkill(id);
+    setActionError(null);
+    try {
+      await SkillsService.toggleInstallSkill(id);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Skill action failed.');
+      return;
+    }
     setSkills((prev) =>
       prev.map((s) => {
         if (s.id === id) {
@@ -106,6 +113,11 @@ export function SkillsPage() {
           <span>{t('skills.header.createBtn')}</span>
         </button>
       </div>
+      {actionError && (
+        <p role="alert" className="text-xs text-amber-700 dark:text-amber-300">
+          {actionError}
+        </p>
+      )}
 
       {/* Skill Grid */}
       {loading ? (
@@ -144,4 +156,3 @@ export function SkillsPage() {
 }
 
 export default SkillsPage;
-

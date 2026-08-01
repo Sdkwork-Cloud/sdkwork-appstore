@@ -26,6 +26,20 @@ export interface IAIHubSDK {
   generateCompletion(prompt: string, modelId?: string): Promise<AICompletionResult>;
 }
 
+export interface AICompletionPort {
+  generateCompletion(prompt: string, modelId: string): Promise<AICompletionResult>;
+}
+
+let completionPort: AICompletionPort = {
+  async generateCompletion(): Promise<AICompletionResult> {
+    throw new Error('AI Hub completion runtime is not configured.');
+  },
+};
+
+export function configureAICompletionPort(port: AICompletionPort): void {
+  completionPort = port;
+}
+
 export const mockAIModels: AIModelInfo[] = [
   {
     id: 'gemini-2.5-flash',
@@ -98,35 +112,6 @@ export const AIHubService: IAIHubSDK = {
     return mockPromptPresets;
   },
 
-  generateCompletion: async (prompt: string, modelId: string = 'gemini-2.5-flash'): Promise<AICompletionResult> => {
-    try {
-      const res = await fetch('/api/ai/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, modelId }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          response: data.response,
-          modelUsed: data.modelUsed || modelId,
-          tokenCount: data.tokenCount || Math.floor(prompt.length * 1.5) + 50,
-          latencyMs: data.latencyMs || 250,
-        };
-      }
-    } catch {
-      // API call fallback
-    }
-
-    await delay(350);
-    const selectedModel = mockAIModels.find((m) => m.id === modelId) || mockAIModels[0];
-    const mockOutput = `【${selectedModel.name} 实时推理结果】：\n针对您的提问“${prompt}”，Sdkwork AI Studio 判定系统最佳实践路线：推荐联动【通义千问】与【ima.copilot】搭配使用。其多端同步、向量检索与结构化上下文响应符合 AI-Era 标准。`;
-    
-    return {
-      response: mockOutput,
-      modelUsed: selectedModel.name,
-      tokenCount: Math.floor(180 + Math.random() * 120),
-      latencyMs: Math.floor(320 + Math.random() * 200),
-    };
-  },
+  generateCompletion: (prompt, modelId = 'gemini-2.5-flash') =>
+    completionPort.generateCompletion(prompt, modelId),
 };

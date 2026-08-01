@@ -23,6 +23,20 @@ use sdkwork_appstore_release_service::domain::models::{
 use sdkwork_appstore_release_service::error::AppstoreServiceError;
 use sdkwork_appstore_release_service::ports::repository::ReleaseRepositoryPort;
 
+const INSERT_RELEASE_SQL: &str = r#"INSERT INTO appstore_release (
+    id, tenant_id, organization_id, listing_id, release_no, channel_id,
+    version_name, version_code, build_number, release_status, minimum_os_version,
+    release_notes_default_locale, manifest_snapshot_json, submitted_at, approved_at,
+    published_at, retired_at, version, created_at, updated_at
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#;
+
+const INSERT_ARTIFACT_SQL: &str = r#"INSERT INTO appstore_release_artifact (
+    id, tenant_id, organization_id, release_id, artifact_no, platform,
+    architecture, package_format, artifact_status, drive_node_id, media_resource_id,
+    file_size_bytes, content_type, checksum_sha256, signature_snapshot_json,
+    sbom_ref, provenance_ref, min_os_version, created_at, updated_at
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#;
+
 #[derive(Debug, Clone)]
 pub struct SqlxReleaseRepository {
     db: AppstoreSqlxDb,
@@ -159,14 +173,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         let (release_status, manifest_snapshot_json) = map_release_domain_to_row(release);
 
         self.db
-            .query(
-                r#"INSERT INTO appstore_release (
-                id, tenant_id, organization_id, listing_id, release_no, channel_id,
-                version_name, version_code, build_number, release_status, minimum_os_version,
-                release_notes_default_locale, manifest_snapshot_json, submitted_at, approved_at,
-                published_at, retired_at, version, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-            )
+            .query(INSERT_RELEASE_SQL)
             .bind(release.id.as_str())
             .bind(&context.tenant_id)
             .bind(&context.organization_id)
@@ -192,6 +199,81 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         Ok(())
+    }
+
+    async fn insert_release_with_artifacts(
+        &self,
+        context: &AppstoreRequestContext,
+        release: &Release,
+        artifacts: &[ReleaseArtifact],
+    ) -> Result<(), AppstoreServiceError> {
+        let mut transaction =
+            self.db.begin().await.map_err(|error| {
+                AppstoreServiceError::Internal(format!("Database error: {error}"))
+            })?;
+        let (release_status, manifest_snapshot_json) = map_release_domain_to_row(release);
+
+        self.db
+            .query(INSERT_RELEASE_SQL)
+            .bind(release.id.as_str())
+            .bind(&context.tenant_id)
+            .bind(&context.organization_id)
+            .bind(&release.listing_id)
+            .bind(&release.release_no)
+            .bind(release.channel_id.as_str())
+            .bind(&release.version_name)
+            .bind(&release.version_code)
+            .bind(&release.build_number)
+            .bind(&release_status)
+            .bind(&release.minimum_os_version)
+            .bind(&release.release_notes_default_locale)
+            .bind(&manifest_snapshot_json)
+            .bind(release.submitted_at)
+            .bind(release.approved_at)
+            .bind(release.published_at)
+            .bind(release.retired_at)
+            .bind(release.version)
+            .bind(release.created_at)
+            .bind(release.updated_at)
+            .execute_tx(&mut transaction)
+            .await
+            .map_err(|error| AppstoreServiceError::Internal(format!("Database error: {error}")))?;
+
+        for artifact in artifacts {
+            let (artifact_status, signature_snapshot_json) = map_artifact_domain_to_row(artifact);
+            self.db
+                .query(INSERT_ARTIFACT_SQL)
+                .bind(artifact.id.as_str())
+                .bind(&context.tenant_id)
+                .bind(&context.organization_id)
+                .bind(artifact.release_id.as_str())
+                .bind(&artifact.artifact_no)
+                .bind(&artifact.platform)
+                .bind(&artifact.architecture)
+                .bind(&artifact.package_format)
+                .bind(&artifact_status)
+                .bind(&artifact.drive_node_id)
+                .bind(&artifact.media_resource_id)
+                .bind(&artifact.file_size_bytes)
+                .bind(&artifact.content_type)
+                .bind(&artifact.checksum_sha256)
+                .bind(&signature_snapshot_json)
+                .bind(&artifact.sbom_ref)
+                .bind(&artifact.provenance_ref)
+                .bind(&artifact.min_os_version)
+                .bind(artifact.created_at)
+                .bind(artifact.updated_at)
+                .execute_tx(&mut transaction)
+                .await
+                .map_err(|error| {
+                    AppstoreServiceError::Internal(format!("Database error: {error}"))
+                })?;
+        }
+
+        transaction
+            .commit()
+            .await
+            .map_err(|error| AppstoreServiceError::Internal(format!("Database error: {error}")))
     }
 
     async fn update_release(
@@ -375,14 +457,7 @@ impl ReleaseRepositoryPort for SqlxReleaseRepository {
         let (artifact_status, signature_snapshot_json) = map_artifact_domain_to_row(artifact);
 
         self.db
-            .query(
-                r#"INSERT INTO appstore_release_artifact (
-                id, tenant_id, organization_id, release_id, artifact_no, platform,
-                architecture, package_format, artifact_status, drive_node_id, media_resource_id,
-                file_size_bytes, content_type, checksum_sha256, signature_snapshot_json,
-                sbom_ref, provenance_ref, min_os_version, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
-            )
+            .query(INSERT_ARTIFACT_SQL)
             .bind(artifact.id.as_str())
             .bind(&context.tenant_id)
             .bind(&context.organization_id)

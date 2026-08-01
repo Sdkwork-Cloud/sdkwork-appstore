@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "@sdkwork/appstore-pc-admin-core",
+    "displayName": "SDKWork App Store PC Admin Core",
+    "version": "1.0.0",
+    "type": "typescript-package",
+    "root": "apps/sdkwork-appstore-pc/packages/sdkwork-appstore-pc-admin-core",
+    "domain": "appstore",
+    "capability": "admin-core",
+    "surface": "backend-admin",
+    "languages": ["typescript"],
+    "generated": false,
+    "status": "active",
+    "manifests": ["package.json", "specs/component.spec.json"]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "APP_PC_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_PC_ARCHITECTURE_SPEC.md",
+      "purpose": "Explicit backend-admin runtime boundary."
+    },
+    {
+      "file": "BACKEND_UI_SPEC.md",
+      "path": "../../../../../sdkwork-specs/BACKEND_UI_SPEC.md",
+      "purpose": "Operator UI authorization and package placement."
+    },
+    {
+      "file": "APP_SDK_INTEGRATION_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_SDK_INTEGRATION_SPEC.md",
+      "purpose": "Backend SDK injection in an explicit admin surface."
+    }
+  ],
+  "contracts": {
+    "publicExports": [".", "./sdk", "./modules", "./host", "./session", "./composition"],
+    "sdkDependencies": [
+      {
+        "workspace": "sdkwork-appstore-backend-sdk",
+        "surface": "backend-api",
+        "credentialMode": "authenticated-backend-admin"
+      }
+    ],
+    "sdkClients": ["@sdkwork/appstore-backend-sdk"],
+    "permissionComposition": {
+      "inheritanceMode": "module-catalog-with-overrides",
+      "applicationModule": {
+        "manifestRef": "../../../../specs/iam.module.manifest.json"
+      },
+      "moduleCatalogRefs": [
+        {
+          "moduleId": "appstore",
+          "manifestRef": "../../../../specs/iam.module.manifest.json",
+          "inheritPermissions": true,
+          "inheritRoles": true
+        },
+        {
+          "moduleId": "iam-kernel",
+          "manifestRef": "../../../../../sdkwork-iam/iam/modules/iam-kernel/iam.module.manifest.json",
+          "inheritPermissions": true,
+          "inheritRoles": false
+        }
+      ],
+      "bootstrapAccessTokenScope": {
+        "inheritFrom": "sdkwork.app.config.json#backend.accessTokenPermissionScope",
+        "supplement": [],
+        "overrideReplace": false
+      },
+      "routePermissionHints": {
+        "inheritFromOpenApi": true,
+        "inheritFromModuleManifests": true,
+        "overrides": []
+      },
+      "consumerPolicy": {
+        "forbidLocalPermissionCatalogForDependencyDomains": true,
+        "allowExplicitOverridesOnly": true,
+        "allowFrontendHintsWithoutServerDuplication": true
+      }
+    },
+    "dependencyApiExports": [],
+    "dependencyApiSurfaces": []
+  },
+  "verification": {
+    "commands": ["pnpm --dir apps/sdkwork-appstore-pc typecheck"]
+  }
+}

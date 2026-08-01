@@ -23,7 +23,7 @@ export const HeaderUpdateNav: React.FC<HeaderUpdateNavProps> = ({ pendingUpdates
       }
     >
       <Download className="w-3.5 h-3.5" />
-      <span>{t('updates.tabs.updates')}</span>
+      <span className="hidden xl:inline">{t('updates.tabs.updates')}</span>
       {pendingUpdatesCount > 0 && (
         <span className="px-1.5 py-0.2 text-[10px] font-bold bg-blue-600 text-white rounded-full">
           {pendingUpdatesCount}
@@ -32,4 +32,3 @@ export const HeaderUpdateNav: React.FC<HeaderUpdateNavProps> = ({ pendingUpdates
     </NavLink>
   );
 };
-

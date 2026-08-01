@@ -91,6 +91,13 @@ pub trait ReleaseRepositoryPort: Send + Sync {
         artifact: &ReleaseArtifact,
     ) -> AppstoreServiceResult<()>;
 
+    async fn insert_release_with_artifacts(
+        &self,
+        context: &AppstoreRequestContext,
+        release: &Release,
+        artifacts: &[ReleaseArtifact],
+    ) -> AppstoreServiceResult<()>;
+
     async fn find_rollout_by_release(
         &self,
         context: &AppstoreRequestContext,

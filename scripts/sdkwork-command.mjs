@@ -197,6 +197,7 @@ function dispatch({ command, flags }) {
       break;
     case "db:validate":
       runNode("../sdkwork-specs/tools/check-database-framework-standard.mjs", ["--root", "."]);
+      runNode("tests/contract/database-framework.contract.test.mjs");
       break;
     case "db:materialize:contract":
       runNode("../sdkwork-specs/tools/materialize-database-contract-from-baseline.mjs", [

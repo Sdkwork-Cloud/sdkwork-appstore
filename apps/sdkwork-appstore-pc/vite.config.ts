@@ -1,11 +1,25 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import { createSdkworkCredentialEntryBootstrapVitePlugin } from '@sdkwork/iam-credential-entry/vite';
 import path from 'path';
 import { defineConfig } from 'vite';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  const environment = mode.includes('production')
+    ? 'production'
+    : mode.includes('test') || mode.includes('staging')
+      ? 'test'
+      : 'development';
+
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      createSdkworkCredentialEntryBootstrapVitePlugin({
+        accessToken: process.env.SDKWORK_ACCESS_TOKEN,
+        environment,
+      }),
+      react(),
+      tailwindcss(),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

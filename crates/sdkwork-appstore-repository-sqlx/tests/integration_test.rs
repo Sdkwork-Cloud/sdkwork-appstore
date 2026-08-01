@@ -5,8 +5,15 @@ use sdkwork_appstore_publisher_service::context::AppstoreRequestContext;
 use sdkwork_appstore_publisher_service::domain::models::*;
 use sdkwork_appstore_publisher_service::ports::repository::PublisherRepositoryPort;
 
+use sdkwork_appstore_release_service::context::AppstoreRequestContext as ReleaseRequestContext;
+use sdkwork_appstore_release_service::domain::models::{
+    ArtifactId, ArtifactStatus, Release, ReleaseArtifact, ReleaseChannelId, ReleaseId,
+    ReleaseStatus, SignatureSnapshot,
+};
+use sdkwork_appstore_release_service::ports::repository::ReleaseRepositoryPort;
 use sdkwork_appstore_repository_sqlx::pool::AppstoreSqlxDb;
 use sdkwork_appstore_repository_sqlx::repository::publisher_repository::SqlxPublisherRepository;
+use sdkwork_appstore_repository_sqlx::repository::release_repository::SqlxReleaseRepository;
 
 const MIGRATION_SQL: &str =
     include_str!("../../../specs/database/migrations/0001_appstore_foundation.sql");
@@ -630,6 +637,89 @@ async fn test_release_raw_sql_operations() {
     assert_eq!(row.0, "REL-001");
     assert_eq!(row.1, "1.0.0");
     assert_eq!(row.2, "draft");
+}
+
+#[tokio::test]
+async fn test_release_with_artifacts_rolls_back_as_one_unit() {
+    let pool = setup_db().await;
+    let repository = SqlxReleaseRepository::new(appstore_db(&pool));
+    let context = ReleaseRequestContext {
+        tenant_id: "100001".to_string(),
+        organization_id: Some("0".to_string()),
+        user_id: Some("1".to_string()),
+        request_id: "release-transaction-test".to_string(),
+        permission_scopes: vec![],
+    };
+    let now = Utc::now();
+    let release = Release {
+        id: ReleaseId::new("release-transaction"),
+        tenant_id: context.tenant_id.clone(),
+        organization_id: "0".to_string(),
+        listing_id: "listing-transaction".to_string(),
+        release_no: "REL-TRANSACTION".to_string(),
+        channel_id: ReleaseChannelId::new("channel-transaction"),
+        version_name: "1.0.0".to_string(),
+        version_code: "100".to_string(),
+        build_number: None,
+        release_status: ReleaseStatus::Submitted,
+        minimum_os_version: None,
+        release_notes_default_locale: None,
+        manifest_snapshot: serde_json::json!({}),
+        submitted_at: Some(now),
+        approved_at: None,
+        published_at: None,
+        retired_at: None,
+        version: 1,
+        created_at: now,
+        updated_at: now,
+    };
+    let artifact = ReleaseArtifact {
+        id: ArtifactId::new("artifact-duplicate"),
+        tenant_id: context.tenant_id.clone(),
+        organization_id: "0".to_string(),
+        release_id: release.id.clone(),
+        artifact_no: "ART-TRANSACTION".to_string(),
+        platform: "windows".to_string(),
+        architecture: "x86_64".to_string(),
+        package_format: "msi".to_string(),
+        artifact_status: ArtifactStatus::Pending,
+        drive_node_id: "drive-node-transaction".to_string(),
+        media_resource_id: None,
+        file_size_bytes: "1024".to_string(),
+        content_type: "application/octet-stream".to_string(),
+        checksum_sha256: "test-checksum".to_string(),
+        signature_snapshot: SignatureSnapshot {
+            algorithm: None,
+            public_key_ref: None,
+            signature_value: None,
+        },
+        sbom_ref: None,
+        provenance_ref: None,
+        min_os_version: None,
+        created_at: now,
+        updated_at: now,
+    };
+
+    let result = repository
+        .insert_release_with_artifacts(&context, &release, &[artifact.clone(), artifact])
+        .await;
+
+    assert!(result.is_err());
+    let release_count: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM appstore_release WHERE id = ?")
+            .bind(release.id.as_str())
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    let artifact_count: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM appstore_release_artifact WHERE release_id = ?")
+            .bind(release.id.as_str())
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+
+    assert_eq!(release_count, 0);
+    assert_eq!(artifact_count, 0);
 }
 
 #[tokio::test]

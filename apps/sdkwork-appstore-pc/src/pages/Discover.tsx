@@ -60,17 +60,17 @@ export default function Discover() {
       <DiscoverHeader />
 
       {/* Top Hero Section: 热门 AI 必装应用 + 今日 AI 焦点 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <div className="xl:col-span-2">
           <EssentialAppsGrid apps={essentialApps.length > 0 ? essentialApps : allApps.slice(0, 8)} />
         </div>
-        <div className="lg:col-span-1">
+        <div className="xl:col-span-1">
           <FeaturedTodayCard app={featuredTodayApp} />
         </div>
       </div>
 
       {/* Middle Collections: AI 编程与 Agent 神器 + AI 创意与多媒体重构 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         <CollectionGridSection 
           title={t('discover.sections.codingApps')} 
           categoryQuery="AI 编程与 Agent"

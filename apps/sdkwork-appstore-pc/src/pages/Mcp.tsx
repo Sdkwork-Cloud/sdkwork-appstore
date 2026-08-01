@@ -17,6 +17,7 @@ export function McpPage() {
   const [selectedServer, setSelectedServer] = useState<McpServerItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const loadServers = async () => {
     try {
@@ -34,7 +35,13 @@ export function McpPage() {
   }, [searchQuery]);
 
   const handleToggleConnect = async (id: string) => {
-    await McpService.toggleConnectServer(id);
+    setActionError(null);
+    try {
+      await McpService.toggleConnectServer(id);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'MCP action failed.');
+      return;
+    }
     setServers((prev) =>
       prev.map((s) => {
         if (s.id === id) {
@@ -94,6 +101,11 @@ export function McpPage() {
           <span>{t('mcp.header.deployBtn')}</span>
         </button>
       </div>
+      {actionError && (
+        <p role="alert" className="text-xs text-cyan-700 dark:text-cyan-300">
+          {actionError}
+        </p>
+      )}
 
       {/* MCP Grid */}
       {loading ? (
@@ -130,4 +142,3 @@ export function McpPage() {
 }
 
 export default McpPage;
-
