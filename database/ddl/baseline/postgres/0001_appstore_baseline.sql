@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS appstore_idempotency_key (
   response_json TEXT,
   status TEXT NOT NULL,
   locked_until TEXT,
-  expires_at TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, scope, idempotency_key)
 );
 
@@ -44,11 +44,11 @@ CREATE TABLE IF NOT EXISTS appstore_publisher (
   logo_media_resource_id TEXT,
   owner_user_id TEXT NOT NULL,
   version INTEGER NOT NULL DEFAULT 0,
-  verified_at TEXT,
-  suspended_at TEXT,
-  deleted_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  verified_at TIMESTAMPTZ,
+  suspended_at TIMESTAMPTZ,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, publisher_no),
   UNIQUE (tenant_id, organization_id, owner_user_id)
 );
@@ -62,9 +62,9 @@ CREATE TABLE IF NOT EXISTS appstore_publisher_member (
   member_role TEXT NOT NULL,
   member_status TEXT NOT NULL,
   invited_by TEXT,
-  joined_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  joined_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, publisher_id, user_id)
 );
 
@@ -78,10 +78,10 @@ CREATE TABLE IF NOT EXISTS appstore_publisher_verification (
   credential_snapshot_json TEXT NOT NULL DEFAULT '{}',
   evidence_media_resource_id TEXT,
   reviewed_by TEXT,
-  reviewed_at TEXT,
-  expires_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  reviewed_at TIMESTAMPTZ,
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, publisher_id, verification_type)
 );
 
@@ -138,14 +138,14 @@ CREATE TABLE IF NOT EXISTS appstore_app (
   latest_released_version TEXT,
   manifest_snapshot_json TEXT NOT NULL DEFAULT '{}',
   version INTEGER NOT NULL DEFAULT 0,
-  submitted_at TEXT,
-  approved_at TEXT,
-  released_at TEXT,
-  suspended_at TEXT,
-  retired_at TEXT,
-  deleted_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  submitted_at TIMESTAMPTZ,
+  approved_at TIMESTAMPTZ,
+  released_at TIMESTAMPTZ,
+  suspended_at TIMESTAMPTZ,
+  retired_at TIMESTAMPTZ,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, app_no),
   UNIQUE (tenant_id, app_key),
   UNIQUE (tenant_id, app_slug)
@@ -162,8 +162,8 @@ CREATE TABLE IF NOT EXISTS appstore_app_dependency (
   version_requirement TEXT,
   dependency_status TEXT NOT NULL,
   metadata_json TEXT NOT NULL DEFAULT '{}',
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, app_id, dependency_key, dependency_kind)
 );
 
@@ -176,8 +176,8 @@ CREATE TABLE IF NOT EXISTS appstore_category (
   category_status TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   icon_media_resource_id TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, category_code)
 );
 
@@ -188,8 +188,8 @@ CREATE TABLE IF NOT EXISTS appstore_category_localization (
   locale TEXT NOT NULL,
   display_name TEXT NOT NULL,
   description TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, category_id, locale)
 );
 
@@ -199,8 +199,8 @@ CREATE TABLE IF NOT EXISTS appstore_tag (
   tag_code TEXT NOT NULL,
   tag_type TEXT NOT NULL,
   tag_status TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, tag_code)
 );
 
@@ -210,8 +210,8 @@ CREATE TABLE IF NOT EXISTS appstore_tag_localization (
   tag_id TEXT NOT NULL,
   locale TEXT NOT NULL,
   display_name TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, tag_id, locale)
 );
 
@@ -244,12 +244,12 @@ CREATE TABLE IF NOT EXISTS appstore_listing (
   average_rating TEXT,
   rating_count INTEGER NOT NULL DEFAULT 0,
   version INTEGER NOT NULL DEFAULT 0,
-  submitted_at TEXT,
-  published_at TEXT,
-  delisted_at TEXT,
-  deleted_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  submitted_at TIMESTAMPTZ,
+  published_at TIMESTAMPTZ,
+  delisted_at TIMESTAMPTZ,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_no),
   UNIQUE (tenant_id, app_id),
   UNIQUE (tenant_id, listing_slug)
@@ -267,8 +267,8 @@ CREATE TABLE IF NOT EXISTS appstore_listing_localization (
   full_description TEXT NOT NULL,
   whats_new_summary TEXT,
   keywords_json TEXT NOT NULL DEFAULT '[]',
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, locale)
 );
 
@@ -283,8 +283,8 @@ CREATE TABLE IF NOT EXISTS appstore_listing_media (
   platform_scope TEXT NOT NULL DEFAULT 'ALL',
   sort_order INTEGER NOT NULL DEFAULT 0,
   locale TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, media_role, sort_order, locale)
 );
 
@@ -294,7 +294,7 @@ CREATE TABLE IF NOT EXISTS appstore_listing_category_binding (
   listing_id TEXT NOT NULL,
   category_id TEXT NOT NULL,
   is_primary INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, category_id)
 );
 
@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS appstore_listing_tag_binding (
   tenant_id TEXT NOT NULL,
   listing_id TEXT NOT NULL,
   tag_id TEXT NOT NULL,
-  created_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, tag_id)
 );
 
@@ -314,10 +314,10 @@ CREATE TABLE IF NOT EXISTS appstore_regional_availability (
   listing_id TEXT NOT NULL,
   region_code TEXT NOT NULL,
   availability_status TEXT NOT NULL,
-  effective_at TEXT NOT NULL,
-  expires_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  effective_at TIMESTAMPTZ NOT NULL,
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, region_code)
 );
 
@@ -333,9 +333,9 @@ CREATE TABLE IF NOT EXISTS appstore_compliance_profile (
   target_audience_json TEXT NOT NULL DEFAULT '{}',
   compliance_status TEXT NOT NULL,
   reviewed_by TEXT,
-  reviewed_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, compliance_version)
 );
 
@@ -348,8 +348,8 @@ CREATE TABLE IF NOT EXISTS appstore_compliance_permission_disclosure (
   usage_purpose TEXT NOT NULL,
   is_required INTEGER NOT NULL DEFAULT 1,
   disclosure_status TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, permission_code)
 );
 
@@ -360,8 +360,8 @@ CREATE TABLE IF NOT EXISTS appstore_release_channel (
   channel_type TEXT NOT NULL,
   channel_status TEXT NOT NULL,
   audience_scope TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, channel_code)
 );
 
@@ -379,13 +379,13 @@ CREATE TABLE IF NOT EXISTS appstore_release (
   minimum_os_version TEXT,
   release_notes_default_locale TEXT,
   manifest_snapshot_json TEXT NOT NULL DEFAULT '{}',
-  submitted_at TEXT,
-  approved_at TEXT,
-  published_at TEXT,
-  retired_at TEXT,
+  submitted_at TIMESTAMPTZ,
+  approved_at TIMESTAMPTZ,
+  published_at TIMESTAMPTZ,
+  retired_at TIMESTAMPTZ,
   version INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, release_no),
   UNIQUE (tenant_id, listing_id, channel_id, version_code)
 );
@@ -397,8 +397,8 @@ CREATE TABLE IF NOT EXISTS appstore_release_note_localization (
   release_id TEXT NOT NULL,
   locale TEXT NOT NULL,
   release_notes TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, release_id, locale)
 );
 
@@ -421,8 +421,8 @@ CREATE TABLE IF NOT EXISTS appstore_release_artifact (
   sbom_ref TEXT,
   provenance_ref TEXT,
   min_os_version TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, artifact_no),
   UNIQUE (tenant_id, release_id, platform, architecture, package_format)
 );
@@ -438,11 +438,11 @@ CREATE TABLE IF NOT EXISTS appstore_release_rollout (
   current_percentage INTEGER NOT NULL DEFAULT 0,
   region_filter_json TEXT NOT NULL DEFAULT '[]',
   device_filter_json TEXT NOT NULL DEFAULT '{}',
-  started_at TEXT,
-  completed_at TEXT,
-  paused_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  paused_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, release_id)
 );
 
@@ -457,8 +457,8 @@ CREATE TABLE IF NOT EXISTS appstore_market_channel (
   external_store_code TEXT,
   api_capability_json TEXT NOT NULL DEFAULT '{}',
   config_json TEXT NOT NULL DEFAULT '{}',
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, channel_code)
 );
 
@@ -479,13 +479,13 @@ CREATE TABLE IF NOT EXISTS appstore_market_release (
   countries_json TEXT NOT NULL DEFAULT '[]',
   store_url TEXT,
   external_status_json TEXT NOT NULL DEFAULT '{}',
-  submitted_at TEXT,
-  approved_at TEXT,
-  released_at TEXT,
-  rejected_at TEXT,
-  last_synced_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  submitted_at TIMESTAMPTZ,
+  approved_at TIMESTAMPTZ,
+  released_at TIMESTAMPTZ,
+  rejected_at TIMESTAMPTZ,
+  last_synced_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, market_release_no),
   UNIQUE (tenant_id, release_id, channel_id)
 );
@@ -500,11 +500,11 @@ CREATE TABLE IF NOT EXISTS appstore_listing_submission (
   submission_type TEXT NOT NULL,
   submission_status TEXT NOT NULL,
   submitted_by TEXT NOT NULL,
-  submitted_at TEXT NOT NULL,
+  submitted_at TIMESTAMPTZ NOT NULL,
   payload_snapshot_json TEXT NOT NULL DEFAULT '{}',
   idempotency_key TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, submission_no),
   UNIQUE (tenant_id, listing_id, idempotency_key)
 );
@@ -519,11 +519,11 @@ CREATE TABLE IF NOT EXISTS appstore_moderation_review (
   priority TEXT NOT NULL,
   assigned_to TEXT,
   queue_code TEXT NOT NULL,
-  sla_due_at TEXT,
-  started_at TEXT,
-  completed_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  sla_due_at TIMESTAMPTZ,
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, review_no),
   UNIQUE (tenant_id, submission_id)
 );
@@ -540,9 +540,9 @@ CREATE TABLE IF NOT EXISTS appstore_moderation_decision (
   reason_detail TEXT,
   policy_reference TEXT,
   decided_by TEXT NOT NULL,
-  decided_at TEXT NOT NULL,
+  decided_at TIMESTAMPTZ NOT NULL,
   payload_snapshot_json TEXT NOT NULL DEFAULT '{}',
-  created_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, decision_no)
 );
 
@@ -555,10 +555,10 @@ CREATE TABLE IF NOT EXISTS appstore_catalog_collection (
   audience_scope TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   cover_media_resource_id TEXT,
-  starts_at TEXT,
-  ends_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  starts_at TIMESTAMPTZ,
+  ends_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, collection_code)
 );
 
@@ -569,8 +569,8 @@ CREATE TABLE IF NOT EXISTS appstore_catalog_collection_localization (
   locale TEXT NOT NULL,
   display_name TEXT NOT NULL,
   description TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, collection_id, locale)
 );
 
@@ -581,9 +581,9 @@ CREATE TABLE IF NOT EXISTS appstore_catalog_collection_item (
   listing_id TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   highlight_json TEXT NOT NULL DEFAULT '{}',
-  starts_at TEXT,
-  ends_at TEXT,
-  created_at TEXT NOT NULL,
+  starts_at TIMESTAMPTZ,
+  ends_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, collection_id, listing_id)
 );
 
@@ -596,10 +596,10 @@ CREATE TABLE IF NOT EXISTS appstore_catalog_featured_slot (
   audience_scope TEXT NOT NULL,
   platform_scope TEXT NOT NULL DEFAULT 'ALL',
   region_scope_json TEXT NOT NULL DEFAULT '[]',
-  starts_at TEXT NOT NULL,
-  ends_at TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  starts_at TIMESTAMPTZ NOT NULL,
+  ends_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, slot_code, starts_at)
 );
 
@@ -611,8 +611,8 @@ CREATE TABLE IF NOT EXISTS appstore_catalog_chart_snapshot (
   locale TEXT NOT NULL DEFAULT 'en-US',
   platform_scope TEXT NOT NULL DEFAULT 'ALL',
   ranking_json TEXT NOT NULL,
-  generated_at TEXT NOT NULL,
-  created_at TEXT NOT NULL,
+  generated_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, chart_code, snapshot_date, locale, platform_scope)
 );
 
@@ -629,11 +629,11 @@ CREATE TABLE IF NOT EXISTS appstore_user_library_item (
   platform TEXT NOT NULL,
   architecture TEXT,
   device_id TEXT,
-  last_checked_at TEXT,
-  installed_at TEXT,
-  updated_at TEXT NOT NULL,
-  removed_at TEXT,
-  created_at TEXT NOT NULL,
+  last_checked_at TIMESTAMPTZ,
+  installed_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ NOT NULL,
+  removed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, user_id, app_key, platform)
 );
 
@@ -643,8 +643,8 @@ CREATE TABLE IF NOT EXISTS appstore_user_wishlist_item (
   user_id TEXT NOT NULL,
   listing_id TEXT NOT NULL,
   wishlist_status TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, user_id, listing_id)
 );
 
@@ -659,12 +659,12 @@ CREATE TABLE IF NOT EXISTS appstore_entitlement (
   entitlement_type TEXT NOT NULL,
   source_type TEXT NOT NULL,
   entitlement_status TEXT NOT NULL,
-  starts_at TEXT NOT NULL,
-  expires_at TEXT,
+  starts_at TIMESTAMPTZ NOT NULL,
+  expires_at TIMESTAMPTZ,
   grant_snapshot_json TEXT NOT NULL DEFAULT '{}',
-  revoked_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  revoked_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, app_id, subject_type, subject_id, entitlement_type)
 );
 
@@ -679,12 +679,12 @@ CREATE TABLE IF NOT EXISTS appstore_download_grant (
   user_id TEXT,
   grant_status TEXT NOT NULL,
   grant_reason TEXT NOT NULL,
-  expires_at TEXT NOT NULL,
-  consumed_at TEXT,
+  expires_at TIMESTAMPTZ NOT NULL,
+  consumed_at TIMESTAMPTZ,
   download_count INTEGER NOT NULL DEFAULT 0,
   max_download_count INTEGER NOT NULL DEFAULT 1,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, grant_no)
 );
 
@@ -706,8 +706,8 @@ CREATE TABLE IF NOT EXISTS appstore_install_event (
   client_version TEXT,
   region_code TEXT,
   payload_snapshot_json TEXT NOT NULL DEFAULT '{}',
-  occurred_at TEXT NOT NULL,
-  created_at TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, event_no)
 );
 
@@ -722,7 +722,7 @@ CREATE TABLE IF NOT EXISTS appstore_listing_metric_snapshot (
   uninstall_count INTEGER NOT NULL DEFAULT 0,
   update_count INTEGER NOT NULL DEFAULT 0,
   conversion_rate TEXT,
-  created_at TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   UNIQUE (tenant_id, listing_id, snapshot_date)
 );
 

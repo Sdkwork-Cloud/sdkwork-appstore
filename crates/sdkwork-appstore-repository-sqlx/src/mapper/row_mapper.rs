@@ -772,7 +772,7 @@ pub fn map_listing_search_row_to_domain(row: ListingSearchRow) -> ListingSummary
         current_version: row.current_version,
         file_size_bytes: row.file_size_bytes,
         whats_new_summary: row.whats_new_summary,
-        released_at: row.released_at,
+        released_at: row.released_at.map(|timestamp| timestamp.to_rfc3339()),
         average_rating: row.average_rating,
         rating_count: row.rating_count,
     }

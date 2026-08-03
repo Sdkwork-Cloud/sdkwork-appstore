@@ -419,7 +419,7 @@ pub struct ListingSearchRow {
     pub current_version: Option<String>,
     pub file_size_bytes: Option<String>,
     pub whats_new_summary: Option<String>,
-    pub released_at: Option<String>,
+    pub released_at: Option<DateTime<Utc>>,
     pub average_rating: Option<String>,
     pub rating_count: i32,
 }
