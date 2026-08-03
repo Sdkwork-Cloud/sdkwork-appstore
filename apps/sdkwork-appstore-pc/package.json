@@ -30,8 +30,10 @@
   "dependencies": {
     "@sdkwork/agents-app-sdk": "workspace:*",
     "@sdkwork/appstore-app-sdk": "workspace:*",
+    "@sdkwork/appstore-backend-sdk": "workspace:*",
     "@sdkwork/auth-pc-react": "workspace:*",
     "@sdkwork/auth-runtime-pc-react": "workspace:*",
+    "@sdkwork/comments-app-sdk": "workspace:*",
     "@sdkwork/iam-app-sdk": "workspace:*",
     "@sdkwork/iam-contracts": "workspace:*",
     "@sdkwork/iam-credential-entry": "workspace:*",

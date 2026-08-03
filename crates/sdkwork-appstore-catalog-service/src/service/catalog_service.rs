@@ -12,16 +12,19 @@ use crate::domain::commands::{
     CategoryRetrieveRequest, CategoryUpdateRequest, ChartsRetrieveRequest, CollectionCreateRequest,
     CollectionItemsUpsertRequest, CollectionRetrieveRequest, CollectionUpdateRequest,
     CollectionsListRequest, EventRetrieveRequest, EventsListRequest, FeaturedListRequest,
-    FeaturedUpsertRequest, HomeRetrieveRequest, ListingsSearchRequest, MetricsRetrieveRequest,
-    PublicFeaturedListRequest, RecentlyUpdatedListRequest, RecommendationsListRequest,
-    SearchHistoryClearRequest, SearchHistoryListRequest, SearchHistoryUpsertRequest,
-    SearchSuggestionsListRequest, SearchTrendingListRequest,
+    FeaturedUpsertRequest, FeedbackCreateRequest, HomeRetrieveRequest, ListingsSearchRequest,
+    MetricsRetrieveRequest, PublicFeaturedListRequest, RecentlyUpdatedListRequest,
+    RecommendationsListRequest, SearchHistoryClearRequest, SearchHistoryListRequest,
+    SearchHistoryUpsertRequest, SearchSuggestionsListRequest, SearchTrendingListRequest,
+    TemplateCreateRequest, TemplateRetrieveRequest, TemplateUsageCreateRequest,
+    TemplatesListRequest,
 };
 use crate::domain::models::{
-    AudienceScope, CatalogCollection, CatalogCollectionItem, CatalogCollectionLocalization,
-    CatalogFeaturedSlot, Category, CategoryId, CategoryLocalization, CategoryStatus,
-    CategoryWithLocalizations, CollectionId, CollectionStatus, CollectionType, CollectionWithItems,
-    FeaturedSlotId, FeaturedSlotStatus, ListingSummary, PlatformScope, SearchHistoryEntry,
+    AppTemplate, AppTemplateUsage, AppTemplateUsageKind, AudienceScope, CatalogCollection,
+    CatalogCollectionItem, CatalogCollectionLocalization, CatalogFeaturedSlot, Category,
+    CategoryId, CategoryLocalization, CategoryStatus, CategoryWithLocalizations, CollectionId,
+    CollectionStatus, CollectionType, CollectionWithItems, FeaturedSlotId, FeaturedSlotStatus,
+    Feedback, ListingSummary, PlatformScope, SearchHistoryEntry,
 };
 use crate::domain::results::{
     AnalyticsOperatorDashboardResult, AnalyticsOperatorSearchResult,
@@ -30,10 +33,11 @@ use crate::domain::results::{
     CategoryRetrieveResult, CategoryUpdateResult, ChartsRetrieveResult, CollectionCreateResult,
     CollectionItemsUpsertResult, CollectionRetrieveResult, CollectionUpdateResult,
     CollectionsListResult, EventRetrieveResult, EventsListResult, FeaturedListResult,
-    FeaturedUpsertResult, HomeRetrieveResult, ListingsSearchResult, MetricsRetrieveResult,
-    PublicFeaturedListResult, RecentlyUpdatedListResult, RecommendationsListResult,
-    SearchHistoryClearResult, SearchHistoryListResult, SearchHistoryUpsertResult,
-    SearchSuggestionsListResult, SearchTrendingListResult,
+    FeaturedUpsertResult, FeedbackCreateResult, HomeRetrieveResult, ListingsSearchResult,
+    MetricsRetrieveResult, PublicFeaturedListResult, RecentlyUpdatedListResult,
+    RecommendationsListResult, SearchHistoryClearResult, SearchHistoryListResult,
+    SearchHistoryUpsertResult, SearchSuggestionsListResult, SearchTrendingListResult,
+    TemplateCreateResult, TemplateRetrieveResult, TemplateUsageCreateResult, TemplatesListResult,
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
 use crate::ports::repository::CatalogRepositoryPort;
@@ -221,6 +225,36 @@ pub trait CatalogOperations {
         context: &AppstoreRequestContext,
         request: AnalyticsOperatorSearchRequest,
     ) -> AppstoreServiceResult<AnalyticsOperatorSearchResult>;
+
+    async fn templates_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplatesListRequest,
+    ) -> AppstoreServiceResult<TemplatesListResult>;
+
+    async fn template_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplateRetrieveRequest,
+    ) -> AppstoreServiceResult<TemplateRetrieveResult>;
+
+    async fn template_create(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplateCreateRequest,
+    ) -> AppstoreServiceResult<TemplateCreateResult>;
+
+    async fn template_usage_create(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplateUsageCreateRequest,
+    ) -> AppstoreServiceResult<TemplateUsageCreateResult>;
+
+    async fn feedback_create(
+        &self,
+        context: &AppstoreRequestContext,
+        request: FeedbackCreateRequest,
+    ) -> AppstoreServiceResult<FeedbackCreateResult>;
 }
 
 #[derive(Clone)]
@@ -1127,6 +1161,7 @@ where
                                 request.category_id.as_deref(),
                                 request.cursor.as_deref(),
                                 limit + 1,
+                                request.ids.as_deref(),
                             )
                             .await?
                     }
@@ -1140,6 +1175,7 @@ where
                     request.category_id.as_deref(),
                     request.cursor.as_deref(),
                     limit + 1,
+                    request.ids.as_deref(),
                 )
                 .await?
         };
@@ -1160,6 +1196,7 @@ where
                     request.category_id.as_deref(),
                     request.cursor.as_deref(),
                     limit + 1,
+                    request.ids.as_deref(),
                 )
                 .await?;
         }
@@ -1689,4 +1726,291 @@ where
             analytics,
         ))
     }
+
+    async fn templates_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplatesListRequest,
+    ) -> AppstoreServiceResult<TemplatesListResult> {
+        let limit = request.page_size.unwrap_or(20).min(200);
+        let templates = self
+            .repository
+            .find_templates(
+                context,
+                request.query.as_deref(),
+                request.category_code.as_deref(),
+                request.template_type.as_deref(),
+                request.cursor.as_deref(),
+                limit + 1,
+                context.user_id.as_deref(),
+            )
+            .await?;
+
+        let has_more = templates.len() > limit as usize;
+        let templates: Vec<AppTemplate> = templates.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            templates.last().map(|template| template.id.clone())
+        } else {
+            None
+        };
+
+        Ok(TemplatesListResult::new(
+            "appstore.catalog.templates.list",
+            templates,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn template_retrieve(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplateRetrieveRequest,
+    ) -> AppstoreServiceResult<TemplateRetrieveResult> {
+        match self
+            .repository
+            .find_template_by_id(context, &request.template_id, context.user_id.as_deref())
+            .await?
+        {
+            Some(template) => Ok(TemplateRetrieveResult::found(
+                "appstore.catalog.templates.retrieve",
+                template,
+            )),
+            None => Ok(TemplateRetrieveResult::not_found(
+                "appstore.catalog.templates.retrieve",
+            )),
+        }
+    }
+
+    async fn template_create(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplateCreateRequest,
+    ) -> AppstoreServiceResult<TemplateCreateResult> {
+        let publisher_id = resolve_publisher_id(&self.repository, context).await?;
+        let now = Utc::now();
+        let template_type = request.template_type.to_ascii_uppercase();
+        let template_code = request.template_code.clone().or_else(|| {
+            let base = slugify_template_name(&request.template_name);
+            Some(format!(
+                "tpl-{}-{}",
+                base,
+                Uuid::new_v4()
+                    .simple()
+                    .to_string()
+                    .chars()
+                    .take(8)
+                    .collect::<String>()
+            ))
+        });
+
+        let metadata = enrich_template_metadata(&request.metadata, &publisher_id);
+        let template = AppTemplate {
+            id: Uuid::new_v4().to_string(),
+            tenant_id: context.tenant_id.clone(),
+            organization_id: context
+                .organization_id
+                .clone()
+                .unwrap_or_else(|| "0".to_string()),
+            template_code: template_code.unwrap_or_else(|| Uuid::new_v4().to_string()),
+            template_name: request.template_name.clone(),
+            description: request.description.clone(),
+            template_type,
+            category_code: request.category_code.clone(),
+            framework: request.framework.clone(),
+            language: request.language.clone(),
+            icon_media_resource_id: request.icon_media_resource_id.clone(),
+            git_repo_url: request.git_repo_url.clone(),
+            author_name: metadata
+                .get("authorName")
+                .and_then(|value| value.as_str())
+                .map(ToOwned::to_owned),
+            capability_manifest: request.capability_manifest.clone(),
+            metadata,
+            star_count: 0,
+            fork_count: 0,
+            clone_count: 0,
+            is_enabled: false,
+            published_at: Some(now),
+            created_at: now,
+            updated_at: now,
+        };
+
+        self.repository.insert_template(context, &template).await?;
+
+        Ok(TemplateCreateResult::new(
+            "appstore.catalog.templates.create",
+            template,
+        ))
+    }
+
+    async fn template_usage_create(
+        &self,
+        context: &AppstoreRequestContext,
+        request: TemplateUsageCreateRequest,
+    ) -> AppstoreServiceResult<TemplateUsageCreateResult> {
+        let template = self
+            .repository
+            .find_template_by_id(context, &request.template_id, context.user_id.as_deref())
+            .await?
+            .ok_or_else(|| {
+                AppstoreServiceError::NotFound(format!(
+                    "App template {} not found",
+                    request.template_id
+                ))
+            })?;
+
+        let usage_kind = AppTemplateUsageKind::from_str(&request.usage_type.to_ascii_uppercase())
+            .ok_or_else(|| {
+            AppstoreServiceError::ValidationFailed(format!(
+                "Unsupported template usage type {}",
+                request.usage_type
+            ))
+        })?;
+
+        let user_id = context.user_id.clone();
+        let usage = AppTemplateUsage {
+            id: Uuid::new_v4().to_string(),
+            tenant_id: context.tenant_id.clone(),
+            organization_id: context
+                .organization_id
+                .clone()
+                .unwrap_or_else(|| "0".to_string()),
+            template_id: template.id.clone(),
+            user_id: user_id.clone(),
+            usage_kind,
+            metadata: request.metadata.clone(),
+            created_at: Utc::now(),
+        };
+        self.repository
+            .insert_template_usage(context, &usage)
+            .await?;
+
+        let counts = self
+            .repository
+            .find_template_usage_counts(context, &template.id)
+            .await?;
+
+        let is_starred = if let Some(user) = user_id.as_deref() {
+            self.repository
+                .find_latest_template_usage_state(
+                    context,
+                    &template.id,
+                    user,
+                    &AppTemplateUsageKind::Star,
+                )
+                .await?
+                .map(|entry| {
+                    entry
+                        .metadata
+                        .get("action")
+                        .and_then(|value| value.as_str())
+                        .map(|action| action != "unstar")
+                        .unwrap_or(true)
+                })
+                .unwrap_or(false)
+        } else {
+            false
+        };
+
+        let is_enabled = if let Some(user) = user_id.as_deref() {
+            self.repository
+                .find_latest_template_usage_state(
+                    context,
+                    &template.id,
+                    user,
+                    &AppTemplateUsageKind::Enable,
+                )
+                .await?
+                .map(|entry| {
+                    entry
+                        .metadata
+                        .get("action")
+                        .and_then(|value| value.as_str())
+                        .map(|action| action == "enable")
+                        .unwrap_or(true)
+                })
+                .unwrap_or(false)
+        } else {
+            false
+        };
+
+        Ok(TemplateUsageCreateResult::new(
+            "appstore.catalog.templates.usage.create",
+            template.id,
+            usage_kind.as_str().to_string(),
+            counts.star_count,
+            counts.fork_count,
+            counts.clone_count,
+            is_starred,
+            is_enabled,
+        ))
+    }
+
+    async fn feedback_create(
+        &self,
+        context: &AppstoreRequestContext,
+        request: FeedbackCreateRequest,
+    ) -> AppstoreServiceResult<FeedbackCreateResult> {
+        if request.content.trim().is_empty() {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Feedback content is required".to_string(),
+            ));
+        }
+
+        let feedback = Feedback {
+            id: Uuid::new_v4().to_string(),
+            tenant_id: context.tenant_id.clone(),
+            user_id: context.user_id.clone(),
+            feedback_type: request.feedback_type.clone(),
+            content: request.content.clone(),
+            contact: request.contact.clone(),
+            listing_id: request.listing_id.clone(),
+            app_key: request.app_key.clone(),
+            status: "submitted".to_string(),
+            created_at: Utc::now(),
+        };
+        self.repository.insert_feedback(context, &feedback).await?;
+
+        Ok(FeedbackCreateResult::new(
+            "appstore.catalog.feedback.create",
+            feedback,
+        ))
+    }
+}
+
+fn slugify_template_name(name: &str) -> String {
+    let slug: String = name
+        .chars()
+        .map(|ch| {
+            if ch.is_ascii_alphanumeric() {
+                ch.to_ascii_lowercase()
+            } else if ch.is_whitespace() || ch == '-' || ch == '_' {
+                '-'
+            } else {
+                '-'
+            }
+        })
+        .collect();
+    let slug = slug
+        .split('-')
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join("-");
+    if slug.is_empty() {
+        "template".to_string()
+    } else {
+        slug.chars().take(48).collect()
+    }
+}
+
+fn enrich_template_metadata(metadata: &serde_json::Value, publisher_id: &str) -> serde_json::Value {
+    let mut merged = match metadata {
+        serde_json::Value::Object(map) => map.clone(),
+        _ => serde_json::Map::new(),
+    };
+    merged
+        .entry("publisherId".to_string())
+        .or_insert_with(|| serde_json::Value::String(publisher_id.to_string()));
+    serde_json::Value::Object(merged)
 }

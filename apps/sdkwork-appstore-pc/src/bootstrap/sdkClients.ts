@@ -3,6 +3,10 @@ import {
   type AppStoreClient,
 } from '@sdkwork/appstore-app-sdk';
 import {
+  createClient as createCommentsAppClient,
+  type SdkworkAppClient as CommentsAppClient,
+} from '@sdkwork/comments-app-sdk';
+import {
   createClient as createAgentsAppClient,
   type SdkworkAppClient as AgentsAppClient,
 } from '@sdkwork/agents-app-sdk';
@@ -21,6 +25,7 @@ import type { AppstorePcRuntimeConfig } from './environment';
 export interface AppstorePcSdkClientInventory {
   agents: AgentsAppClient;
   app: AppStoreClient;
+  comments: CommentsAppClient;
   mcp: McpAppClient;
   sdkFamilies: {
     app: readonly string[];
@@ -35,6 +40,12 @@ export function createAppstorePcSdkClients(
   const app = createAppStoreClient({
     authMode: 'dual-token',
     baseUrl: normalizeGeneratedSdkBaseUrl(config.appApiBaseUrl, '/app/v3/api'),
+    platform: 'pc',
+    tokenManager,
+  });
+  const comments = createCommentsAppClient({
+    authMode: 'dual-token',
+    baseUrl: normalizeGeneratedSdkBaseUrl(config.commentsAppApiBaseUrl, '/app/v3/api'),
     platform: 'pc',
     tokenManager,
   });
@@ -60,6 +71,7 @@ export function createAppstorePcSdkClients(
   return {
     agents,
     app,
+    comments,
     mcp,
     sdkFamilies: {
       app: [
@@ -68,6 +80,7 @@ export function createAppstorePcSdkClients(
         'sdkwork-agents-app-sdk',
         'sdkwork-skills-app-sdk',
         'sdkwork-mcp-app-sdk',
+        'sdkwork-comments-app-sdk',
       ],
     },
     skills,

@@ -1,5 +1,5 @@
 import { customApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { PublicRelease, ReleaseCheckUpdateRequest } from '../types';
 
@@ -13,8 +13,8 @@ export class ReleasesAppstoreReleasesPublicApi {
 
 
 /** Retrieve public release metadata */
-  async retrieve(releaseId: string): Promise<PublicRelease> {
-    return this.client.request<PublicRelease>(customApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}`), { method: 'GET' as any, skipAuth: true });
+  async retrieve(releaseId: string, requestOptions?: ApiRequestOptions): Promise<PublicRelease> {
+    return this.client.request<PublicRelease>(customApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -29,28 +29,28 @@ export class ReleasesAppstoreReleasesApi {
 
 
 /** Check whether a newer release is available */
-  async checkUpdate(body: ReleaseCheckUpdateRequest): Promise<{ updateAvailable?: boolean; releaseId?: string; versionName?: string; versionCode?: string; mandatory?: boolean; artifactId?: string; }> {
-    return this.client.post<{ updateAvailable?: boolean; releaseId?: string; versionName?: string; versionCode?: string; mandatory?: boolean; artifactId?: string; }>(customApiPath(`/releases/check_update`), body, undefined, undefined, 'application/json');
+  async checkUpdate(body: ReleaseCheckUpdateRequest, requestOptions?: ApiRequestOptions): Promise<{ updateAvailable?: boolean; releaseId?: string; versionName?: string; versionCode?: string; mandatory?: boolean; artifactId?: string; }> {
+    return this.client.request<{ updateAvailable?: boolean; releaseId?: string; versionName?: string; versionCode?: string; mandatory?: boolean; artifactId?: string; }>(customApiPath(`/releases/check_update`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class ReleasesAppstoreApi {
-
+  private client: HttpClient;
   public readonly releases: ReleasesAppstoreReleasesApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.releases = new ReleasesAppstoreReleasesApi(client);
   }
 
 }
 
 export class ReleasesApi {
-
+  private client: HttpClient;
   public readonly appstore: ReleasesAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new ReleasesAppstoreApi(client);
   }
 
@@ -60,7 +60,13 @@ export function createReleasesApi(client: HttpClient): ReleasesApi {
   return new ReleasesApi(client);
 }
 
-
+function appendQueryString(path: string, rawQueryString: string): string {
+  const query = rawQueryString.replace(/^\?+/, '');
+  if (!query) {
+    return path;
+  }
+  return path.includes('?') ? `${path}&${query}` : `${path}?${query}`;
+}
 
 interface PathParameterSpec {
   name: string;

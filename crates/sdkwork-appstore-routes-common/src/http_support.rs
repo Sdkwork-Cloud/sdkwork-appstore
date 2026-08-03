@@ -250,6 +250,7 @@ pub struct SearchQuery {
     #[serde(rename = "q")]
     pub q: Option<String>,
     pub category_id: Option<String>,
+    pub ids: Option<String>,
     pub cursor: Option<String>,
     pub page_size: Option<i32>,
 }

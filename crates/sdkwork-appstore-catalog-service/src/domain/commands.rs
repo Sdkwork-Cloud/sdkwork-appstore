@@ -521,6 +521,7 @@ impl ChartsRetrieveRequest {
 pub struct ListingsSearchRequest {
     pub query: Option<String>,
     pub category_id: Option<String>,
+    pub ids: Option<Vec<String>>,
     pub cursor: Option<String>,
     pub page_size: Option<i32>,
 }
@@ -530,6 +531,7 @@ impl ListingsSearchRequest {
         Self {
             query: None,
             category_id: None,
+            ids: None,
             cursor: None,
             page_size: None,
         }
@@ -923,6 +925,136 @@ impl AnalyticsOperatorSearchRequest {
             query: None,
             date_from: None,
             date_to: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TemplatesListRequest {
+    pub query: Option<String>,
+    pub category_code: Option<String>,
+    pub template_type: Option<String>,
+    pub cursor: Option<String>,
+    pub page_size: Option<i32>,
+}
+
+impl TemplatesListRequest {
+    pub fn new() -> Self {
+        Self {
+            query: None,
+            category_code: None,
+            template_type: None,
+            cursor: None,
+            page_size: None,
+        }
+    }
+
+    pub fn with_query(mut self, query: impl Into<String>) -> Self {
+        self.query = Some(query.into());
+        self
+    }
+
+    pub fn with_category_code(mut self, category_code: impl Into<String>) -> Self {
+        self.category_code = Some(category_code.into());
+        self
+    }
+
+    pub fn with_template_type(mut self, template_type: impl Into<String>) -> Self {
+        self.template_type = Some(template_type.into());
+        self
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TemplateRetrieveRequest {
+    pub template_id: String,
+}
+
+impl TemplateRetrieveRequest {
+    pub fn new(template_id: impl Into<String>) -> Self {
+        Self {
+            template_id: template_id.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TemplateCreateRequest {
+    pub template_code: Option<String>,
+    pub template_name: String,
+    pub description: Option<String>,
+    pub template_type: String,
+    pub category_code: Option<String>,
+    pub framework: Option<String>,
+    pub language: Option<String>,
+    pub icon_media_resource_id: Option<String>,
+    pub git_repo_url: Option<String>,
+    pub capability_manifest: serde_json::Value,
+    pub metadata: serde_json::Value,
+}
+
+impl TemplateCreateRequest {
+    pub fn new(template_name: impl Into<String>, template_type: impl Into<String>) -> Self {
+        Self {
+            template_code: None,
+            template_name: template_name.into(),
+            description: None,
+            template_type: template_type.into(),
+            category_code: None,
+            framework: None,
+            language: None,
+            icon_media_resource_id: None,
+            git_repo_url: None,
+            capability_manifest: serde_json::Value::Object(Default::default()),
+            metadata: serde_json::Value::Object(Default::default()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TemplateUsageCreateRequest {
+    pub template_id: String,
+    pub usage_type: String,
+    pub metadata: serde_json::Value,
+}
+
+impl TemplateUsageCreateRequest {
+    pub fn new(template_id: impl Into<String>, usage_type: impl Into<String>) -> Self {
+        Self {
+            template_id: template_id.into(),
+            usage_type: usage_type.into(),
+            metadata: serde_json::Value::Object(Default::default()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FeedbackCreateRequest {
+    pub feedback_type: String,
+    pub content: String,
+    pub contact: Option<String>,
+    pub listing_id: Option<String>,
+    pub app_key: Option<String>,
+}
+
+impl FeedbackCreateRequest {
+    pub fn new(feedback_type: impl Into<String>, content: impl Into<String>) -> Self {
+        Self {
+            feedback_type: feedback_type.into(),
+            content: content.into(),
+            contact: None,
+            listing_id: None,
+            app_key: None,
         }
     }
 }

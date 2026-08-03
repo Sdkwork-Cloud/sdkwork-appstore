@@ -1,5 +1,5 @@
 import { backendApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { SdkWorkPageData } from '../types';
 
@@ -18,43 +18,43 @@ export class MetricsAppstoreMetricsListingsApi {
 
 
 /** Retrieve listing metrics */
-  async retrieve(listingId: string, params?: MetricsAppstoreMetricsListingsRetrieveParams): Promise<SdkWorkPageData> {
+  async retrieve(listingId: string, params?: MetricsAppstoreMetricsListingsRetrieveParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'fromDate', value: params?.fromDate, style: 'form', explode: true, allowReserved: false },
       { name: 'toDate', value: params?.toDate, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(backendApiPath(`/metrics/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/metrics/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
 export class MetricsAppstoreMetricsApi {
-
+  private client: HttpClient;
   public readonly listings: MetricsAppstoreMetricsListingsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.listings = new MetricsAppstoreMetricsListingsApi(client);
   }
 
 }
 
 export class MetricsAppstoreApi {
-
+  private client: HttpClient;
   public readonly metrics: MetricsAppstoreMetricsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.metrics = new MetricsAppstoreMetricsApi(client);
   }
 
 }
 
 export class MetricsApi {
-
+  private client: HttpClient;
   public readonly appstore: MetricsAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new MetricsAppstoreApi(client);
   }
 

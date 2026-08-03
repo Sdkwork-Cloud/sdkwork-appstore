@@ -1,8 +1,107 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
-import type { CatalogChartSnapshot, CatalogCollection, CatalogFeaturedSlot, Category, HomeFeedData, ListingSummary, PageInfo, SdkWorkPageData, SearchHistoryUpsertRequest } from '../types';
+import type { AppTemplate, AppTemplateCreateRequest, AppTemplateUsageCreateRequest, AppTemplateUsageResult, CatalogChartSnapshot, CatalogCollection, CatalogFeaturedSlot, Category, Feedback, FeedbackCreateRequest, HomeFeedData, ListingSummary, PageInfo, SdkWorkPageData, SearchHistoryUpsertRequest } from '../types';
 
+
+export interface CatalogAppstoreCatalogFeedbackCreateParams {
+  idempotencyKey: string;
+}
+
+export class CatalogAppstoreCatalogFeedbackApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Submit storefront user feedback */
+  async create(body: FeedbackCreateRequest, params: CatalogAppstoreCatalogFeedbackCreateParams, requestOptions?: ApiRequestOptions): Promise<Feedback> {
+    const requestHeaders = buildRequestHeaders(
+      {
+        'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
+      },
+      {}
+    );
+    return this.client.request<Feedback>(appApiPath(`/appstore/catalog/feedback`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export interface CatalogAppstoreCatalogTemplatesUsageCreateParams {
+  idempotencyKey: string;
+}
+
+export class CatalogAppstoreCatalogTemplatesUsageApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Record app template usage (star, fork, clone) */
+  async create(templateId: string, body: AppTemplateUsageCreateRequest, params: CatalogAppstoreCatalogTemplatesUsageCreateParams, requestOptions?: ApiRequestOptions): Promise<AppTemplateUsageResult> {
+    const requestHeaders = buildRequestHeaders(
+      {
+        'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
+      },
+      {}
+    );
+    return this.client.request<AppTemplateUsageResult>(appApiPath(`/appstore/catalog/templates/${serializePathParameter(templateId, { name: 'templateId', style: 'simple', explode: false })}/usage`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export interface CatalogAppstoreCatalogTemplatesListParams {
+  q?: string;
+  categoryCode?: string;
+  templateType?: 'APP' | 'PLUGIN' | 'AGENT';
+  cursor?: string;
+  pageSize?: number;
+}
+
+export interface CatalogAppstoreCatalogTemplatesCreateParams {
+  idempotencyKey: string;
+}
+
+export class CatalogAppstoreCatalogTemplatesApi {
+  private client: HttpClient;
+  public readonly usage: CatalogAppstoreCatalogTemplatesUsageApi;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+    this.usage = new CatalogAppstoreCatalogTemplatesUsageApi(client);
+  }
+
+
+/** List storefront app templates and plugins */
+  async list(params?: CatalogAppstoreCatalogTemplatesListParams, requestOptions?: ApiRequestOptions): Promise<{ items: AppTemplate[]; pageInfo: PageInfo; }> {
+    const query = buildQueryString([
+      { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
+      { name: 'categoryCode', value: params?.categoryCode, style: 'form', explode: true, allowReserved: false },
+      { name: 'templateType', value: params?.templateType, style: 'form', explode: true, allowReserved: false },
+      { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
+      { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<{ items: AppTemplate[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/appstore/catalog/templates`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+
+/** Publish an app template or plugin */
+  async create(body: AppTemplateCreateRequest, params: CatalogAppstoreCatalogTemplatesCreateParams, requestOptions?: ApiRequestOptions): Promise<AppTemplate> {
+    const requestHeaders = buildRequestHeaders(
+      {
+        'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
+      },
+      {}
+    );
+    return this.client.request<AppTemplate>(appApiPath(`/appstore/catalog/templates`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Retrieve app template detail */
+  async retrieve(templateId: string, requestOptions?: ApiRequestOptions): Promise<AppTemplate> {
+    return this.client.request<AppTemplate>(appApiPath(`/appstore/catalog/templates/${serializePathParameter(templateId, { name: 'templateId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
+  }
+}
 
 export interface CatalogAppstoreCatalogSearchHistoryListParams {
   cursor?: string;
@@ -18,22 +117,22 @@ export class CatalogAppstoreCatalogSearchHistoryApi {
 
 
 /** List search history */
-  async list(params?: CatalogAppstoreCatalogSearchHistoryListParams): Promise<SdkWorkPageData> {
+  async list(params?: CatalogAppstoreCatalogSearchHistoryListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/search/history`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/search/history`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Upsert search history entry */
-  async update(body: SearchHistoryUpsertRequest): Promise<unknown> {
-    return this.client.put<unknown>(appApiPath(`/appstore/catalog/search/history`), body, undefined, undefined, 'application/json');
+  async update(body: SearchHistoryUpsertRequest, requestOptions?: ApiRequestOptions): Promise<unknown> {
+    return this.client.request<unknown>(appApiPath(`/appstore/catalog/search/history`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'data' });
   }
 
 /** Clear search history */
-  async delete(): Promise<void> {
-    return this.client.delete<void>(appApiPath(`/appstore/catalog/search/history`));
+  async delete(requestOptions?: ApiRequestOptions): Promise<void> {
+    return this.client.request<void>(appApiPath(`/appstore/catalog/search/history`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
   }
 }
 
@@ -51,12 +150,12 @@ export class CatalogAppstoreCatalogSearchTrendingApi {
 
 
 /** List trending search terms */
-  async list(params?: CatalogAppstoreCatalogSearchTrendingListParams): Promise<SdkWorkPageData> {
+  async list(params?: CatalogAppstoreCatalogSearchTrendingListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'locale', value: params?.locale, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/search/trending`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/search/trending`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -74,23 +173,23 @@ export class CatalogAppstoreCatalogSearchSuggestionsApi {
 
 
 /** List search suggestions */
-  async list(params: CatalogAppstoreCatalogSearchSuggestionsListParams): Promise<SdkWorkPageData> {
+  async list(params: CatalogAppstoreCatalogSearchSuggestionsListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'q', value: params.q, style: 'form', explode: true, allowReserved: false },
       { name: 'locale', value: params.locale, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/search/suggestions`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/search/suggestions`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
 export class CatalogAppstoreCatalogSearchApi {
-
+  private client: HttpClient;
   public readonly suggestions: CatalogAppstoreCatalogSearchSuggestionsApi;
   public readonly trending: CatalogAppstoreCatalogSearchTrendingApi;
   public readonly history: CatalogAppstoreCatalogSearchHistoryApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.suggestions = new CatalogAppstoreCatalogSearchSuggestionsApi(client);
     this.trending = new CatalogAppstoreCatalogSearchTrendingApi(client);
     this.history = new CatalogAppstoreCatalogSearchHistoryApi(client);
@@ -113,18 +212,18 @@ export class CatalogAppstoreCatalogEventsApi {
 
 
 /** List catalog events */
-  async list(params?: CatalogAppstoreCatalogEventsListParams): Promise<SdkWorkPageData> {
+  async list(params?: CatalogAppstoreCatalogEventsListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/events`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/events`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Retrieve catalog event detail */
-  async retrieve(eventId: string): Promise<Record<string, unknown>> {
-    return this.client.get<Record<string, unknown>>(appApiPath(`/appstore/catalog/events/${serializePathParameter(eventId, { name: 'eventId', style: 'simple', explode: false })}`));
+  async retrieve(eventId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/appstore/catalog/events/${serializePathParameter(eventId, { name: 'eventId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -143,13 +242,13 @@ export class CatalogAppstoreCatalogRecentlyUpdatedApi {
 
 
 /** List recently updated listings */
-  async list(params?: CatalogAppstoreCatalogRecentlyUpdatedListParams): Promise<SdkWorkPageData> {
+  async list(params?: CatalogAppstoreCatalogRecentlyUpdatedListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
       { name: 'locale', value: params?.locale, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/recently_updated`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/recently_updated`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -169,20 +268,21 @@ export class CatalogAppstoreCatalogRecommendationsApi {
 
 
 /** List recommended listings */
-  async list(params?: CatalogAppstoreCatalogRecommendationsListParams): Promise<SdkWorkPageData> {
+  async list(params?: CatalogAppstoreCatalogRecommendationsListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'locale', value: params?.locale, style: 'form', explode: true, allowReserved: false },
       { name: 'platform', value: params?.platform, style: 'form', explode: true, allowReserved: false },
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/recommendations`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/appstore/catalog/recommendations`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
 export interface CatalogAppstoreCatalogListingsListParams {
   q?: string;
   categoryId?: string;
+  ids?: string;
   cursor?: string;
   pageSize?: number;
 }
@@ -196,14 +296,15 @@ export class CatalogAppstoreCatalogListingsApi {
 
 
 /** Search public listings */
-  async list(params?: CatalogAppstoreCatalogListingsListParams): Promise<{ items: ListingSummary[]; pageInfo: { mode: 'cursor'; nextCursor?: string | null; hasMore: boolean; }; }> {
+  async list(params?: CatalogAppstoreCatalogListingsListParams, requestOptions?: ApiRequestOptions): Promise<{ items: ListingSummary[]; pageInfo: { mode: 'cursor'; nextCursor?: string | null; hasMore: boolean; }; }> {
     const query = buildQueryString([
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'categoryId', value: params?.categoryId, style: 'form', explode: true, allowReserved: false },
+      { name: 'ids', value: params?.ids, style: 'form', explode: true, allowReserved: false },
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<{ items: ListingSummary[]; pageInfo: { mode: 'cursor'; nextCursor?: string | null; hasMore: boolean; }; }>(appendQueryString(appApiPath(`/appstore/catalog/listings/search`), query));
+    return this.client.request<{ items: ListingSummary[]; pageInfo: { mode: 'cursor'; nextCursor?: string | null; hasMore: boolean; }; }>(appendQueryString(appApiPath(`/appstore/catalog/listings/search`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -216,8 +317,8 @@ export class CatalogAppstoreCatalogChartsApi {
 
 
 /** Retrieve chart rankings */
-  async retrieve(chartCode: string): Promise<CatalogChartSnapshot> {
-    return this.client.get<CatalogChartSnapshot>(appApiPath(`/appstore/catalog/charts/${serializePathParameter(chartCode, { name: 'chartCode', style: 'simple', explode: false })}`));
+  async retrieve(chartCode: string, requestOptions?: ApiRequestOptions): Promise<CatalogChartSnapshot> {
+    return this.client.request<CatalogChartSnapshot>(appApiPath(`/appstore/catalog/charts/${serializePathParameter(chartCode, { name: 'chartCode', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -230,8 +331,8 @@ export class CatalogAppstoreCatalogFeaturedApi {
 
 
 /** List featured placements */
-  async list(): Promise<{ items: CatalogFeaturedSlot[]; pageInfo: PageInfo; }> {
-    return this.client.get<{ items: CatalogFeaturedSlot[]; pageInfo: PageInfo; }>(appApiPath(`/appstore/catalog/featured`));
+  async list(requestOptions?: ApiRequestOptions): Promise<{ items: CatalogFeaturedSlot[]; pageInfo: PageInfo; }> {
+    return this.client.request<{ items: CatalogFeaturedSlot[]; pageInfo: PageInfo; }>(appApiPath(`/appstore/catalog/featured`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -249,17 +350,17 @@ export class CatalogAppstoreCatalogCollectionsApi {
 
 
 /** List editorial collections */
-  async list(params?: CatalogAppstoreCatalogCollectionsListParams): Promise<{ items: CatalogCollection[]; pageInfo: PageInfo; }> {
+  async list(params?: CatalogAppstoreCatalogCollectionsListParams, requestOptions?: ApiRequestOptions): Promise<{ items: CatalogCollection[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<{ items: CatalogCollection[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/appstore/catalog/collections`), query));
+    return this.client.request<{ items: CatalogCollection[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/appstore/catalog/collections`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Retrieve collection detail */
-  async retrieve(collectionId: string): Promise<CatalogCollection> {
-    return this.client.get<CatalogCollection>(appApiPath(`/appstore/catalog/collections/${serializePathParameter(collectionId, { name: 'collectionId', style: 'simple', explode: false })}`));
+  async retrieve(collectionId: string, requestOptions?: ApiRequestOptions): Promise<CatalogCollection> {
+    return this.client.request<CatalogCollection>(appApiPath(`/appstore/catalog/collections/${serializePathParameter(collectionId, { name: 'collectionId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -278,18 +379,18 @@ export class CatalogAppstoreCatalogCategoriesApi {
 
 
 /** List store categories */
-  async list(params?: CatalogAppstoreCatalogCategoriesListParams): Promise<{ items: Category[]; pageInfo: PageInfo; }> {
+  async list(params?: CatalogAppstoreCatalogCategoriesListParams, requestOptions?: ApiRequestOptions): Promise<{ items: Category[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
       { name: 'locale', value: params?.locale, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<{ items: Category[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/appstore/catalog/categories`), query));
+    return this.client.request<{ items: Category[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/appstore/catalog/categories`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Retrieve category detail */
-  async retrieve(categoryId: string): Promise<Category> {
-    return this.client.get<Category>(appApiPath(`/appstore/catalog/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`));
+  async retrieve(categoryId: string, requestOptions?: ApiRequestOptions): Promise<Category> {
+    return this.client.request<Category>(appApiPath(`/appstore/catalog/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -302,13 +403,13 @@ export class CatalogAppstoreCatalogHomeApi {
 
 
 /** Retrieve storefront home feed */
-  async retrieve(): Promise<HomeFeedData> {
-    return this.client.get<HomeFeedData>(appApiPath(`/appstore/catalog/home`));
+  async retrieve(requestOptions?: ApiRequestOptions): Promise<HomeFeedData> {
+    return this.client.request<HomeFeedData>(appApiPath(`/appstore/catalog/home`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class CatalogAppstoreCatalogApi {
-
+  private client: HttpClient;
   public readonly home: CatalogAppstoreCatalogHomeApi;
   public readonly categories: CatalogAppstoreCatalogCategoriesApi;
   public readonly collections: CatalogAppstoreCatalogCollectionsApi;
@@ -319,9 +420,11 @@ export class CatalogAppstoreCatalogApi {
   public readonly recentlyUpdated: CatalogAppstoreCatalogRecentlyUpdatedApi;
   public readonly events: CatalogAppstoreCatalogEventsApi;
   public readonly search: CatalogAppstoreCatalogSearchApi;
+  public readonly templates: CatalogAppstoreCatalogTemplatesApi;
+  public readonly feedback: CatalogAppstoreCatalogFeedbackApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.home = new CatalogAppstoreCatalogHomeApi(client);
     this.categories = new CatalogAppstoreCatalogCategoriesApi(client);
     this.collections = new CatalogAppstoreCatalogCollectionsApi(client);
@@ -332,27 +435,29 @@ export class CatalogAppstoreCatalogApi {
     this.recentlyUpdated = new CatalogAppstoreCatalogRecentlyUpdatedApi(client);
     this.events = new CatalogAppstoreCatalogEventsApi(client);
     this.search = new CatalogAppstoreCatalogSearchApi(client);
+    this.templates = new CatalogAppstoreCatalogTemplatesApi(client);
+    this.feedback = new CatalogAppstoreCatalogFeedbackApi(client);
   }
 
 }
 
 export class CatalogAppstoreApi {
-
+  private client: HttpClient;
   public readonly catalog: CatalogAppstoreCatalogApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.catalog = new CatalogAppstoreCatalogApi(client);
   }
 
 }
 
 export class CatalogApi {
-
+  private client: HttpClient;
   public readonly appstore: CatalogAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new CatalogAppstoreApi(client);
   }
 
@@ -592,4 +697,79 @@ function encodeQueryValue(value: string, allowReserved: boolean): string {
     .replace(/%2C/gi, ',')
     .replace(/%3B/gi, ';')
     .replace(/%3D/gi, '=');
+}
+function buildRequestHeaders(
+  headers: Record<string, HeaderParameterSpec | undefined>,
+  cookies: Record<string, HeaderParameterSpec | undefined> = {},
+): Record<string, string> | undefined {
+  const requestHeaders: Record<string, string> = {};
+
+  for (const [name, parameter] of Object.entries(headers)) {
+    const serialized = serializeParameterValue(parameter);
+    if (serialized !== undefined) {
+      requestHeaders[name] = serialized;
+    }
+  }
+
+  const cookieHeader = buildCookieHeader(cookies);
+  if (cookieHeader) {
+    requestHeaders.Cookie = requestHeaders.Cookie
+      ? `${requestHeaders.Cookie}; ${cookieHeader}`
+      : cookieHeader;
+  }
+
+  return Object.keys(requestHeaders).length > 0 ? requestHeaders : undefined;
+}
+
+interface HeaderParameterSpec {
+  value: unknown;
+  style: string;
+  explode: boolean;
+  contentType?: string;
+}
+
+function buildCookieHeader(cookies: Record<string, HeaderParameterSpec | undefined>): string | undefined {
+  const pairs: string[] = [];
+  for (const [name, parameter] of Object.entries(cookies)) {
+    const serialized = serializeParameterValue(parameter);
+    if (serialized !== undefined) {
+      pairs.push(`${encodeURIComponent(name)}=${encodeURIComponent(serialized)}`);
+    }
+  }
+  return pairs.length > 0 ? pairs.join('; ') : undefined;
+}
+
+function serializeParameterValue(parameter: HeaderParameterSpec | undefined): string | undefined {
+  const value = parameter?.value;
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (parameter?.contentType) {
+    return JSON.stringify(value);
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => serializeHeaderPrimitive(item)).join(',');
+  }
+  if (typeof value === 'object' && value !== null) {
+    return serializeHeaderObject(value as Record<string, unknown>, parameter?.explode === true);
+  }
+  return serializeHeaderPrimitive(value);
+}
+
+function serializeHeaderObject(value: Record<string, unknown>, explode: boolean): string {
+  const entries = Object.entries(value).filter(([, entryValue]) => entryValue !== undefined && entryValue !== null);
+  if (explode) {
+    return entries.map(([key, entryValue]) => `${key}=${serializeHeaderPrimitive(entryValue)}`).join(',');
+  }
+  return entries.flatMap(([key, entryValue]) => [key, serializeHeaderPrimitive(entryValue)]).join(',');
+}
+
+function serializeHeaderPrimitive(value: unknown): string {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  return String(value);
 }

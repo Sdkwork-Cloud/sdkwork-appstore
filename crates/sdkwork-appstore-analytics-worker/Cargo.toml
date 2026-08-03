@@ -25,5 +25,5 @@ sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx
 sdkwork-database-sqlx = { workspace = true }
 
 [dev-dependencies]
-sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono"] }
+sqlx = { version = "0.9", features = ["runtime-tokio", "tls-rustls", "sqlite", "chrono"] }
 tokio = { version = "1", features = ["full", "test-util"] }

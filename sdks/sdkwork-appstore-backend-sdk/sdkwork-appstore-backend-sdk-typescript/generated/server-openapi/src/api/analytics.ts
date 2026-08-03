@@ -1,5 +1,5 @@
 import { backendApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { SdkWorkPageData } from '../types';
 
@@ -20,14 +20,14 @@ export class AnalyticsAppstoreAnalyticsOperatorSearchApi {
 
 
 /** Retrieve operator search analytics */
-  async retrieve(params?: AnalyticsAppstoreAnalyticsOperatorSearchRetrieveParams): Promise<SdkWorkPageData> {
+  async retrieve(params?: AnalyticsAppstoreAnalyticsOperatorSearchRetrieveParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'date_from', value: params?.dateFrom, style: 'form', explode: true, allowReserved: false },
       { name: 'date_to', value: params?.dateTo, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(backendApiPath(`/analytics/operator/search`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/analytics/operator/search`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -45,22 +45,22 @@ export class AnalyticsAppstoreAnalyticsOperatorDashboardApi {
 
 
 /** Retrieve operator analytics dashboard */
-  async retrieve(params?: AnalyticsAppstoreAnalyticsOperatorDashboardRetrieveParams): Promise<Record<string, unknown>> {
+  async retrieve(params?: AnalyticsAppstoreAnalyticsOperatorDashboardRetrieveParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     const query = buildQueryString([
       { name: 'date_from', value: params?.dateFrom, style: 'form', explode: true, allowReserved: false },
       { name: 'date_to', value: params?.dateTo, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<Record<string, unknown>>(appendQueryString(backendApiPath(`/analytics/operator/dashboard`), query));
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/analytics/operator/dashboard`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class AnalyticsAppstoreAnalyticsOperatorApi {
-
+  private client: HttpClient;
   public readonly dashboard: AnalyticsAppstoreAnalyticsOperatorDashboardApi;
   public readonly search: AnalyticsAppstoreAnalyticsOperatorSearchApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.dashboard = new AnalyticsAppstoreAnalyticsOperatorDashboardApi(client);
     this.search = new AnalyticsAppstoreAnalyticsOperatorSearchApi(client);
   }
@@ -88,23 +88,23 @@ export class AnalyticsAppstoreAnalyticsPublisherListingsApi {
 
 
 /** List publisher analytics per listing */
-  async list(params?: AnalyticsAppstoreAnalyticsPublisherListingsListParams): Promise<SdkWorkPageData> {
+  async list(params?: AnalyticsAppstoreAnalyticsPublisherListingsListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
       { name: 'date_from', value: params?.dateFrom, style: 'form', explode: true, allowReserved: false },
       { name: 'date_to', value: params?.dateTo, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(backendApiPath(`/analytics/publisher/listings`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/analytics/publisher/listings`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Retrieve publisher analytics for a listing */
-  async retrieve(listingId: string, params?: AnalyticsAppstoreAnalyticsPublisherListingsRetrieveParams): Promise<Record<string, unknown>> {
+  async retrieve(listingId: string, params?: AnalyticsAppstoreAnalyticsPublisherListingsRetrieveParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     const query = buildQueryString([
       { name: 'date_from', value: params?.dateFrom, style: 'form', explode: true, allowReserved: false },
       { name: 'date_to', value: params?.dateTo, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<Record<string, unknown>>(appendQueryString(backendApiPath(`/analytics/publisher/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), query));
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/analytics/publisher/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -122,22 +122,22 @@ export class AnalyticsAppstoreAnalyticsPublisherOverviewApi {
 
 
 /** Retrieve publisher analytics overview */
-  async retrieve(params?: AnalyticsAppstoreAnalyticsPublisherOverviewRetrieveParams): Promise<Record<string, unknown>> {
+  async retrieve(params?: AnalyticsAppstoreAnalyticsPublisherOverviewRetrieveParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     const query = buildQueryString([
       { name: 'date_from', value: params?.dateFrom, style: 'form', explode: true, allowReserved: false },
       { name: 'date_to', value: params?.dateTo, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<Record<string, unknown>>(appendQueryString(backendApiPath(`/analytics/publisher/overview`), query));
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/analytics/publisher/overview`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class AnalyticsAppstoreAnalyticsPublisherApi {
-
+  private client: HttpClient;
   public readonly overview: AnalyticsAppstoreAnalyticsPublisherOverviewApi;
   public readonly listings: AnalyticsAppstoreAnalyticsPublisherListingsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.overview = new AnalyticsAppstoreAnalyticsPublisherOverviewApi(client);
     this.listings = new AnalyticsAppstoreAnalyticsPublisherListingsApi(client);
   }
@@ -145,12 +145,12 @@ export class AnalyticsAppstoreAnalyticsPublisherApi {
 }
 
 export class AnalyticsAppstoreAnalyticsApi {
-
+  private client: HttpClient;
   public readonly publisher: AnalyticsAppstoreAnalyticsPublisherApi;
   public readonly operator: AnalyticsAppstoreAnalyticsOperatorApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.publisher = new AnalyticsAppstoreAnalyticsPublisherApi(client);
     this.operator = new AnalyticsAppstoreAnalyticsOperatorApi(client);
   }
@@ -158,22 +158,22 @@ export class AnalyticsAppstoreAnalyticsApi {
 }
 
 export class AnalyticsAppstoreApi {
-
+  private client: HttpClient;
   public readonly analytics: AnalyticsAppstoreAnalyticsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.analytics = new AnalyticsAppstoreAnalyticsApi(client);
   }
 
 }
 
 export class AnalyticsApi {
-
+  private client: HttpClient;
   public readonly appstore: AnalyticsAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new AnalyticsAppstoreApi(client);
   }
 

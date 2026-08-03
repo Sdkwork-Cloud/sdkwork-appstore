@@ -1,5 +1,5 @@
 import { customApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { AutomationSubmission, AutomationSubmissionCreateRequest } from '../types';
 
@@ -17,56 +17,56 @@ export class AutomationAppstorePublishAutomationSubmissionsApi {
 
 
 /** Create automated publish submission */
-  async create(body: AutomationSubmissionCreateRequest, params: AutomationAppstorePublishAutomationSubmissionsCreateParams): Promise<AutomationSubmission> {
+  async create(body: AutomationSubmissionCreateRequest, params: AutomationAppstorePublishAutomationSubmissionsCreateParams, requestOptions?: ApiRequestOptions): Promise<AutomationSubmission> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<AutomationSubmission>(customApiPath(`/automation/submissions`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<AutomationSubmission>(customApiPath(`/automation/submissions`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class AutomationAppstorePublishAutomationApi {
-
+  private client: HttpClient;
   public readonly submissions: AutomationAppstorePublishAutomationSubmissionsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.submissions = new AutomationAppstorePublishAutomationSubmissionsApi(client);
   }
 
 }
 
 export class AutomationAppstorePublishApi {
-
+  private client: HttpClient;
   public readonly automation: AutomationAppstorePublishAutomationApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.automation = new AutomationAppstorePublishAutomationApi(client);
   }
 
 }
 
 export class AutomationAppstoreApi {
-
+  private client: HttpClient;
   public readonly publish: AutomationAppstorePublishApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.publish = new AutomationAppstorePublishApi(client);
   }
 
 }
 
 export class AutomationApi {
-
+  private client: HttpClient;
   public readonly appstore: AutomationAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new AutomationAppstoreApi(client);
   }
 
@@ -76,7 +76,13 @@ export function createAutomationApi(client: HttpClient): AutomationApi {
   return new AutomationApi(client);
 }
 
-
+function appendQueryString(path: string, rawQueryString: string): string {
+  const query = rawQueryString.replace(/^\?+/, '');
+  if (!query) {
+    return path;
+  }
+  return path.includes('?') ? `${path}&${query}` : `${path}?${query}`;
+}
 
 
 

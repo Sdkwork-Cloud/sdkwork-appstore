@@ -9,6 +9,14 @@ export interface ListingDetail {
   listingSlug: string;
   pricingModel: 'FREE' | 'PAID' | 'FREEMIUM' | 'SUBSCRIPTION';
   icon?: MediaResource;
+  /** Publisher display name of the listing owner. */
+  developerName?: string;
+  /** Localized short/full description preview. */
+  description?: string;
+  currentVersion?: string;
+  fileSizeBytes?: string;
+  whatsNewSummary?: string;
+  releasedAt?: string;
   averageRating?: string;
   ratingCount?: number;
   listingStatus?: string;

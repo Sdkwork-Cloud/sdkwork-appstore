@@ -8,12 +8,13 @@ use crate::db::columns::{
     APPSTORE_CATEGORY_LOCALIZATION_COLUMNS, APPSTORE_LISTING_METRIC_SNAPSHOT_COLUMNS,
 };
 use crate::db::rows::{
-    CatalogChartSnapshotRow, CatalogCollectionItemRow, CatalogCollectionLocalizationRow,
-    CatalogCollectionRow, CatalogFeaturedSlotRow, CatalogSearchHistoryRow, CatalogTrendingTermRow,
-    CategoryLocalizationRow, CategoryRow, ListingMetricSnapshotRow, ListingSearchRow,
-    ListingSuggestionRow,
+    AppTemplateRow, AppTemplateUsageRow, CatalogChartSnapshotRow, CatalogCollectionItemRow,
+    CatalogCollectionLocalizationRow, CatalogCollectionRow, CatalogFeaturedSlotRow,
+    CatalogSearchHistoryRow, CatalogTrendingTermRow, CategoryLocalizationRow, CategoryRow,
+    ListingMetricSnapshotRow, ListingSearchRow, ListingSuggestionRow,
 };
 use crate::mapper::row_mapper::{
+    map_app_template_row_to_domain, map_app_template_usage_row_to_domain,
     map_category_domain_to_row, map_category_localization_row_to_domain,
     map_category_row_to_domain, map_chart_snapshot_row_to_domain, map_collection_domain_to_row,
     map_collection_item_domain_to_row, map_collection_item_row_to_domain,
@@ -25,8 +26,9 @@ use crate::mapper::row_mapper::{
 
 use sdkwork_appstore_catalog_service::context::AppstoreRequestContext;
 use sdkwork_appstore_catalog_service::domain::models::{
+    AppTemplate, AppTemplateUsage, AppTemplateUsageCounts, AppTemplateUsageKind,
     CatalogChartSnapshot, CatalogCollection, CatalogCollectionItem, CatalogCollectionLocalization,
-    CatalogFeaturedSlot, Category, CategoryId, CategoryLocalization, CollectionId,
+    CatalogFeaturedSlot, Category, CategoryId, CategoryLocalization, CollectionId, Feedback,
     ListingMetricSnapshot, ListingSummary, OperatorDashboardStats, OperatorSearchAnalytics,
     PublisherAnalyticsOverview, PublisherListingMetricsSummary, SearchHistoryEntry,
     SearchSuggestion, TrendingTerm,
@@ -754,15 +756,28 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         category_id: Option<&str>,
         cursor: Option<&str>,
         limit: i32,
+        listing_ids: Option<&[String]>,
     ) -> Result<Vec<ListingSummary>, AppstoreServiceError> {
         let mut sql = String::from(
             r#"
             SELECT l.id, l.app_id, l.app_key, ll.display_name, ll.subtitle,
                    l.listing_slug, l.pricing_model, l.icon_media_resource_id,
+                   p.display_name AS developer_name,
+                   COALESCE(ll.full_description, ll.short_description) AS description,
+                   r.version_name AS current_version,
+                   art.file_size_bytes AS file_size_bytes,
+                   ll.whats_new_summary AS whats_new_summary,
+                   r.published_at AS released_at,
                    l.average_rating, l.rating_count
             FROM appstore_listing l
             LEFT JOIN appstore_listing_localization ll
                 ON ll.listing_id = l.id AND ll.locale = l.default_locale AND ll.tenant_id = l.tenant_id
+            LEFT JOIN appstore_publisher p
+                ON p.id = l.publisher_id AND p.tenant_id = l.tenant_id
+            LEFT JOIN appstore_release r
+                ON r.id = l.current_release_id
+            LEFT JOIN appstore_release_artifact art
+                ON art.release_id = r.id AND art.artifact_status = 'active'
             WHERE l.tenant_id = ?
               AND l.listing_status = 'published'
               AND l.storefront_visibility = 'visible'
@@ -775,6 +790,13 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
         if category_id.is_some() {
             sql.push_str("  AND l.primary_category_id = ?\n");
+        }
+        if let Some(ids) = listing_ids {
+            if ids.is_empty() {
+                return Ok(Vec::new());
+            }
+            let placeholders = ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
+            sql.push_str(&format!("  AND l.id IN ({placeholders})\n"));
         }
         if cursor.is_some() {
             sql.push_str("  AND l.listing_no > ?\n");
@@ -794,6 +816,11 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         }
         if let Some(cid) = category_id {
             q = q.bind(cid);
+        }
+        if let Some(ids) = listing_ids {
+            for listing_id in ids {
+                q = q.bind(listing_id);
+            }
         }
         if let Some(cursor_no) = cursor {
             q = q.bind(cursor_no);
@@ -879,12 +906,24 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             r#"
             SELECT l.id, l.app_id, l.app_key, ll.display_name, ll.subtitle,
                    l.listing_slug, l.pricing_model, l.icon_media_resource_id,
+                   p.display_name AS developer_name,
+                   COALESCE(ll.full_description, ll.short_description) AS description,
+                   r.version_name AS current_version,
+                   art.file_size_bytes AS file_size_bytes,
+                   ll.whats_new_summary AS whats_new_summary,
+                   r.published_at AS released_at,
                    l.average_rating, l.rating_count
             FROM appstore_listing l
             LEFT JOIN appstore_listing_localization ll
                 ON ll.listing_id = l.id
                AND ll.locale = ?
                AND ll.tenant_id = l.tenant_id
+            LEFT JOIN appstore_publisher p
+                ON p.id = l.publisher_id AND p.tenant_id = l.tenant_id
+            LEFT JOIN appstore_release r
+                ON r.id = l.current_release_id
+            LEFT JOIN appstore_release_artifact art
+                ON art.release_id = r.id AND art.artifact_status = 'active'
             WHERE l.tenant_id = ?
               AND l.id IN ({placeholders})
               AND l.listing_status = 'published'
@@ -1608,4 +1647,401 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             trending_terms,
         })
     }
+    async fn find_templates(
+        &self,
+        context: &AppstoreRequestContext,
+        query: Option<&str>,
+        category_code: Option<&str>,
+        template_type: Option<&str>,
+        cursor: Option<&str>,
+        limit: i32,
+        user_id: Option<&str>,
+    ) -> Result<Vec<AppTemplate>, AppstoreServiceError> {
+        let mut sql = String::from(
+            r#"
+            SELECT t.id, t.tenant_id::text, t.organization_id::text, t.template_code,
+                   t.template_name, t.description, t.template_type, t.category_code,
+                   t.framework, t.language, t.icon_media_resource_id, t.git_repo_url,
+                   COALESCE(t.capability_manifest::text, '{}'), COALESCE(t.metadata::text, '{}'),
+                   t.published_at, t.created_at, t.updated_at,
+                   COALESCE(star_counts.cnt, 0) AS star_count,
+                   COALESCE(fork_counts.cnt, 0) AS fork_count,
+                   COALESCE(clone_counts.cnt, 0) AS clone_count,
+                   COALESCE(user_state.enabled, FALSE) AS is_enabled
+            FROM appstore_app_template t
+            LEFT JOIN (
+                SELECT template_id, COUNT(*) AS cnt
+                FROM appstore_app_template_usage
+                WHERE usage_type = 1 AND metadata->>'action' IS DISTINCT FROM 'unstar'
+                GROUP BY template_id
+            ) star_counts ON star_counts.template_id = t.id
+            LEFT JOIN (
+                SELECT template_id, COUNT(*) AS cnt
+                FROM appstore_app_template_usage
+                WHERE usage_type = 2
+                GROUP BY template_id
+            ) fork_counts ON fork_counts.template_id = t.id
+            LEFT JOIN (
+                SELECT template_id, COUNT(*) AS cnt
+                FROM appstore_app_template_usage
+                WHERE usage_type = 3
+                GROUP BY template_id
+            ) clone_counts ON clone_counts.template_id = t.id
+            LEFT JOIN LATERAL (
+                SELECT
+                    CASE
+                        WHEN usage_type = 4 AND metadata->>'action' IS DISTINCT FROM 'disable' THEN TRUE
+                        ELSE FALSE
+                    END AS enabled
+                FROM appstore_app_template_usage u
+                WHERE u.template_id = t.id AND u.user_id = ? AND u.usage_type IN (4, 5)
+                ORDER BY u.created_at DESC, u.id DESC
+                LIMIT 1
+            ) user_state ON TRUE
+            WHERE t.tenant_id = ? AND t.status = 1 AND t.deleted_at IS NULL
+              AND t.visibility = 1 AND t.publish_status = 1
+            "#,
+        );
+
+        if template_type.is_some() {
+            sql.push_str("  AND t.template_type = ?\n");
+        }
+        if category_code.is_some() {
+            sql.push_str("  AND t.category_code = ?\n");
+        }
+        if query.is_some() {
+            sql.push_str("  AND (t.template_name LIKE ? OR t.description LIKE ?)\n");
+        }
+        if cursor.is_some() {
+            sql.push_str("  AND t.id > ?\n");
+        }
+        sql.push_str("ORDER BY t.updated_at DESC, t.id DESC\n");
+        sql.push_str("LIMIT ?\n");
+
+        let adapted = self.db.adapt_sql(&sql);
+        let mut q = self
+            .db
+            .query_as::<AppTemplateRow>(&adapted)
+            .bind(context.tenant_id.parse::<i64>().unwrap_or(0))
+            .bind(
+                user_id
+                    .and_then(|value| value.parse::<i64>().ok())
+                    .unwrap_or(0),
+            );
+        if let Some(tt) = template_type {
+            q = q.bind(tt);
+        }
+        if let Some(cc) = category_code {
+            q = q.bind(cc);
+        }
+        if let Some(qs) = query {
+            let pattern = format!("%{}%", qs);
+            q = q.bind(pattern.clone()).bind(pattern);
+        }
+        if let Some(cursor_id) = cursor {
+            q = q.bind(cursor_bigint_id(cursor_id));
+        }
+        q = q.bind(limit);
+
+        let rows = q
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        rows.into_iter()
+            .map(map_app_template_row_to_domain)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn find_template_by_id(
+        &self,
+        context: &AppstoreRequestContext,
+        template_id: &str,
+        user_id: Option<&str>,
+    ) -> Result<Option<AppTemplate>, AppstoreServiceError> {
+        let row = self
+            .db
+            .query_as::<AppTemplateRow>(&self.db.adapt_sql(
+                r#"
+                SELECT t.id, t.tenant_id::text, t.organization_id::text, t.template_code,
+                       t.template_name, t.description, t.template_type, t.category_code,
+                       t.framework, t.language, t.icon_media_resource_id, t.git_repo_url,
+                       COALESCE(t.capability_manifest::text, '{}'), COALESCE(t.metadata::text, '{}'),
+                       t.published_at, t.created_at, t.updated_at,
+                       COALESCE(star_counts.cnt, 0) AS star_count,
+                       COALESCE(fork_counts.cnt, 0) AS fork_count,
+                       COALESCE(clone_counts.cnt, 0) AS clone_count,
+                       COALESCE(user_state.enabled, FALSE) AS is_enabled
+                FROM appstore_app_template t
+                LEFT JOIN (
+                    SELECT template_id, COUNT(*) AS cnt
+                    FROM appstore_app_template_usage
+                    WHERE usage_type = 1 AND metadata->>'action' IS DISTINCT FROM 'unstar'
+                    GROUP BY template_id
+                ) star_counts ON star_counts.template_id = t.id
+                LEFT JOIN (
+                    SELECT template_id, COUNT(*) AS cnt
+                    FROM appstore_app_template_usage
+                    WHERE usage_type = 2
+                    GROUP BY template_id
+                ) fork_counts ON fork_counts.template_id = t.id
+                LEFT JOIN (
+                    SELECT template_id, COUNT(*) AS cnt
+                    FROM appstore_app_template_usage
+                    WHERE usage_type = 3
+                    GROUP BY template_id
+                ) clone_counts ON clone_counts.template_id = t.id
+                LEFT JOIN LATERAL (
+                    SELECT
+                        CASE
+                            WHEN usage_type = 4 AND metadata->>'action' IS DISTINCT FROM 'disable' THEN TRUE
+                            ELSE FALSE
+                        END AS enabled
+                    FROM appstore_app_template_usage u
+                    WHERE u.template_id = t.id AND u.user_id = ? AND u.usage_type IN (4, 5)
+                    ORDER BY u.created_at DESC, u.id DESC
+                    LIMIT 1
+                ) user_state ON TRUE
+                WHERE t.id = ? AND t.tenant_id = ?
+                  AND t.status = 1 AND t.deleted_at IS NULL
+                  AND t.visibility = 1 AND t.publish_status = 1
+                "#,
+            ))
+            .bind(user_id.and_then(|value| value.parse::<i64>().ok()).unwrap_or(0))
+            .bind(template_bigint_id(template_id))
+            .bind(context.tenant_id.parse::<i64>().unwrap_or(0))
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+
+        row.map(map_app_template_row_to_domain)
+            .transpose()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn insert_template(
+        &self,
+        context: &AppstoreRequestContext,
+        template: &AppTemplate,
+    ) -> Result<(), AppstoreServiceError> {
+        self.db
+            .query(&self.db.adapt_sql(
+                r#"
+                INSERT INTO appstore_app_template (
+                    id, uuid, tenant_id, organization_id, data_scope, status,
+                    created_at, updated_at, version, metadata,
+                    template_no, template_code, template_name, description,
+                    category_code, template_type, framework, language,
+                    icon_media_resource_id, visibility, publish_status, featured,
+                    sort_weight, owner_user_id, git_repo_url, capability_manifest,
+                    published_at
+                ) VALUES (?, ?, ?, ?, 0, 1, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, FALSE, 0, ?, ?, ?, ?)
+                "#,
+            ))
+            .bind(template_bigint_id(&template.id))
+            .bind(uuid_v4_hex())
+            .bind(context.tenant_id.parse::<i64>().unwrap_or(0))
+            .bind(
+                context
+                    .organization_id
+                    .as_deref()
+                    .and_then(|value| value.parse::<i64>().ok())
+                    .unwrap_or(0),
+            )
+            .bind(template.created_at)
+            .bind(template.updated_at)
+            .bind(template.metadata.to_string())
+            .bind(uuid_v4_hex())
+            .bind(&template.template_code)
+            .bind(&template.template_name)
+            .bind(template.description.as_deref().unwrap_or(""))
+            .bind(template.category_code.as_deref().unwrap_or(""))
+            .bind(&template.template_type)
+            .bind(template.framework.as_deref().unwrap_or(""))
+            .bind(template.language.as_deref().unwrap_or(""))
+            .bind(template.icon_media_resource_id.as_deref().unwrap_or(""))
+            .bind(
+                context
+                    .user_id
+                    .as_deref()
+                    .and_then(|value| value.parse::<i64>().ok())
+                    .unwrap_or(0),
+            )
+            .bind(template.git_repo_url.as_deref().unwrap_or(""))
+            .bind(template.capability_manifest.to_string())
+            .bind(template.published_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        Ok(())
+    }
+
+    async fn insert_template_usage(
+        &self,
+        context: &AppstoreRequestContext,
+        usage: &AppTemplateUsage,
+    ) -> Result<(), AppstoreServiceError> {
+        self.db
+            .query(&self.db.adapt_sql(
+                r#"
+                INSERT INTO appstore_app_template_usage (
+                    id, uuid, tenant_id, organization_id, data_scope, status,
+                    created_at, updated_at, version, metadata,
+                    template_id, usage_type
+                ) VALUES (?, ?, ?, ?, 0, 1, ?, ?, 0, ?, ?, ?)
+                "#,
+            ))
+            .bind(template_bigint_id(&usage.id))
+            .bind(uuid_v4_hex())
+            .bind(context.tenant_id.parse::<i64>().unwrap_or(0))
+            .bind(
+                context
+                    .organization_id
+                    .as_deref()
+                    .and_then(|value| value.parse::<i64>().ok())
+                    .unwrap_or(0),
+            )
+            .bind(usage.created_at)
+            .bind(usage.created_at)
+            .bind(usage.metadata.to_string())
+            .bind(template_bigint_id(&usage.template_id))
+            .bind(usage.usage_kind.as_i32())
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        Ok(())
+    }
+
+    async fn find_template_usage_counts(
+        &self,
+        context: &AppstoreRequestContext,
+        template_id: &str,
+    ) -> Result<AppTemplateUsageCounts, AppstoreServiceError> {
+        let row = self
+            .db
+            .query_as::<(i64, i64, i64)>(&self.db.adapt_sql(
+                r#"
+                SELECT
+                    COALESCE(SUM(CASE WHEN usage_type = 1 AND metadata->>'action' IS DISTINCT FROM 'unstar' THEN 1 ELSE 0 END), 0),
+                    COALESCE(SUM(CASE WHEN usage_type = 2 THEN 1 ELSE 0 END), 0),
+                    COALESCE(SUM(CASE WHEN usage_type = 3 THEN 1 ELSE 0 END), 0)
+                FROM appstore_app_template_usage
+                WHERE tenant_id = ? AND template_id = ?
+                "#,
+            ))
+            .bind(context.tenant_id.parse::<i64>().unwrap_or(0))
+            .bind(template_bigint_id(template_id))
+            .fetch_one(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+
+        Ok(AppTemplateUsageCounts {
+            template_id: template_id.to_string(),
+            star_count: row.0,
+            fork_count: row.1,
+            clone_count: row.2,
+        })
+    }
+
+    async fn find_latest_template_usage_state(
+        &self,
+        context: &AppstoreRequestContext,
+        template_id: &str,
+        user_id: &str,
+        usage_kind: &AppTemplateUsageKind,
+    ) -> Result<Option<AppTemplateUsage>, AppstoreServiceError> {
+        let row = self
+            .db
+            .query_as::<AppTemplateUsageRow>(&self.db.adapt_sql(
+                r#"
+                SELECT id, tenant_id::text, organization_id::text, template_id,
+                       user_id, usage_type, COALESCE(metadata::text, '{}'), created_at
+                FROM appstore_app_template_usage
+                WHERE tenant_id = ? AND template_id = ? AND user_id = ? AND usage_type = ?
+                ORDER BY created_at DESC, id DESC
+                LIMIT 1
+                "#,
+            ))
+            .bind(context.tenant_id.parse::<i64>().unwrap_or(0))
+            .bind(template_bigint_id(template_id))
+            .bind(user_id.parse::<i64>().unwrap_or(0))
+            .bind(usage_kind.as_i32())
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+
+        row.map(map_app_template_usage_row_to_domain)
+            .transpose()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn insert_feedback(
+        &self,
+        context: &AppstoreRequestContext,
+        feedback: &Feedback,
+    ) -> Result<(), AppstoreServiceError> {
+        self.db
+            .query(&self.db.adapt_sql(
+                r#"
+                INSERT INTO appstore_feedback (
+                    id, tenant_id, organization_id, user_id, feedback_type, content,
+                    contact, listing_id, app_key, status, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                "#,
+            ))
+            .bind(&feedback.id)
+            .bind(&feedback.tenant_id)
+            .bind(
+                context
+                    .organization_id
+                    .clone()
+                    .unwrap_or_else(|| "0".to_string()),
+            )
+            .bind(feedback.user_id.as_deref().unwrap_or(""))
+            .bind(&feedback.feedback_type)
+            .bind(&feedback.content)
+            .bind(feedback.contact.as_deref().unwrap_or(""))
+            .bind(feedback.listing_id.as_deref().unwrap_or(""))
+            .bind(feedback.app_key.as_deref().unwrap_or(""))
+            .bind(&feedback.status)
+            .bind(feedback.created_at)
+            .bind(feedback.created_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        Ok(())
+    }
+}
+
+fn template_bigint_id(id: &str) -> i64 {
+    if let Ok(value) = id.parse::<i64>() {
+        return value;
+    }
+    let compact: String = id
+        .chars()
+        .filter(|ch| ch.is_ascii_hexdigit())
+        .take(15)
+        .collect();
+    i64::from_str_radix(&compact, 16).unwrap_or(0).max(1)
+}
+
+fn cursor_bigint_id(id: &str) -> i64 {
+    template_bigint_id(id)
+}
+
+fn uuid_v4_hex() -> String {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    format!("{now:032x}{:08x}", rand_hex_suffix())
+}
+
+fn rand_hex_suffix() -> u32 {
+    use std::time::SystemTime;
+    let seed = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap_or_default()
+        .subsec_nanos();
+    seed.wrapping_mul(2654435761).rotate_left(13)
 }

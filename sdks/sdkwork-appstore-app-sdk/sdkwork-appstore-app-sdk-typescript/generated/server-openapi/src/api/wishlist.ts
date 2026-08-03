@@ -1,5 +1,5 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { PageInfo, WishlistItem, WishlistItemAddRequest } from '../types';
 
@@ -13,49 +13,49 @@ export class WishlistAppstoreWishlistItemsApi {
 
 
 /** List wishlist items */
-  async list(): Promise<{ items: WishlistItem[]; pageInfo: PageInfo; }> {
-    return this.client.get<{ items: WishlistItem[]; pageInfo: PageInfo; }>(appApiPath(`/wishlist/items`));
+  async list(requestOptions?: ApiRequestOptions): Promise<{ items: WishlistItem[]; pageInfo: PageInfo; }> {
+    return this.client.request<{ items: WishlistItem[]; pageInfo: PageInfo; }>(appApiPath(`/wishlist/items`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Add wishlist item */
-  async create(body: WishlistItemAddRequest): Promise<WishlistItem> {
-    return this.client.post<WishlistItem>(appApiPath(`/wishlist/items`), body, undefined, undefined, 'application/json');
+  async create(body: WishlistItemAddRequest, requestOptions?: ApiRequestOptions): Promise<WishlistItem> {
+    return this.client.request<WishlistItem>(appApiPath(`/wishlist/items`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Remove wishlist item */
-  async delete(listingId: string): Promise<void> {
-    return this.client.delete<void>(appApiPath(`/wishlist/items/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`));
+  async delete(listingId: string, requestOptions?: ApiRequestOptions): Promise<void> {
+    return this.client.request<void>(appApiPath(`/wishlist/items/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
   }
 }
 
 export class WishlistAppstoreWishlistApi {
-
+  private client: HttpClient;
   public readonly items: WishlistAppstoreWishlistItemsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.items = new WishlistAppstoreWishlistItemsApi(client);
   }
 
 }
 
 export class WishlistAppstoreApi {
-
+  private client: HttpClient;
   public readonly wishlist: WishlistAppstoreWishlistApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.wishlist = new WishlistAppstoreWishlistApi(client);
   }
 
 }
 
 export class WishlistApi {
-
+  private client: HttpClient;
   public readonly appstore: WishlistAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new WishlistAppstoreApi(client);
   }
 
@@ -65,7 +65,13 @@ export function createWishlistApi(client: HttpClient): WishlistApi {
   return new WishlistApi(client);
 }
 
-
+function appendQueryString(path: string, rawQueryString: string): string {
+  const query = rawQueryString.replace(/^\?+/, '');
+  if (!query) {
+    return path;
+  }
+  return path.includes('?') ? `${path}&${query}` : `${path}?${query}`;
+}
 
 interface PathParameterSpec {
   name: string;

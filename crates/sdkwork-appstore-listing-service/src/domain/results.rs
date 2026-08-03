@@ -464,3 +464,42 @@ impl RetrieveListingEditorialResult {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RatingsListResult {
+    pub operation_id: &'static str,
+    pub ratings: Vec<crate::domain::models::ListingRating>,
+    pub next_cursor: Option<String>,
+    pub has_more: bool,
+}
+
+impl RatingsListResult {
+    pub fn new(
+        operation_id: &'static str,
+        ratings: Vec<crate::domain::models::ListingRating>,
+        next_cursor: Option<String>,
+        has_more: bool,
+    ) -> Self {
+        Self {
+            operation_id,
+            ratings,
+            next_cursor,
+            has_more,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RatingUpdateResult {
+    pub operation_id: &'static str,
+    pub rating: crate::domain::models::ListingRating,
+}
+
+impl RatingUpdateResult {
+    pub fn new(operation_id: &'static str, rating: crate::domain::models::ListingRating) -> Self {
+        Self {
+            operation_id,
+            rating,
+        }
+    }
+}

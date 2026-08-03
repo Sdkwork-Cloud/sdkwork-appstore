@@ -97,7 +97,14 @@ pub trait LibraryRepositoryPort: Send + Sync {
         &self,
         context: &AppstoreRequestContext,
         listing_id: &str,
-    ) -> AppstoreServiceResult<Option<(String, String, String)>>;
+    ) -> AppstoreServiceResult<Option<(String, String, String, Option<String>)>>;
+
+    async fn find_release_notes(
+        &self,
+        context: &AppstoreRequestContext,
+        release_id: &str,
+        locale: Option<&str>,
+    ) -> AppstoreServiceResult<Option<String>>;
 
     async fn find_latest_artifact_for_release(
         &self,

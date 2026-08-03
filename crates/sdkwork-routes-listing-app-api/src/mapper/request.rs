@@ -2,9 +2,9 @@ use sdkwork_appstore_listing_service::domain::commands::{
     AttachListingMediaRequest, BindListingCategoriesRequest, CreateListingRequest,
     CreateListingSubmissionRequest, ListDeveloperOtherListingsRequest, ListListingMediaRequest,
     ListListingReleaseHistoryRequest, ListListingReleasesRequest, ListPublisherListingsRequest,
-    ListSimilarListingsRequest, RegionEntry, RemoveListingMediaRequest,
-    RetrieveListingEditorialRequest, RetrieveListingRequest, UpdateListingRequest,
-    UpdateRegionalAvailabilityRequest, UpsertListingLocalizationRequest,
+    ListSimilarListingsRequest, RatingUpdateRequest, RatingsListRequest, RegionEntry,
+    RemoveListingMediaRequest, RetrieveListingEditorialRequest, RetrieveListingRequest,
+    UpdateListingRequest, UpdateRegionalAvailabilityRequest, UpsertListingLocalizationRequest,
 };
 
 pub fn map_retrieve_listing(listing_id: String) -> RetrieveListingRequest {
@@ -214,4 +214,29 @@ pub fn map_list_developer_other_listings(
 
 pub fn map_retrieve_listing_editorial(listing_id: String) -> RetrieveListingEditorialRequest {
     RetrieveListingEditorialRequest::new(listing_id)
+}
+
+pub fn map_ratings_list(
+    listing_id: String,
+    cursor: Option<String>,
+    page_size: Option<i32>,
+) -> RatingsListRequest {
+    let mut req = RatingsListRequest::new(listing_id);
+    if let Some(v) = cursor {
+        req = req.with_cursor(v);
+    }
+    if let Some(v) = page_size {
+        req = req.with_page_size(v);
+    }
+    req
+}
+
+pub fn map_rating_update(
+    listing_id: String,
+    rating: i32,
+    title: Option<String>,
+) -> RatingUpdateRequest {
+    let mut req = RatingUpdateRequest::new(listing_id, rating);
+    req.title = title;
+    req
 }

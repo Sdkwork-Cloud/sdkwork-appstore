@@ -411,3 +411,16 @@ pub struct RegionalAvailability {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListingRating {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub listing_id: ListingId,
+    pub user_id: String,
+    pub rating: i32,
+    pub title: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}

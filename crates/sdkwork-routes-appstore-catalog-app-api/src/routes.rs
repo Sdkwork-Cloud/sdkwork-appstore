@@ -142,6 +142,46 @@ pub const ROUTES: &[RouteDefinition] = &[
         handler: "catalog_search_history_clear",
         service_method: "catalog_search_history_clear",
     },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/appstore/catalog/templates",
+        operation_id: "appstore.catalog.templates.list",
+        auth: RouteAuth::DualToken,
+        handler: "catalog_templates_list",
+        service_method: "catalog_templates_list",
+    },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/appstore/catalog/templates/{templateId}",
+        operation_id: "appstore.catalog.templates.retrieve",
+        auth: RouteAuth::DualToken,
+        handler: "catalog_template_retrieve",
+        service_method: "catalog_template_retrieve",
+    },
+    RouteDefinition {
+        method: "POST",
+        path: "/app/v3/api/appstore/catalog/templates",
+        operation_id: "appstore.catalog.templates.create",
+        auth: RouteAuth::DualToken,
+        handler: "catalog_template_create",
+        service_method: "catalog_template_create",
+    },
+    RouteDefinition {
+        method: "POST",
+        path: "/app/v3/api/appstore/catalog/templates/{templateId}/usage",
+        operation_id: "appstore.catalog.templates.usage.create",
+        auth: RouteAuth::DualToken,
+        handler: "catalog_template_usage_create",
+        service_method: "catalog_template_usage_create",
+    },
+    RouteDefinition {
+        method: "POST",
+        path: "/app/v3/api/appstore/catalog/feedback",
+        operation_id: "appstore.catalog.feedback.create",
+        auth: RouteAuth::DualToken,
+        handler: "catalog_feedback_create",
+        service_method: "catalog_feedback_create",
+    },
 ];
 
 pub fn route_definitions() -> &'static [RouteDefinition] {

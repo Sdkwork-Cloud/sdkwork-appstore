@@ -1,5 +1,5 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { LibraryInstallRequest, LibraryInstallResult, LibraryUninstallRequest, LibraryUpdatesCheckRequest, PageInfo, UpdateAvailable, UserLibraryItem } from '../types';
 
@@ -13,8 +13,8 @@ export class LibraryAppstoreLibraryUpdatesApi {
 
 
 /** Check library updates */
-  async check(body: LibraryUpdatesCheckRequest): Promise<{ items: UpdateAvailable[]; pageInfo: PageInfo; }> {
-    return this.client.post<{ items: UpdateAvailable[]; pageInfo: PageInfo; }>(appApiPath(`/library/updates/check`), body, undefined, undefined, 'application/json');
+  async check(body: LibraryUpdatesCheckRequest, requestOptions?: ApiRequestOptions): Promise<{ items: UpdateAvailable[]; pageInfo: PageInfo; }> {
+    return this.client.request<{ items: UpdateAvailable[]; pageInfo: PageInfo; }>(appApiPath(`/library/updates/check`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -32,17 +32,17 @@ export class LibraryAppstoreLibraryItemsApi {
 
 
 /** List library items */
-  async list(params?: LibraryAppstoreLibraryItemsListParams): Promise<{ items: UserLibraryItem[]; pageInfo: PageInfo; }> {
+  async list(params?: LibraryAppstoreLibraryItemsListParams, requestOptions?: ApiRequestOptions): Promise<{ items: UserLibraryItem[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<{ items: UserLibraryItem[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/library/items`), query));
+    return this.client.request<{ items: UserLibraryItem[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/library/items`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Retrieve library item */
-  async retrieve(libraryItemId: string): Promise<UserLibraryItem> {
-    return this.client.get<UserLibraryItem>(appApiPath(`/library/items/${serializePathParameter(libraryItemId, { name: 'libraryItemId', style: 'simple', explode: false })}`));
+  async retrieve(libraryItemId: string, requestOptions?: ApiRequestOptions): Promise<UserLibraryItem> {
+    return this.client.request<UserLibraryItem>(appApiPath(`/library/items/${serializePathParameter(libraryItemId, { name: 'libraryItemId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -63,39 +63,39 @@ export class LibraryAppstoreLibraryApi {
 
 
 /** Record install and prepare download */
-  async install(body: LibraryInstallRequest, params: LibraryAppstoreLibraryInstallParams): Promise<LibraryInstallResult> {
+  async install(body: LibraryInstallRequest, params: LibraryAppstoreLibraryInstallParams, requestOptions?: ApiRequestOptions): Promise<LibraryInstallResult> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<LibraryInstallResult>(appApiPath(`/library/install`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<LibraryInstallResult>(appApiPath(`/library/install`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Record uninstall */
-  async uninstall(body: LibraryUninstallRequest): Promise<Record<string, unknown>> {
-    return this.client.post<Record<string, unknown>>(appApiPath(`/library/uninstall`), body, undefined, undefined, 'application/json');
+  async uninstall(body: LibraryUninstallRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/library/uninstall`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class LibraryAppstoreApi {
-
+  private client: HttpClient;
   public readonly library: LibraryAppstoreLibraryApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.library = new LibraryAppstoreLibraryApi(client);
   }
 
 }
 
 export class LibraryApi {
-
+  private client: HttpClient;
   public readonly appstore: LibraryAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new LibraryAppstoreApi(client);
   }
 

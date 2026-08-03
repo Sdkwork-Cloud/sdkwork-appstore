@@ -198,4 +198,24 @@ pub trait ListingRepositoryPort: Send + Sync {
         listing_id: &ListingId,
         default_locale: &str,
     ) -> AppstoreServiceResult<(Option<String>, Option<String>)>;
+
+    async fn find_ratings(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> AppstoreServiceResult<Vec<crate::domain::models::ListingRating>>;
+
+    async fn upsert_rating(
+        &self,
+        context: &AppstoreRequestContext,
+        rating: &crate::domain::models::ListingRating,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn recompute_listing_rating_stats(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+    ) -> AppstoreServiceResult<()>;
 }

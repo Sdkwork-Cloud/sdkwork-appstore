@@ -30,6 +30,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.queue.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: List moderation queue
       parameters:
       - name: reviewStatus
@@ -50,6 +53,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.reviews.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve moderation review
       parameters:
       - $ref: '#/components/parameters/ReviewId'
@@ -65,6 +71,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.reviews.assign
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Assign moderation review
       parameters:
       - $ref: '#/components/parameters/ReviewId'
@@ -91,6 +100,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.decisions.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Record moderation decision
       parameters:
       - $ref: '#/components/parameters/ReviewId'
@@ -113,6 +125,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.appeals.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Create moderation appeal
       requestBody:
         required: true
@@ -131,6 +146,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.appeals.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: List moderation appeals
       parameters:
       - $ref: '#/components/parameters/Cursor'
@@ -151,6 +169,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.appeals.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve moderation appeal
       parameters:
       - $ref: '#/components/parameters/AppealId'
@@ -166,6 +187,9 @@ paths:
       tags:
       - moderation
       operationId: appstore.moderation.appeals.decide
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Decide moderation appeal
       parameters:
       - $ref: '#/components/parameters/AppealId'
@@ -187,6 +211,9 @@ paths:
       tags:
       - catalog
       operationId: appstore.catalog.collections.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Create editorial collection
       requestBody:
         required: true
@@ -206,6 +233,9 @@ paths:
       tags:
       - catalog
       operationId: appstore.catalog.collections.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Update editorial collection
       parameters:
       - $ref: '#/components/parameters/CollectionId'
@@ -227,6 +257,9 @@ paths:
       tags:
       - catalog
       operationId: appstore.catalog.collections.items.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Upsert collection items
       parameters:
       - $ref: '#/components/parameters/CollectionId'
@@ -262,6 +295,9 @@ paths:
       tags:
       - catalog
       operationId: appstore.catalog.featured.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Upsert featured slot
       parameters:
       - name: slotCode
@@ -287,6 +323,9 @@ paths:
       tags:
       - catalog
       operationId: appstore.catalog.categories.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Create store category
       requestBody:
         required: true
@@ -306,6 +345,9 @@ paths:
       tags:
       - catalog
       operationId: appstore.catalog.categories.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Update store category
       parameters:
       - $ref: '#/components/parameters/CategoryId'
@@ -327,6 +369,9 @@ paths:
       tags:
       - listings
       operationId: appstore.listings.admin.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: List listings for operators
       parameters:
       - name: listingStatus
@@ -347,6 +392,9 @@ paths:
       tags:
       - listings
       operationId: appstore.listings.admin.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve listing for operators
       parameters:
       - $ref: '#/components/parameters/ListingId'
@@ -362,6 +410,9 @@ paths:
       tags:
       - listings
       operationId: appstore.listings.admin.visibility.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Update listing visibility
       parameters:
       - $ref: '#/components/parameters/ListingId'
@@ -390,6 +441,9 @@ paths:
       tags:
       - publishers
       operationId: appstore.publishers.admin.verify
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Approve publisher verification
       parameters:
       - $ref: '#/components/parameters/PublisherId'
@@ -419,6 +473,9 @@ paths:
       tags:
       - metrics
       operationId: appstore.metrics.listings.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve listing metrics
       parameters:
       - $ref: '#/components/parameters/ListingId'
@@ -442,6 +499,9 @@ paths:
       tags:
       - analytics
       operationId: appstore.analytics.publisher.overview.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve publisher analytics overview
       parameters:
       - name: date_from
@@ -464,6 +524,9 @@ paths:
       tags:
       - analytics
       operationId: appstore.analytics.publisher.listings.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: List publisher analytics per listing
       parameters:
       - $ref: '#/components/parameters/Cursor'
@@ -488,6 +551,9 @@ paths:
       tags:
       - analytics
       operationId: appstore.analytics.publisher.listings.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve publisher analytics for a listing
       parameters:
       - $ref: '#/components/parameters/ListingId'
@@ -511,6 +577,9 @@ paths:
       tags:
       - analytics
       operationId: appstore.analytics.operator.dashboard.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve operator analytics dashboard
       parameters:
       - name: date_from
@@ -533,6 +602,9 @@ paths:
       tags:
       - analytics
       operationId: appstore.analytics.operator.search.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Retrieve operator search analytics
       parameters:
       - name: q
@@ -560,6 +632,9 @@ paths:
       tags:
       - market
       operationId: appstore.marketChannels.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: List external market channels
       parameters:
       - name: channelStatus
@@ -579,6 +654,9 @@ paths:
       tags:
       - market
       operationId: appstore.marketChannels.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Create external market channel
       requestBody:
         required: true
@@ -598,6 +676,9 @@ paths:
       tags:
       - market
       operationId: appstore.marketChannels.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Update external market channel
       parameters:
       - $ref: '#/components/parameters/MarketChannelId'
@@ -619,6 +700,9 @@ paths:
       tags:
       - market
       operationId: appstore.marketReleases.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: List external market release projections
       parameters:
       - name: releaseId
@@ -647,6 +731,9 @@ paths:
       tags:
       - market
       operationId: appstore.marketReleases.sync
+      security:
+      - AuthToken: []
+        AccessToken: []
       summary: Sync external market release state
       parameters:
       - $ref: '#/components/parameters/MarketReleaseId'
@@ -983,7 +1070,7 @@ components:
       format: int32
       minimum: 40001
       maximum: 79999
-      description: Platform or domain error code per API_SPEC.md 搂15.3.
+      description: Platform or domain error code per API_SPEC.md §15.3.
     ProblemDetail:
       type: object
       additionalProperties: true

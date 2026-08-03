@@ -414,6 +414,12 @@ pub struct ListingSearchRow {
     pub listing_slug: String,
     pub pricing_model: String,
     pub icon_media_resource_id: Option<String>,
+    pub developer_name: Option<String>,
+    pub description: Option<String>,
+    pub current_version: Option<String>,
+    pub file_size_bytes: Option<String>,
+    pub whats_new_summary: Option<String>,
+    pub released_at: Option<String>,
     pub average_rating: Option<String>,
     pub rating_count: i32,
 }
@@ -647,6 +653,72 @@ pub struct ModerationAppealRow {
     pub decision_note: Option<String>,
     pub submitted_at: DateTime<Utc>,
     pub decided_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct AppTemplateRow {
+    pub id: i64,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub template_code: String,
+    pub template_name: String,
+    pub description: Option<String>,
+    pub template_type: String,
+    pub category_code: Option<String>,
+    pub framework: Option<String>,
+    pub language: Option<String>,
+    pub icon_media_resource_id: Option<String>,
+    pub git_repo_url: Option<String>,
+    pub capability_manifest: String,
+    pub metadata: String,
+    pub star_count: i64,
+    pub fork_count: i64,
+    pub clone_count: i64,
+    pub is_enabled: bool,
+    pub published_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct AppTemplateUsageRow {
+    pub id: i64,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub template_id: i64,
+    pub user_id: Option<i64>,
+    pub usage_type: i32,
+    pub metadata: String,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct FeedbackRow {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub user_id: Option<String>,
+    pub feedback_type: String,
+    pub content: String,
+    pub contact: Option<String>,
+    pub listing_id: Option<String>,
+    pub app_key: Option<String>,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct ListingRatingRow {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub listing_id: String,
+    pub user_id: String,
+    pub rating: i32,
+    pub title: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

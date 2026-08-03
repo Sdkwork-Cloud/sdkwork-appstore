@@ -3,22 +3,23 @@
 use serde_json;
 
 use crate::db::rows::{
-    CatalogChartSnapshotRow, CatalogCollectionItemRow, CatalogCollectionLocalizationRow,
-    CatalogCollectionRow, CatalogFeaturedSlotRow, CatalogSearchHistoryRow, CatalogTrendingTermRow,
-    CategoryLocalizationRow, CategoryRow, CompliancePermissionDisclosureRow, ComplianceProfileRow,
-    DownloadGrantRow, InstallEventRow, ListingCategoryBindingRow, ListingLocalizationRow,
-    ListingMediaRow, ListingMetricSnapshotRow, ListingRow, ListingSearchRow, ListingSubmissionRow,
+    AppTemplateRow, AppTemplateUsageRow, CatalogChartSnapshotRow, CatalogCollectionItemRow,
+    CatalogCollectionLocalizationRow, CatalogCollectionRow, CatalogFeaturedSlotRow,
+    CatalogSearchHistoryRow, CatalogTrendingTermRow, CategoryLocalizationRow, CategoryRow,
+    CompliancePermissionDisclosureRow, ComplianceProfileRow, DownloadGrantRow, FeedbackRow,
+    InstallEventRow, ListingCategoryBindingRow, ListingLocalizationRow, ListingMediaRow,
+    ListingMetricSnapshotRow, ListingRatingRow, ListingRow, ListingSearchRow, ListingSubmissionRow,
     MarketChannelRow, MarketReleaseRow, ModerationDecisionRow, ModerationReviewRow,
     PublisherMemberRow, PublisherRow, PublisherVerificationRow, RegionalAvailabilityRow,
     ReleaseArtifactRow, ReleaseChannelRow, ReleaseNoteLocalizationRow, ReleaseRolloutRow,
     ReleaseRow, UserLibraryItemRow, UserWishlistItemRow,
 };
 use sdkwork_appstore_catalog_service::domain::models::{
-    AudienceScope as CatalogAudienceScope, CatalogChartSnapshot, CatalogCollection,
-    CatalogCollectionItem, CatalogCollectionLocalization, CatalogFeaturedSlot, Category,
-    CategoryId, CategoryLocalization, CategoryStatus, CollectionId, CollectionStatus,
-    CollectionType, FeaturedSlotId, FeaturedSlotStatus, ListingMetricSnapshot, ListingSummary,
-    PlatformScope, SearchHistoryEntry, TrendingTerm,
+    AppTemplate, AppTemplateUsage, AppTemplateUsageKind, AudienceScope as CatalogAudienceScope,
+    CatalogChartSnapshot, CatalogCollection, CatalogCollectionItem, CatalogCollectionLocalization,
+    CatalogFeaturedSlot, Category, CategoryId, CategoryLocalization, CategoryStatus, CollectionId,
+    CollectionStatus, CollectionType, FeaturedSlotId, FeaturedSlotStatus, Feedback,
+    ListingMetricSnapshot, ListingSummary, PlatformScope, SearchHistoryEntry, TrendingTerm,
 };
 use sdkwork_appstore_compliance_service::domain::models::{
     CompliancePermissionDisclosure, ComplianceProfile, ComplianceProfileId, ComplianceStatus,
@@ -30,9 +31,9 @@ use sdkwork_appstore_library_service::domain::models::{
     UserLibraryItem, UserWishlistItem, WishlistStatus,
 };
 use sdkwork_appstore_listing_service::domain::models::{
-    Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia, ListingStatus,
-    ListingSubmission, ListingType, MediaRole, PricingModel, RegionalAvailability, ReviewStatus,
-    StorefrontVisibility, SubmissionStatus, SubmissionType,
+    Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia, ListingRating,
+    ListingStatus, ListingSubmission, ListingType, MediaRole, PricingModel, RegionalAvailability,
+    ReviewStatus, StorefrontVisibility, SubmissionStatus, SubmissionType,
 };
 use sdkwork_appstore_market_service::domain::models::{
     MarketChannel, MarketChannelId, MarketRelease, MarketReleaseId,
@@ -766,6 +767,12 @@ pub fn map_listing_search_row_to_domain(row: ListingSearchRow) -> ListingSummary
         listing_slug: row.listing_slug,
         pricing_model: row.pricing_model,
         icon_media_resource_id: row.icon_media_resource_id,
+        developer_name: row.developer_name,
+        description: row.description,
+        current_version: row.current_version,
+        file_size_bytes: row.file_size_bytes,
+        whats_new_summary: row.whats_new_summary,
+        released_at: row.released_at,
         average_rating: row.average_rating,
         rating_count: row.rating_count,
     }
@@ -1179,4 +1186,87 @@ pub fn map_trending_term_row_to_domain(row: CatalogTrendingTermRow) -> TrendingT
         created_at: row.created_at,
         updated_at: row.updated_at,
     }
+}
+
+pub fn map_app_template_row_to_domain(row: AppTemplateRow) -> Result<AppTemplate, String> {
+    let capability_manifest = serde_json::from_str(&row.capability_manifest)
+        .unwrap_or_else(|_| serde_json::Value::Object(Default::default()));
+    let metadata = serde_json::from_str(&row.metadata)
+        .unwrap_or_else(|_| serde_json::Value::Object(Default::default()));
+    let author_name = metadata
+        .get("authorName")
+        .and_then(|value| value.as_str())
+        .map(ToOwned::to_owned);
+    Ok(AppTemplate {
+        id: row.id.to_string(),
+        tenant_id: row.tenant_id,
+        organization_id: row.organization_id,
+        template_code: row.template_code,
+        template_name: row.template_name,
+        description: row.description,
+        template_type: row.template_type,
+        category_code: row.category_code,
+        framework: row.framework,
+        language: row.language,
+        icon_media_resource_id: row.icon_media_resource_id,
+        git_repo_url: row.git_repo_url,
+        author_name,
+        capability_manifest,
+        metadata,
+        star_count: row.star_count,
+        fork_count: row.fork_count,
+        clone_count: row.clone_count,
+        is_enabled: row.is_enabled,
+        published_at: row.published_at,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+    })
+}
+
+pub fn map_app_template_usage_row_to_domain(
+    row: AppTemplateUsageRow,
+) -> Result<AppTemplateUsage, String> {
+    let usage_kind = AppTemplateUsageKind::from_i32(row.usage_type)
+        .ok_or_else(|| format!("unknown template usage type {}", row.usage_type))?;
+    let metadata = serde_json::from_str(&row.metadata)
+        .unwrap_or_else(|_| serde_json::Value::Object(Default::default()));
+    Ok(AppTemplateUsage {
+        id: row.id.to_string(),
+        tenant_id: row.tenant_id,
+        organization_id: row.organization_id,
+        template_id: row.template_id.to_string(),
+        user_id: row.user_id.map(|value| value.to_string()),
+        usage_kind,
+        metadata,
+        created_at: row.created_at,
+    })
+}
+
+pub fn map_feedback_row_to_domain(row: FeedbackRow) -> Result<Feedback, String> {
+    Ok(Feedback {
+        id: row.id,
+        tenant_id: row.tenant_id,
+        user_id: row.user_id,
+        feedback_type: row.feedback_type,
+        content: row.content,
+        contact: row.contact,
+        listing_id: row.listing_id,
+        app_key: row.app_key,
+        status: row.status,
+        created_at: row.created_at,
+    })
+}
+
+pub fn map_listing_rating_row_to_domain(row: ListingRatingRow) -> Result<ListingRating, String> {
+    Ok(ListingRating {
+        id: row.id,
+        tenant_id: row.tenant_id,
+        organization_id: row.organization_id,
+        listing_id: ListingId(row.listing_id),
+        user_id: row.user_id,
+        rating: row.rating,
+        title: row.title,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+    })
 }

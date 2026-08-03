@@ -1,5 +1,5 @@
 import { customApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { PublicListing } from '../types';
 
@@ -17,42 +17,42 @@ export class ListingsAppstoreListingsPublicApi {
 
 
 /** Retrieve public listing by slug */
-  async retrieve(listingSlug: string, params?: ListingsAppstoreListingsPublicRetrieveParams): Promise<PublicListing> {
+  async retrieve(listingSlug: string, params?: ListingsAppstoreListingsPublicRetrieveParams, requestOptions?: ApiRequestOptions): Promise<PublicListing> {
     const query = buildQueryString([
       { name: 'locale', value: params?.locale, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<PublicListing>(appendQueryString(customApiPath(`/listings/${serializePathParameter(listingSlug, { name: 'listingSlug', style: 'simple', explode: false })}`), query), { method: 'GET' as any, skipAuth: true });
+    return this.client.request<PublicListing>(appendQueryString(customApiPath(`/listings/${serializePathParameter(listingSlug, { name: 'listingSlug', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class ListingsAppstoreListingsApi {
-
+  private client: HttpClient;
   public readonly public: ListingsAppstoreListingsPublicApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.public = new ListingsAppstoreListingsPublicApi(client);
   }
 
 }
 
 export class ListingsAppstoreApi {
-
+  private client: HttpClient;
   public readonly listings: ListingsAppstoreListingsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.listings = new ListingsAppstoreListingsApi(client);
   }
 
 }
 
 export class ListingsApi {
-
+  private client: HttpClient;
   public readonly appstore: ListingsAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new ListingsAppstoreApi(client);
   }
 

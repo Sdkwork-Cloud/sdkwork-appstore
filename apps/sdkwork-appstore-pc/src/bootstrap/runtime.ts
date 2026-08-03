@@ -9,9 +9,15 @@ import {
 } from './sdkClients';
 import { createAppstorePcSessionStore, type AppstorePcSessionStore } from './sessionStore';
 import { createAppstorePcSessionTokenManager } from './sessionTokenManager';
+import { configureAppstorePcAdminMonitorRuntime } from './adminMonitor';
 import { configureAppstorePcAIHub } from './aiHub';
+import { configureAppstorePcAppStore } from './appStore';
+import { configureAppstorePcConsole } from './console';
+import { configureAppstorePcInstall } from './install';
 import { configureAppstorePcMcp } from './mcp';
+import { configureAppstorePcPlugins } from './plugins';
 import { configureAppstorePcSkills } from './skills';
+import { configureAppstorePcTemplates } from './templates';
 
 export interface AppstorePcRuntime {
   config: AppstorePcRuntimeConfig;
@@ -36,6 +42,12 @@ export function createAppstorePcRuntime(): AppstorePcRuntime {
   configureAppstorePcAIHub(sdkClients.agents, config.aiPreviewAgentId);
   configureAppstorePcSkills(sdkClients.skills);
   configureAppstorePcMcp(sdkClients.mcp);
+  configureAppstorePcAppStore(sdkClients.app, sdkClients.comments);
+  configureAppstorePcTemplates(sdkClients.app);
+  configureAppstorePcPlugins(sdkClients.app);
+  configureAppstorePcConsole(sdkClients.app);
+  configureAppstorePcInstall(sdkClients.app);
+  configureAppstorePcAdminMonitorRuntime(config, tokenManager);
 
   return { config, iamRuntime, sdkClients, session };
 }

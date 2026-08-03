@@ -1,5 +1,5 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { PageInfo, Publisher, PublisherAppBootstrapRequest, PublisherAppBootstrapResponse, PublisherCreateRequest, PublisherMember, PublisherMemberInviteRequest, PublisherUpdateRequest, PublisherVerification, PublisherVerificationSubmitRequest, SdkWorkPageData } from '../types';
 
@@ -13,8 +13,8 @@ export class PublishersAppstorePublishersVerificationsApi {
 
 
 /** Submit publisher verification */
-  async create(publisherId: string, body: PublisherVerificationSubmitRequest): Promise<PublisherVerification> {
-    return this.client.post<PublisherVerification>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}/verifications`), body, undefined, undefined, 'application/json');
+  async create(publisherId: string, body: PublisherVerificationSubmitRequest, requestOptions?: ApiRequestOptions): Promise<PublisherVerification> {
+    return this.client.request<PublisherVerification>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}/verifications`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -27,13 +27,13 @@ export class PublishersAppstorePublishersMembersApi {
 
 
 /** List publisher members */
-  async list(publisherId: string): Promise<{ items: PublisherMember[]; pageInfo: PageInfo; }> {
-    return this.client.get<{ items: PublisherMember[]; pageInfo: PageInfo; }>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}/members`));
+  async list(publisherId: string, requestOptions?: ApiRequestOptions): Promise<{ items: PublisherMember[]; pageInfo: PageInfo; }> {
+    return this.client.request<{ items: PublisherMember[]; pageInfo: PageInfo; }>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}/members`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Invite publisher member */
-  async create(publisherId: string, body: PublisherMemberInviteRequest): Promise<PublisherMember> {
-    return this.client.post<PublisherMember>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}/members`), body, undefined, undefined, 'application/json');
+  async create(publisherId: string, body: PublisherMemberInviteRequest, requestOptions?: ApiRequestOptions): Promise<PublisherMember> {
+    return this.client.request<PublisherMember>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}/members`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -50,14 +50,14 @@ export class PublishersAppstorePublishersMeAppsApi {
 
 
 /** Bootstrap appstore_app and draft listing for the current publisher */
-  async create(body: PublisherAppBootstrapRequest, params: PublishersAppstorePublishersMeAppsCreateParams): Promise<PublisherAppBootstrapResponse> {
+  async create(body: PublisherAppBootstrapRequest, params: PublishersAppstorePublishersMeAppsCreateParams, requestOptions?: ApiRequestOptions): Promise<PublisherAppBootstrapResponse> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<PublisherAppBootstrapResponse>(appApiPath(`/publishers/me/apps`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<PublisherAppBootstrapResponse>(appApiPath(`/publishers/me/apps`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -75,12 +75,12 @@ export class PublishersAppstorePublishersMeListingsApi {
 
 
 /** List listings owned by the current publisher */
-  async list(params?: PublishersAppstorePublishersMeListingsListParams): Promise<SdkWorkPageData> {
+  async list(params?: PublishersAppstorePublishersMeListingsListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/publishers/me/listings`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/publishers/me/listings`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -97,8 +97,8 @@ export class PublishersAppstorePublishersMeApi {
 
 
 /** Retrieve current publisher profile */
-  async retrieve(): Promise<Publisher> {
-    return this.client.get<Publisher>(appApiPath(`/publishers/me`));
+  async retrieve(requestOptions?: ApiRequestOptions): Promise<Publisher> {
+    return this.client.request<Publisher>(appApiPath(`/publishers/me`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -117,33 +117,33 @@ export class PublishersAppstorePublishersApi {
 
 
 /** Create publisher profile */
-  async create(body: PublisherCreateRequest): Promise<Publisher> {
-    return this.client.post<Publisher>(appApiPath(`/publishers`), body, undefined, undefined, 'application/json');
+  async create(body: PublisherCreateRequest, requestOptions?: ApiRequestOptions): Promise<Publisher> {
+    return this.client.request<Publisher>(appApiPath(`/publishers`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Update publisher profile */
-  async update(publisherId: string, body: PublisherUpdateRequest): Promise<Publisher> {
-    return this.client.patch<Publisher>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(publisherId: string, body: PublisherUpdateRequest, requestOptions?: ApiRequestOptions): Promise<Publisher> {
+    return this.client.request<Publisher>(appApiPath(`/publishers/${serializePathParameter(publisherId, { name: 'publisherId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class PublishersAppstoreApi {
-
+  private client: HttpClient;
   public readonly publishers: PublishersAppstorePublishersApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.publishers = new PublishersAppstorePublishersApi(client);
   }
 
 }
 
 export class PublishersApi {
-
+  private client: HttpClient;
   public readonly appstore: PublishersAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new PublishersAppstoreApi(client);
   }
 

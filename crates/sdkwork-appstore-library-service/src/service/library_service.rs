@@ -384,7 +384,7 @@ where
                 continue;
             }
 
-            if let Some((release_id, version_code, version_name)) = self
+            if let Some((release_id, version_code, version_name, published_at)) = self
                 .repository
                 .find_latest_release_for_listing(context, &library_item.listing_id)
                 .await?
@@ -399,6 +399,10 @@ where
                             None,
                         )
                         .await?;
+                    let release_notes = self
+                        .repository
+                        .find_release_notes(context, &release_id, Some("zh-CN"))
+                        .await?;
 
                     updates.push(UpdateAvailable {
                         app_key: check_item.app_key.clone(),
@@ -409,6 +413,11 @@ where
                         release_id,
                         artifact_id: artifact_result.as_ref().map(|(id, _)| id.clone()),
                         file_size_bytes: artifact_result.map(|(_, size)| size),
+                        release_notes,
+                        released_at: published_at
+                            .as_deref()
+                            .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
+                            .map(|value| value.with_timezone(&chrono::Utc)),
                     });
                 }
             }

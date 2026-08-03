@@ -1,5 +1,5 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { DownloadGrant, DownloadGrantCreateRequest } from '../types';
 
@@ -17,39 +17,39 @@ export class DownloadGrantsAppstoreDownloadGrantsApi {
 
 
 /** Create download grant */
-  async create(body: DownloadGrantCreateRequest, params: DownloadGrantsAppstoreDownloadGrantsCreateParams): Promise<DownloadGrant> {
+  async create(body: DownloadGrantCreateRequest, params: DownloadGrantsAppstoreDownloadGrantsCreateParams, requestOptions?: ApiRequestOptions): Promise<DownloadGrant> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<DownloadGrant>(appApiPath(`/download_grants`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<DownloadGrant>(appApiPath(`/download_grants`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Consume download grant */
-  async consume(grantId: string): Promise<DownloadGrant> {
-    return this.client.post<DownloadGrant>(appApiPath(`/download_grants/${serializePathParameter(grantId, { name: 'grantId', style: 'simple', explode: false })}/consume`));
+  async consume(grantId: string, requestOptions?: ApiRequestOptions): Promise<DownloadGrant> {
+    return this.client.request<DownloadGrant>(appApiPath(`/download_grants/${serializePathParameter(grantId, { name: 'grantId', style: 'simple', explode: false })}/consume`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class DownloadGrantsAppstoreApi {
-
+  private client: HttpClient;
   public readonly downloadGrants: DownloadGrantsAppstoreDownloadGrantsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.downloadGrants = new DownloadGrantsAppstoreDownloadGrantsApi(client);
   }
 
 }
 
 export class DownloadGrantsApi {
-
+  private client: HttpClient;
   public readonly appstore: DownloadGrantsAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new DownloadGrantsAppstoreApi(client);
   }
 
@@ -59,7 +59,13 @@ export function createDownloadGrantsApi(client: HttpClient): DownloadGrantsApi {
   return new DownloadGrantsApi(client);
 }
 
-
+function appendQueryString(path: string, rawQueryString: string): string {
+  const query = rawQueryString.replace(/^\?+/, '');
+  if (!query) {
+    return path;
+  }
+  return path.includes('?') ? `${path}&${query}` : `${path}?${query}`;
+}
 
 interface PathParameterSpec {
   name: string;

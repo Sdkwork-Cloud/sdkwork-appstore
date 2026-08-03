@@ -1,5 +1,5 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { CompliancePermissionDisclosure, CompliancePermissionUpdateRequest, ComplianceProfile, ComplianceProfileUpdateRequest, PageInfo, SdkWorkPageData } from '../types';
 
@@ -18,12 +18,12 @@ export class ComplianceAppstoreComplianceIapItemsApi {
 
 
 /** List in-app purchase items for compliance */
-  async list(listingId: string, params?: ComplianceAppstoreComplianceIapItemsListParams): Promise<SdkWorkPageData> {
+  async list(listingId: string, params?: ComplianceAppstoreComplianceIapItemsListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance/iap_items`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance/iap_items`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -36,8 +36,8 @@ export class ComplianceAppstoreCompliancePermissionsApi {
 
 
 /** Update permission disclosures */
-  async update(listingId: string, body: CompliancePermissionUpdateRequest): Promise<{ items: CompliancePermissionDisclosure[]; pageInfo: PageInfo; }> {
-    return this.client.put<{ items: CompliancePermissionDisclosure[]; pageInfo: PageInfo; }>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance/permissions`), body, undefined, undefined, 'application/json');
+  async update(listingId: string, body: CompliancePermissionUpdateRequest, requestOptions?: ApiRequestOptions): Promise<{ items: CompliancePermissionDisclosure[]; pageInfo: PageInfo; }> {
+    return this.client.request<{ items: CompliancePermissionDisclosure[]; pageInfo: PageInfo; }>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance/permissions`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -50,24 +50,24 @@ export class ComplianceAppstoreComplianceProfileApi {
 
 
 /** Retrieve compliance profile */
-  async retrieve(listingId: string): Promise<ComplianceProfile> {
-    return this.client.get<ComplianceProfile>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance`));
+  async retrieve(listingId: string, requestOptions?: ApiRequestOptions): Promise<ComplianceProfile> {
+    return this.client.request<ComplianceProfile>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** Update compliance profile */
-  async update(listingId: string, body: ComplianceProfileUpdateRequest): Promise<ComplianceProfile> {
-    return this.client.put<ComplianceProfile>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance`), body, undefined, undefined, 'application/json');
+  async update(listingId: string, body: ComplianceProfileUpdateRequest, requestOptions?: ApiRequestOptions): Promise<ComplianceProfile> {
+    return this.client.request<ComplianceProfile>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/compliance`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class ComplianceAppstoreComplianceApi {
-
+  private client: HttpClient;
   public readonly profile: ComplianceAppstoreComplianceProfileApi;
   public readonly permissions: ComplianceAppstoreCompliancePermissionsApi;
   public readonly iapItems: ComplianceAppstoreComplianceIapItemsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.profile = new ComplianceAppstoreComplianceProfileApi(client);
     this.permissions = new ComplianceAppstoreCompliancePermissionsApi(client);
     this.iapItems = new ComplianceAppstoreComplianceIapItemsApi(client);
@@ -76,22 +76,22 @@ export class ComplianceAppstoreComplianceApi {
 }
 
 export class ComplianceAppstoreApi {
-
+  private client: HttpClient;
   public readonly compliance: ComplianceAppstoreComplianceApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.compliance = new ComplianceAppstoreComplianceApi(client);
   }
 
 }
 
 export class ComplianceApi {
-
+  private client: HttpClient;
   public readonly appstore: ComplianceAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new ComplianceAppstoreApi(client);
   }
 

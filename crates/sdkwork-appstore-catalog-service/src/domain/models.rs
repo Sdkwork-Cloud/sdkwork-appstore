@@ -344,6 +344,12 @@ pub struct ListingSummary {
     pub listing_slug: String,
     pub pricing_model: String,
     pub icon_media_resource_id: Option<String>,
+    pub developer_name: Option<String>,
+    pub description: Option<String>,
+    pub current_version: Option<String>,
+    pub file_size_bytes: Option<String>,
+    pub whats_new_summary: Option<String>,
+    pub released_at: Option<String>,
     pub average_rating: Option<String>,
     pub rating_count: i32,
 }
@@ -413,4 +419,117 @@ pub struct OperatorDashboardStats {
 pub struct OperatorSearchAnalytics {
     pub recent_searches: Vec<SearchHistoryEntry>,
     pub trending_terms: Vec<TrendingTerm>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppTemplateUsageKind {
+    Star,
+    Fork,
+    Clone,
+    Enable,
+    Disable,
+}
+
+impl AppTemplateUsageKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Star => "STAR",
+            Self::Fork => "FORK",
+            Self::Clone => "CLONE",
+            Self::Enable => "ENABLE",
+            Self::Disable => "DISABLE",
+        }
+    }
+
+    pub fn from_str(value: &str) -> Option<Self> {
+        match value {
+            "STAR" => Some(Self::Star),
+            "FORK" => Some(Self::Fork),
+            "CLONE" => Some(Self::Clone),
+            "ENABLE" => Some(Self::Enable),
+            "DISABLE" => Some(Self::Disable),
+            _ => None,
+        }
+    }
+
+    pub fn as_i32(&self) -> i32 {
+        match self {
+            Self::Star => 1,
+            Self::Fork => 2,
+            Self::Clone => 3,
+            Self::Enable => 4,
+            Self::Disable => 5,
+        }
+    }
+
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            1 => Some(Self::Star),
+            2 => Some(Self::Fork),
+            3 => Some(Self::Clone),
+            4 => Some(Self::Enable),
+            5 => Some(Self::Disable),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppTemplate {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub template_code: String,
+    pub template_name: String,
+    pub description: Option<String>,
+    pub template_type: String,
+    pub category_code: Option<String>,
+    pub framework: Option<String>,
+    pub language: Option<String>,
+    pub icon_media_resource_id: Option<String>,
+    pub git_repo_url: Option<String>,
+    pub author_name: Option<String>,
+    pub capability_manifest: serde_json::Value,
+    pub metadata: serde_json::Value,
+    pub star_count: i64,
+    pub fork_count: i64,
+    pub clone_count: i64,
+    pub is_enabled: bool,
+    pub published_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppTemplateUsage {
+    pub id: String,
+    pub tenant_id: String,
+    pub organization_id: String,
+    pub template_id: String,
+    pub user_id: Option<String>,
+    pub usage_kind: AppTemplateUsageKind,
+    pub metadata: serde_json::Value,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppTemplateUsageCounts {
+    pub template_id: String,
+    pub star_count: i64,
+    pub fork_count: i64,
+    pub clone_count: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Feedback {
+    pub id: String,
+    pub tenant_id: String,
+    pub user_id: Option<String>,
+    pub feedback_type: String,
+    pub content: String,
+    pub contact: Option<String>,
+    pub listing_id: Option<String>,
+    pub app_key: Option<String>,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
 }

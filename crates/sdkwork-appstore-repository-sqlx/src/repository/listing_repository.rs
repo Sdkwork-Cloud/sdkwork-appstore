@@ -4,19 +4,19 @@ use chrono::Utc;
 use crate::db::columns::columns_csv;
 use crate::db::columns::APPSTORE_LISTING_COLUMNS;
 use crate::db::rows::{
-    ListingCategoryBindingRow, ListingLocalizationRow, ListingMediaRow, ListingRow,
-    ListingSubmissionRow, RegionalAvailabilityRow, ReleaseRow,
+    ListingCategoryBindingRow, ListingLocalizationRow, ListingMediaRow, ListingRatingRow,
+    ListingRow, ListingSubmissionRow, RegionalAvailabilityRow, ReleaseRow,
 };
 use crate::mapper::row_mapper::{
-    map_category_binding_row_to_domain, map_listing_domain_to_row, map_listing_row_to_domain,
-    map_localization_domain_to_row, map_localization_row_to_domain, map_media_domain_to_row,
-    map_media_row_to_domain, map_regional_row_to_domain, map_submission_domain_to_row,
-    map_submission_row_to_domain,
+    map_category_binding_row_to_domain, map_listing_domain_to_row,
+    map_listing_rating_row_to_domain, map_listing_row_to_domain, map_localization_domain_to_row,
+    map_localization_row_to_domain, map_media_domain_to_row, map_media_row_to_domain,
+    map_regional_row_to_domain, map_submission_domain_to_row, map_submission_row_to_domain,
 };
 
 use sdkwork_appstore_listing_service::context::AppstoreRequestContext;
 use sdkwork_appstore_listing_service::domain::models::{
-    Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia,
+    Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia, ListingRating,
     ListingSubmission, RegionalAvailability, StoreApp,
 };
 use sdkwork_appstore_listing_service::error::AppstoreServiceError;
@@ -1299,5 +1299,125 @@ impl ListingRepositoryPort for SqlxListingRepository {
         let collection_editorial_note = note_row.and_then(|(description,)| description);
 
         Ok((editorial_highlight, collection_editorial_note))
+    }
+
+    async fn find_ratings(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+        cursor: Option<&str>,
+        limit: i32,
+    ) -> Result<Vec<ListingRating>, AppstoreServiceError> {
+        let mut sql = String::from(
+            r#"
+            SELECT id, tenant_id, organization_id, listing_id, user_id, rating, title,
+                   created_at, updated_at
+            FROM appstore_listing_rating
+            WHERE tenant_id = ? AND listing_id = ?
+            "#,
+        );
+        if cursor.is_some() {
+            sql.push_str(
+                "  AND id > ?
+",
+            );
+        }
+        sql.push_str(
+            "ORDER BY created_at DESC, id DESC
+",
+        );
+        sql.push_str(
+            "LIMIT ?
+",
+        );
+
+        let adapted = self.db.adapt_sql(&sql);
+        let mut q = self
+            .db
+            .query_as::<ListingRatingRow>(&adapted)
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str());
+        if let Some(cursor_id) = cursor {
+            q = q.bind(cursor_id);
+        }
+        q = q.bind(limit);
+
+        let rows = q
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+        rows.into_iter()
+            .map(map_listing_rating_row_to_domain)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(AppstoreServiceError::Internal)
+    }
+
+    async fn upsert_rating(
+        &self,
+        _context: &AppstoreRequestContext,
+        rating: &ListingRating,
+    ) -> Result<(), AppstoreServiceError> {
+        self.db
+            .query(&self.db.adapt_sql(
+                r#"
+                INSERT INTO appstore_listing_rating (
+                    id, tenant_id, organization_id, listing_id, user_id, rating, title,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (tenant_id, listing_id, user_id) DO UPDATE SET
+                    rating = EXCLUDED.rating,
+                    title = EXCLUDED.title,
+                    updated_at = EXCLUDED.updated_at
+                "#,
+            ))
+            .bind(&rating.id)
+            .bind(&rating.tenant_id)
+            .bind(&rating.organization_id)
+            .bind(rating.listing_id.as_str())
+            .bind(&rating.user_id)
+            .bind(rating.rating)
+            .bind(rating.title.as_deref().unwrap_or(""))
+            .bind(rating.created_at)
+            .bind(rating.updated_at)
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+        Ok(())
+    }
+
+    async fn recompute_listing_rating_stats(
+        &self,
+        context: &AppstoreRequestContext,
+        listing_id: &ListingId,
+    ) -> Result<(), AppstoreServiceError> {
+        self.db
+            .query(&self.db.adapt_sql(
+                r#"
+                UPDATE appstore_listing
+                SET average_rating = (
+                        SELECT ROUND(AVG(rating)::numeric, 1)::text
+                        FROM appstore_listing_rating
+                        WHERE tenant_id = ? AND listing_id = ?
+                    ),
+                    rating_count = (
+                        SELECT COUNT(*)
+                        FROM appstore_listing_rating
+                        WHERE tenant_id = ? AND listing_id = ?
+                    ),
+                    updated_at = ?
+                WHERE tenant_id = ? AND id = ?
+                "#,
+            ))
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .bind(chrono::Utc::now())
+            .bind(&context.tenant_id)
+            .bind(listing_id.as_str())
+            .execute_unified(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {e}")))?;
+        Ok(())
     }
 }

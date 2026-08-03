@@ -1,5 +1,5 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { Release, ReleaseArtifact, ReleaseArtifactAttachRequest, ReleaseCreateRequest, ReleaseNoteLocalization, ReleaseNotesUpsertRequest, ReleaseRollout, ReleaseRolloutUpdateRequest, ReleaseUpdateRequest } from '../types';
 
@@ -13,8 +13,8 @@ export class ReleasesAppstoreReleasesRolloutApi {
 
 
 /** Update staged rollout */
-  async update(releaseId: string, body: ReleaseRolloutUpdateRequest): Promise<ReleaseRollout> {
-    return this.client.put<ReleaseRollout>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/rollout`), body, undefined, undefined, 'application/json');
+  async update(releaseId: string, body: ReleaseRolloutUpdateRequest, requestOptions?: ApiRequestOptions): Promise<ReleaseRollout> {
+    return this.client.request<ReleaseRollout>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/rollout`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -27,8 +27,8 @@ export class ReleasesAppstoreReleasesArtifactsApi {
 
 
 /** Attach release artifact */
-  async create(releaseId: string, body: ReleaseArtifactAttachRequest): Promise<ReleaseArtifact> {
-    return this.client.post<ReleaseArtifact>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/artifacts`), body, undefined, undefined, 'application/json');
+  async create(releaseId: string, body: ReleaseArtifactAttachRequest, requestOptions?: ApiRequestOptions): Promise<ReleaseArtifact> {
+    return this.client.request<ReleaseArtifact>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/artifacts`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -41,8 +41,8 @@ export class ReleasesAppstoreReleasesNotesApi {
 
 
 /** Upsert localized release notes */
-  async update(releaseId: string, locale: string, body: ReleaseNotesUpsertRequest): Promise<ReleaseNoteLocalization> {
-    return this.client.put<ReleaseNoteLocalization>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/notes/${serializePathParameter(locale, { name: 'locale', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(releaseId: string, locale: string, body: ReleaseNotesUpsertRequest, requestOptions?: ApiRequestOptions): Promise<ReleaseNoteLocalization> {
+    return this.client.request<ReleaseNoteLocalization>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/notes/${serializePathParameter(locale, { name: 'locale', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -65,49 +65,49 @@ export class ReleasesAppstoreReleasesApi {
 
 
 /** Create release for listing */
-  async create(listingId: string, body: ReleaseCreateRequest, params: ReleasesAppstoreReleasesCreateParams): Promise<Release> {
+  async create(listingId: string, body: ReleaseCreateRequest, params: ReleasesAppstoreReleasesCreateParams, requestOptions?: ApiRequestOptions): Promise<Release> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<Release>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/releases`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<Release>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/releases`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Retrieve release detail */
-  async retrieve(releaseId: string): Promise<Release> {
-    return this.client.get<Release>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}`));
+  async retrieve(releaseId: string, requestOptions?: ApiRequestOptions): Promise<Release> {
+    return this.client.request<Release>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** Update release metadata */
-  async update(releaseId: string, body: ReleaseUpdateRequest): Promise<Release> {
-    return this.client.patch<Release>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(releaseId: string, body: ReleaseUpdateRequest, requestOptions?: ApiRequestOptions): Promise<Release> {
+    return this.client.request<Release>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Retire release */
-  async retire(releaseId: string): Promise<Release> {
-    return this.client.post<Release>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/retire`));
+  async retire(releaseId: string, requestOptions?: ApiRequestOptions): Promise<Release> {
+    return this.client.request<Release>(appApiPath(`/releases/${serializePathParameter(releaseId, { name: 'releaseId', style: 'simple', explode: false })}/retire`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class ReleasesAppstoreApi {
-
+  private client: HttpClient;
   public readonly releases: ReleasesAppstoreReleasesApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.releases = new ReleasesAppstoreReleasesApi(client);
   }
 
 }
 
 export class ReleasesApi {
-
+  private client: HttpClient;
   public readonly appstore: ReleasesAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new ReleasesAppstoreApi(client);
   }
 
@@ -117,7 +117,13 @@ export function createReleasesApi(client: HttpClient): ReleasesApi {
   return new ReleasesApi(client);
 }
 
-
+function appendQueryString(path: string, rawQueryString: string): string {
+  const query = rawQueryString.replace(/^\?+/, '');
+  if (!query) {
+    return path;
+  }
+  return path.includes('?') ? `${path}&${query}` : `${path}?${query}`;
+}
 
 interface PathParameterSpec {
   name: string;

@@ -46,6 +46,8 @@ pub const APPSTORE_TABLES: &[&str] = &[
     "appstore_catalog_search_history",
     "appstore_catalog_trending_term",
     "appstore_listing_iap_item",
+    "appstore_listing_rating",
+    "appstore_feedback",
     "appstore_moderation_appeal",
     "appstore_release_beta_invite",
 ];

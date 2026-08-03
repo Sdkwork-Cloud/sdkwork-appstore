@@ -2,7 +2,7 @@
 
 Active alignment tracker for `sdkwork-appstore` against `sdkwork-specs`.
 
-Last updated: 2026-07-07
+Last updated: 2026-08-03
 
 ## Framework Integration
 
@@ -87,3 +87,12 @@ Last verified: 2026-07-07 — PC/H5 `pnpm build`, library uninstall/wishlist + H
 | `APPSTORE_MARKET_APPLE_SUBMIT_URL` | Apple App Store HTTP relay submit endpoint |
 | `APPSTORE_MARKET_GOOGLE_SUBMIT_URL` | Google Play HTTP relay submit endpoint |
 | `VITE_APPSTORE_ABUSE_REPORT_EMAIL` | PC/H5 client fallback platform abuse report mailbox |
+
+## 2026-08-03 — PC 前后端联调完成(storefront 全流程)
+
+- App API 扩展至 68 个操作(61 + 7):`appstore.catalog.templates.list/retrieve/create`、`appstore.catalog.templates.usage.create`、`appstore.catalog.feedback.create`、`appstore.listings.ratings.list/update`;`catalog.listings.list` 支持 `ids` 查询参数;`ListingSummary` 新增 `developerName/description/currentVersion/fileSizeBytes/whatsNewSummary/releasedAt`;`UpdateAvailable` 新增 `releaseNotes/releasedAt`。
+- 新增迁移 `0003_appstore_rating_feedback.up.sql`(`appstore_listing_rating`、`appstore_feedback`);修复迁移 `0002` 命名(`.up.sql` 约定,此前 5 张表从未应用);contract 注册 49 表。
+- 种子数据补齐(zh-CN):47 个 storefront 应用 + 本地化 + 媒体 + 发布版本与版本说明、4 个编辑合集、3 个精选位、top/free/paid 榜单快照、10 个热搜词、11 个模板/插件、演示用户库/收藏/评分。
+- 后端依赖升级:repository-sqlx/assembly/analytics-worker 迁移 sqlx 0.9(对齐 sdkwork-database 工作区);executor 动态 SQL 包装 `AssertSqlSafe`。
+- PC 前端:9 个 service 全部改为 bootstrap 注入的 service port(AppStore/Templates/Plugins/Console/Install/Admin/AIHub),对接 `@sdkwork/appstore-app-sdk`(含新 composed facade 方法)+ `@sdkwork/comments-app-sdk`(评论/点赞)+ `@sdkwork/agents-app-sdk`(模型目录);AdminMonitor 经 `sdkwork-appstore-pc-admin-core`(backend-admin 边界)接入 backend SDK;域外能力(API 凭证/安全策略/集群节点/系统审计)按规范 fail-closed 明确报错。
+- 验证:PC `tsc`/`test`/`build` 通过;`cargo test --workspace` 通过;`cargo fmt --check` 通过;check-app-sdk-consumer-imports / check-pagination / check-api-response-envelope / check-api-operation-patterns / check-frontend-composition 全部通过;standalone 网关 18090 运行正常,68 个 app-api 路由 + 35 个 backend/open 路由全部挂载。

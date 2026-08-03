@@ -1,5 +1,5 @@
 import { backendApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { MarketChannelCreateRequest, MarketChannelUpdateRequest, MarketReleaseSyncRequest, SdkWorkPageData } from '../types';
 
@@ -25,7 +25,7 @@ export class MarketAppstoreMarketReleasesApi {
 
 
 /** List external market release projections */
-  async list(params?: MarketAppstoreMarketReleasesListParams): Promise<SdkWorkPageData> {
+  async list(params?: MarketAppstoreMarketReleasesListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'releaseId', value: params?.releaseId, style: 'form', explode: true, allowReserved: false },
       { name: 'channelId', value: params?.channelId, style: 'form', explode: true, allowReserved: false },
@@ -33,18 +33,18 @@ export class MarketAppstoreMarketReleasesApi {
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(backendApiPath(`/market_releases`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/market_releases`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Sync external market release state */
-  async sync(marketReleaseId: string, body: MarketReleaseSyncRequest, params: MarketAppstoreMarketReleasesSyncParams): Promise<Record<string, unknown>> {
+  async sync(marketReleaseId: string, body: MarketReleaseSyncRequest, params: MarketAppstoreMarketReleasesSyncParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<Record<string, unknown>>(backendApiPath(`/market_releases/${serializePathParameter(marketReleaseId, { name: 'marketReleaseId', style: 'simple', explode: false })}/sync`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/market_releases/${serializePathParameter(marketReleaseId, { name: 'marketReleaseId', style: 'simple', explode: false })}/sync`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -63,33 +63,33 @@ export class MarketAppstoreMarketChannelsApi {
 
 
 /** List external market channels */
-  async list(params?: MarketAppstoreMarketChannelsListParams): Promise<SdkWorkPageData> {
+  async list(params?: MarketAppstoreMarketChannelsListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'channelStatus', value: params?.channelStatus, style: 'form', explode: true, allowReserved: false },
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(backendApiPath(`/market_channels`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/market_channels`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Create external market channel */
-  async create(body: MarketChannelCreateRequest): Promise<Record<string, unknown>> {
-    return this.client.post<Record<string, unknown>>(backendApiPath(`/market_channels`), body, undefined, undefined, 'application/json');
+  async create(body: MarketChannelCreateRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/market_channels`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Update external market channel */
-  async update(marketChannelId: string, body: MarketChannelUpdateRequest): Promise<Record<string, unknown>> {
-    return this.client.patch<Record<string, unknown>>(backendApiPath(`/market_channels/${serializePathParameter(marketChannelId, { name: 'marketChannelId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(marketChannelId: string, body: MarketChannelUpdateRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/market_channels/${serializePathParameter(marketChannelId, { name: 'marketChannelId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class MarketAppstoreApi {
-
+  private client: HttpClient;
   public readonly marketChannels: MarketAppstoreMarketChannelsApi;
   public readonly marketReleases: MarketAppstoreMarketReleasesApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.marketChannels = new MarketAppstoreMarketChannelsApi(client);
     this.marketReleases = new MarketAppstoreMarketReleasesApi(client);
   }
@@ -97,11 +97,11 @@ export class MarketAppstoreApi {
 }
 
 export class MarketApi {
-
+  private client: HttpClient;
   public readonly appstore: MarketAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new MarketAppstoreApi(client);
   }
 

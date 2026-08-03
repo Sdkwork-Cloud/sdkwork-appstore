@@ -2,13 +2,15 @@ import { createClient as createGeneratedClient, SdkworkAppstoreAppClient } from 
 import type { AuthTokenManager } from '../generated/server-openapi/src/auth/index';
 import type { SdkworkAppConfig } from '../generated/server-openapi/src/types/common';
 import type {
-  DownloadGrantCreateRequest, LibraryInstallRequest, LibraryUninstallRequest,
+  AppTemplateCreateRequest, AppTemplateUsageCreateRequest, DownloadGrantCreateRequest,
+  FeedbackCreateRequest, LibraryInstallRequest, LibraryUninstallRequest,
   LibraryUpdatesCheckRequest, ListingCategoryBindRequest, ListingCreateRequest,
-  ListingLocalizationUpsertRequest, ListingMediaAttachRequest, ListingSubmissionCreateRequest,
-  ListingUpdateRequest, PublisherAppBootstrapRequest, PublisherCreateRequest,
-  PublisherMemberInviteRequest, PublisherUpdateRequest, PublisherVerificationSubmitRequest,
-  ReleaseArtifactAttachRequest, ReleaseCreateRequest, ReleaseNotesUpsertRequest,
-  ReleaseRolloutUpdateRequest, ReleaseUpdateRequest, SearchHistoryUpsertRequest,
+  ListingLocalizationUpsertRequest, ListingMediaAttachRequest, ListingRatingUpsertRequest,
+  ListingSubmissionCreateRequest, ListingUpdateRequest, PublisherAppBootstrapRequest,
+  PublisherCreateRequest, PublisherMemberInviteRequest, PublisherUpdateRequest,
+  PublisherVerificationSubmitRequest, ReleaseArtifactAttachRequest, ReleaseCreateRequest,
+  ReleaseNotesUpsertRequest, ReleaseRolloutUpdateRequest, ReleaseUpdateRequest,
+  SearchHistoryUpsertRequest,
 } from '../generated/server-openapi/src/types/index';
 
 export type TokenManager = AuthTokenManager;
@@ -42,8 +44,8 @@ function createCatalogFacade(client: SdkworkAppstoreAppClient) {
     getCollection: (id: string) => api.collections.retrieve(id),
     listFeatured: () => api.featured.list(),
     getChart: (code: string) => api.charts.retrieve(code),
-    searchListings: (p?: { q?: string; categoryId?: string; cursor?: string; limit?: number }) =>
-      api.listings.list({ q: p?.q, categoryId: p?.categoryId, cursor: p?.cursor, pageSize: p?.limit }),
+    searchListings: (p?: { q?: string; categoryId?: string; ids?: string[]; cursor?: string; limit?: number }) =>
+      api.listings.list({ q: p?.q, categoryId: p?.categoryId, ids: p?.ids?.join(','), cursor: p?.cursor, pageSize: p?.limit }),
     listRecommendations: (p?: { locale?: string; platform?: string; cursor?: string; limit?: number }) =>
       api.recommendations.list({ locale: p?.locale, platform: p?.platform, cursor: p?.cursor, pageSize: p?.limit }),
     listRecentlyUpdated: (p?: { locale?: string; cursor?: string; limit?: number }) =>
@@ -57,6 +59,13 @@ function createCatalogFacade(client: SdkworkAppstoreAppClient) {
     listSearchHistory: (p?: { cursor?: string; limit?: number }) => api.search.history.list(pageParams(p)),
     upsertSearchHistory: (body: SearchHistoryUpsertRequest) => api.search.history.update(body),
     clearSearchHistory: () => api.search.history.delete(),
+    listTemplates: (p?: { q?: string; categoryCode?: string; templateType?: 'APP' | 'PLUGIN' | 'AGENT'; cursor?: string; limit?: number }) =>
+      api.templates.list({ q: p?.q, categoryCode: p?.categoryCode, templateType: p?.templateType, cursor: p?.cursor, pageSize: p?.limit }),
+    getTemplate: (id: string) => api.templates.retrieve(id),
+    createTemplate: (body: AppTemplateCreateRequest) => api.templates.create(body, commandOptions()),
+    recordTemplateUsage: (id: string, body: AppTemplateUsageCreateRequest) =>
+      api.templates.usage.create(id, body, commandOptions()),
+    submitFeedback: (body: FeedbackCreateRequest) => api.feedback.create(body, commandOptions()),
   };
 }
 
@@ -79,6 +88,8 @@ function createListingsFacade(client: SdkworkAppstoreAppClient) {
     listSimilar: (id: string, p?: { cursor?: string; limit?: number }) => api.similar.list(id, pageParams(p)),
     listDeveloperOther: (id: string, p?: { cursor?: string; limit?: number }) => api.developerOther.list(id, pageParams(p)),
     getEditorial: (id: string) => api.editorial.retrieve(id),
+    listRatings: (id: string, p?: { cursor?: string; limit?: number }) => api.ratings.list(id, pageParams(p)),
+    updateRating: (id: string, body: ListingRatingUpsertRequest) => api.ratings.update(id, body),
   };
 }
 

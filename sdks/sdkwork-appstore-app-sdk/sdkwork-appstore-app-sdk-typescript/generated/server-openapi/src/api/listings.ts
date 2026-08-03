@@ -1,7 +1,7 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
-import type { ListingCategoryBindRequest, ListingCreateRequest, ListingDetail, ListingLocalization, ListingLocalizationUpsertRequest, ListingMedia, ListingMediaAttachRequest, ListingSubmission, ListingSubmissionCreateRequest, ListingUpdateRequest, PageInfo, RegionalAvailabilityUpdateRequest, Release, SdkWorkPageData } from '../types';
+import type { ListingCategoryBindRequest, ListingCreateRequest, ListingDetail, ListingLocalization, ListingLocalizationUpsertRequest, ListingMedia, ListingMediaAttachRequest, ListingRating, ListingRatingUpsertRequest, ListingSubmission, ListingSubmissionCreateRequest, ListingUpdateRequest, PageInfo, RegionalAvailabilityUpdateRequest, Release, SdkWorkPageData } from '../types';
 
 
 export interface ListingsAppstoreListingsSubmissionsCreateParams {
@@ -17,14 +17,42 @@ export class ListingsAppstoreListingsSubmissionsApi {
 
 
 /** Submit listing for review */
-  async create(listingId: string, body: ListingSubmissionCreateRequest, params: ListingsAppstoreListingsSubmissionsCreateParams): Promise<ListingSubmission> {
+  async create(listingId: string, body: ListingSubmissionCreateRequest, params: ListingsAppstoreListingsSubmissionsCreateParams, requestOptions?: ApiRequestOptions): Promise<ListingSubmission> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<ListingSubmission>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/submissions`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<ListingSubmission>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/submissions`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export interface ListingsAppstoreListingsRatingsListParams {
+  cursor?: string;
+  pageSize?: number;
+}
+
+export class ListingsAppstoreListingsRatingsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** List listing ratings */
+  async list(listingId: string, params?: ListingsAppstoreListingsRatingsListParams, requestOptions?: ApiRequestOptions): Promise<{ items: ListingRating[]; pageInfo: PageInfo; }> {
+    const query = buildQueryString([
+      { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
+      { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<{ items: ListingRating[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/ratings`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+
+/** Upsert the current user rating for a listing */
+  async update(listingId: string, body: ListingRatingUpsertRequest, requestOptions?: ApiRequestOptions): Promise<ListingRating> {
+    return this.client.request<ListingRating>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/ratings/me`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -37,8 +65,8 @@ export class ListingsAppstoreListingsEditorialApi {
 
 
 /** Retrieve listing editorial content */
-  async retrieve(listingId: string): Promise<Record<string, unknown>> {
-    return this.client.get<Record<string, unknown>>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/editorial`));
+  async retrieve(listingId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/editorial`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -56,12 +84,12 @@ export class ListingsAppstoreListingsDeveloperOtherApi {
 
 
 /** List other listings from the same developer */
-  async list(listingId: string, params?: ListingsAppstoreListingsDeveloperOtherListParams): Promise<SdkWorkPageData> {
+  async list(listingId: string, params?: ListingsAppstoreListingsDeveloperOtherListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/developer_other`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/developer_other`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -79,12 +107,12 @@ export class ListingsAppstoreListingsSimilarApi {
 
 
 /** List similar listings */
-  async list(listingId: string, params?: ListingsAppstoreListingsSimilarListParams): Promise<SdkWorkPageData> {
+  async list(listingId: string, params?: ListingsAppstoreListingsSimilarListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/similar`), query));
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/similar`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -102,12 +130,12 @@ export class ListingsAppstoreListingsReleasesHistoryApi {
 
 
 /** List release history for listing */
-  async list(listingId: string, params?: ListingsAppstoreListingsReleasesHistoryListParams): Promise<{ items: Release[]; pageInfo: PageInfo; }> {
+  async list(listingId: string, params?: ListingsAppstoreListingsReleasesHistoryListParams, requestOptions?: ApiRequestOptions): Promise<{ items: Release[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<{ items: Release[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/releases/history`), query));
+    return this.client.request<{ items: Release[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/releases/history`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -127,12 +155,12 @@ export class ListingsAppstoreListingsReleasesApi {
 
 
 /** List releases for listing */
-  async list(listingId: string, params?: ListingsAppstoreListingsReleasesListParams): Promise<{ items: Release[]; pageInfo: PageInfo; }> {
+  async list(listingId: string, params?: ListingsAppstoreListingsReleasesListParams, requestOptions?: ApiRequestOptions): Promise<{ items: Release[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'cursor', value: params?.cursor, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<{ items: Release[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/releases`), query));
+    return this.client.request<{ items: Release[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/releases`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -145,8 +173,8 @@ export class ListingsAppstoreListingsRegionsApi {
 
 
 /** Update regional availability */
-  async update(listingId: string, body: RegionalAvailabilityUpdateRequest): Promise<SdkWorkPageData> {
-    return this.client.put<SdkWorkPageData>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/regions`), body, undefined, undefined, 'application/json');
+  async update(listingId: string, body: RegionalAvailabilityUpdateRequest, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+    return this.client.request<SdkWorkPageData>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/regions`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -159,8 +187,8 @@ export class ListingsAppstoreListingsCategoriesApi {
 
 
 /** Bind listing categories */
-  async update(listingId: string, body: ListingCategoryBindRequest): Promise<SdkWorkPageData> {
-    return this.client.put<SdkWorkPageData>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/categories`), body, undefined, undefined, 'application/json');
+  async update(listingId: string, body: ListingCategoryBindRequest, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+    return this.client.request<SdkWorkPageData>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/categories`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -173,18 +201,18 @@ export class ListingsAppstoreListingsMediaApi {
 
 
 /** List listing media */
-  async list(listingId: string): Promise<{ items: ListingMedia[]; pageInfo: PageInfo; }> {
-    return this.client.get<{ items: ListingMedia[]; pageInfo: PageInfo; }>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/media`));
+  async list(listingId: string, requestOptions?: ApiRequestOptions): Promise<{ items: ListingMedia[]; pageInfo: PageInfo; }> {
+    return this.client.request<{ items: ListingMedia[]; pageInfo: PageInfo; }>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/media`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Attach listing media */
-  async create(listingId: string, body: ListingMediaAttachRequest): Promise<ListingMedia> {
-    return this.client.post<ListingMedia>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/media`), body, undefined, undefined, 'application/json');
+  async create(listingId: string, body: ListingMediaAttachRequest, requestOptions?: ApiRequestOptions): Promise<ListingMedia> {
+    return this.client.request<ListingMedia>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/media`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Remove listing media */
-  async delete(listingId: string, mediaId: string): Promise<void> {
-    return this.client.delete<void>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/media/${serializePathParameter(mediaId, { name: 'mediaId', style: 'simple', explode: false })}`));
+  async delete(listingId: string, mediaId: string, requestOptions?: ApiRequestOptions): Promise<void> {
+    return this.client.request<void>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/media/${serializePathParameter(mediaId, { name: 'mediaId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
   }
 }
 
@@ -197,8 +225,8 @@ export class ListingsAppstoreListingsLocalizationApi {
 
 
 /** Upsert listing localization */
-  async update(listingId: string, locale: string, body: ListingLocalizationUpsertRequest): Promise<ListingLocalization> {
-    return this.client.put<ListingLocalization>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/localizations/${serializePathParameter(locale, { name: 'locale', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(listingId: string, locale: string, body: ListingLocalizationUpsertRequest, requestOptions?: ApiRequestOptions): Promise<ListingLocalization> {
+    return this.client.request<ListingLocalization>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}/localizations/${serializePathParameter(locale, { name: 'locale', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -216,6 +244,7 @@ export class ListingsAppstoreListingsApi {
   public readonly similar: ListingsAppstoreListingsSimilarApi;
   public readonly developerOther: ListingsAppstoreListingsDeveloperOtherApi;
   public readonly editorial: ListingsAppstoreListingsEditorialApi;
+  public readonly ratings: ListingsAppstoreListingsRatingsApi;
   public readonly submissions: ListingsAppstoreListingsSubmissionsApi;
 
   constructor(client: HttpClient) {
@@ -228,49 +257,50 @@ export class ListingsAppstoreListingsApi {
     this.similar = new ListingsAppstoreListingsSimilarApi(client);
     this.developerOther = new ListingsAppstoreListingsDeveloperOtherApi(client);
     this.editorial = new ListingsAppstoreListingsEditorialApi(client);
+    this.ratings = new ListingsAppstoreListingsRatingsApi(client);
     this.submissions = new ListingsAppstoreListingsSubmissionsApi(client);
   }
 
 
 /** Create listing for registered app */
-  async create(body: ListingCreateRequest, params: ListingsAppstoreListingsCreateParams): Promise<ListingDetail> {
+  async create(body: ListingCreateRequest, params: ListingsAppstoreListingsCreateParams, requestOptions?: ApiRequestOptions): Promise<ListingDetail> {
     const requestHeaders = buildRequestHeaders(
       {
         'Idempotency-Key': { value: params.idempotencyKey, style: 'simple', explode: false },
       },
       {}
     );
-    return this.client.post<ListingDetail>(appApiPath(`/listings`), body, undefined, requestHeaders, 'application/json');
+    return this.client.request<ListingDetail>(appApiPath(`/listings`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, headers: requestHeaders, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Retrieve listing detail */
-  async retrieve(listingId: string): Promise<ListingDetail> {
-    return this.client.get<ListingDetail>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`));
+  async retrieve(listingId: string, requestOptions?: ApiRequestOptions): Promise<ListingDetail> {
+    return this.client.request<ListingDetail>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** Update listing metadata */
-  async update(listingId: string, body: ListingUpdateRequest): Promise<ListingDetail> {
-    return this.client.patch<ListingDetail>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(listingId: string, body: ListingUpdateRequest, requestOptions?: ApiRequestOptions): Promise<ListingDetail> {
+    return this.client.request<ListingDetail>(appApiPath(`/listings/${serializePathParameter(listingId, { name: 'listingId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class ListingsAppstoreApi {
-
+  private client: HttpClient;
   public readonly listings: ListingsAppstoreListingsApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.listings = new ListingsAppstoreListingsApi(client);
   }
 
 }
 
 export class ListingsApi {
-
+  private client: HttpClient;
   public readonly appstore: ListingsAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new ListingsAppstoreApi(client);
   }
 

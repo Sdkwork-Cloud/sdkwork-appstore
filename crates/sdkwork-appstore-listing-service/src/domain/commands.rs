@@ -660,3 +660,47 @@ impl RetrieveListingEditorialRequest {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RatingsListRequest {
+    pub listing_id: String,
+    pub cursor: Option<String>,
+    pub page_size: Option<i32>,
+}
+
+impl RatingsListRequest {
+    pub fn new(listing_id: impl Into<String>) -> Self {
+        Self {
+            listing_id: listing_id.into(),
+            cursor: None,
+            page_size: None,
+        }
+    }
+
+    pub fn with_cursor(mut self, cursor: impl Into<String>) -> Self {
+        self.cursor = Some(cursor.into());
+        self
+    }
+
+    pub fn with_page_size(mut self, page_size: i32) -> Self {
+        self.page_size = Some(page_size);
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RatingUpdateRequest {
+    pub listing_id: String,
+    pub rating: i32,
+    pub title: Option<String>,
+}
+
+impl RatingUpdateRequest {
+    pub fn new(listing_id: impl Into<String>, rating: i32) -> Self {
+        Self {
+            listing_id: listing_id.into(),
+            rating,
+            title: None,
+        }
+    }
+}

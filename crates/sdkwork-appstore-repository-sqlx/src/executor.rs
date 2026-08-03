@@ -36,8 +36,8 @@ pub enum SqlBind {
 impl SqlBind {
     fn bind_sqlite<'q>(
         &'q self,
-        query: sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments<'q>>,
-    ) -> sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments<'q>> {
+        query: sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments>,
+    ) -> sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments> {
         match self {
             SqlBind::Text(v) => query.bind(v),
             SqlBind::I32(v) => query.bind(v),
@@ -70,8 +70,8 @@ impl SqlBind {
 
     fn bind_sqlite_as<'q, O>(
         &'q self,
-        query: sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments<'q>>,
-    ) -> sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments<'q>> {
+        query: sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments>,
+    ) -> sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments> {
         match self {
             SqlBind::Text(v) => query.bind(v),
             SqlBind::I32(v) => query.bind(v),
@@ -170,8 +170,8 @@ impl AppstoreQuery {
 
     fn apply_binds_sqlite<'q>(
         &'q self,
-        mut query: sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments<'q>>,
-    ) -> sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments<'q>> {
+        mut query: sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments>,
+    ) -> sqlx::query::Query<'q, Sqlite, sqlx::sqlite::SqliteArguments> {
         for bind in &self.binds {
             query = bind.bind_sqlite(query);
         }
@@ -192,14 +192,15 @@ impl AppstoreQuery {
         let sql = db.adapted_sql(&self.sql);
         match &db.pool {
             AppstoreDbPool::Sqlite(pool) => {
-                let query = self.apply_binds_sqlite(sqlx::query(&sql));
+                let query = self.apply_binds_sqlite(sqlx::query(sqlx::AssertSqlSafe(sql.as_str())));
                 let result = query.execute(pool).await?;
                 Ok(AppstoreExecuteResult {
                     rows_affected: result.rows_affected(),
                 })
             }
             AppstoreDbPool::Postgres(pool) => {
-                let query = self.apply_binds_postgres(sqlx::query(&sql));
+                let query =
+                    self.apply_binds_postgres(sqlx::query(sqlx::AssertSqlSafe(sql.as_str())));
                 let result = query.execute(pool).await?;
                 Ok(AppstoreExecuteResult {
                     rows_affected: result.rows_affected(),
@@ -215,14 +216,15 @@ impl AppstoreQuery {
         let sql = self.db.adapted_sql(&self.sql);
         match (tx, &self.db.pool) {
             (AppstoreTransaction::Sqlite(tx), AppstoreDbPool::Sqlite(_)) => {
-                let query = self.apply_binds_sqlite(sqlx::query(&sql));
+                let query = self.apply_binds_sqlite(sqlx::query(sqlx::AssertSqlSafe(sql.as_str())));
                 let result = query.execute(&mut **tx).await?;
                 Ok(AppstoreExecuteResult {
                     rows_affected: result.rows_affected(),
                 })
             }
             (AppstoreTransaction::Postgres(tx), AppstoreDbPool::Postgres(_)) => {
-                let query = self.apply_binds_postgres(sqlx::query(&sql));
+                let query =
+                    self.apply_binds_postgres(sqlx::query(sqlx::AssertSqlSafe(sql.as_str())));
                 let result = query.execute(&mut **tx).await?;
                 Ok(AppstoreExecuteResult {
                     rows_affected: result.rows_affected(),
@@ -243,8 +245,8 @@ impl<O> AppstoreQueryAs<O> {
 
     fn apply_binds_sqlite<'q>(
         &'q self,
-        mut query: sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments<'q>>,
-    ) -> sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments<'q>> {
+        mut query: sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments>,
+    ) -> sqlx::query::QueryAs<'q, Sqlite, O, sqlx::sqlite::SqliteArguments> {
         for bind in &self.binds {
             query = bind.bind_sqlite_as(query);
         }
@@ -271,11 +273,13 @@ impl<O> AppstoreQueryAs<O> {
         let sql = db.adapted_sql(&self.sql);
         match &db.pool {
             AppstoreDbPool::Sqlite(pool) => {
-                let query = self.apply_binds_sqlite(sqlx::query_as(&sql));
+                let query =
+                    self.apply_binds_sqlite(sqlx::query_as(sqlx::AssertSqlSafe(sql.as_str())));
                 query.fetch_optional(pool).await
             }
             AppstoreDbPool::Postgres(pool) => {
-                let query = self.apply_binds_postgres(sqlx::query_as(&sql));
+                let query =
+                    self.apply_binds_postgres(sqlx::query_as(sqlx::AssertSqlSafe(sql.as_str())));
                 query.fetch_optional(pool).await
             }
         }
@@ -291,11 +295,13 @@ impl<O> AppstoreQueryAs<O> {
         let sql = db.adapted_sql(&self.sql);
         match &db.pool {
             AppstoreDbPool::Sqlite(pool) => {
-                let query = self.apply_binds_sqlite(sqlx::query_as(&sql));
+                let query =
+                    self.apply_binds_sqlite(sqlx::query_as(sqlx::AssertSqlSafe(sql.as_str())));
                 query.fetch_all(pool).await
             }
             AppstoreDbPool::Postgres(pool) => {
-                let query = self.apply_binds_postgres(sqlx::query_as(&sql));
+                let query =
+                    self.apply_binds_postgres(sqlx::query_as(sqlx::AssertSqlSafe(sql.as_str())));
                 query.fetch_all(pool).await
             }
         }
@@ -311,11 +317,13 @@ impl<O> AppstoreQueryAs<O> {
         let sql = db.adapted_sql(&self.sql);
         match &db.pool {
             AppstoreDbPool::Sqlite(pool) => {
-                let query = self.apply_binds_sqlite(sqlx::query_as(&sql));
+                let query =
+                    self.apply_binds_sqlite(sqlx::query_as(sqlx::AssertSqlSafe(sql.as_str())));
                 query.fetch_one(pool).await
             }
             AppstoreDbPool::Postgres(pool) => {
-                let query = self.apply_binds_postgres(sqlx::query_as(&sql));
+                let query =
+                    self.apply_binds_postgres(sqlx::query_as(sqlx::AssertSqlSafe(sql.as_str())));
                 query.fetch_one(pool).await
             }
         }

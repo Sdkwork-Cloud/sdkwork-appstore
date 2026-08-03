@@ -1,9 +1,9 @@
 use crate::handlers::{
     listings_categories_bind, listings_create, listings_developer_other_list,
     listings_editorial_retrieve, listings_localization_upsert, listings_media_attach,
-    listings_media_list, listings_media_remove, listings_regions_update,
-    listings_releases_history_list, listings_releases_list, listings_retrieve,
-    listings_similar_list, listings_submissions_create, listings_update,
+    listings_media_list, listings_media_remove, listings_rating_update, listings_ratings_list,
+    listings_regions_update, listings_releases_history_list, listings_releases_list,
+    listings_retrieve, listings_similar_list, listings_submissions_create, listings_update,
 };
 use axum::extract::{Extension, Json, Path, Query, State};
 use axum::response::Response;
@@ -127,6 +127,14 @@ pub fn routes() -> Router<AppState> {
         .route(
             "/app/v3/api/listings/{listingId}/editorial",
             get(listing_editorial_retrieve_handler),
+        )
+        .route(
+            "/app/v3/api/listings/{listingId}/ratings",
+            get(listing_ratings_list_handler),
+        )
+        .route(
+            "/app/v3/api/listings/{listingId}/ratings/me",
+            put(listing_rating_update_handler),
         )
 }
 
@@ -482,6 +490,66 @@ async fn listing_editorial_retrieve_handler(
     };
     match listings_editorial_retrieve(&state.listing_service, &ctx, listing_id).await {
         Ok(result) => ok_item(context.as_ref(), result.editorial),
+        Err(error) => map_listing_error(context.as_ref(), error),
+    }
+}
+
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ListingRatingUpdateBody {
+    rating: i32,
+    title: Option<String>,
+}
+
+async fn listing_ratings_list_handler(
+    State(state): State<AppState>,
+    Path(listing_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    Query(query): Query<CursorPageSizeQuery>,
+) -> Response {
+    let ctx = match to_listing_context(context.as_ref()) {
+        Ok(ctx) => ctx,
+        Err(resp) => return resp,
+    };
+    match listings_ratings_list(
+        &state.listing_service,
+        &ctx,
+        listing_id,
+        query.cursor,
+        query.page_size,
+    )
+    .await
+    {
+        Ok(result) => ok_page(
+            context.as_ref(),
+            result.ratings,
+            result.next_cursor,
+            result.has_more,
+        ),
+        Err(error) => map_listing_error(context.as_ref(), error),
+    }
+}
+
+async fn listing_rating_update_handler(
+    State(state): State<AppState>,
+    Path(listing_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    Json(body): Json<ListingRatingUpdateBody>,
+) -> Response {
+    let ctx = match to_listing_context(context.as_ref()) {
+        Ok(ctx) => ctx,
+        Err(resp) => return resp,
+    };
+    match listings_rating_update(
+        &state.listing_service,
+        &ctx,
+        listing_id,
+        body.rating,
+        body.title,
+    )
+    .await
+    {
+        Ok(result) => ok_item(context.as_ref(), result.rating),
         Err(error) => map_listing_error(context.as_ref(), error),
     }
 }

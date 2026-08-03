@@ -481,7 +481,7 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
         &self,
         context: &AppstoreRequestContext,
         listing_id: &str,
-    ) -> Result<Option<(String, String, String)>, AppstoreServiceError> {
+    ) -> Result<Option<(String, String, String, Option<String>)>, AppstoreServiceError> {
         let row: Option<ReleaseRow> = self
             .db
             .query_as::<ReleaseRow>(&format!(
@@ -500,9 +500,40 @@ impl LibraryRepositoryPort for SqlxLibraryRepository {
             .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
 
         match row {
-            Some(r) => Ok(Some((r.id, r.version_code, r.version_name))),
+            Some(r) => Ok(Some((
+                r.id,
+                r.version_code,
+                r.version_name,
+                r.published_at.map(|value| value.to_rfc3339()),
+            ))),
             None => Ok(None),
         }
+    }
+
+    async fn find_release_notes(
+        &self,
+        context: &AppstoreRequestContext,
+        release_id: &str,
+        locale: Option<&str>,
+    ) -> Result<Option<String>, AppstoreServiceError> {
+        let row: Option<(String,)> = self
+            .db
+            .query_as(&self.db.adapt_sql(
+                r#"
+                SELECT release_notes
+                FROM appstore_release_note_localization
+                WHERE tenant_id = ? AND release_id = ? AND locale = ?
+                ORDER BY created_at DESC
+                LIMIT 1
+                "#,
+            ))
+            .bind(&context.tenant_id)
+            .bind(release_id)
+            .bind(locale.unwrap_or("zh-CN"))
+            .fetch_optional(&self.db)
+            .await
+            .map_err(|e| AppstoreServiceError::Internal(format!("Database error: {}", e)))?;
+        Ok(row.map(|(notes,)| notes))
     }
 
     async fn find_latest_artifact_for_release(

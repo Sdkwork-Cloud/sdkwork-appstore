@@ -1,5 +1,11 @@
 import type { AgentRuntimeExecutionRecord, SdkworkAppClient } from '@sdkwork/agents-app-sdk';
-import { configureAICompletionPort, type AICompletionResult } from '@sdkwork/appstore-pc-core';
+import type { AppItem } from '../types';
+import {
+  configureAICompletionPort,
+  configureAIHubServicePort,
+  type AICompletionResult,
+  type AIModelInfo,
+} from '@sdkwork/appstore-pc-core';
 
 export function configureAppstorePcAIHub(
   agentsClient: SdkworkAppClient,
@@ -21,6 +27,51 @@ export function configureAppstorePcAIHub(
       return mapAgentPreviewResult(result, modelId);
     },
   });
+  configureAIHubServicePort({
+    async getAIApps(): Promise<AppItem[]> {
+      throw new Error('AI Hub apps are served by the storefront catalog runtime.');
+    },
+    async getModels(): Promise<AIModelInfo[]> {
+      const response = await agentsClient.ai.agents.modelConfigurations.list();
+      const configurations = readPageItems<Record<string, unknown>>(response as unknown);
+      const models: AIModelInfo[] = [];
+      for (const configuration of configurations) {
+        const provider = readString(configuration, 'engineId', 'engine_id');
+        const defaultModel = readString(configuration, 'defaultModelId', 'default_model_id');
+        const supported = readStringArray(configuration, 'supportedModelIds', 'supported_model_ids');
+        const candidates = defaultModel ? [defaultModel, ...supported] : supported;
+        for (const modelId of candidates) {
+          if (!modelId || models.some((model) => model.id === modelId)) {
+            continue;
+          }
+          models.push({
+            id: modelId,
+            name: modelId,
+            provider,
+            badge: '已配置',
+            description: `${provider} 模型 · 状态 ${readString(configuration, 'status') || 'active'}`,
+            isPopular: modelId === defaultModel,
+          });
+        }
+      }
+      return models;
+    },
+    async getPromptPresets(): Promise<string[]> {
+      return [
+        '推荐一款适合写代码和整理 PDF 论文的 AI 工具',
+        '比较通义千问与 ima.copilot 的多端同步与知识库能力',
+        '如何在本地沙盒环境高安全地运行 Python 分析脚本？',
+        '总结 Model Context Protocol (MCP) 在智能体连接中的价值',
+      ];
+    },
+  });
+}
+
+function readPageItems<T>(value: unknown): T[] {
+  if (!value || typeof value !== 'object' || !Array.isArray((value as Record<string, unknown>).items)) {
+    return [];
+  }
+  return (value as Record<string, unknown>).items as T[];
 }
 
 function mapAgentPreviewResult(
@@ -64,4 +115,20 @@ function readNumber(record: Record<string, unknown>, ...keys: string[]): number 
     }
   }
   return undefined;
+}
+
+function readStringArray(record: Record<string, unknown>, ...keys: string[]): string[] {
+  for (const key of keys) {
+    const value = record[key];
+    if (Array.isArray(value)) {
+      return value.filter((entry): entry is string => typeof entry === 'string');
+    }
+    if (typeof value === 'string' && value.trim()) {
+      return value
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+    }
+  }
+  return [];
 }

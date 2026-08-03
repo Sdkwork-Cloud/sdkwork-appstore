@@ -155,6 +155,7 @@ pub trait CatalogRepositoryPort: Send + Sync {
         category_id: Option<&str>,
         cursor: Option<&str>,
         limit: i32,
+        listing_ids: Option<&[String]>,
     ) -> AppstoreServiceResult<Vec<ListingSummary>>;
 
     async fn find_metric_snapshots(
@@ -275,4 +276,54 @@ pub trait CatalogRepositoryPort: Send + Sync {
         date_to: Option<&str>,
         limit: i32,
     ) -> AppstoreServiceResult<crate::domain::models::OperatorSearchAnalytics>;
+
+    async fn find_templates(
+        &self,
+        context: &AppstoreRequestContext,
+        query: Option<&str>,
+        category_code: Option<&str>,
+        template_type: Option<&str>,
+        cursor: Option<&str>,
+        limit: i32,
+        user_id: Option<&str>,
+    ) -> AppstoreServiceResult<Vec<crate::domain::models::AppTemplate>>;
+
+    async fn find_template_by_id(
+        &self,
+        context: &AppstoreRequestContext,
+        template_id: &str,
+        user_id: Option<&str>,
+    ) -> AppstoreServiceResult<Option<crate::domain::models::AppTemplate>>;
+
+    async fn insert_template(
+        &self,
+        context: &AppstoreRequestContext,
+        template: &crate::domain::models::AppTemplate,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn insert_template_usage(
+        &self,
+        context: &AppstoreRequestContext,
+        usage: &crate::domain::models::AppTemplateUsage,
+    ) -> AppstoreServiceResult<()>;
+
+    async fn find_template_usage_counts(
+        &self,
+        context: &AppstoreRequestContext,
+        template_id: &str,
+    ) -> AppstoreServiceResult<crate::domain::models::AppTemplateUsageCounts>;
+
+    async fn find_latest_template_usage_state(
+        &self,
+        context: &AppstoreRequestContext,
+        template_id: &str,
+        user_id: &str,
+        usage_kind: &crate::domain::models::AppTemplateUsageKind,
+    ) -> AppstoreServiceResult<Option<crate::domain::models::AppTemplateUsage>>;
+
+    async fn insert_feedback(
+        &self,
+        context: &AppstoreRequestContext,
+        feedback: &crate::domain::models::Feedback,
+    ) -> AppstoreServiceResult<()>;
 }

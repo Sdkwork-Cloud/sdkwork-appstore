@@ -5,9 +5,9 @@ use sdkwork_appstore_listing_service::domain::results::{
     AttachListingMediaResult, BindListingCategoriesResult, CreateListingResult,
     CreateListingSubmissionResult, ListDeveloperOtherListingsResult, ListListingMediaResult,
     ListListingReleaseHistoryResult, ListListingReleasesResult, ListPublisherListingsResult,
-    ListSimilarListingsResult, RemoveListingMediaResult, RetrieveListingEditorialResult,
-    RetrieveListingResult, UpdateListingResult, UpdateRegionalAvailabilityResult,
-    UpsertListingLocalizationResult,
+    ListSimilarListingsResult, RatingUpdateResult, RatingsListResult, RemoveListingMediaResult,
+    RetrieveListingEditorialResult, RetrieveListingResult, UpdateListingResult,
+    UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
 };
 use sdkwork_appstore_listing_service::error::AppstoreServiceError;
 use sdkwork_appstore_listing_service::ListingOperations;
@@ -336,4 +336,26 @@ pub async fn publishers_me_apps_bootstrap<S: ListingOperations>(
     cmd.listing_slug = listing_slug;
     cmd.pricing_model = pricing_model;
     service.bootstrap_publisher_app(context, cmd).await
+}
+
+pub async fn listings_ratings_list<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    listing_id: String,
+    cursor: Option<String>,
+    page_size: Option<i32>,
+) -> Result<RatingsListResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_ratings_list(listing_id, cursor, page_size);
+    service.ratings_list(context, cmd).await
+}
+
+pub async fn listings_rating_update<S: ListingOperations>(
+    service: &S,
+    context: &AppstoreRequestContext,
+    listing_id: String,
+    rating: i32,
+    title: Option<String>,
+) -> Result<RatingUpdateResult, AppstoreServiceError> {
+    let cmd = mapper::request::map_rating_update(listing_id, rating, title);
+    service.rating_update(context, cmd).await
 }

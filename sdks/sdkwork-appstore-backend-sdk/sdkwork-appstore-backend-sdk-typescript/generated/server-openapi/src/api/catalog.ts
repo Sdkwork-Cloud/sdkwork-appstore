@@ -1,5 +1,5 @@
 import { backendApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { AppstoreCatalogCollectionsItemsUpdateRequest, CategoryCreateRequest, CategoryUpdateRequest, CollectionCreateRequest, CollectionUpdateRequest, FeaturedSlotUpsertRequest } from '../types';
 
@@ -13,13 +13,13 @@ export class CatalogAppstoreCatalogCategoriesApi {
 
 
 /** Create store category */
-  async create(body: CategoryCreateRequest): Promise<Record<string, unknown>> {
-    return this.client.post<Record<string, unknown>>(backendApiPath(`/appstore/catalog/categories`), body, undefined, undefined, 'application/json');
+  async create(body: CategoryCreateRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/appstore/catalog/categories`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Update store category */
-  async update(categoryId: string, body: CategoryUpdateRequest): Promise<Record<string, unknown>> {
-    return this.client.patch<Record<string, unknown>>(backendApiPath(`/appstore/catalog/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(categoryId: string, body: CategoryUpdateRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/appstore/catalog/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -32,8 +32,8 @@ export class CatalogAppstoreCatalogFeaturedApi {
 
 
 /** Upsert featured slot */
-  async update(slotCode: string, body: FeaturedSlotUpsertRequest): Promise<Record<string, unknown>> {
-    return this.client.put<Record<string, unknown>>(backendApiPath(`/appstore/catalog/featured/${serializePathParameter(slotCode, { name: 'slotCode', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(slotCode: string, body: FeaturedSlotUpsertRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/appstore/catalog/featured/${serializePathParameter(slotCode, { name: 'slotCode', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -46,8 +46,8 @@ export class CatalogAppstoreCatalogCollectionsItemsApi {
 
 
 /** Upsert collection items */
-  async update(collectionId: string, body: AppstoreCatalogCollectionsItemsUpdateRequest): Promise<Record<string, unknown>> {
-    return this.client.put<Record<string, unknown>>(backendApiPath(`/appstore/catalog/collections/${serializePathParameter(collectionId, { name: 'collectionId', style: 'simple', explode: false })}/items`), body, undefined, undefined, 'application/json');
+  async update(collectionId: string, body: AppstoreCatalogCollectionsItemsUpdateRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/appstore/catalog/collections/${serializePathParameter(collectionId, { name: 'collectionId', style: 'simple', explode: false })}/items`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PUT' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -62,24 +62,24 @@ export class CatalogAppstoreCatalogCollectionsApi {
 
 
 /** Create editorial collection */
-  async create(body: CollectionCreateRequest): Promise<Record<string, unknown>> {
-    return this.client.post<Record<string, unknown>>(backendApiPath(`/appstore/catalog/collections`), body, undefined, undefined, 'application/json');
+  async create(body: CollectionCreateRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/appstore/catalog/collections`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Update editorial collection */
-  async update(collectionId: string, body: CollectionUpdateRequest): Promise<Record<string, unknown>> {
-    return this.client.patch<Record<string, unknown>>(backendApiPath(`/appstore/catalog/collections/${serializePathParameter(collectionId, { name: 'collectionId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(collectionId: string, body: CollectionUpdateRequest, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/appstore/catalog/collections/${serializePathParameter(collectionId, { name: 'collectionId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class CatalogAppstoreCatalogApi {
-
+  private client: HttpClient;
   public readonly collections: CatalogAppstoreCatalogCollectionsApi;
   public readonly featured: CatalogAppstoreCatalogFeaturedApi;
   public readonly categories: CatalogAppstoreCatalogCategoriesApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.collections = new CatalogAppstoreCatalogCollectionsApi(client);
     this.featured = new CatalogAppstoreCatalogFeaturedApi(client);
     this.categories = new CatalogAppstoreCatalogCategoriesApi(client);
@@ -88,22 +88,22 @@ export class CatalogAppstoreCatalogApi {
 }
 
 export class CatalogAppstoreApi {
-
+  private client: HttpClient;
   public readonly catalog: CatalogAppstoreCatalogApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.catalog = new CatalogAppstoreCatalogApi(client);
   }
 
 }
 
 export class CatalogApi {
-
+  private client: HttpClient;
   public readonly appstore: CatalogAppstoreApi;
 
   constructor(client: HttpClient) {
-
+    this.client = client;
     this.appstore = new CatalogAppstoreApi(client);
   }
 
@@ -113,7 +113,13 @@ export function createCatalogApi(client: HttpClient): CatalogApi {
   return new CatalogApi(client);
 }
 
-
+function appendQueryString(path: string, rawQueryString: string): string {
+  const query = rawQueryString.replace(/^\?+/, '');
+  if (!query) {
+    return path;
+  }
+  return path.includes('?') ? `${path}&${query}` : `${path}?${query}`;
+}
 
 interface PathParameterSpec {
   name: string;

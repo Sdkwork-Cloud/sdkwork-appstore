@@ -7,4 +7,6 @@ export interface UpdateAvailable {
   releaseId: string;
   artifactId?: string;
   fileSizeBytes?: string;
+  releaseNotes?: string;
+  releasedAt?: string;
 }

@@ -1,8 +1,8 @@
 use sdkwork_appstore_listing_service::domain::results::{
     AttachListingMediaResult, BindListingCategoriesResult, CreateListingResult,
     CreateListingSubmissionResult, ListListingMediaResult, ListListingReleasesResult,
-    RemoveListingMediaResult, RetrieveListingResult, UpdateListingResult,
-    UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
+    RatingUpdateResult, RatingsListResult, RemoveListingMediaResult, RetrieveListingResult,
+    UpdateListingResult, UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
 };
 
 pub fn map_retrieve_listing_response(result: RetrieveListingResult) -> RetrieveListingResult {
@@ -60,5 +60,13 @@ pub fn map_update_regional_availability_response(
 pub fn map_create_listing_submission_response(
     result: CreateListingSubmissionResult,
 ) -> CreateListingSubmissionResult {
+    result
+}
+
+pub fn map_ratings_list_response(result: RatingsListResult) -> RatingsListResult {
+    result
+}
+
+pub fn map_rating_update_response(result: RatingUpdateResult) -> RatingUpdateResult {
     result
 }

@@ -297,4 +297,6 @@ pub struct UpdateAvailable {
     pub release_id: String,
     pub artifact_id: Option<String>,
     pub file_size_bytes: Option<String>,
+    pub release_notes: Option<String>,
+    pub released_at: Option<chrono::DateTime<chrono::Utc>>,
 }

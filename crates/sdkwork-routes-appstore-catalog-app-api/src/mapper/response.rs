@@ -1,6 +1,8 @@
 use sdkwork_appstore_catalog_service::domain::results::{
     CategoriesListResult, CategoryRetrieveResult, ChartsRetrieveResult, CollectionRetrieveResult,
-    CollectionsListResult, FeaturedListResult, HomeRetrieveResult, ListingsSearchResult,
+    CollectionsListResult, FeaturedListResult, FeedbackCreateResult, HomeRetrieveResult,
+    ListingsSearchResult, TemplateCreateResult, TemplateRetrieveResult, TemplateUsageCreateResult,
+    TemplatesListResult,
 };
 
 pub fn map_home_retrieve_response(result: HomeRetrieveResult) -> HomeRetrieveResult {
@@ -34,5 +36,27 @@ pub fn map_charts_retrieve_response(result: ChartsRetrieveResult) -> ChartsRetri
 }
 
 pub fn map_listings_search_response(result: ListingsSearchResult) -> ListingsSearchResult {
+    result
+}
+
+pub fn map_templates_list_response(result: TemplatesListResult) -> TemplatesListResult {
+    result
+}
+
+pub fn map_template_retrieve_response(result: TemplateRetrieveResult) -> TemplateRetrieveResult {
+    result
+}
+
+pub fn map_template_create_response(result: TemplateCreateResult) -> TemplateCreateResult {
+    result
+}
+
+pub fn map_template_usage_create_response(
+    result: TemplateUsageCreateResult,
+) -> TemplateUsageCreateResult {
+    result
+}
+
+pub fn map_feedback_create_response(result: FeedbackCreateResult) -> FeedbackCreateResult {
     result
 }

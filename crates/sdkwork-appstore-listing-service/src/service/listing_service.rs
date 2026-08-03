@@ -10,14 +10,14 @@ use crate::domain::commands::{
     BootstrapPublisherAppRequest, CreateListingRequest, CreateListingSubmissionRequest,
     ListDeveloperOtherListingsRequest, ListListingMediaRequest, ListListingReleaseHistoryRequest,
     ListListingReleasesRequest, ListPublisherListingsRequest, ListSimilarListingsRequest,
-    PublicRetrieveListingRequest, RemoveListingMediaRequest, RetrieveListingEditorialRequest,
-    RetrieveListingRequest, UpdateListingRequest, UpdateRegionalAvailabilityRequest,
-    UpsertListingLocalizationRequest,
+    PublicRetrieveListingRequest, RatingUpdateRequest, RatingsListRequest,
+    RemoveListingMediaRequest, RetrieveListingEditorialRequest, RetrieveListingRequest,
+    UpdateListingRequest, UpdateRegionalAvailabilityRequest, UpsertListingLocalizationRequest,
 };
 use crate::domain::models::{
-    Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia, ListingStatus,
-    ListingSubmission, ListingType, MediaRole, PricingModel, RegionalAvailability, ReviewStatus,
-    StoreApp, StorefrontVisibility, SubmissionStatus, SubmissionType,
+    Listing, ListingCategoryBinding, ListingId, ListingLocalization, ListingMedia, ListingRating,
+    ListingStatus, ListingSubmission, ListingType, MediaRole, PricingModel, RegionalAvailability,
+    ReviewStatus, StoreApp, StorefrontVisibility, SubmissionStatus, SubmissionType,
 };
 use crate::domain::results::{
     AdminListListingsResult, AdminRetrieveListingResult, AdminUpdateListingVisibilityResult,
@@ -25,9 +25,9 @@ use crate::domain::results::{
     BootstrapPublisherAppResult, CreateListingResult, CreateListingSubmissionResult,
     ListDeveloperOtherListingsResult, ListListingMediaResult, ListListingReleaseHistoryResult,
     ListListingReleasesResult, ListPublisherListingsResult, ListSimilarListingsResult,
-    ListingEditorialContent, PublicRetrieveListingResult, RemoveListingMediaResult,
-    RetrieveListingEditorialResult, RetrieveListingResult, UpdateListingResult,
-    UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
+    ListingEditorialContent, PublicRetrieveListingResult, RatingUpdateResult, RatingsListResult,
+    RemoveListingMediaResult, RetrieveListingEditorialResult, RetrieveListingResult,
+    UpdateListingResult, UpdateRegionalAvailabilityResult, UpsertListingLocalizationResult,
 };
 use crate::error::{AppstoreServiceError, AppstoreServiceResult};
 use crate::ports::provider::AppReference;
@@ -205,6 +205,18 @@ pub trait ListingOperations {
         context: &AppstoreRequestContext,
         request: RetrieveListingEditorialRequest,
     ) -> AppstoreServiceResult<RetrieveListingEditorialResult>;
+
+    async fn ratings_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RatingsListRequest,
+    ) -> AppstoreServiceResult<RatingsListResult>;
+
+    async fn rating_update(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RatingUpdateRequest,
+    ) -> AppstoreServiceResult<RatingUpdateResult>;
 }
 
 #[derive(Clone)]
@@ -1549,6 +1561,86 @@ where
                 "appstore.listings.editorial.retrieve",
             )),
         }
+    }
+
+    async fn ratings_list(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RatingsListRequest,
+    ) -> AppstoreServiceResult<RatingsListResult> {
+        let listing_id = ListingId::new(&request.listing_id);
+        let limit = request.page_size.unwrap_or(20).min(200);
+        let ratings = self
+            .repository
+            .find_ratings(context, &listing_id, request.cursor.as_deref(), limit + 1)
+            .await?;
+
+        let has_more = ratings.len() > limit as usize;
+        let ratings: Vec<ListingRating> = ratings.into_iter().take(limit as usize).collect();
+        let next_cursor = if has_more {
+            ratings.last().map(|rating| rating.id.clone())
+        } else {
+            None
+        };
+
+        Ok(RatingsListResult::new(
+            "appstore.listings.ratings.list",
+            ratings,
+            next_cursor,
+            has_more,
+        ))
+    }
+
+    async fn rating_update(
+        &self,
+        context: &AppstoreRequestContext,
+        request: RatingUpdateRequest,
+    ) -> AppstoreServiceResult<RatingUpdateResult> {
+        if !(1..=5).contains(&request.rating) {
+            return Err(AppstoreServiceError::ValidationFailed(
+                "Rating must be between 1 and 5".to_string(),
+            ));
+        }
+        let listing_id = ListingId::new(&request.listing_id);
+        if context.user_id.trim().is_empty() {
+            return Err(AppstoreServiceError::PermissionDenied(
+                "Authenticated user is required to rate a listing".to_string(),
+            ));
+        }
+        let user_id = context.user_id.clone();
+
+        let listing = self
+            .repository
+            .find_listing_by_id(context, &listing_id)
+            .await?;
+        if listing.is_none() {
+            return Err(AppstoreServiceError::NotFound(format!(
+                "Listing {} not found",
+                request.listing_id
+            )));
+        }
+
+        let now = chrono::Utc::now();
+        let rating = ListingRating {
+            id: uuid::Uuid::new_v4().to_string(),
+            tenant_id: context.tenant_id.clone(),
+            organization_id: context.organization_id.clone(),
+            listing_id: listing_id.clone(),
+            user_id,
+            rating: request.rating,
+            title: request.title.clone(),
+            created_at: now,
+            updated_at: now,
+        };
+        self.repository.upsert_rating(context, &rating).await?;
+        self.repository
+            .recompute_listing_rating_stats(context, &listing_id)
+            .await?;
+
+        Ok(RatingUpdateResult::new(
+            "appstore.listings.ratings.update",
+            rating,
+        ))
     }
 }
 

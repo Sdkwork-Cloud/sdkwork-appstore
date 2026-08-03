@@ -6,6 +6,7 @@ export type AppstorePcRuntimeTarget = 'browser' | 'desktop';
 
 export interface AppstorePcRuntimeConfig {
   agentsAppApiBaseUrl: string;
+  commentsAppApiBaseUrl: string;
   aiPreviewAgentId?: string;
   appApiBaseUrl: string;
   appDisplayName: string;
@@ -59,6 +60,8 @@ export function resolveAppstorePcRuntimeConfig(
     agentsAppApiBaseUrl:
       readEnv('VITE_SDKWORK_AGENTS_APP_API_BASE_URL') ?? platformApiGatewayUrl,
     aiPreviewAgentId: readEnv('VITE_SDKWORK_APPSTORE_AI_PREVIEW_AGENT_ID'),
+    commentsAppApiBaseUrl:
+      readEnv('VITE_SDKWORK_COMMENTS_APP_API_BASE_URL') ?? platformApiGatewayUrl,
     appApiBaseUrl: applicationPublicUrl,
     appDisplayName: manifest.app.displayName,
     appKey: manifest.app.key,

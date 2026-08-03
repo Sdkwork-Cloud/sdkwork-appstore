@@ -11,5 +11,8 @@
     "./host": "./src/host/index.ts",
     "./session": "./src/session/index.ts",
     "./composition": "./src/composition/index.ts"
+  },
+  "dependencies": {
+    "@sdkwork/comments-app-sdk": "workspace:*"
   }
 }

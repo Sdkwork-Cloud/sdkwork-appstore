@@ -4,8 +4,18 @@
   "i18nVersion": "1.0.0",
   "defaultLocale": "zh-CN",
   "fallbackLocale": "zh-CN",
-  "supportedLocales": ["zh-CN", "en-US", "ja-JP", "de-DE", "fr-FR", "ru-RU", "ko-KR"],
-  "activeLocales": ["zh-CN"],
+  "supportedLocales": [
+    "zh-CN",
+    "en-US",
+    "ja-JP",
+    "de-DE",
+    "fr-FR",
+    "ru-RU",
+    "ko-KR"
+  ],
+  "activeLocales": [
+    "zh-CN"
+  ],
   "localeSets": {
     "zh-CN": {
       "version": "1.0.0",
@@ -22,7 +32,16 @@
       }
     },
     "standard": {
-      "common": ["common/002_default_publisher.sql", "common/003_catalog_categories.sql"],
+      "common": [
+        "common/002_default_publisher.sql",
+        "common/003_catalog_categories.sql",
+        "common/004_catalog_categories_extended.sql",
+        "common/005_storefront_listings.sql",
+        "common/006_storefront_releases.sql",
+        "common/007_storefront_catalog.sql",
+        "common/008_app_templates.sql",
+        "common/009_user_demo_data.sql"
+      ],
       "locales": {
         "zh-CN": []
       }

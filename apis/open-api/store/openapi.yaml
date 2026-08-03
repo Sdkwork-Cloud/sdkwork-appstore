@@ -27,9 +27,9 @@ paths:
       tags:
       - releases
       operationId: appstore.releases.checkUpdate
-      summary: Check whether a newer release is available
       security:
       - ApiKey: []
+      summary: Check whether a newer release is available
       requestBody:
         required: true
         content:
@@ -48,9 +48,9 @@ paths:
       tags:
       - artifacts
       operationId: appstore.artifacts.resolveDownload
-      summary: Resolve artifact download location from grant or entitlement
       security:
       - ApiKey: []
+      summary: Resolve artifact download location from grant or entitlement
       requestBody:
         required: true
         content:
@@ -69,8 +69,8 @@ paths:
       tags:
       - listings
       operationId: appstore.listings.public.retrieve
-      summary: Retrieve public listing by slug
       security: []
+      summary: Retrieve public listing by slug
       x-sdkwork-auth-mode: anonymous
       parameters:
       - name: listingSlug
@@ -94,8 +94,8 @@ paths:
       tags:
       - releases
       operationId: appstore.releases.public.retrieve
-      summary: Retrieve public release metadata
       security: []
+      summary: Retrieve public release metadata
       x-sdkwork-auth-mode: anonymous
       parameters:
       - name: releaseId
@@ -115,8 +115,8 @@ paths:
       tags:
       - catalog
       operationId: appstore.catalog.public.featured.list
-      summary: List public featured listings
       security: []
+      summary: List public featured listings
       x-sdkwork-auth-mode: anonymous
       parameters:
       - name: platform
@@ -139,9 +139,9 @@ paths:
       tags:
       - automation
       operationId: appstore.publish.automation.submissions.create
-      summary: Create automated publish submission
       security:
       - ApiKey: []
+      summary: Create automated publish submission
       parameters:
       - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -587,7 +587,7 @@ components:
       format: int32
       minimum: 40001
       maximum: 79999
-      description: Platform or domain error code per API_SPEC.md 搂15.3.
+      description: Platform or domain error code per API_SPEC.md §15.3.
     ProblemDetail:
       type: object
       additionalProperties: true

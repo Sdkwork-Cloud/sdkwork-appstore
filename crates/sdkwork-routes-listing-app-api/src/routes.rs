@@ -124,6 +124,22 @@ pub const ROUTES: &[RouteDefinition] = &[
         handler: "listings_editorial_retrieve",
         service_method: "listings_editorial_retrieve",
     },
+    RouteDefinition {
+        method: "GET",
+        path: "/app/v3/api/listings/{listingId}/ratings",
+        operation_id: "appstore.listings.ratings.list",
+        auth: RouteAuth::DualToken,
+        handler: "listings_ratings_list",
+        service_method: "listings_ratings_list",
+    },
+    RouteDefinition {
+        method: "PUT",
+        path: "/app/v3/api/listings/{listingId}/ratings/me",
+        operation_id: "appstore.listings.ratings.update",
+        auth: RouteAuth::DualToken,
+        handler: "listings_rating_update",
+        service_method: "listings_rating_update",
+    },
 ];
 
 pub fn route_definitions() -> &'static [RouteDefinition] {

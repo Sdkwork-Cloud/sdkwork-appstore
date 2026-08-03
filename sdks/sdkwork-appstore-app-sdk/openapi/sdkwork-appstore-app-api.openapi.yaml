@@ -42,6 +42,9 @@ paths:
       - catalog
       summary: Retrieve storefront home feed
       operationId: appstore.catalog.home.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       responses:
         '200':
           description: Success
@@ -55,6 +58,9 @@ paths:
       - catalog
       summary: List store categories
       operationId: appstore.catalog.categories.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/Cursor'
       - $ref: '#/components/parameters/PageSize'
@@ -75,6 +81,9 @@ paths:
       - catalog
       summary: Retrieve category detail
       operationId: appstore.catalog.categories.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/CategoryId'
       responses:
@@ -102,6 +111,9 @@ paths:
       - catalog
       summary: List editorial collections
       operationId: appstore.catalog.collections.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/Cursor'
       - $ref: '#/components/parameters/PageSize'
@@ -118,6 +130,9 @@ paths:
       - catalog
       summary: Retrieve collection detail
       operationId: appstore.catalog.collections.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/CollectionId'
       responses:
@@ -145,6 +160,9 @@ paths:
       - catalog
       summary: List featured placements
       operationId: appstore.catalog.featured.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       responses:
         '200':
           description: Success
@@ -158,6 +176,9 @@ paths:
       - catalog
       summary: Retrieve chart rankings
       operationId: appstore.catalog.charts.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: chartCode
         in: path
@@ -189,6 +210,9 @@ paths:
       - catalog
       summary: Search public listings
       operationId: appstore.catalog.listings.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: q
         in: query
@@ -196,6 +220,12 @@ paths:
           type: string
       - name: categoryId
         in: query
+        schema:
+          type: string
+      - name: ids
+        in: query
+        description: Comma-separated listing ids to fetch in rank order. Maximum 100
+          ids.
         schema:
           type: string
       - $ref: '#/components/parameters/Cursor'
@@ -213,6 +243,9 @@ paths:
       - catalog
       summary: List recommended listings
       operationId: appstore.catalog.recommendations.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: locale
         in: query
@@ -237,6 +270,9 @@ paths:
       - catalog
       summary: List recently updated listings
       operationId: appstore.catalog.recentlyUpdated.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/Cursor'
       - $ref: '#/components/parameters/PageSize'
@@ -257,6 +293,9 @@ paths:
       - catalog
       summary: List catalog events
       operationId: appstore.catalog.events.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/Cursor'
       - $ref: '#/components/parameters/PageSize'
@@ -277,6 +316,9 @@ paths:
       - catalog
       summary: Retrieve catalog event detail
       operationId: appstore.catalog.events.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: eventId
         in: path
@@ -296,6 +338,9 @@ paths:
       - catalog
       summary: List search suggestions
       operationId: appstore.catalog.search.suggestions.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: q
         in: query
@@ -319,6 +364,9 @@ paths:
       - catalog
       summary: List trending search terms
       operationId: appstore.catalog.search.trending.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: locale
         in: query
@@ -338,6 +386,9 @@ paths:
       - catalog
       summary: List search history
       operationId: appstore.catalog.search.history.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/Cursor'
       - $ref: '#/components/parameters/PageSize'
@@ -353,6 +404,9 @@ paths:
       - catalog
       summary: Upsert search history entry
       operationId: appstore.catalog.search.history.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       requestBody:
         required: true
         content:
@@ -371,15 +425,154 @@ paths:
       - catalog
       summary: Clear search history
       operationId: appstore.catalog.search.history.delete
+      security:
+      - AuthToken: []
+        AccessToken: []
       responses:
         '204':
           description: Removed
+  /app/v3/api/appstore/catalog/templates:
+    get:
+      tags:
+      - catalog
+      summary: List storefront app templates and plugins
+      operationId: appstore.catalog.templates.list
+      security:
+      - AuthToken: []
+        AccessToken: []
+      parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
+      - name: categoryCode
+        in: query
+        schema:
+          type: string
+      - name: templateType
+        in: query
+        schema:
+          type: string
+          enum:
+          - APP
+          - PLUGIN
+          - AGENT
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTemplateListResponse'
+    post:
+      tags:
+      - catalog
+      summary: Publish an app template or plugin
+      operationId: appstore.catalog.templates.create
+      security:
+      - AuthToken: []
+        AccessToken: []
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppTemplateCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTemplateResponse'
+  /app/v3/api/appstore/catalog/templates/{templateId}:
+    get:
+      tags:
+      - catalog
+      summary: Retrieve app template detail
+      operationId: appstore.catalog.templates.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
+      parameters:
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTemplateResponse'
+  /app/v3/api/appstore/catalog/templates/{templateId}/usage:
+    post:
+      tags:
+      - catalog
+      summary: Record app template usage (star, fork, clone)
+      operationId: appstore.catalog.templates.usage.create
+      security:
+      - AuthToken: []
+        AccessToken: []
+      parameters:
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppTemplateUsageCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTemplateUsageResponse'
+  /app/v3/api/appstore/catalog/feedback:
+    post:
+      tags:
+      - catalog
+      summary: Submit storefront user feedback
+      operationId: appstore.catalog.feedback.create
+      security:
+      - AuthToken: []
+        AccessToken: []
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackResponse'
   /app/v3/api/listings:
     post:
       tags:
       - listings
       summary: Create listing for registered app
       operationId: appstore.listings.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -401,6 +594,9 @@ paths:
       - listings
       summary: Retrieve listing detail
       operationId: appstore.listings.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       responses:
@@ -415,6 +611,9 @@ paths:
       - listings
       summary: Update listing metadata
       operationId: appstore.listings.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -436,6 +635,9 @@ paths:
       - listings
       summary: Upsert listing localization
       operationId: appstore.listings.localization.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Locale'
@@ -458,6 +660,9 @@ paths:
       - listings
       summary: List listing media
       operationId: appstore.listings.media.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       responses:
@@ -472,6 +677,9 @@ paths:
       - listings
       summary: Attach listing media
       operationId: appstore.listings.media.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -493,6 +701,9 @@ paths:
       - listings
       summary: Remove listing media
       operationId: appstore.listings.media.delete
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - name: mediaId
@@ -509,6 +720,9 @@ paths:
       - listings
       summary: Bind listing categories
       operationId: appstore.listings.categories.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -530,6 +744,9 @@ paths:
       - listings
       summary: Update regional availability
       operationId: appstore.listings.regions.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -551,6 +768,9 @@ paths:
       - listings
       summary: List releases for listing
       operationId: appstore.listings.releases.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
@@ -567,6 +787,9 @@ paths:
       - releases
       summary: Create release for listing
       operationId: appstore.releases.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/IdempotencyKey'
@@ -589,6 +812,9 @@ paths:
       - listings
       summary: List release history for listing
       operationId: appstore.listings.releases.history.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
@@ -606,6 +832,9 @@ paths:
       - listings
       summary: List similar listings
       operationId: appstore.listings.similar.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
@@ -623,6 +852,9 @@ paths:
       - listings
       summary: List other listings from the same developer
       operationId: appstore.listings.developerOther.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
@@ -640,6 +872,9 @@ paths:
       - listings
       summary: Retrieve listing editorial content
       operationId: appstore.listings.editorial.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       responses:
@@ -649,12 +884,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SdkWorkResourceResponse'
+  /app/v3/api/listings/{listingId}/ratings:
+    get:
+      tags:
+      - listings
+      summary: List listing ratings
+      operationId: appstore.listings.ratings.list
+      security:
+      - AuthToken: []
+        AccessToken: []
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/Cursor'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingRatingListResponse'
+  /app/v3/api/listings/{listingId}/ratings/me:
+    put:
+      tags:
+      - listings
+      summary: Upsert the current user rating for a listing
+      operationId: appstore.listings.ratings.update
+      security:
+      - AuthToken: []
+        AccessToken: []
+      parameters:
+      - $ref: '#/components/parameters/ListingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingRatingUpsertRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingRatingResponse'
   /app/v3/api/listings/{listingId}/submissions:
     post:
       tags:
       - listings
       summary: Submit listing for review
       operationId: appstore.listings.submissions.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/IdempotencyKey'
@@ -677,6 +959,9 @@ paths:
       - publishers
       summary: Retrieve current publisher profile
       operationId: appstore.publishers.me.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       responses:
         '200':
           description: Success
@@ -690,6 +975,9 @@ paths:
       - publishers
       summary: List listings owned by the current publisher
       operationId: appstore.publishers.me.listings.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/Cursor'
       - $ref: '#/components/parameters/PageSize'
@@ -706,6 +994,9 @@ paths:
       - publishers
       summary: Bootstrap appstore_app and draft listing for the current publisher
       operationId: appstore.publishers.me.apps.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -739,6 +1030,9 @@ paths:
       - publishers
       summary: Create publisher profile
       operationId: appstore.publishers.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       requestBody:
         required: true
         content:
@@ -758,6 +1052,9 @@ paths:
       - publishers
       summary: Update publisher profile
       operationId: appstore.publishers.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/PublisherId'
       requestBody:
@@ -779,6 +1076,9 @@ paths:
       - publishers
       summary: List publisher members
       operationId: appstore.publishers.members.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/PublisherId'
       responses:
@@ -793,6 +1093,9 @@ paths:
       - publishers
       summary: Invite publisher member
       operationId: appstore.publishers.members.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/PublisherId'
       requestBody:
@@ -814,6 +1117,9 @@ paths:
       - publishers
       summary: Submit publisher verification
       operationId: appstore.publishers.verifications.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/PublisherId'
       requestBody:
@@ -835,6 +1141,9 @@ paths:
       - releases
       summary: Retrieve release detail
       operationId: appstore.releases.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       responses:
@@ -849,6 +1158,9 @@ paths:
       - releases
       summary: Update release metadata
       operationId: appstore.releases.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       requestBody:
@@ -870,6 +1182,9 @@ paths:
       - releases
       summary: Upsert localized release notes
       operationId: appstore.releases.notes.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       - $ref: '#/components/parameters/Locale'
@@ -892,6 +1207,9 @@ paths:
       - releases
       summary: Attach release artifact
       operationId: appstore.releases.artifacts.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       requestBody:
@@ -913,6 +1231,9 @@ paths:
       - releases
       summary: Update staged rollout
       operationId: appstore.releases.rollout.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       requestBody:
@@ -934,6 +1255,9 @@ paths:
       - releases
       summary: Retire release
       operationId: appstore.releases.retire
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ReleaseId'
       responses:
@@ -949,6 +1273,9 @@ paths:
       - compliance
       summary: Retrieve compliance profile
       operationId: appstore.compliance.profile.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       responses:
@@ -963,6 +1290,9 @@ paths:
       - compliance
       summary: Update compliance profile
       operationId: appstore.compliance.profile.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -984,6 +1314,9 @@ paths:
       - compliance
       summary: Update permission disclosures
       operationId: appstore.compliance.permissions.update
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       requestBody:
@@ -1005,6 +1338,9 @@ paths:
       - compliance
       summary: List in-app purchase items for compliance
       operationId: appstore.compliance.iapItems.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       - $ref: '#/components/parameters/Cursor'
@@ -1022,6 +1358,9 @@ paths:
       - library
       summary: List library items
       operationId: appstore.library.items.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/Cursor'
       - $ref: '#/components/parameters/PageSize'
@@ -1038,6 +1377,9 @@ paths:
       - library
       summary: Retrieve library item
       operationId: appstore.library.items.retrieve
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: libraryItemId
         in: path
@@ -1057,6 +1399,9 @@ paths:
       - library
       summary: Record install and prepare download
       operationId: appstore.library.install
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -1078,6 +1423,9 @@ paths:
       - library
       summary: Record uninstall
       operationId: appstore.library.uninstall
+      security:
+      - AuthToken: []
+        AccessToken: []
       requestBody:
         required: true
         content:
@@ -1097,6 +1445,9 @@ paths:
       - library
       summary: Check library updates
       operationId: appstore.library.updates.check
+      security:
+      - AuthToken: []
+        AccessToken: []
       requestBody:
         required: true
         content:
@@ -1116,6 +1467,9 @@ paths:
       - wishlist
       summary: List wishlist items
       operationId: appstore.wishlist.items.list
+      security:
+      - AuthToken: []
+        AccessToken: []
       responses:
         '200':
           description: Success
@@ -1128,6 +1482,9 @@ paths:
       - wishlist
       summary: Add wishlist item
       operationId: appstore.wishlist.items.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       requestBody:
         required: true
         content:
@@ -1147,6 +1504,9 @@ paths:
       - wishlist
       summary: Remove wishlist item
       operationId: appstore.wishlist.items.delete
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/ListingId'
       responses:
@@ -1158,6 +1518,9 @@ paths:
       - downloadGrants
       summary: Create download grant
       operationId: appstore.downloadGrants.create
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -1179,6 +1542,9 @@ paths:
       - downloadGrants
       summary: Consume download grant
       operationId: appstore.downloadGrants.consume
+      security:
+      - AuthToken: []
+        AccessToken: []
       parameters:
       - name: grantId
         in: path
@@ -1343,6 +1709,21 @@ components:
           - SUBSCRIPTION
         icon:
           $ref: '#/components/schemas/MediaResource'
+        developerName:
+          type: string
+          description: Publisher display name of the listing owner.
+        description:
+          type: string
+          description: Localized short/full description preview.
+        currentVersion:
+          type: string
+        fileSizeBytes:
+          type: string
+        whatsNewSummary:
+          type: string
+        releasedAt:
+          type: string
+          format: date-time
         averageRating:
           type: string
         ratingCount:
@@ -2777,6 +3158,11 @@ components:
           type: string
         fileSizeBytes:
           type: string
+        releaseNotes:
+          type: string
+        releasedAt:
+          type: string
+          format: date-time
     LibraryUpdatesCheckResponse:
       allOf:
       - $ref: '#/components/schemas/SdkWorkApiResponse'
@@ -2924,6 +3310,307 @@ components:
         filters:
           type: object
           additionalProperties: true
+    AppTemplate:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - templateCode
+      - templateName
+      - templateType
+      - publishedAt
+      - createdAt
+      properties:
+        id:
+          type: string
+        templateCode:
+          type: string
+        templateName:
+          type: string
+        description:
+          type: string
+        templateType:
+          type: string
+          enum:
+          - APP
+          - PLUGIN
+          - AGENT
+        categoryCode:
+          type: string
+        framework:
+          type: string
+        language:
+          type: string
+        iconMediaResourceId:
+          type: string
+        gitRepoUrl:
+          type: string
+        authorName:
+          type: string
+        capabilityManifest:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+        starCount:
+          type: integer
+        forkCount:
+          type: integer
+        cloneCount:
+          type: integer
+        publishedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    AppTemplateCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - templateName
+      - templateType
+      properties:
+        templateCode:
+          type: string
+        templateName:
+          type: string
+        description:
+          type: string
+        templateType:
+          type: string
+          enum:
+          - APP
+          - PLUGIN
+          - AGENT
+        categoryCode:
+          type: string
+        framework:
+          type: string
+        language:
+          type: string
+        iconMediaResourceId:
+          type: string
+        gitRepoUrl:
+          type: string
+        capabilityManifest:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+    AppTemplateUsageCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - usageType
+      properties:
+        usageType:
+          type: string
+          enum:
+          - STAR
+          - FORK
+          - CLONE
+          - ENABLE
+          - DISABLE
+        metadata:
+          type: object
+          additionalProperties: true
+    AppTemplateUsageResult:
+      type: object
+      additionalProperties: false
+      required:
+      - templateId
+      - usageType
+      - starCount
+      - forkCount
+      - cloneCount
+      properties:
+        templateId:
+          type: string
+        usageType:
+          type: string
+        starCount:
+          type: integer
+        forkCount:
+          type: integer
+        cloneCount:
+          type: integer
+        isStarred:
+          type: boolean
+        isEnabled:
+          type: boolean
+    AppTemplateListResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppTemplate'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
+    AppTemplateResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/AppTemplate'
+    AppTemplateUsageResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/AppTemplateUsageResult'
+    ListingRating:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - listingId
+      - userId
+      - rating
+      - createdAt
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        userId:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ListingRatingUpsertRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - rating
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        title:
+          type: string
+    ListingRatingListResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - items
+            - pageInfo
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListingRating'
+              pageInfo:
+                $ref: '#/components/schemas/PageInfo'
+    ListingRatingResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/ListingRating'
+    FeedbackCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - content
+      properties:
+        type:
+          type: string
+        content:
+          type: string
+          maxLength: 4000
+        contact:
+          type: string
+        listingId:
+          type: string
+        appKey:
+          type: string
+    Feedback:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - type
+      - content
+      - status
+      - createdAt
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    FeedbackResponse:
+      allOf:
+      - $ref: '#/components/schemas/SdkWorkApiResponse'
+      - type: object
+        required:
+        - data
+        properties:
+          data:
+            type: object
+            required:
+            - item
+            properties:
+              item:
+                $ref: '#/components/schemas/Feedback'
     SdkWorkApiResponse:
       type: object
       additionalProperties: false
@@ -3018,7 +3705,7 @@ components:
       format: int32
       minimum: 40001
       maximum: 79999
-      description: Platform or domain error code per API_SPEC.md 搂15.3.
+      description: Platform or domain error code per API_SPEC.md §15.3.
     FieldError:
       type: object
       additionalProperties: false
