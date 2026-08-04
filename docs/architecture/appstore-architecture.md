@@ -88,7 +88,7 @@ Package layout:
 
 | Item | Status |
 | --- | --- |
-| SQLite (local dev) | Default via `APPSTORE_DATABASE_URL=sqlite://...` |
+| SQLite (local dev) | Default via `SDKWORK_DATABASE_SQLITE_URL=sqlite://...` |
 | PostgreSQL (production) | `postgresql://` URL; dialect adaptation in `repository-sqlx` |
 | Gateway bootstrap | `sdkwork-appstore-database-host` init + migrate on startup |
 | Standalone gateway | Port `18090` (override with `PORT`) |
