@@ -761,7 +761,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let mut sql = String::from(
             r#"
             SELECT l.id, l.app_id, l.app_key, ll.display_name, ll.subtitle,
-                   l.listing_slug, l.pricing_model, l.icon_media_resource_id,
+                   l.listing_slug, l.pricing_model,
+                   (SELECT m.media_resource_id FROM appstore_listing_media m
+                    WHERE m.listing_id = l.id AND m.media_role = 'ICON' AND m.tenant_id = l.tenant_id
+                    ORDER BY m.sort_order ASC, m.id ASC LIMIT 1) AS icon_media_resource_id,
                    p.display_name AS developer_name,
                    COALESCE(ll.full_description, ll.short_description) AS description,
                    r.version_name AS current_version,
@@ -779,7 +782,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             LEFT JOIN appstore_release_artifact art
                 ON art.release_id = r.id AND art.artifact_status = 'active'
             WHERE l.tenant_id = ?
-              AND l.listing_status = 'published'
+              AND l.listing_status = 'active'
               AND l.storefront_visibility = 'visible'
               AND l.deleted_at IS NULL
             "#,
@@ -905,7 +908,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let sql = format!(
             r#"
             SELECT l.id, l.app_id, l.app_key, ll.display_name, ll.subtitle,
-                   l.listing_slug, l.pricing_model, l.icon_media_resource_id,
+                   l.listing_slug, l.pricing_model,
+                   (SELECT m.media_resource_id FROM appstore_listing_media m
+                    WHERE m.listing_id = l.id AND m.media_role = 'ICON' AND m.tenant_id = l.tenant_id
+                    ORDER BY m.sort_order ASC, m.id ASC LIMIT 1) AS icon_media_resource_id,
                    p.display_name AS developer_name,
                    COALESCE(ll.full_description, ll.short_description) AS description,
                    r.version_name AS current_version,
@@ -926,7 +932,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
                 ON art.release_id = r.id AND art.artifact_status = 'active'
             WHERE l.tenant_id = ?
               AND l.id IN ({placeholders})
-              AND l.listing_status = 'published'
+              AND l.listing_status = 'active'
               AND l.storefront_visibility = 'visible'
               AND l.deleted_at IS NULL
             "#,
@@ -963,7 +969,10 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let mut sql = String::from(
             r#"
             SELECT l.id, l.app_id, l.app_key, ll.display_name, ll.subtitle,
-                   l.listing_slug, l.pricing_model, l.icon_media_resource_id,
+                   l.listing_slug, l.pricing_model,
+                   (SELECT m.media_resource_id FROM appstore_listing_media m
+                    WHERE m.listing_id = l.id AND m.media_role = 'ICON' AND m.tenant_id = l.tenant_id
+                    ORDER BY m.sort_order ASC, m.id ASC LIMIT 1) AS icon_media_resource_id,
                    l.average_rating, l.rating_count
             FROM appstore_listing l
             LEFT JOIN appstore_listing_localization ll
@@ -971,7 +980,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
                AND ll.locale = ?
                AND ll.tenant_id = l.tenant_id
             WHERE l.tenant_id = ?
-              AND l.listing_status = 'published'
+              AND l.listing_status = 'active'
               AND l.storefront_visibility = 'visible'
               AND l.deleted_at IS NULL
             "#,
@@ -1115,7 +1124,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
                AND ll.locale = ?
                AND ll.tenant_id = l.tenant_id
             WHERE l.tenant_id = ?
-              AND l.listing_status = 'published'
+              AND l.listing_status = 'active'
               AND l.storefront_visibility = 'visible'
               AND l.deleted_at IS NULL
               AND ll.display_name LIKE ?
@@ -1662,7 +1671,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             SELECT t.id, t.tenant_id::text, t.organization_id::text, t.template_code,
                    t.template_name, t.description, t.template_type, t.category_code,
                    t.framework, t.language, t.icon_media_resource_id, t.git_repo_url,
-                   COALESCE(t.capability_manifest::text, '{}'), COALESCE(t.metadata::text, '{}'),
+                   COALESCE(t.capability_manifest::text, '{}') AS capability_manifest, COALESCE(t.metadata::text, '{}') AS metadata,
                    t.published_at, t.created_at, t.updated_at,
                    COALESCE(star_counts.cnt, 0) AS star_count,
                    COALESCE(fork_counts.cnt, 0) AS fork_count,
@@ -1722,12 +1731,12 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
         let mut q = self
             .db
             .query_as::<AppTemplateRow>(&adapted)
-            .bind(context.tenant_id.parse::<i64>().unwrap_or(0))
             .bind(
                 user_id
                     .and_then(|value| value.parse::<i64>().ok())
                     .unwrap_or(0),
-            );
+            )
+            .bind(context.tenant_id.parse::<i64>().unwrap_or(0));
         if let Some(tt) = template_type {
             q = q.bind(tt);
         }
@@ -1766,7 +1775,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
                 SELECT t.id, t.tenant_id::text, t.organization_id::text, t.template_code,
                        t.template_name, t.description, t.template_type, t.category_code,
                        t.framework, t.language, t.icon_media_resource_id, t.git_repo_url,
-                       COALESCE(t.capability_manifest::text, '{}'), COALESCE(t.metadata::text, '{}'),
+                       COALESCE(t.capability_manifest::text, '{}') AS capability_manifest, COALESCE(t.metadata::text, '{}') AS metadata,
                        t.published_at, t.created_at, t.updated_at,
                        COALESCE(star_counts.cnt, 0) AS star_count,
                        COALESCE(fork_counts.cnt, 0) AS fork_count,
@@ -1835,7 +1844,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
                     icon_media_resource_id, visibility, publish_status, featured,
                     sort_weight, owner_user_id, git_repo_url, capability_manifest,
                     published_at
-                ) VALUES (?, ?, ?, ?, 0, 1, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, FALSE, 0, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, 0, 1, ?, ?, 0, ?jsonb, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, FALSE, 0, ?, ?, ?jsonb, ?)
                 "#,
             ))
             .bind(template_bigint_id(&template.id))
@@ -1885,10 +1894,9 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .query(&self.db.adapt_sql(
                 r#"
                 INSERT INTO appstore_app_template_usage (
-                    id, uuid, tenant_id, organization_id, data_scope, status,
-                    created_at, updated_at, version, metadata,
-                    template_id, usage_type
-                ) VALUES (?, ?, ?, ?, 0, 1, ?, ?, 0, ?, ?, ?)
+                    id, uuid, tenant_id, organization_id, user_id, status,
+                    created_at, metadata, template_id, usage_type
+                ) VALUES (?, ?, ?, ?, ?, 1, ?, ?jsonb, ?, ?)
                 "#,
             ))
             .bind(template_bigint_id(&usage.id))
@@ -1901,7 +1909,13 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
                     .and_then(|value| value.parse::<i64>().ok())
                     .unwrap_or(0),
             )
-            .bind(usage.created_at)
+            .bind(
+                usage
+                    .user_id
+                    .as_deref()
+                    .and_then(|value| value.parse::<i64>().ok())
+                    .unwrap_or(0),
+            )
             .bind(usage.created_at)
             .bind(usage.metadata.to_string())
             .bind(template_bigint_id(&usage.template_id))
@@ -1955,7 +1969,7 @@ impl CatalogRepositoryPort for SqlxCatalogRepository {
             .query_as::<AppTemplateUsageRow>(&self.db.adapt_sql(
                 r#"
                 SELECT id, tenant_id::text, organization_id::text, template_id,
-                       user_id, usage_type, COALESCE(metadata::text, '{}'), created_at
+                       user_id, usage_type, COALESCE(metadata::text, '{}') AS metadata, created_at
                 FROM appstore_app_template_usage
                 WHERE tenant_id = ? AND template_id = ? AND user_id = ? AND usage_type = ?
                 ORDER BY created_at DESC, id DESC

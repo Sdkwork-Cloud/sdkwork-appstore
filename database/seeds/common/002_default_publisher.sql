@@ -24,8 +24,8 @@ VALUES
         'active',
         'verified',
         '1',
-        CURRENT_TIMESTAMP::text,
-        CURRENT_TIMESTAMP::text
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
     )
 ON CONFLICT (id) DO UPDATE SET
     tenant_id = EXCLUDED.tenant_id,

@@ -155,10 +155,10 @@ impl ListingType {
 
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
-            "app" => Some(Self::App),
-            "game" => Some(Self::Game),
-            "plugin" => Some(Self::Plugin),
-            "extension" => Some(Self::Extension),
+            "app" | "APP" => Some(Self::App),
+            "game" | "GAME" => Some(Self::Game),
+            "plugin" | "PLUGIN" => Some(Self::Plugin),
+            "extension" | "EXTENSION" => Some(Self::Extension),
             _ => None,
         }
     }

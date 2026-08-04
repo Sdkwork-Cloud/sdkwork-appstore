@@ -1788,6 +1788,7 @@ dependencies = [
  "axum",
  "dotenvy",
  "sdkwork-api-appstore-assembly",
+ "sdkwork-appstore-routes-common",
  "sdkwork-database-sqlx",
  "sdkwork-web-axum",
  "sdkwork-web-bootstrap",
@@ -1963,6 +1964,7 @@ dependencies = [
  "sdkwork-utils-rust",
  "sdkwork-web-core",
  "serde",
+ "tracing",
 ]
 
 [[package]]

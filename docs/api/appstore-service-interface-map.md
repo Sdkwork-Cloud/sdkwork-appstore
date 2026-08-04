@@ -14,6 +14,11 @@ This document maps each route operation to its generated handler and service met
 | `appstore.catalog.featured.list` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_featured_list` | `sdkwork-appstore-catalog-service` | `catalog_featured_list` | Implemented |
 | `appstore.catalog.charts.retrieve` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_charts_retrieve` | `sdkwork-appstore-catalog-service` | `catalog_charts_retrieve` | Implemented |
 | `appstore.catalog.listings.list` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_listings_search` | `sdkwork-appstore-catalog-service` | `catalog_listings_search` | Implemented |
+| `appstore.catalog.templates.list` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_templates_list` | `sdkwork-appstore-catalog-service` | `templates_list` | Implemented |
+| `appstore.catalog.templates.create` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_template_create` | `sdkwork-appstore-catalog-service` | `template_create` | Implemented |
+| `appstore.catalog.templates.retrieve` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_template_retrieve` | `sdkwork-appstore-catalog-service` | `template_retrieve` | Implemented |
+| `appstore.catalog.templates.usage.create` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_template_usage_create` | `sdkwork-appstore-catalog-service` | `template_usage_create` | Implemented |
+| `appstore.catalog.feedback.create` | `sdkwork-routes-appstore-catalog-app-api` | `catalog_feedback_create` | `sdkwork-appstore-catalog-service` | `feedback_create` | Implemented |
 | `appstore.catalog.collections.create` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_collections_create` | `sdkwork-appstore-catalog-service` | `catalog_collections_create` | Implemented |
 | `appstore.catalog.collections.update` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_collections_update` | `sdkwork-appstore-catalog-service` | `catalog_collections_update` | Implemented |
 | `appstore.catalog.collections.items.update` | `sdkwork-routes-appstore-catalog-backend-api` | `catalog_collections_items_upsert` | `sdkwork-appstore-catalog-service` | `catalog_collections_items_upsert` | Implemented |
@@ -73,6 +78,8 @@ This document maps each route operation to its generated handler and service met
 | `appstore.listings.localization.update` | `sdkwork-routes-listing-app-api` | `listings_localization_upsert` | `sdkwork-appstore-listing-service` | `listings_localization_upsert` | Implemented |
 | `appstore.listings.media.create` | `sdkwork-routes-listing-app-api` | `listings_media_attach` | `sdkwork-appstore-listing-service` | `listings_media_attach` | Implemented |
 | `appstore.listings.media.delete` | `sdkwork-routes-listing-app-api` | `listings_media_remove` | `sdkwork-appstore-listing-service` | `listings_media_remove` | Implemented |
+| `appstore.listings.ratings.list` | `sdkwork-routes-listing-app-api` | `listings_ratings_list` | `sdkwork-appstore-listing-service` | `ratings_list` | Implemented |
+| `appstore.listings.ratings.update` | `sdkwork-routes-listing-app-api` | `listings_rating_update` | `sdkwork-appstore-listing-service` | `rating_update` | Implemented |
 | `appstore.listings.categories.update` | `sdkwork-routes-listing-app-api` | `listings_categories_bind` | `sdkwork-appstore-listing-service` | `listings_categories_bind` | Implemented |
 | `appstore.listings.regions.update` | `sdkwork-routes-listing-app-api` | `listings_regions_update` | `sdkwork-appstore-listing-service` | `listings_regions_update` | Implemented |
 | `appstore.listings.submissions.create` | `sdkwork-routes-listing-app-api` | `listings_submissions_create` | `sdkwork-appstore-listing-service` | `listings_submissions_create` | Implemented |

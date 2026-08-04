@@ -412,13 +412,14 @@ where
     async fn home_retrieve(
         &self,
         context: &AppstoreRequestContext,
-        _request: HomeRetrieveRequest,
+        request: HomeRetrieveRequest,
     ) -> AppstoreServiceResult<HomeRetrieveResult> {
         let featured_slots = self.repository.find_featured_slots(context).await?;
         let collections = self.repository.find_collections(context, None, 20).await?;
+        let chart_locale = request.locale.as_deref().unwrap_or("en-US");
         let latest_chart = self
             .repository
-            .find_latest_chart_snapshot(context, "top", "en-US", "ALL")
+            .find_latest_chart_snapshot(context, "top", chart_locale, "ALL")
             .await?;
         let charts = latest_chart.into_iter().collect();
 

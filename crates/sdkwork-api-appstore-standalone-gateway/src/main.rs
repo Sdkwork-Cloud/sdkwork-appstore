@@ -1,13 +1,16 @@
 use std::sync::Arc;
 
-use sdkwork_api_appstore_assembly::assemble_api_router;
 use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
 use tower_http::cors::CorsLayer;
 use tracing_subscriber::EnvFilter;
 
+mod bootstrap;
+mod health;
+mod preflight;
 mod readiness;
+mod server;
 
-use readiness::AppstoreDatabaseReadinessCheck;
+use bootstrap::config::AppstoreGatewayConfig;
 
 #[tokio::main]
 async fn main() {
@@ -16,10 +19,21 @@ async fn main() {
         .init();
     let _ = dotenvy::dotenv();
 
-    let assembly = assemble_api_router()
-        .await
-        .expect("appstore gateway assembly failed");
-    let readiness = Arc::new(AppstoreDatabaseReadinessCheck::new(
+    let config = AppstoreGatewayConfig::from_env();
+    let adapters = bootstrap::adapters::DependencyAdapters::from_env();
+    tracing::info!(
+        active_dependency_surfaces = ?preflight::dependency_surfaces::active_dependency_surfaces()
+            .iter()
+            .map(|surface| surface.code())
+            .collect::<Vec<_>>(),
+        drive_enabled = adapters.drive_enabled(),
+        platform_enabled = adapters.platform_enabled(),
+        search_enabled = adapters.search_enabled(),
+        "appstore gateway dependency surfaces"
+    );
+
+    let assembly = bootstrap::routers::assemble_router().await;
+    let readiness = Arc::new(health::AppstoreDatabaseReadinessCheck::new(
         assembly.database_pool.clone(),
     ));
     let business = assembly.router.layer(cors_layer_from_env());
@@ -28,25 +42,11 @@ async fn main() {
         ServiceRouterConfig::default().with_readiness_check(readiness),
     );
 
-    let port = std::env::var("PORT").unwrap_or_else(|_| "18090".to_owned());
-    let addr = format!("0.0.0.0:{port}");
-    tracing::info!(%addr, "starting sdkwork-api-appstore-standalone-gateway");
-    let listener = tokio::net::TcpListener::bind(&addr)
-        .await
-        .expect("bind appstore standalone gateway");
-    axum::serve(listener, app)
-        .with_graceful_shutdown(shutdown_signal())
-        .await
-        .expect("serve appstore standalone gateway");
+    server::serve(config.addr(), app).await;
 }
 
 fn cors_layer_from_env() -> CorsLayer {
-    let environment = match std::env::var("SDKWORK_APPSTORE_ENVIRONMENT")
-        .unwrap_or_else(|_| "development".to_owned())
-        .trim()
-        .to_ascii_lowercase()
-        .as_str()
-    {
+    let environment = match config_environment().as_str() {
         "dev" | "development" | "test" | "testing" | "local" => {
             sdkwork_web_core::WebEnvironment::Dev
         }
@@ -63,27 +63,9 @@ fn cors_layer_from_env() -> CorsLayer {
     sdkwork_web_axum::cors_layer_from_policy(policy.cors)
 }
 
-async fn shutdown_signal() {
-    let ctrl_c = async {
-        tokio::signal::ctrl_c()
-            .await
-            .expect("install Ctrl+C handler");
-    };
-
-    #[cfg(unix)]
-    let terminate = async {
-        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
-            .expect("install SIGTERM handler")
-            .recv()
-            .await;
-    };
-
-    #[cfg(not(unix))]
-    let terminate = std::future::pending::<()>();
-
-    tokio::select! {
-        () = ctrl_c => {},
-        () = terminate => {},
-    }
-    tracing::info!("appstore gateway shutdown signal received");
+fn config_environment() -> String {
+    std::env::var("SDKWORK_APPSTORE_ENVIRONMENT")
+        .unwrap_or_else(|_| "development".to_owned())
+        .trim()
+        .to_ascii_lowercase()
 }

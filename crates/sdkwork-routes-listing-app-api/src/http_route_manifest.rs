@@ -93,6 +93,18 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.listings.editorial.retrieve",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/listings/{listingId}/ratings",
+        "appstore",
+        "appstore.listings.ratings.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Put,
+        "/app/v3/api/listings/{listingId}/ratings/me",
+        "appstore",
+        "appstore.listings.ratings.update",
+    ),
 ];
 
 pub fn app_route_manifest() -> HttpRouteManifest {

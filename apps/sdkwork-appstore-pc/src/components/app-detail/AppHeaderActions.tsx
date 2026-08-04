@@ -10,7 +10,7 @@ interface AppHeaderActionsProps {
 }
 
 export const AppHeaderActions: React.FC<AppHeaderActionsProps> = ({ app }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { installApp } = useInstall();
 
   return (
@@ -20,7 +20,7 @@ export const AppHeaderActions: React.FC<AppHeaderActionsProps> = ({ app }) => {
         onClick={() => installApp(app)}
         className="bg-blue-600 text-white px-8 py-2 rounded-full font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100 dark:shadow-none uppercase tracking-wide cursor-pointer"
       >
-        {app.price === 0 ? t('appDetail.header.get') : formatPrice(app.price)}
+        {app.price === 0 ? t('appDetail.header.get') : formatPrice(app.price, i18n.language)}
       </button>
       <button 
         type="button"

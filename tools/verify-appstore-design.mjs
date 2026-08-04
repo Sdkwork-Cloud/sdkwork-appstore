@@ -183,20 +183,20 @@ const serviceCrates = [
 }));
 
 const routeCrates = [
-  ["catalog", "app-api"],
+  ["appstore-catalog", "app-api"],
   ["listing", "app-api"],
   ["release", "app-api"],
   ["library", "app-api"],
   ["publisher", "app-api"],
   ["compliance", "app-api"],
   ["moderation", "backend-api"],
-  ["catalog", "backend-api"],
+  ["appstore-catalog", "backend-api"],
   ["listing", "backend-api"],
   ["publisher", "backend-api"],
   ["market", "backend-api"],
   ["metrics", "backend-api"],
   ["release", "open-api"],
-  ["catalog", "open-api"],
+  ["appstore-catalog", "open-api"],
   ["listing", "open-api"],
   ["automation", "open-api"],
 ].map(([capability, surface]) => ({

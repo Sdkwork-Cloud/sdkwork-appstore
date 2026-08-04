@@ -1,15 +1,38 @@
-//! Ensures gateway `.route()` registrations match the combined HTTP route manifest.
+//! Ensures mounted route-crate `.route()` registrations match the combined HTTP route manifest.
 
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::PathBuf;
 
-fn gateway_routes_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/routes")
+fn manifest_path() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../sdkwork-api-appstore-assembly/src/http_route_manifest.rs")
 }
 
-fn manifest_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/http_route_manifest.rs")
+fn crates_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join("crates")
+}
+
+fn route_runtime_sources() -> Vec<(String, String)> {
+    let crates = fs::read_dir(crates_dir()).expect("read crates dir");
+    let mut sources = Vec::new();
+    for entry in crates {
+        let entry = entry.expect("crate dir entry");
+        let crate_name = entry.file_name().to_string_lossy().to_string();
+        if !crate_name.starts_with("sdkwork-routes-") {
+            continue;
+        }
+        let runtime_path = entry.path().join("src/runtime.rs");
+        if runtime_path.exists() {
+            sources.push((
+                crate_name,
+                fs::read_to_string(&runtime_path).expect("read runtime.rs"),
+            ));
+        }
+    }
+    sources
 }
 
 fn extract_manifest_routes(source: &str) -> BTreeSet<(String, String)> {
@@ -40,7 +63,7 @@ fn extract_manifest_routes(source: &str) -> BTreeSet<(String, String)> {
     routes
 }
 
-fn extract_gateway_routes(source: &str) -> BTreeSet<(String, String)> {
+fn extract_route_crate_routes(source: &str) -> BTreeSet<(String, String)> {
     let mut routes = BTreeSet::new();
 
     for segment in source.split(".route(").skip(1) {
@@ -74,21 +97,13 @@ fn gateway_routes_match_http_route_manifest() {
     let expected = extract_manifest_routes(&manifest_source);
 
     let mut actual = BTreeSet::new();
-    for entry in fs::read_dir(gateway_routes_dir()).expect("read routes dir") {
-        let entry = entry.expect("route dir entry");
-        let path = entry.path();
-        if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
-            continue;
-        }
-        let file_name = path
-            .file_name()
-            .and_then(|name| name.to_str())
-            .unwrap_or("");
-        if matches!(file_name, "support.rs" | "mod.rs") {
-            continue;
-        }
-        let source = fs::read_to_string(&path).expect("read route module");
-        actual.extend(extract_gateway_routes(&source));
+    let runtime_sources = route_runtime_sources();
+    assert!(
+        !runtime_sources.is_empty(),
+        "no sdkwork-routes-* crates with runtime.rs found"
+    );
+    for (_crate_name, source) in &runtime_sources {
+        actual.extend(extract_route_crate_routes(source));
     }
 
     let missing: Vec<_> = expected.difference(&actual).cloned().collect();

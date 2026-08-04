@@ -12,7 +12,7 @@ interface AppMoreByDeveloperProps {
 
 export function AppMoreByDeveloper({ developer, apps }: AppMoreByDeveloperProps) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { installApp } = useInstall();
 
   return (
@@ -39,7 +39,7 @@ export function AppMoreByDeveloper({ developer, apps }: AppMoreByDeveloperProps)
               className="bg-gray-100 dark:bg-[#2C2C2E] hover:bg-gray-200 dark:hover:bg-[#3C3C3E] text-blue-600 dark:text-[#0A84FF] font-bold text-xs px-4 py-1.5 rounded-full transition-colors uppercase cursor-pointer"
               onClick={(e) => { e.stopPropagation(); installApp(otherApp); }}
             >
-              {otherApp.price === 0 ? t('appDetail.header.get') : formatPrice(otherApp.price)}
+              {otherApp.price === 0 ? t('appDetail.header.get') : formatPrice(otherApp.price, i18n.language)}
             </button>
           </div>
         ))}

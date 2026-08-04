@@ -107,6 +107,12 @@ tables:
   - name: appstore_catalog_chart_snapshot
     profile: read_model
     complianceLevel: L2
+  - name: appstore_listing_rating
+    profile: master
+    complianceLevel: L2
+  - name: appstore_feedback
+    profile: master
+    complianceLevel: L2
   - name: appstore_user_library_item
     profile: master
     complianceLevel: L2
@@ -154,3 +160,5 @@ migrations:
     file: migrations/0001_appstore_foundation.sql
   - id: "0002"
     file: migrations/0002_appstore_extensions.sql
+    file: migrations/0003_appstore_rating_feedback.sql
+    file: migrations/0004_appstore_timestamps_timestamptz.sql

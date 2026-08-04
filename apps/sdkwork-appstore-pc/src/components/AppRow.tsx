@@ -14,7 +14,7 @@ interface AppRowProps {
 }
 
 export function AppRow({ app, showRank, hideButton }: AppRowProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { installApp, openApp, isInstalled, isDownloading, downloadProgress } = useInstall();
 
   const installed = isInstalled(app.id);
@@ -68,7 +68,7 @@ export function AppRow({ app, showRank, hideButton }: AppRowProps) {
                 : "text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-[#2c303c] hover:bg-gray-300 dark:hover:bg-[#383d4c]"
             }`}
           >
-            {downloading ? `${Math.round(progress)}%` : installed ? t('common.actions.open') : app.price === 0 ? t('common.labels.free') : formatPrice(app.price)}
+            {downloading ? `${Math.round(progress)}%` : installed ? t('common.actions.open') : app.price === 0 ? t('common.labels.free') : formatPrice(app.price, i18n.language)}
           </button>
         )}
       </motion.div>

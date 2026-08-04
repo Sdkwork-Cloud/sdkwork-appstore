@@ -1,13 +1,16 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { formatMoney } from "@sdkwork/utils/money";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number): string {
+export function formatPrice(price: number, locale: string = "en-US"): string {
   if (price === 0) return "Get";
-  return `$${price.toFixed(2)}`;
+  return (
+    formatMoney(price, { currency: "USD", locale, mode: "symbol" }) ?? ""
+  );
 }
 
 export function formatNumber(num: number): string {

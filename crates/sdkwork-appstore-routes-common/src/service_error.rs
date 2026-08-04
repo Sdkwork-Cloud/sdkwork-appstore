@@ -79,10 +79,13 @@ pub fn map_appstore_service_error(
         AppstoreServiceErrorKind::Conflict(_) => {
             (StatusCode::CONFLICT, SdkWorkResultCode::Conflict)
         }
-        AppstoreServiceErrorKind::Internal(_) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            SdkWorkResultCode::InternalError,
-        ),
+        AppstoreServiceErrorKind::Internal(message) => {
+            tracing::error!(%message, "appstore internal error");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                SdkWorkResultCode::InternalError,
+            )
+        }
     };
     map_service_error_message(context, status, result_code, error.message())
 }

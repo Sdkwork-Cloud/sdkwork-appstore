@@ -7,7 +7,7 @@ interface AppInAppPurchasesProps {
 }
 
 export function AppInAppPurchases({ purchases }: AppInAppPurchasesProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (!purchases || purchases.length === 0) return null;
 
@@ -20,7 +20,7 @@ export function AppInAppPurchases({ purchases }: AppInAppPurchasesProps) {
         {purchases.map((iap, idx) => (
           <div key={iap.id || idx} className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-[#2C2C2E] last:border-0">
             <span className="text-sm text-[#1C1C1E] dark:text-[#F5F5F5] font-medium">{iap.name}</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{formatPrice(iap.price)}</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{formatPrice(iap.price, i18n.language)}</span>
           </div>
         ))}
       </div>

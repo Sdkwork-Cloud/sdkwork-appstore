@@ -281,6 +281,7 @@ pub struct DownloadGrant {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateCheckItem {
     pub app_key: String,
     pub platform: String,

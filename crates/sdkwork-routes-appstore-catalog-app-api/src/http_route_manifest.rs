@@ -105,6 +105,36 @@ const HTTP_ROUTES: &[HttpRoute] = &[
         "appstore",
         "appstore.catalog.search.history.delete",
     ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/appstore/catalog/templates",
+        "appstore",
+        "appstore.catalog.templates.list",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/appstore/catalog/templates/{templateId}",
+        "appstore",
+        "appstore.catalog.templates.retrieve",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/appstore/catalog/templates",
+        "appstore",
+        "appstore.catalog.templates.create",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/appstore/catalog/templates/{templateId}/usage",
+        "appstore",
+        "appstore.catalog.templates.usage.create",
+    ),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/appstore/catalog/feedback",
+        "appstore",
+        "appstore.catalog.feedback.create",
+    ),
 ];
 
 pub fn app_route_manifest() -> HttpRouteManifest {

@@ -41,6 +41,7 @@
     "@sdkwork/mcp-app-sdk": "workspace:*",
     "@sdkwork/sdk-common": "workspace:*",
     "@sdkwork/skills-app-sdk": "workspace:*",
+    "@sdkwork/utils": "workspace:*",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "clsx": "^2.1.1",
