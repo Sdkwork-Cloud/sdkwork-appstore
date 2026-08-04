@@ -1755,7 +1755,7 @@ components:
             type: string
           commerceProductId:
             type: string
-            description: Commerce catalog product id for paid checkout (clawrouter/commerce
+            description: Commerce catalog product id for paid checkout (cloudrouter/commerce
               domain).
           currentReleaseId:
             type: string

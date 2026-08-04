@@ -1,13 +1,13 @@
 import {
   createClient,
-  type SdkworkClawrouterAppDomainsClient,
-} from '@sdkwork/clawrouter-app-sdk/domains';
+  type SdkworkCloudrouterAppDomainsClient,
+} from '@sdkwork/cloudrouter-app-sdk/domains';
 import { appstoreTokenManager } from '@/bootstrap/iamRuntime';
 import { getEnvironment } from '@/bootstrap/environment';
 
-let commerceDomainsClient: SdkworkClawrouterAppDomainsClient | null = null;
+let commerceDomainsClient: SdkworkCloudrouterAppDomainsClient | null = null;
 
-export function getCommerceDomainsClient(): SdkworkClawrouterAppDomainsClient {
+export function getCommerceDomainsClient(): SdkworkCloudrouterAppDomainsClient {
   if (!commerceDomainsClient) {
     const env = getEnvironment();
     commerceDomainsClient = createClient({

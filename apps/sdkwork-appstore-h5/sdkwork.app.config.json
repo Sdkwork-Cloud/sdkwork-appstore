@@ -46,7 +46,7 @@
       "purpose": "Listing review threads via comments_thread_id"
     },
     {
-      "sdkFamily": "sdkwork-clawrouter-app-sdk",
+      "sdkFamily": "sdkwork-cloudrouter-app-sdk",
       "purpose": "Platform notification inbox via appbase gateway"
     }
   ]

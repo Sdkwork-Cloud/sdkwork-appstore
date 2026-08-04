@@ -46,7 +46,7 @@
         "credentialMode": "authenticated-app-api"
       },
       {
-        "workspace": "sdkwork-clawrouter-app-sdk",
+        "workspace": "sdkwork-cloudrouter-app-sdk",
         "surface": "app-api",
         "credentialMode": "authenticated-app-api"
       },
@@ -102,8 +102,8 @@
           "inheritRoles": true
         },
         {
-          "moduleId": "clawrouter",
-          "manifestRef": "../../../../../sdkwork-clawrouter/apps/sdkwork-clawrouter-pc/specs/iam.module.manifest.json",
+          "moduleId": "cloudrouter",
+          "manifestRef": "../../../../../sdkwork-cloudrouter/apps/sdkwork-cloudrouter-pc/specs/iam.module.manifest.json",
           "inheritPermissions": true,
           "inheritRoles": true
         },

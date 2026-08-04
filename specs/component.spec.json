@@ -48,7 +48,7 @@
     "sdkDependencies": [
       "sdkwork-agents-app-sdk",
       "sdkwork-appstore-app-sdk",
-      "sdkwork-clawrouter-app-sdk",
+      "sdkwork-cloudrouter-app-sdk",
       "sdkwork-comments-app-sdk",
       "sdkwork-drive-app-sdk",
       "sdkwork-iam-app-sdk",

@@ -22,7 +22,7 @@ This root owns cross-architecture TypeScript packages used by both PC and H5 App
 - This root is not a runnable client surface.
 - PC-only UI packages stay under `../sdkwork-appstore-pc/packages/`.
 - H5-only UI packages stay under `../sdkwork-appstore-h5/packages/`.
-- Claw Router dependency SDKs are consumed from the sibling `sdkwork-clawrouter` composed package through repository-root workspace membership, not through a local proxy package.
+- Cloud Router dependency SDKs are consumed from the sibling `sdkwork-cloudrouter` composed package through repository-root workspace membership, not through a local proxy package.
 - Global standards are linked through local component specs; do not copy global `*_SPEC.md` files here.
 
 ## Verification

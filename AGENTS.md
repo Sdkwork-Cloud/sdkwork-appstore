@@ -87,7 +87,7 @@ Do not use `cargo fmt --all`; optional sibling workspace paths are outside this 
 
 - Appstore owns marketplace catalog, publisher, listing, release, library, moderation, and store analytics APIs.
 - IAM, Drive, Comments, and commerce domains remain dependency-owned and are consumed through approved SDKs or composed facades.
-- Paid checkout uses `@sdkwork/clawrouter-app-sdk/domains`; do not add raw HTTP, manual auth headers, DTO forks, or local SDK proxies.
+- Paid checkout uses `@sdkwork/cloudrouter-app-sdk/domains`; do not add raw HTTP, manual auth headers, DTO forks, or local SDK proxies.
 - Do not change database schema or migrations without explicit user confirmation.
 - Preserve unrelated dirty work and use evidence from executable checks before completion.
 

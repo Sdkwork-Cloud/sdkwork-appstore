@@ -20,7 +20,7 @@
     "@sdkwork/appstore-notification-core": "workspace:*",
     "@sdkwork/appstore-publisher-console-core": "workspace:*",
     "@sdkwork/auth-runtime-pc-react": "workspace:*",
-    "@sdkwork/clawrouter-app-sdk": "workspace:*",
+    "@sdkwork/cloudrouter-app-sdk": "workspace:*",
     "@sdkwork/comments-app-sdk": "workspace:*",
     "@sdkwork/drive-app-sdk": "workspace:*",
     "@sdkwork/sdk-common": "workspace:*",

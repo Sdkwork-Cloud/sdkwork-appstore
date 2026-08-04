@@ -50,7 +50,7 @@ SDKWork App Store 是 SDKWork 生态的应用市场：让用户在一个入口�
 | 登录/会话/组织 | `sdkwork-appbase`（IAM） | 双令牌 + IAM RBAC |
 | 已注册应用主数据 | `sdkwork-platform`（应用注册中心） | listing 创建时校验 app_id |
 | 评论/评分/收藏 | `sdkwork-comments` | listing 关联 comments_thread_id，汇总写入读模型 |
-| 支付/IAP 结算 | `sdkwork-catalog` + `sdkwork-order` + `sdkwork-payment` | listing 关联 Catalog product；客户端经 Clawrouter typed facade 解析 SKU 并创建 Order checkout，App Store 不持有资金流 |
+| 支付/IAP 结算 | `sdkwork-catalog` + `sdkwork-order` + `sdkwork-payment` | listing 关联 Catalog product；客户端经 Cloudrouter typed facade 解析 SKU 并创建 Order checkout，App Store 不持有资金流 |
 | 二进制/媒体存储 | `sdkwork-drive` | 媒体与制品引用 drive 资源，不发起新存储 |
 | 通知投递 | `sdkwork-notifications` | 事件订阅 + 通知 connector |
 | 全文搜索索引 | `sdkwork-search` | catalog 事件驱动同步，应用市场不持有索引 |

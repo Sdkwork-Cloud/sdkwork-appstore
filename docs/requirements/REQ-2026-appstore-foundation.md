@@ -19,7 +19,7 @@ SDKWork needs a first-class application marketplace comparable to Apple App Stor
 
 ## Non-Goals (this phase)
 
-- Payment settlement backend ownership (checkout sessions owned by commerce/clawrouter domains; app store routes paid acquire via `@sdkwork/clawrouter-app-sdk/domains`).
+- Payment settlement backend ownership (checkout sessions owned by commerce/cloudrouter domains; app store routes paid acquire via `@sdkwork/cloudrouter-app-sdk/domains`).
 - Full Java SaaS implementation (contracts first; Rust/Java parity planned).
 - Production deployment topology.
 

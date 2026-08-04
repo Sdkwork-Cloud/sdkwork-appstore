@@ -42,7 +42,7 @@ sdkwork-api-appstore-standalone-gateway
       moderation | compliance | market
   → sdkwork-appstore-repository-sqlx (SQLite + PostgreSQL dialect)
   → sdkwork-appstore-analytics-worker (projections / scheduled jobs)
-External SDKs: IAM, Drive, Platform, Comments, Notifications, Commerce checkout (clawrouter domains) wired on PC/H5; Search federation + optional index projection (`APPSTORE_SEARCH_*`)
+External SDKs: IAM, Drive, Platform, Comments, Notifications, Commerce checkout (cloudrouter domains) wired on PC/H5; Search federation + optional index projection (`APPSTORE_SEARCH_*`)
 ```
 
 ## 3. Capability Modules
@@ -67,9 +67,9 @@ External SDKs: IAM, Drive, Platform, Comments, Notifications, Commerce checkout 
 | App registry | platform | Listing create validates `app_id` |
 | Media / artifacts | drive | Store `drive_node_id` references only |
 | Reviews / threads | comments | `comments_thread_id` + `@sdkwork/comments-app-sdk` on PC/H5 listing detail |
-| Payments / IAP | commerce (via clawrouter domains) | `commerce_product_id` on listings; PC/H5 paid acquire via `@sdkwork/appstore-listing-acquire-core` + `@sdkwork/clawrouter-app-sdk/domains` |
+| Payments / IAP | commerce (via cloudrouter domains) | `commerce_product_id` on listings; PC/H5 paid acquire via `@sdkwork/appstore-listing-acquire-core` + `@sdkwork/cloudrouter-app-sdk/domains` |
 | Full-text search | search | Federation via `SearchFederationAdapter` + SQL fallback; optional index projection (upsert on publish, remove on hide) |
-| Push / inbox | clawrouter notification API | `@sdkwork/clawrouter-app-sdk` + `appstore-notification-core` on PC/H5 |
+| Push / inbox | cloudrouter notification API | `@sdkwork/cloudrouter-app-sdk` + `appstore-notification-core` on PC/H5 |
 
 ## 5. Client Applications
 

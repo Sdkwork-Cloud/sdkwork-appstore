@@ -22,7 +22,7 @@ export interface ListingDetail {
   listingStatus?: string;
   reviewStatus?: string;
   commentsThreadId?: string;
-  /** Commerce catalog product id for paid checkout (clawrouter/commerce domain). */
+  /** Commerce catalog product id for paid checkout (cloudrouter/commerce domain). */
   commerceProductId?: string;
   currentReleaseId?: string;
   categories?: string[];

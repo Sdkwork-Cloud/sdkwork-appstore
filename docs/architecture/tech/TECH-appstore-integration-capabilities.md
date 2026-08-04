@@ -22,7 +22,7 @@ or explicit upstream dependency surfaces.
 | `platform` | `sdkwork-appbase` | registered app registration, app identity, manifest projection, workspace visibility. | appbase/platform dependency SDK or service port. | Required for publishable apps; references `app_id`, `app_key`, and `manifest_snapshot_json`. |
 | `drive` | `sdkwork-drive` | Icons, screenshots, preview videos, install artifacts, release binaries, and moderation evidence media. | Drive app/backend SDK, Drive uploader, or server-side Drive service facade. | Required for rich listings and releases; App Store stores Drive references only. |
 | `comments` | `sdkwork-comments` | Review threads, rating summaries, favorites, visit history, and abuse-report linkage. | comments app/backend SDK or service port. | Required for social proof; App Store stores `comments_thread_id` and cached aggregates. |
-| `commerce` | `sdkwork-catalog`, `sdkwork-order`, `sdkwork-payment` | Paid apps, product/SKU references, checkout, quote, payment, and entitlement linkage. | `@sdkwork/clawrouter-app-sdk/domains` for app clients; owner service ports for server composition. | Required for paid acquisition; App Store owns no checkout, settlement, invoice, or payment routes. |
+| `commerce` | `sdkwork-catalog`, `sdkwork-order`, `sdkwork-payment` | Paid apps, product/SKU references, checkout, quote, payment, and entitlement linkage. | `@sdkwork/cloudrouter-app-sdk/domains` for app clients; owner service ports for server composition. | Required for paid acquisition; App Store owns no checkout, settlement, invoice, or payment routes. |
 | `notifications` | SDKWork notification/event provider | Review decisions, release approval, install/update lifecycle, publisher alerts. | event bus, notification SDK, or provider adapter. | Planned; emit appstore events first, bind provider later. |
 | `search` | SDKWork search/index provider | Catalog search, ranking projections, keyword indexing, category discovery. | search SDK, index writer, or async projection worker. | Planned; phase 1 uses App Store DB snapshots and deterministic ranking fields. |
 | `market_channels` | App Store owned connector boundary | Apple App Store, Google Play, private enterprise channels, and external marketplace release projection. | connector service ports under App Store ownership; external provider SDKs later. | Planned; use `appstore_market_channel` and `appstore_market_release`, no connector implementation yet. |
@@ -48,7 +48,7 @@ review behavior remains comments-owned.
 Catalog owns product and SKU identity; Order owns checkout sessions, quotes, and
 orders; Payment owns payment, settlement, refund, and financial state. App Store
 links paid listings through `commerce_product_id`, resolves a purchasable SKU through
-the typed Clawrouter Catalog surface, and does not own money movement.
+the typed Cloudrouter Catalog surface, and does not own money movement.
 
 `notifications` is a delivery integration for state changes. App Store emits
 domain events and later maps those events to notification templates and

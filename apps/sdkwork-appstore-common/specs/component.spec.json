@@ -70,8 +70,8 @@
         "surfaces": ["app-api"]
       },
       {
-        "sdkFamily": "sdkwork-clawrouter-app-sdk",
-        "repository": "sdkwork-clawrouter",
+        "sdkFamily": "sdkwork-cloudrouter-app-sdk",
+        "repository": "sdkwork-cloudrouter",
         "surfaces": ["app-api"]
       }
     ],

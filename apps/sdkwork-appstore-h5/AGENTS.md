@@ -15,7 +15,7 @@ Use `../../../sdkwork-specs/README.md` and `../../../sdkwork-specs/AGENTS_SPEC.m
 - Declaration: `sdkwork.app.config.json`
 - Source configuration: `etc/sdkwork.deployment.config.json`
 - Application SDK: `@sdkwork/appstore-app-sdk`
-- Federated commerce SDK: `@sdkwork/clawrouter-app-sdk/domains`
+- Federated commerce SDK: `@sdkwork/cloudrouter-app-sdk/domains`
 
 ## Local Dictionary Structure
 

@@ -1,12 +1,12 @@
-import type { SdkworkClawrouterAppDomainsClient } from '@sdkwork/clawrouter-app-sdk/domains';
+import type { SdkworkCloudrouterAppDomainsClient } from '@sdkwork/cloudrouter-app-sdk/domains';
 import { isCurrencyCode, trim, uuid } from '@sdkwork/utils';
 
 type CatalogProductSkuList =
-  SdkworkClawrouterAppDomainsClient['catalog']['products']['skus']['list'];
+  SdkworkCloudrouterAppDomainsClient['catalog']['products']['skus']['list'];
 type CheckoutSessionCreate =
-  SdkworkClawrouterAppDomainsClient['order']['checkout']['sessions']['create'];
+  SdkworkCloudrouterAppDomainsClient['order']['checkout']['sessions']['create'];
 type CheckoutQuoteCreate =
-  SdkworkClawrouterAppDomainsClient['order']['checkout']['sessions']['quotes']['create'];
+  SdkworkCloudrouterAppDomainsClient['order']['checkout']['sessions']['quotes']['create'];
 
 export interface PaidCheckoutClient {
   readonly catalog: {

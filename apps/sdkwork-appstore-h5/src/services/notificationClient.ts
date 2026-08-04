@@ -1,4 +1,4 @@
-import { createClient, type SdkworkAppClient } from '@sdkwork/clawrouter-app-sdk';
+import { createClient, type SdkworkAppClient } from '@sdkwork/cloudrouter-app-sdk';
 import {
   createAppstoreNotificationService,
   type AppstoreNotificationService,
@@ -8,18 +8,18 @@ import { getEnvironment } from '@/bootstrap/environment';
 
 const APPSTORE_NOTIFICATION_APP_ID = 'sdkwork-appstore-h5';
 
-let clawRouterClient: SdkworkAppClient | null = null;
+let cloudRouterClient: SdkworkAppClient | null = null;
 let notificationService: AppstoreNotificationService | null = null;
 
 export function getNotificationService(): AppstoreNotificationService {
   if (!notificationService) {
     const env = getEnvironment();
-    clawRouterClient = createClient({
+    cloudRouterClient = createClient({
       baseUrl: import.meta.env.VITE_APPBASE_API_URL || env.appbaseBaseUrl,
       tokenManager: appstoreTokenManager,
     });
     notificationService = createAppstoreNotificationService({
-      getClient: () => clawRouterClient!,
+      getClient: () => cloudRouterClient!,
       appId: APPSTORE_NOTIFICATION_APP_ID,
     });
   }
@@ -27,6 +27,6 @@ export function getNotificationService(): AppstoreNotificationService {
 }
 
 export function resetNotificationClient(): void {
-  clawRouterClient = null;
+  cloudRouterClient = null;
   notificationService = null;
 }

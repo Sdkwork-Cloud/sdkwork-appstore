@@ -1,4 +1,4 @@
-import { appApiPath, type SdkworkAppClient } from '@sdkwork/clawrouter-app-sdk';
+import { appApiPath, type SdkworkAppClient } from '@sdkwork/cloudrouter-app-sdk';
 import { coalesce } from '@sdkwork/utils';
 
 export type AppstoreNotificationType = 'alert' | 'info' | 'system' | 'warning';

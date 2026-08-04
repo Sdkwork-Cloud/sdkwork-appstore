@@ -1,4 +1,4 @@
--- Default appstore publisher for composed Claw Router bootstrap (tenant 100001 / org 0).
+-- Default appstore publisher for composed Cloud Router bootstrap (tenant 100001 / org 0).
 INSERT INTO appstore_publisher
     (
         id,

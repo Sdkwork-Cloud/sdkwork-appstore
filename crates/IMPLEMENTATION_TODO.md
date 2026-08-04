@@ -14,8 +14,8 @@ Last updated: 2026-08-03
 | `sdkwork-discovery` | Deferred | HTTP-only unified-process gateway; adopt when RPC split-services land |
 | `sdkwork-drive` | Integrated | PC/H5 `@sdkwork/drive-app-sdk` upload helpers; Rust `drive_adapter` + `drive_uploader` |
 | `sdkwork-comments` | Integrated | PC/H5 `@sdkwork/comments-app-sdk` listing reviews via `comments_thread_id` |
-| `sdkwork-clawrouter` (notifications) | Integrated | PC/H5 inbox via `@sdkwork/clawrouter-app-sdk` + `appstore-notification-core` |
-| `sdkwork-clawrouter` (commerce checkout) | Integrated | PC/H5 paid listing acquire via `@sdkwork/clawrouter-app-sdk/domains` + `appstore-listing-acquire-core` |
+| `sdkwork-cloudrouter` (notifications) | Integrated | PC/H5 inbox via `@sdkwork/cloudrouter-app-sdk` + `appstore-notification-core` |
+| `sdkwork-cloudrouter` (commerce checkout) | Integrated | PC/H5 paid listing acquire via `@sdkwork/cloudrouter-app-sdk/domains` + `appstore-listing-acquire-core` |
 | `sdkwork-search` | Integrated (optional) | `SearchFederationAdapter` + SQL fallback; env `APPSTORE_SEARCH_BASE_URL` |
 | `sdkwork-appbase` | Integrated |
 | `sdkwork-market_channels` | Integrated (handoff) | Market channel HTTP relay connectors (Apple/Google/Enterprise) wired via `APPSTORE_MARKET_*_SUBMIT_URL`; live provider handoff pending external endpoints | Publisher console bootstraps via appbase shell; app-sdk composition validated by check:app-sdk-consumers |
@@ -70,7 +70,7 @@ Last verified: 2026-07-07 — PC/H5 `pnpm build`, library uninstall/wishlist + H
 
 ## Remaining Production Items
 
-- Commerce: cart line-item body on clawrouter `/cart/items` when wire exposes product attachment (checkout session + best-effort quote wired today)
+- Commerce: cart line-item body on cloudrouter `/cart/items` when wire exposes product attachment (checkout session + best-effort quote wired today)
 - Listing abuse API: optional dedicated `appstore.compliance.reports.submit` when moderation intake table is added (PC/H5 report UX uses support/mailto today)
 - Production LCP / CDN performance validation (requires deployed environment)
 - Optional: dedicated PostgreSQL CI matrix job (dialect code paths exist; default dev remains SQLite)
