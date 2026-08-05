@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation as useI18n } from 'react-i18next';
 import { Sparkles, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
-import { ExpertItem } from '../../../../src/types';
+import { ExpertItem } from '@sdkwork/appstore-pc-core';
 import { ExpertCard } from './ExpertCard';
 
 interface AIExpertsRosterProps {

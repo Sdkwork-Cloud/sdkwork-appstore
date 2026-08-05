@@ -18,5 +18,8 @@
     },
     "./hooks": "./src/hooks/index.ts",
     "./services": "./src/services/index.ts"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:"
   }
 }

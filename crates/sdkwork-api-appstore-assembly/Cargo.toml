@@ -13,18 +13,18 @@ axum = "0.8"
 tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
 sdkwork-web-bootstrap.workspace = true
 sdkwork-web-core.workspace = true
-sdkwork-appstore-database-host = { path = "../sdkwork-appstore-database-host" }
-sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
-sdkwork-appstore-catalog-service = { path = "../sdkwork-appstore-catalog-service" }
-sdkwork-appstore-listing-service = { path = "../sdkwork-appstore-listing-service" }
-sdkwork-appstore-release-service = { path = "../sdkwork-appstore-release-service" }
-sdkwork-appstore-publisher-service = { path = "../sdkwork-appstore-publisher-service" }
-sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service" }
-sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
-sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
-sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
-sdkwork-appstore-service-host = { path = "../sdkwork-appstore-service-host" }
-sdkwork-appstore-routes-common = { path = "../sdkwork-appstore-routes-common" }
+sdkwork-appstore-database-host.workspace = true
+sdkwork-appstore-repository-sqlx.workspace = true
+sdkwork-appstore-catalog-service.workspace = true
+sdkwork-appstore-listing-service.workspace = true
+sdkwork-appstore-release-service.workspace = true
+sdkwork-appstore-publisher-service.workspace = true
+sdkwork-appstore-library-service.workspace = true
+sdkwork-appstore-moderation-service.workspace = true
+sdkwork-appstore-compliance-service.workspace = true
+sdkwork-appstore-market-service.workspace = true
+sdkwork-appstore-service-host.workspace = true
+sdkwork-appstore-routes-common.workspace = true
 sdkwork-database-config.workspace = true
 sdkwork-database-sqlx.workspace = true
 sdkwork-iam-web-adapter.workspace = true
@@ -40,19 +40,19 @@ tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
 uuid = { version = "1", features = ["v4"] }
-sdkwork-routes-appstore-catalog-app-api = { path = "../sdkwork-routes-appstore-catalog-app-api" }
-sdkwork-routes-appstore-catalog-backend-api = { path = "../sdkwork-routes-appstore-catalog-backend-api" }
-sdkwork-routes-appstore-catalog-open-api = { path = "../sdkwork-routes-appstore-catalog-open-api" }
-sdkwork-routes-automation-open-api = { path = "../sdkwork-routes-automation-open-api" }
-sdkwork-routes-compliance-app-api = { path = "../sdkwork-routes-compliance-app-api" }
-sdkwork-routes-library-app-api = { path = "../sdkwork-routes-library-app-api" }
-sdkwork-routes-listing-app-api = { path = "../sdkwork-routes-listing-app-api" }
-sdkwork-routes-listing-backend-api = { path = "../sdkwork-routes-listing-backend-api" }
-sdkwork-routes-listing-open-api = { path = "../sdkwork-routes-listing-open-api" }
-sdkwork-routes-market-backend-api = { path = "../sdkwork-routes-market-backend-api" }
-sdkwork-routes-metrics-backend-api = { path = "../sdkwork-routes-metrics-backend-api" }
-sdkwork-routes-moderation-backend-api = { path = "../sdkwork-routes-moderation-backend-api" }
-sdkwork-routes-publisher-app-api = { path = "../sdkwork-routes-publisher-app-api" }
-sdkwork-routes-publisher-backend-api = { path = "../sdkwork-routes-publisher-backend-api" }
-sdkwork-routes-release-app-api = { path = "../sdkwork-routes-release-app-api" }
-sdkwork-routes-release-open-api = { path = "../sdkwork-routes-release-open-api" }
+sdkwork-routes-appstore-catalog-app-api.workspace = true
+sdkwork-routes-appstore-catalog-backend-api.workspace = true
+sdkwork-routes-appstore-catalog-open-api.workspace = true
+sdkwork-routes-automation-open-api.workspace = true
+sdkwork-routes-compliance-app-api.workspace = true
+sdkwork-routes-library-app-api.workspace = true
+sdkwork-routes-listing-app-api.workspace = true
+sdkwork-routes-listing-backend-api.workspace = true
+sdkwork-routes-listing-open-api.workspace = true
+sdkwork-routes-market-backend-api.workspace = true
+sdkwork-routes-metrics-backend-api.workspace = true
+sdkwork-routes-moderation-backend-api.workspace = true
+sdkwork-routes-publisher-app-api.workspace = true
+sdkwork-routes-publisher-backend-api.workspace = true
+sdkwork-routes-release-app-api.workspace = true
+sdkwork-routes-release-open-api.workspace = true

@@ -9,7 +9,7 @@ import {
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
 function readListingCard(item: unknown, index: number) {
-  const row = (item ?? {}) as Record<string, unknown>;
+  const row = (item ?? {}) as unknown as unknown as Record<string, unknown>;
   const slug = String(row.listingSlug ?? row.listing_slug ?? row.id ?? index);
   return {
     id: slug,
@@ -59,7 +59,7 @@ export function HomePage() {
       ? (homeFeed as { featuredSlots?: unknown[] }).featuredSlots ?? []
       : [];
 
-  const firstSlot = featuredSlots[0] as Record<string, unknown> | undefined;
+  const firstSlot = featuredSlots[0] as unknown as Record<string, unknown> | undefined;
   const heroTitle = String(firstSlot?.title ?? firstSlot?.slotCode ?? '发现精彩应用');
   const heroSubtitle = String(
     firstSlot?.subtitle ?? '编辑精选与智能推荐，帮你找到下一款必备应用',
@@ -88,14 +88,14 @@ export function HomePage() {
         </div>
       </header>
 
-      {(feedError || categoriesError || recError) && (
+      {feedError || categoriesError || recError ? (
         <div
           className="mx-4 mb-4 rounded-xl px-4 py-3 text-sm"
           style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }}
         >
           {formatApiError(feedError ?? categoriesError ?? recError ?? null)}
         </div>
-      )}
+      ) : null}
 
       <HeroBanner title={heroTitle} subtitle={heroSubtitle} />
 
@@ -109,7 +109,7 @@ export function HomePage() {
         <div className="scroll-x flex gap-2 pb-1">
           {categoryItems.length > 0
             ? categoryItems.map((item, index) => {
-                const row = item as Record<string, unknown>;
+                const row = item as unknown as Record<string, unknown>;
                 const label = String(row.displayName ?? row.name ?? row.categoryCode ?? index);
                 return (
                   <Link
@@ -182,7 +182,7 @@ export function HomePage() {
           </div>
           <div className="scroll-x flex gap-3 pb-1">
             {featuredSlots.slice(0, 6).map((slot, index) => {
-              const row = (slot ?? {}) as Record<string, unknown>;
+              const row = (slot ?? {}) as unknown as Record<string, unknown>;
               const label = String(row.title ?? row.slotCode ?? `精选 ${index + 1}`);
               return (
                 <div

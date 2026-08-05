@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppStoreService } from '../../../src/services/api';
-import { AppItem, ExpertItem } from '../../../src/types';
-import { LoadingSpinner } from '../../../src/components/common/LoadingSpinner';
+import { AppStoreService } from '@sdkwork/appstore-pc-core';
+import { AppItem, ExpertItem } from '@sdkwork/appstore-pc-core';
+import { LoadingSpinner } from '@sdkwork/appstore-pc-commons';
 import { AIHubHeaderBanner } from './components/AIHubHeaderBanner';
 import { AIExpertsHeader } from './components/AIExpertsHeader';
 import { FeaturedScenariosSection } from './components/FeaturedScenariosSection';

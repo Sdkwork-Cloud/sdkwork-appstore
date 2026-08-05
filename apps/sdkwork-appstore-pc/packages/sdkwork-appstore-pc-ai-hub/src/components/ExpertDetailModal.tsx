@@ -11,7 +11,7 @@ import {
   UserCheck,
   Plus
 } from 'lucide-react';
-import { ExpertItem } from '../../../../src/types';
+import { ExpertItem } from '@sdkwork/appstore-pc-core';
 
 interface ExpertDetailModalProps {
   expert: ExpertItem | null;

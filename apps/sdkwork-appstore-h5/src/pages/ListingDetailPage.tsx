@@ -37,7 +37,7 @@ export function ListingDetailPage() {
   const [reportNotice, setReportNotice] = useState<{ title: string; message: string } | null>(null);
 
   const authed = isAuthenticated();
-  const row = (data ?? {}) as Record<string, unknown>;
+  const row = (data ?? {}) as unknown as unknown as Record<string, unknown>;
   const listingId = readString(row, 'id', 'listingId', 'listing_id') || slug;
   const commentsThreadId = readString(row, 'commentsThreadId', 'comments_thread_id') || undefined;
   const commerceProductId = readString(row, 'commerceProductId', 'commerce_product_id') || undefined;
@@ -86,7 +86,7 @@ export function ListingDetailPage() {
   };
 
   const similarApps = (similarData?.items ?? []).map((item, index) => {
-    const sim = item as Record<string, unknown>;
+    const sim = item as unknown as Record<string, unknown>;
     const id = String(sim.listingSlug ?? sim.id ?? index);
     return {
       id,
@@ -274,7 +274,7 @@ export function ListingDetailPage() {
           {isAuthenticated() && (mediaApi.data?.items?.length ?? 0) > 0 ? (
             <div className="scroll-x flex gap-3">
               {(mediaApi.data?.items ?? []).map((item, index) => {
-                const media = item as Record<string, unknown>;
+                const media = item as unknown as Record<string, unknown>;
                 const url = readString(media, 'mediaUrl', 'media_url', 'url');
                 return (
                   <div

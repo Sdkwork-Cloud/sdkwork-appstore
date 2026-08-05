@@ -1,4 +1,4 @@
-import type { AppItem } from '../../../../src/types';
+import type { AppItem } from '../types';
 
 export interface AIModelInfo {
   id: string;

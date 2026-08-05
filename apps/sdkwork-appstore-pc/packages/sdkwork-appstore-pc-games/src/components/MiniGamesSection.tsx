@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Flame } from 'lucide-react';
-import { AppItem } from '../../../../src/types';
-import { MiniGamesCarousel } from '../../../../src/components/discover/MiniGamesCarousel';
+import { AppItem } from '@sdkwork/appstore-pc-core';
+import { MiniGamesCarousel } from '@sdkwork/appstore-pc-commons';
 
 interface MiniGamesSectionProps {
   games: AppItem[];

@@ -1,10 +1,84 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { zhCN } from './locales/zh-CN';
-import { en } from './locales/en';
+
+import { nav as navZh } from './zh-CN/appstore/storefront/nav';
+import { common as commonZh } from './zh-CN/appstore/storefront/common';
+import { discover as discoverZh } from './zh-CN/appstore/storefront/discover';
+import { apps as appsZh } from './zh-CN/appstore/storefront/apps';
+import { games as gamesZh } from './zh-CN/appstore/storefront/games';
+import { aihub as aihubZh } from './zh-CN/appstore/storefront/aihub';
+import { plugins as pluginsZh } from './zh-CN/appstore/storefront/plugins';
+import { skills as skillsZh } from './zh-CN/appstore/storefront/skills';
+import { mcp as mcpZh } from './zh-CN/appstore/system/mcp';
+import { templates as templatesZh } from './zh-CN/appstore/storefront/templates';
+import { updates as updatesZh } from './zh-CN/appstore/storefront/updates';
+import { search as searchZh } from './zh-CN/appstore/storefront/search';
+import { charts as chartsZh } from './zh-CN/appstore/storefront/charts';
+import { appDetail as appDetailZh } from './zh-CN/appstore/storefront/appDetail';
+import { consoleLocales as consoleLocalesZh } from './zh-CN/appstore/console/console';
+import { admin as adminZh } from './zh-CN/appstore/console/admin';
+import { install as installZh } from './zh-CN/appstore/system/install';
+
+import { nav as navEn } from './en/appstore/storefront/nav';
+import { common as commonEn } from './en/appstore/storefront/common';
+import { discover as discoverEn } from './en/appstore/storefront/discover';
+import { apps as appsEn } from './en/appstore/storefront/apps';
+import { games as gamesEn } from './en/appstore/storefront/games';
+import { aihub as aihubEn } from './en/appstore/storefront/aihub';
+import { plugins as pluginsEn } from './en/appstore/storefront/plugins';
+import { skills as skillsEn } from './en/appstore/storefront/skills';
+import { mcp as mcpEn } from './en/appstore/system/mcp';
+import { templates as templatesEn } from './en/appstore/storefront/templates';
+import { updates as updatesEn } from './en/appstore/storefront/updates';
+import { search as searchEn } from './en/appstore/storefront/search';
+import { charts as chartsEn } from './en/appstore/storefront/charts';
+import { appDetail as appDetailEn } from './en/appstore/storefront/appDetail';
+import { consoleLocales as consoleLocalesEn } from './en/appstore/console/console';
+import { admin as adminEn } from './en/appstore/console/admin';
+import { install as installEn } from './en/appstore/system/install';
 
 const SAVED_LANG_KEY = 'app_language';
 const initialLang = localStorage.getItem(SAVED_LANG_KEY) || 'zh-CN';
+
+const zhCN = {
+  nav: navZh,
+  common: commonZh,
+  discover: discoverZh,
+  apps: appsZh,
+  games: gamesZh,
+  aihub: aihubZh,
+  plugins: pluginsZh,
+  skills: skillsZh,
+  mcp: mcpZh,
+  templates: templatesZh,
+  updates: updatesZh,
+  search: searchZh,
+  charts: chartsZh,
+  appDetail: appDetailZh,
+  console: consoleLocalesZh,
+  admin: adminZh,
+  install: installZh,
+};
+
+const en = {
+  nav: navEn,
+  common: commonEn,
+  discover: discoverEn,
+  apps: appsEn,
+  games: gamesEn,
+  aihub: aihubEn,
+  plugins: pluginsEn,
+  skills: skillsEn,
+  mcp: mcpEn,
+  templates: templatesEn,
+  updates: updatesEn,
+  search: searchEn,
+  charts: chartsEn,
+  appDetail: appDetailEn,
+  console: consoleLocalesEn,
+  admin: adminEn,
+  install: installEn,
+};
 
 i18n
   .use(initReactI18next)

@@ -36,7 +36,7 @@ export function PublisherConsolePage() {
     );
   }
 
-  const publisherRow = (publisherData ?? {}) as Record<string, unknown>;
+  const publisherRow = (publisherData ?? {}) as unknown as Record<string, unknown>;
   const publisherName = readString(publisherRow, 'displayName', 'display_name') || '开发者';
 
   return (

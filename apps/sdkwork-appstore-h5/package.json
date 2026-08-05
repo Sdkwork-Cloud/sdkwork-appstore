@@ -14,6 +14,7 @@
   "dependencies": {
     "@sdkwork/appstore-app-sdk": "workspace:*",
     "@sdkwork/appstore-h5-commons": "workspace:*",
+    "@sdkwork/appstore-h5-console-publisher": "workspace:*",
     "@sdkwork/appstore-library-core": "workspace:*",
     "@sdkwork/appstore-listing-acquire-core": "workspace:*",
     "@sdkwork/appstore-listing-support-core": "workspace:*",

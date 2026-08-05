@@ -1,5 +1,6 @@
 import { hexEncode } from '@sdkwork/utils';
 import type { DriveUploaderProgress } from '@sdkwork/drive-app-sdk';
+import type { ListingMediaAttachRequest } from '@sdkwork/appstore-app-sdk';
 import { getDriveClient } from '@/services/driveClient';
 import { getStoreClient } from '@/services/storeClient';
 
@@ -7,7 +8,7 @@ export interface UploadListingMediaParams {
   file: File;
   organizationId: string;
   listingId: string;
-  mediaRole: string;
+  mediaRole: ListingMediaAttachRequest['mediaRole'];
   platformScope?: string;
   locale?: string;
   onProgress?: (progress: DriveUploaderProgress) => void;
@@ -44,7 +45,6 @@ export async function uploadListingMedia(params: UploadListingMediaParams) {
   const profile = profileForFile(params.file);
   const uploadResult = await drive.uploader.uploadByProfile(profile, {
     file: params.file,
-    organizationId: params.organizationId,
     appResourceType: 'appstore.listing.media',
     appResourceId: params.listingId,
     uploadProfileCode: profile,
@@ -68,7 +68,6 @@ export async function uploadReleaseArtifact(params: UploadReleaseArtifactParams)
   const drive = getDriveClient();
   const uploadResult = await drive.uploader.uploadArchive({
     file: params.file,
-    organizationId: params.organizationId,
     appResourceType: 'appstore.artifact',
     appResourceId: params.releaseId,
     uploadProfileCode: 'archive',

@@ -1,4 +1,4 @@
-import { ExpertItem, ExpertScenario } from '../../../../src/types';
+import { ExpertItem, ExpertScenario } from '@sdkwork/appstore-pc-core';
 
 export const expertScenarios: ExpertScenario[] = [
   {

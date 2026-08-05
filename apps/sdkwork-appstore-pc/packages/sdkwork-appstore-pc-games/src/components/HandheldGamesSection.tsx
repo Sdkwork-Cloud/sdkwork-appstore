@@ -1,8 +1,8 @@
 import React from 'react';
 import { Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { AppItem } from '../../../../src/types';
-import { HandheldGamesGrid } from '../../../../src/components/discover/HandheldGamesGrid';
+import { AppItem } from '@sdkwork/appstore-pc-core';
+import { HandheldGamesGrid } from '@sdkwork/appstore-pc-commons';
 
 interface HandheldGamesSectionProps {
   games: AppItem[];

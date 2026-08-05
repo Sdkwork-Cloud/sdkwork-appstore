@@ -13,14 +13,14 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sqlx = { version = "0.9", features = ["runtime-tokio", "tls-rustls", "sqlite", "postgres", "chrono"] }
 sdkwork-database-sqlx = { workspace = true }
-sdkwork-appstore-catalog-service = { path = "../sdkwork-appstore-catalog-service" }
-sdkwork-appstore-listing-service = { path = "../sdkwork-appstore-listing-service" }
-sdkwork-appstore-publisher-service = { path = "../sdkwork-appstore-publisher-service" }
-sdkwork-appstore-release-service = { path = "../sdkwork-appstore-release-service" }
-sdkwork-appstore-library-service = { path = "../sdkwork-appstore-library-service" }
-sdkwork-appstore-moderation-service = { path = "../sdkwork-appstore-moderation-service" }
-sdkwork-appstore-compliance-service = { path = "../sdkwork-appstore-compliance-service" }
-sdkwork-appstore-market-service = { path = "../sdkwork-appstore-market-service" }
+sdkwork-appstore-catalog-service.workspace = true
+sdkwork-appstore-listing-service.workspace = true
+sdkwork-appstore-publisher-service.workspace = true
+sdkwork-appstore-release-service.workspace = true
+sdkwork-appstore-library-service.workspace = true
+sdkwork-appstore-moderation-service.workspace = true
+sdkwork-appstore-compliance-service.workspace = true
+sdkwork-appstore-market-service.workspace = true
 tokio = { version = "1", features = ["full"] }
 
 [dev-dependencies]

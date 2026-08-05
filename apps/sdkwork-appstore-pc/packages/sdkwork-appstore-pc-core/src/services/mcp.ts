@@ -1,4 +1,4 @@
-import type { McpServerItem } from '../../../../src/types';
+import type { McpServerItem } from '../types';
 
 export interface McpToolExecutionResult {
   latencyMs: number;

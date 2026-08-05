@@ -92,7 +92,8 @@ export function bootstrapAppstoreAuthRuntime(): SdkworkAppbasePcAuthRuntimeCompo
     app: {
       appId: 'sdkwork-appstore-h5',
       deploymentMode: 'saas',
-      environment: env.name === 'development' ? 'dev' : env.name,
+      environment:
+        env.name === 'development' ? 'dev' : env.name === 'test' ? 'test' : 'prod',
       platform: 'mobile',
     },
     baseUrls: {

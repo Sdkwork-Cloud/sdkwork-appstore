@@ -6,7 +6,7 @@ import { AISandboxPromptPresets } from './AISandboxPromptPresets';
 import { AISandboxMetricsBar } from './AISandboxMetricsBar';
 import { AISandboxModelSelector } from './AISandboxModelSelector';
 import { AISandboxForm } from './AISandboxForm';
-import { AIHubService, AIModelInfo } from '../../../../src/services/api';
+import { AIHubService, AIModelInfo } from '@sdkwork/appstore-pc-core';
 
 interface AISandboxAssistantProps {
   initialPrompt?: string;

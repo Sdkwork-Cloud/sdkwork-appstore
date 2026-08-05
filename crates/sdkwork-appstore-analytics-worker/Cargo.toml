@@ -20,8 +20,8 @@ tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1", features = ["v4"] }
-sdkwork-appstore-database-host = { path = "../sdkwork-appstore-database-host" }
-sdkwork-appstore-repository-sqlx = { path = "../sdkwork-appstore-repository-sqlx" }
+sdkwork-appstore-database-host.workspace = true
+sdkwork-appstore-repository-sqlx.workspace = true
 sdkwork-database-sqlx = { workspace = true }
 
 [dev-dependencies]

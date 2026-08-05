@@ -129,3 +129,15 @@ Last verified: 2026-07-07 — PC/H5 `pnpm build`, library uninstall/wishlist + H
 - 网关结构规范化(行为不变):新增 bootstrap/{mod,config,adapters,state,routers}、server/mod、preflight/{mod,dependency_surfaces}、health 模块,main.rs 改为组合式;依赖面(drive/platform/search/market_channels)启动时声明与日志。零警告编译。
 - 回归:fmt/93 测试套件全过;网关重启后 home/search/templates/listing/ratings/charts/collections/categories 全绿。
 - 遗留(预先存在,非本会话引入):verify-repo 组合检查 — PC 嵌套 pnpm-workspace.yaml、包跨根导入(src/types 等)、H5 moduleCatalogRefs 未解析(均位于 HEAD 基线);浏览器 UI 渲染验证仍受 webview 环境限制。
+
+## 2026-08-04 — 治理检查全绿(PC/仓库域)+ 前端包边界清理
+
+- `pnpm check`/`verify-repo` 范围内全部修复至仅剩 3 个 H5 项(任务明确仅 PC,记录遗留):
+  - 删除 PC 嵌套 pnpm-workspace.yaml(根 workspace 已覆盖 packages/*)。
+  - 共享类型 10 个(src/types.ts)迁入 pc-core(`export * from './types'`),app 根 types.ts 变重导出垫片;pc-core 5 个 service 改本地导入。
+  - `src/services/api`(pc-core 垫片)相对导入 5 处 → `@sdkwork/appstore-pc-core`;LoadingSpinner(11 行自包含)迁入 pc-commons;discover 两组件经 pc-commons 别名重导出(与仓库既有模式一致)。
+  - i18n 重构为 `src/i18n/<locale>/appstore/<domain>/<capability>/<fragment>`(zh-CN + en 各 17 片段,storefront/console/system 三组),index 改为深路径别名导入,对象结构不变。
+  - Cargo:27 个成员 crate 的兄弟 path 依赖 → `workspace = true`;根 [workspace.dependencies] 补 29 项;修正重复键。
+  - specs 注册表消费记录(sdkwork-appstore.json)补 agents/skills/mcp SDK(本仓库真实依赖),sync-workspace 收敛:清除 7 个零使用兄弟条目,workspace 与注册表一致。
+- 验证:PC tsc/build(11 测试全过)/cargo fmt/93 测试套件全过;`pnpm check` 仅剩 H5 3 项(commentsClient/commerceDomainsClient/notificationClient 惰性单例,注入重构属 H5 范围)。
+- 环境注意:构建缓存清理会删除 target 与运行进程,需重建重启(已恢复);sdkwork-ui dist 曾被不一致产物破坏,重建该依赖 dist 后 PC build 恢复。

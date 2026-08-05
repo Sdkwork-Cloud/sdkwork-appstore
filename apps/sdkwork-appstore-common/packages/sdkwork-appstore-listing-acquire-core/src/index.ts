@@ -15,3 +15,12 @@ export {
   type ListingInstallUiState,
   type ResolveListingInstallStateInput,
 } from './installState';
+export {
+  createDomainsClient,
+  type CatalogSku,
+  type CatalogSkuPage,
+  type CheckoutSessionCreateBody,
+  type CheckoutSessionResult,
+  type DomainsClientConfig,
+  type SdkworkCloudrouterAppDomainsClient,
+} from './domains';

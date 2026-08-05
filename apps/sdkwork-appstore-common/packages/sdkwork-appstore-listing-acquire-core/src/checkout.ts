@@ -1,4 +1,4 @@
-import type { SdkworkCloudrouterAppDomainsClient } from '@sdkwork/cloudrouter-app-sdk/domains';
+import type { SdkworkCloudrouterAppDomainsClient } from './domains';
 import { isCurrencyCode, trim, uuid } from '@sdkwork/utils';
 
 type CatalogProductSkuList =

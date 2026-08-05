@@ -11,7 +11,7 @@ export function BrowsePage({ title, defaultQuery }: BrowsePageProps) {
   const { data, loading, error } = useSearch(defaultQuery);
 
   const items = (data?.items ?? []).map((item, index) => {
-    const row = item as Record<string, unknown>;
+    const row = item as unknown as Record<string, unknown>;
     const slug = String(row.listingSlug ?? row.id ?? index);
     return {
       id: slug,

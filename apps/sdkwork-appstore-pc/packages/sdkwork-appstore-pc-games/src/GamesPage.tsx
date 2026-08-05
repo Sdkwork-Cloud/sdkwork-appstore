@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppStoreService } from '../../../src/services/api';
-import { AppItem } from '../../../src/types';
-import { LoadingSpinner } from '../../../src/components/common/LoadingSpinner';
+import { AppStoreService } from '@sdkwork/appstore-pc-core';
+import { AppItem } from '@sdkwork/appstore-pc-core';
+import { LoadingSpinner } from '@sdkwork/appstore-pc-commons';
 import { GamesHeaderBanner, GameTabType } from './components/GamesHeaderBanner';
 import { BoardGamesHallSection } from './components/BoardGamesHallSection';
 import { PcGamesSection } from './components/PcGamesSection';

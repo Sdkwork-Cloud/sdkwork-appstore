@@ -42,7 +42,7 @@ export function PublisherListingManagePage() {
   const { data: publisher } = usePublisher();
 
   const organizationId = useMemo(() => resolveOrganizationId(publisher), [publisher]);
-  const listingRow = (listing ?? {}) as Record<string, unknown>;
+  const listingRow = (listing ?? {}) as unknown as unknown as Record<string, unknown>;
   const title =
     readString(listingRow, 'displayName', 'display_name') ||
     readString(listingRow, 'listingSlug', 'listing_slug') ||
@@ -84,7 +84,7 @@ export function PublisherListingManagePage() {
     if (!listing || localizationSeeded) {
       return;
     }
-    const row = listing as Record<string, unknown>;
+    const row = listing as unknown as Record<string, unknown>;
     const defaultLocale = readString(row, 'defaultLocale', 'default_locale');
     if (defaultLocale) {
       setLocale(defaultLocale);
@@ -105,7 +105,6 @@ export function PublisherListingManagePage() {
     setLocalizationMessage(null);
     try {
       await publisherService.upsertLocalization(listingId, locale.trim(), {
-        locale: locale.trim(),
         displayName: displayName.trim(),
         shortDescription: shortDescription.trim(),
         fullDescription: fullDescription.trim(),
@@ -141,11 +140,10 @@ export function PublisherListingManagePage() {
     setCreatingRelease(true);
     try {
       const created = (await publisherService.createRelease(listingId, {
-        listingId,
         channelCode: channelCode.trim(),
         versionName: versionName.trim(),
         versionCode: versionCode.trim(),
-      })) as Record<string, unknown>;
+      })) as unknown as Record<string, unknown>;
       const releaseId = readString(created, 'id');
       if (releaseId) {
         setSelectedReleaseId(releaseId);
@@ -195,7 +193,7 @@ export function PublisherListingManagePage() {
         submissionType,
         ...(submissionType === 'RELEASE' ? { releaseId: selectedReleaseId } : {}),
       });
-      setSubmissionMessage(`已提交审核（${result.status ?? 'accepted'}）。`);
+      setSubmissionMessage(`已提交审核（${result.submissionStatus ?? 'accepted'}）。`);
       await refreshListing();
     } catch (err) {
       setSubmissionMessage(formatApiError(err as Error));
@@ -338,7 +336,7 @@ export function PublisherListingManagePage() {
             >
               <option value="">选择版本</option>
               {releaseItems.map((item, index) => {
-                const row = (item ?? {}) as Record<string, unknown>;
+                const row = (item ?? {}) as unknown as Record<string, unknown>;
                 const id = readString(row, 'id') || String(index);
                 return (
                   <option key={id} value={id}>

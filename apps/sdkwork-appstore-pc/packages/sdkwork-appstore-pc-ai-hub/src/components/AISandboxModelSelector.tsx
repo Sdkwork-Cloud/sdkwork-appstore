@@ -1,7 +1,7 @@
 import React from 'react';
 import { Cpu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { AIModelInfo } from '../../../../src/services/api';
+import { AIModelInfo } from '@sdkwork/appstore-pc-core';
 
 interface AISandboxModelSelectorProps {
   models: AIModelInfo[];

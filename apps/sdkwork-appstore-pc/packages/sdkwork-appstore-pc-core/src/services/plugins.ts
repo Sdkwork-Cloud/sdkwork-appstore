@@ -1,4 +1,4 @@
-import type { PluginItem } from '../../../../src/types';
+import type { PluginItem } from '../types';
 
 export interface IPluginsSDK {
   getPlugins(category?: string, query?: string): Promise<PluginItem[]>;

@@ -1,4 +1,4 @@
-import type { TemplateItem } from '../../../../src/types';
+import type { TemplateItem } from '../types';
 
 export interface ITemplatesSDK {
   getTemplates(category?: string, query?: string): Promise<TemplateItem[]>;

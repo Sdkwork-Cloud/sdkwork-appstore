@@ -1,7 +1,8 @@
 import {
-  createClient,
+  createDomainsClient,
+  type DomainsClientConfig,
   type SdkworkCloudrouterAppDomainsClient,
-} from '@sdkwork/cloudrouter-app-sdk/domains';
+} from '@sdkwork/appstore-listing-acquire-core';
 import { appstoreTokenManager } from '@/bootstrap/iamRuntime';
 import { getEnvironment } from '@/bootstrap/environment';
 
@@ -10,10 +11,11 @@ let commerceDomainsClient: SdkworkCloudrouterAppDomainsClient | null = null;
 export function getCommerceDomainsClient(): SdkworkCloudrouterAppDomainsClient {
   if (!commerceDomainsClient) {
     const env = getEnvironment();
-    commerceDomainsClient = createClient({
+    const config: DomainsClientConfig = {
       baseUrl: import.meta.env.VITE_APPBASE_API_URL || env.appbaseBaseUrl,
       tokenManager: appstoreTokenManager,
-    });
+    };
+    commerceDomainsClient = createDomainsClient(config);
   }
   return commerceDomainsClient;
 }

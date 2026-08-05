@@ -1,4 +1,4 @@
-import type { SkillItem } from '../../../../src/types';
+import type { SkillItem } from '../types';
 
 export interface SkillSandboxResult {
   agentOutput: string;

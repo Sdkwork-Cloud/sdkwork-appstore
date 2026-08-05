@@ -1,4 +1,4 @@
-import type { AppItem, Review, EditorialCollection } from '@/src/types';
+import type { AppItem, Review, EditorialCollection } from '../types';
 
 /**
  * AppStore SDK Contract Interface

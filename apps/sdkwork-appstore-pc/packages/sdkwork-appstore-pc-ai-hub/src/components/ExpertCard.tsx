@@ -38,7 +38,7 @@ import {
   Check,
   Sparkles
 } from 'lucide-react';
-import { ExpertItem } from '../../../../src/types';
+import { ExpertItem } from '@sdkwork/appstore-pc-core';
 
 interface ExpertCardProps {
   expert: ExpertItem;
