@@ -35,6 +35,9 @@ use sdkwork_database_sqlx::DatabasePool;
 use self::decision_listing_projection::decision_listing_projection_port;
 use self::submission_moderation::submission_moderation_port;
 use crate::web_bootstrap::wrap_router_with_web_framework_from_env;
+use sdkwork_web_bootstrap::{
+    ApiAssemblyContribution, DatabasePoolReadinessCheck,
+};
 
 pub struct ApiAssembly {
     pub router: Router,
@@ -48,8 +51,12 @@ pub struct ApiAssembly {
 /// modules, and wraps it with the web framework layer.
 pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
     let database_host = bootstrap_appstore_database_from_env().await?;
+    assemble_api_router_with_pool(database_host.pool().clone()).await
+}
 
-    let pool = database_host.pool().clone();
+/// Assemble the appstore router against a caller-provided database pool so the
+/// platform cloud gateway can share its process-wide PostgreSQL pool.
+pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAssembly, String> {
     let db = AppstoreSqlxDb::from_database_pool(&pool)
         .map_err(|e| format!("Failed to create appstore db from pool: {e}"))?;
 
@@ -171,4 +178,19 @@ pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
         router: business,
         database_pool: pool,
     })
+}
+
+/// Build the complete host-neutral appstore contribution for gateway embedding.
+pub async fn assemble_contribution_with_pool(
+    pool: DatabasePool,
+) -> Result<ApiAssemblyContribution, String> {
+    let assembly = assemble_api_router_with_pool(pool).await?;
+    ApiAssemblyContribution::from_manifest(
+        "sdkwork-appstore",
+        "SDKWork Appstore API",
+        assembly.router,
+        crate::http_route_manifest::appstore_route_manifest(),
+        Vec::new(),
+        Arc::new(DatabasePoolReadinessCheck::new(assembly.database_pool)),
+    )
 }

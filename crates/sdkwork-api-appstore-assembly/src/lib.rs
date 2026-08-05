@@ -7,7 +7,10 @@ mod generated;
 pub mod http_route_manifest;
 pub mod web_bootstrap;
 
-pub use bootstrap::{assemble_api_router, ApiAssembly};
+pub use bootstrap::{
+    assemble_api_router, assemble_api_router_with_pool, assemble_contribution_with_pool,
+    ApiAssembly,
+};
 
 pub fn assembly_route_count() -> usize {
     generated::ROUTE_CRATE_COUNT
