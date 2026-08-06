@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppStoreService } from '@sdkwork/appstore-pc-core';
+import { AIHubService, AppStoreService } from '@sdkwork/appstore-pc-core';
 import { AppItem, ExpertItem } from '@sdkwork/appstore-pc-core';
 import { LoadingSpinner } from '@sdkwork/appstore-pc-commons';
 import { AIHubHeaderBanner } from './components/AIHubHeaderBanner';
@@ -49,6 +49,13 @@ export default function AIHubPage() {
   useEffect(() => {
     async function loadAIHub() {
       try {
+        // Prefer the catalog-runtime AI category feed; fall back to a
+        // client-side keyword filter when the category feed is empty.
+        const categoryApps = await AIHubService.getAIApps().catch(() => []);
+        if (categoryApps.length > 0) {
+          setAiApps(categoryApps);
+          return;
+        }
         const all = await AppStoreService.getAllApps();
         const filtered = all.filter(a =>
           a.category === 'AI' ||

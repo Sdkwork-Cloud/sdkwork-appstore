@@ -13,7 +13,13 @@ export const discover = {
     codingApps: 'AI Coding & Agent Tools',
     creativeApps: 'AI Creative & Multimedia',
     productivityApps: 'AI Productivity & Knowledge Base',
-    aiSpotlight: 'AI Spotlight'
+    aiSpotlight: 'AI Spotlight',
+    categories: 'Categories',
+    viewAll: 'View all',
+    editorialPicks: 'Editorial Picks',
+    recentlyUpdated: 'Recently Updated',
+    recommended: 'Recommended for You',
+    events: 'Limited-time Events'
   },
   miniGamesBanner: {
     playInClient: 'No Download Needed · Instant Play'

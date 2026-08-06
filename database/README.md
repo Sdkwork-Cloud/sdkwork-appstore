@@ -12,11 +12,9 @@ Canonical lifecycle assets for `sdkwork-appstore` per `DATABASE_FRAMEWORK_SPEC.m
 
 This module is in **initialization state** for greenfield deployments:
 
-1. **Baseline** — `database/ddl/baseline/postgres/0001_appstore_baseline.sql` contains the full PostgreSQL DDL snapshot.
-2. **Migrations** — `database/migrations/postgres/` is reserved for post-GA incremental schema changes only.
+1. **Baseline** — `database/ddl/baseline/{engine}/0001_appstore_baseline.sql` contains the full DDL snapshot.
+2. **Migrations** — `database/migrations/{engine}/` is reserved for post-GA incremental schema changes only. It is intentionally empty at initialization.
 3. **Drift** — run `pnpm db:drift:check` before release.
-
-SQLite assets are isolated test fixtures under `tests/fixtures/database/sqlite` and are not server lifecycle inputs.
 
 ## Commands
 

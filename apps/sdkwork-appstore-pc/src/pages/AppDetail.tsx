@@ -23,6 +23,7 @@ export default function AppDetail() {
 
   const [app, setApp] = useState<AppItem | null>(null);
   const [allApps, setAllApps] = useState<AppItem[]>([]);
+  const [similarApps, setSimilarApps] = useState<AppItem[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [otherApps, setOtherApps] = useState<AppItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,14 +44,16 @@ export default function AppDetail() {
         const appData = await AppStoreService.getAppById(id);
         if (appData) {
           setApp(appData);
-          const [appReviews, moreApps, appsList] = await Promise.all([
+          const [appReviews, moreApps, appsList, similar] = await Promise.all([
             AppStoreService.getReviewsByAppId(id),
             AppStoreService.getMoreByDeveloper(appData.developer, id),
-            AppStoreService.getAllApps()
+            AppStoreService.getAllApps(),
+            AppStoreService.getSimilarApps(id).catch(() => []),
           ]);
           setReviews(appReviews);
           setOtherApps(moreApps);
           setAllApps(appsList);
+          setSimilarApps(similar);
         } else {
           setApp(null);
         }
@@ -118,7 +121,11 @@ export default function AppDetail() {
         <AppMoreByDeveloper developer={app.developer} apps={otherApps} />
 
         {/* Similar Board & Card Game Smart Recommendation System */}
-        <AppRecommendations currentApp={app} allApps={allApps} />
+        <AppRecommendations
+          currentApp={app}
+          allApps={allApps}
+          similarApps={similarApps}
+        />
       </div>
     </div>
   );

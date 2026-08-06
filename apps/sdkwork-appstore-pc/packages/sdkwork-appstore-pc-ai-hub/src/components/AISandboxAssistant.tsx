@@ -60,7 +60,17 @@ export const AISandboxAssistant: React.FC<AISandboxAssistantProps> = ({
         modelUsed: result.modelUsed,
       });
     } catch (err) {
-      setDemoResponse(t('aihub.sandbox.errorText', '【错误】：模型推理过程异常，请稍后重试。'));
+      const message = err instanceof Error ? err.message : '';
+      if (message.includes('not configured')) {
+        setDemoResponse(
+          t(
+            'aihub.sandbox.notConfigured',
+            '【提示】：AI 预览 Agent 尚未配置（VITE_SDKWORK_APPSTORE_AI_PREVIEW_AGENT_ID）。配置后可体验模型推理沙盒。',
+          ),
+        );
+      } else {
+        setDemoResponse(t('aihub.sandbox.errorText', '【错误】：模型推理过程异常，请稍后重试。'));
+      }
     } finally {
       setIsGenerating(false);
     }

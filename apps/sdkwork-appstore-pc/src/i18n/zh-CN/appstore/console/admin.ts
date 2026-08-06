@@ -5,8 +5,8 @@ export const admin = {
   },
   header: {
     badge: '运维中心',
-    title: '系统集群监控与审计日志',
-    subtitle: '实时观察微服务节点状态、系统 CPU/内存负载率、API 请求吞吐量与操作审计日志。',
+    title: '应用市场大盘与审核队列',
+    subtitle: '查看应用市场上架规模、下载与评论大盘、待审核队列，并处理审核决议。',
     refreshBtn: '刷新状态',
     refreshing: '刷新中...'
   },
@@ -22,6 +22,37 @@ export const admin = {
     uptime: '系统连续正常运行',
     sla: '服务在线率 SLA',
     allNodesNormal: '所有节点工作正常'
+  },
+  dashboard: {
+    title: '市场大盘统计',
+    totalListings: '应用总数',
+    totalDownloads: '累计下载',
+    totalReviews: '评论总数',
+    pendingModeration: '待审核',
+    activePublishers: '活跃开发者',
+    dailyInstalls: '今日安装'
+  },
+  moderation: {
+    title: '审核队列',
+    empty: '暂无待审核申请',
+    unavailable: '审核队列暂不可用（后端服务未就绪或权限不足）',
+    listing: '应用',
+    submissionType: '提交类型',
+    status: '状态',
+    submittedAt: '提交时间',
+    statusPending: '待审核',
+    statusInReview: '审核中',
+    statusDecided: '已决议',
+    approve: '通过',
+    reject: '拒绝',
+    requestChanges: '要求修改',
+    reasonPlaceholder: '决议原因（可选）',
+    deciding: '提交决议...',
+    decided: '决议已提交'
+  },
+  unavailable: {
+    title: '该能力暂不可用',
+    description: '集群节点管理与系统审计日志暂未由后端提供，可继续使用市场大盘与审核队列。'
   },
   cluster: {
     title: '分布式集群节点状态',

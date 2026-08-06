@@ -28,6 +28,32 @@ describe('appstore PC auth gate', () => {
     });
   });
 
+  it('protects library, wishlist and publisher routes for anonymous users', () => {
+    for (const pathname of ['/library', '/wishlist', '/publisher', '/publisher/apps/new', '/publisher/apps/app-1']) {
+      expect(
+        resolveAppstorePcAuthGateDecision({
+          hasSession: false,
+          location: { pathname },
+        }),
+      ).toEqual({
+        kind: 'redirect',
+        replace: true,
+        to: `/auth/login?redirect=${encodeURIComponent(pathname)}`,
+      });
+    }
+  });
+
+  it('keeps public category, collection and event routes available anonymously', () => {
+    for (const pathname of ['/category/ai-assistants', '/collection/editorial-1', '/events/event-1']) {
+      expect(
+        resolveAppstorePcAuthGateDecision({
+          hasSession: false,
+          location: { pathname },
+        }),
+      ).toEqual({ kind: 'product-route' });
+    }
+  });
+
   it('rejects external and recursive auth redirects', () => {
     expect(sanitizeAppstorePcAuthRedirect('https://example.com')).toBe('/');
     expect(sanitizeAppstorePcAuthRedirect('/auth/login')).toBe('/');

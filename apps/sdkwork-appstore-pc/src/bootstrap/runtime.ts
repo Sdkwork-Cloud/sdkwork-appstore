@@ -39,7 +39,7 @@ export function createAppstorePcRuntime(): AppstorePcRuntime {
     session,
     tokenManager,
   });
-  configureAppstorePcAIHub(sdkClients.agents, config.aiPreviewAgentId);
+  configureAppstorePcAIHub(sdkClients.agents, sdkClients.app, config.aiPreviewAgentId);
   configureAppstorePcSkills(sdkClients.skills);
   configureAppstorePcMcp(sdkClients.mcp);
   configureAppstorePcAppStore(sdkClients.app, sdkClients.comments);

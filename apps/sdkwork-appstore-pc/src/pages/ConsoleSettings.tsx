@@ -21,9 +21,11 @@ export default function ConsoleSettings() {
 
   const loadConsoleData = async () => {
     try {
+      // Managed apps are the primary surface; API credentials are a
+      // fail-closed capability that must never block the page load.
       const [apps, creds] = await Promise.all([
-        ConsoleService.getManagedApps(),
-        ConsoleService.getApiCredentials(),
+        ConsoleService.getManagedApps().catch(() => []),
+        ConsoleService.getApiCredentials().catch(() => []),
       ]);
       setPublishedApps(apps);
       setCredentials(creds);
@@ -57,16 +59,24 @@ export default function ConsoleSettings() {
   };
 
   const handleGenerateKey = async (name: string) => {
-    const cred = await ConsoleService.generateApiKey(name);
-    setCredentials((prev) => [cred, ...prev]);
+    try {
+      const cred = await ConsoleService.generateApiKey(name);
+      setCredentials((prev) => [cred, ...prev]);
+    } catch (err) {
+      console.error('Failed to generate API key', err);
+    }
   };
 
   const handleRevokeKey = async (id: string) => {
-    const success = await ConsoleService.revokeApiKey(id);
-    if (success) {
-      setCredentials((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, status: 'revoked' as const } : c))
-      );
+    try {
+      const success = await ConsoleService.revokeApiKey(id);
+      if (success) {
+        setCredentials((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, status: 'revoked' as const } : c))
+        );
+      }
+    } catch (err) {
+      console.error('Failed to revoke API key', err);
     }
   };
 

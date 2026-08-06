@@ -13,6 +13,9 @@ export const nav = {
     updates: '更新与已安装',
     charts: '排行榜',
     search: '全局搜索',
+    library: '我的库',
+    wishlist: '收藏夹',
+    publisher: '开发者中心',
     console: '开发者控制台',
     admin: '系统监控中心'
   },

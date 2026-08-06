@@ -3,6 +3,8 @@ export const appDetail = {
     back: '返回',
     get: '获取',
     share: '分享应用',
+    wishlist: '收藏应用',
+    wishlisted: '取消收藏',
     backToStore: '返回',
     shareApp: '分享应用',
     inAppPurchases: '内购/订阅扩展'

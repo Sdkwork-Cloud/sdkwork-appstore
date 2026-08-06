@@ -76,8 +76,14 @@ export function McpPage() {
     commandOrUrl: string;
     toolsProvided: string[];
   }) => {
-    const created = await McpService.addMcpServer(serverData);
-    setServers((prev) => [created, ...prev]);
+    setActionError(null);
+    try {
+      const created = await McpService.addMcpServer(serverData);
+      setServers((prev) => [created, ...prev]);
+      setIsAddOpen(false);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'MCP server registration failed.');
+    }
   };
 
   return (

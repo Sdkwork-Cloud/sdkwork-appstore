@@ -29,6 +29,12 @@ export type {
   SystemMetrics,
   ClusterNode,
   SystemAuditEntry,
+  OperatorDashboard,
+  ModerationQueueItem,
   StorageStats,
+  PublisherProfile,
+  ReleaseItem,
+  ManagedAppDetail,
+  PublisherMember,
 } from '@sdkwork/appstore-pc-core';
 

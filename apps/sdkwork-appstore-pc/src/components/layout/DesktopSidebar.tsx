@@ -6,6 +6,7 @@ import {
   Gamepad2, 
   Sparkles, 
   Trophy, 
+  Search,
   Plug,
   Zap,
   Network,
@@ -14,6 +15,8 @@ import {
   Activity, 
   Download, 
   FolderHeart,
+  Heart,
+  Store,
   Sparkle
 } from 'lucide-react';
 import { SidebarBrand } from './SidebarBrand';
@@ -30,6 +33,12 @@ export function DesktopSidebar() {
     { name: t('nav.menu.games'), path: '/games', icon: Gamepad2 },
     { name: t('nav.menu.aiHub'), path: '/ai-hub', icon: Sparkles },
     { name: t('nav.menu.charts'), path: '/charts', icon: Trophy },
+    { name: t('nav.menu.search'), path: '/search', icon: Search },
+  ];
+
+  const libraryTabs: SidebarNavItem[] = [
+    { name: t('nav.menu.library'), path: '/library', icon: FolderHeart },
+    { name: t('nav.menu.wishlist'), path: '/wishlist', icon: Heart },
   ];
 
   const aiTabs: SidebarNavItem[] = [
@@ -40,6 +49,7 @@ export function DesktopSidebar() {
   ];
 
   const adminTabs: SidebarNavItem[] = [
+    { name: t('nav.menu.publisher'), path: '/publisher', icon: Store },
     { name: t('nav.menu.console'), path: '/console/settings', icon: Sliders },
     { name: t('nav.menu.admin'), path: '/admin/monitor', icon: Activity },
   ];
@@ -91,6 +101,13 @@ export function DesktopSidebar() {
         <SidebarNavGroup
           title={t('nav.menu.discover')}
           items={mainTabs}
+          isTabActive={isTabActive}
+        />
+
+        {/* Sub-component: Library Navigation Section */}
+        <SidebarNavGroup
+          title={t('nav.menu.library')}
+          items={libraryTabs}
           isTabActive={isTabActive}
         />
 

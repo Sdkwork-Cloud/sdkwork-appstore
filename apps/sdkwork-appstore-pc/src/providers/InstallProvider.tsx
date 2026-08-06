@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppItem } from '../types';
 import { AnimatePresence } from 'motion/react';
 import { InstallModal } from '../components/install/InstallModal';
+import { InstallService } from '../services/api';
 
 interface InstallContextType {
   installApp: (app: AppItem) => void;
@@ -17,18 +18,50 @@ interface InstallContextType {
 
 const InstallContext = createContext<InstallContextType | undefined>(undefined);
 
+/** Local fallback seed used before the server-backed library responds. */
+const DEFAULT_INSTALLED_APPS = ['app-wechat', 'app-wps'];
+
+function readLocalInstalledApps(): Set<string> {
+  try {
+    const saved = localStorage.getItem('sdkwork_installed_apps');
+    return saved ? new Set(JSON.parse(saved)) : new Set(DEFAULT_INSTALLED_APPS);
+  } catch {
+    return new Set(DEFAULT_INSTALLED_APPS);
+  }
+}
+
 export function InstallProvider({ children }: { children: React.ReactNode }) {
   const [appToInstall, setAppToInstall] = useState<AppItem | null>(null);
   const [installState, setInstallState] = useState<'confirm' | 'downloading' | 'success'>('confirm');
   const [progress, setProgress] = useState(0);
-  const [installedAppIds, setInstalledAppIds] = useState<Set<string>>(() => {
+  const [installedAppIds, setInstalledAppIds] = useState<Set<string>>(readLocalInstalledApps);
+
+  // Hydrate the installed set from the server-backed library when possible.
+  // Anonymous/offline sessions fall back to the local seed without erroring.
+  useEffect(() => {
+    let cancelled = false;
+    InstallService.getInstalledAppIds()
+      .then((ids) => {
+        if (cancelled) {
+          return;
+        }
+        setInstalledAppIds(new Set(ids.length > 0 ? ids : DEFAULT_INSTALLED_APPS));
+      })
+      .catch(() => {
+        // keep the local seed when the library endpoint is unavailable
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const persistLocal = (next: Set<string>) => {
     try {
-      const saved = localStorage.getItem('sdkwork_installed_apps');
-      return saved ? new Set(JSON.parse(saved)) : new Set(['app-wechat', 'app-wps']);
+      localStorage.setItem('sdkwork_installed_apps', JSON.stringify(Array.from(next)));
     } catch {
-      return new Set(['app-wechat', 'app-wps']);
+      // ignore
     }
-  });
+  };
 
   const installApp = (app: AppItem) => {
     setAppToInstall(app);
@@ -49,12 +82,13 @@ export function InstallProvider({ children }: { children: React.ReactNode }) {
     setInstalledAppIds((prev) => {
       const next = new Set(prev);
       next.delete(appId);
-      try {
-        localStorage.setItem('sdkwork_installed_apps', JSON.stringify(Array.from(next)));
-      } catch {
-        // ignore
-      }
+      persistLocal(next);
       return next;
+    });
+    // Record the uninstall on the server-backed library; the local state
+    // already reflects the removal so failures do not block the UI.
+    InstallService.uninstallApp(appId).catch(() => {
+      // ignore: anonymous sessions have no library row to remove
     });
   };
 
@@ -87,16 +121,19 @@ export function InstallProvider({ children }: { children: React.ReactNode }) {
         if (currentStep >= steps) {
           clearInterval(interval);
           setInstallState('success');
-          
+
+          const installedId = appToInstall.id;
           setInstalledAppIds((prev) => {
             const next = new Set(prev);
-            next.add(appToInstall.id);
-            try {
-              localStorage.setItem('sdkwork_installed_apps', JSON.stringify(Array.from(next)));
-            } catch {
-              // ignore
-            }
+            next.add(installedId);
+            persistLocal(next);
             return next;
+          });
+
+          // Record the install on the server-backed library; the simulated
+          // progress ring completes regardless so the flow never blocks.
+          InstallService.installApp(installedId).catch(() => {
+            // ignore: anonymous sessions have no library row to create
           });
 
           setTimeout(() => {

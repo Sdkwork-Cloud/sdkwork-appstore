@@ -1,4 +1,4 @@
-import type { AppItem, Review, EditorialCollection } from '../types';
+import type { AppItem, Review, EditorialCollection, CategoryDetail, EventItem } from '../types';
 
 /**
  * AppStore SDK Contract Interface
@@ -7,13 +7,21 @@ import type { AppItem, Review, EditorialCollection } from '../types';
  */
 export interface IAppStoreSDK {
   getCategories(): Promise<{ id: string; name: string; icon: string }[]>;
+  getCategoryDetail(id: string): Promise<CategoryDetail | undefined>;
   getCollections(): Promise<EditorialCollection[]>;
+  getCollectionDetail(id: string): Promise<EditorialCollection | undefined>;
+  getEvents(): Promise<EventItem[]>;
+  getEventDetail(id: string): Promise<EventItem | undefined>;
   getDiscoverApps(): Promise<{ editorial: AppItem[]; newAndNoteworthy: AppItem[]; secondaryEditorial: AppItem[] }>;
+  listRecentlyUpdated(): Promise<AppItem[]>;
   getAllApps(): Promise<AppItem[]>;
   getTopCharts(type: 'free' | 'paid' | 'all'): Promise<AppItem[]>;
   searchApps(query: string, filter?: string): Promise<AppItem[]>;
   getTrendingSearches(): Promise<string[]>;
   getSearchSuggestions(keyword: string): Promise<string[]>;
+  getSearchHistory(): Promise<string[]>;
+  saveSearchTerm(term: string): Promise<void>;
+  clearSearchHistory(): Promise<void>;
   getAppById(id: string): Promise<AppItem | undefined>;
   getReviewsByAppId(id: string): Promise<Review[]>;
   submitReview(reviewData: { appId: string; user: string; rating: number; title: string; comment: string }): Promise<Review>;
@@ -21,6 +29,10 @@ export interface IAppStoreSDK {
   getMoreByDeveloper(developer: string, excludeAppId: string): Promise<AppItem[]>;
   getSimilarApps(appId: string): Promise<AppItem[]>;
   getBoardGameRecommendations(appId: string): Promise<AppItem[]>;
+  getWishlist(): Promise<AppItem[]>;
+  addToWishlist(listingId: string): Promise<void>;
+  removeFromWishlist(listingId: string): Promise<void>;
+  getInstalledApps(): Promise<AppItem[]>;
   getPendingUpdates(): Promise<AppItem[]>;
   updateApp(id: string): Promise<boolean>;
   updateAllApps(ids: string[]): Promise<boolean>;
@@ -38,13 +50,21 @@ export function configureAppStoreServicePort(port: AppStoreServicePort): void {
 
 export const AppStoreService: IAppStoreSDK = {
   getCategories: () => appStorePort.getCategories(),
+  getCategoryDetail: (id) => appStorePort.getCategoryDetail(id),
   getCollections: () => appStorePort.getCollections(),
+  getCollectionDetail: (id) => appStorePort.getCollectionDetail(id),
+  getEvents: () => appStorePort.getEvents(),
+  getEventDetail: (id) => appStorePort.getEventDetail(id),
   getDiscoverApps: () => appStorePort.getDiscoverApps(),
+  listRecentlyUpdated: () => appStorePort.listRecentlyUpdated(),
   getAllApps: () => appStorePort.getAllApps(),
   getTopCharts: (type = 'all') => appStorePort.getTopCharts(type),
   searchApps: (query, filter = 'All') => appStorePort.searchApps(query, filter),
   getTrendingSearches: () => appStorePort.getTrendingSearches(),
   getSearchSuggestions: (keyword) => appStorePort.getSearchSuggestions(keyword),
+  getSearchHistory: () => appStorePort.getSearchHistory(),
+  saveSearchTerm: (term) => appStorePort.saveSearchTerm(term),
+  clearSearchHistory: () => appStorePort.clearSearchHistory(),
   getAppById: (id) => appStorePort.getAppById(id),
   getReviewsByAppId: (id) => appStorePort.getReviewsByAppId(id),
   submitReview: (reviewData) => appStorePort.submitReview(reviewData),
@@ -53,6 +73,10 @@ export const AppStoreService: IAppStoreSDK = {
     appStorePort.getMoreByDeveloper(developer, excludeAppId),
   getSimilarApps: (appId) => appStorePort.getSimilarApps(appId),
   getBoardGameRecommendations: (appId) => appStorePort.getBoardGameRecommendations(appId),
+  getWishlist: () => appStorePort.getWishlist(),
+  addToWishlist: (listingId) => appStorePort.addToWishlist(listingId),
+  removeFromWishlist: (listingId) => appStorePort.removeFromWishlist(listingId),
+  getInstalledApps: () => appStorePort.getInstalledApps(),
   getPendingUpdates: () => appStorePort.getPendingUpdates(),
   updateApp: (id) => appStorePort.updateApp(id),
   updateAllApps: (ids) => appStorePort.updateAllApps(ids),
@@ -65,13 +89,21 @@ function createUnconfiguredAppStorePort(): AppStoreServicePort {
   };
   return {
     getCategories: async () => unavailable(),
+    getCategoryDetail: async () => unavailable(),
     getCollections: async () => unavailable(),
+    getCollectionDetail: async () => unavailable(),
+    getEvents: async () => unavailable(),
+    getEventDetail: async () => unavailable(),
     getDiscoverApps: async () => unavailable(),
+    listRecentlyUpdated: async () => unavailable(),
     getAllApps: async () => unavailable(),
     getTopCharts: async () => unavailable(),
     searchApps: async () => unavailable(),
     getTrendingSearches: async () => unavailable(),
     getSearchSuggestions: async () => unavailable(),
+    getSearchHistory: async () => unavailable(),
+    saveSearchTerm: async () => unavailable(),
+    clearSearchHistory: async () => unavailable(),
     getAppById: async () => unavailable(),
     getReviewsByAppId: async () => unavailable(),
     submitReview: async () => unavailable(),
@@ -79,6 +111,10 @@ function createUnconfiguredAppStorePort(): AppStoreServicePort {
     getMoreByDeveloper: async () => unavailable(),
     getSimilarApps: async () => unavailable(),
     getBoardGameRecommendations: async () => unavailable(),
+    getWishlist: async () => unavailable(),
+    addToWishlist: async () => unavailable(),
+    removeFromWishlist: async () => unavailable(),
+    getInstalledApps: async () => unavailable(),
     getPendingUpdates: async () => unavailable(),
     updateApp: async () => unavailable(),
     updateAllApps: async () => unavailable(),

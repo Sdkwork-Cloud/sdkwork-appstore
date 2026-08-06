@@ -5,6 +5,7 @@ interface SearchInputProps {
   onChange: (value: string) => void;
   onClear: () => void;
   loading: boolean;
+  onSubmit?: () => void;
   placeholder?: string;
 }
 
@@ -13,6 +14,7 @@ export function SearchInput({
   onChange,
   onClear,
   loading,
+  onSubmit,
   placeholder = "Apps, Games, Stories and More",
 }: SearchInputProps) {
   return (
@@ -30,6 +32,11 @@ export function SearchInput({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && onSubmit) {
+            onSubmit();
+          }
+        }}
       />
       {value && (
         <button 

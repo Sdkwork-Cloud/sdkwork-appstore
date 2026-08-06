@@ -9,6 +9,7 @@ import {
   SearchFilters,
   TrendingSearches,
   SearchResults,
+  SearchHistory,
 } from '../components/search';
 
 export default function Search() {
@@ -31,6 +32,7 @@ export default function Search() {
   const [activeFilter, setActiveFilter] = useState(urlCategory);
   const [results, setResults] = useState<AppItem[]>([]);
   const [trending, setTrending] = useState<string[]>([]);
+  const [history, setHistory] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -48,6 +50,27 @@ export default function Search() {
       }
     }
     loadTrending();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadHistory() {
+      try {
+        const items = await AppStoreService.getSearchHistory();
+        if (!cancelled) {
+          setHistory(items);
+        }
+      } catch (err) {
+        // Anonymous sessions have no search history; keep the section hidden.
+        if (!cancelled) {
+          setHistory([]);
+        }
+      }
+    }
+    loadHistory();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -71,10 +94,30 @@ export default function Search() {
     }
   }, [query, activeFilter]);
 
+  const recordSearch = (term: string) => {
+    const trimmed = term.trim();
+    if (!trimmed) {
+      return;
+    }
+    AppStoreService.saveSearchTerm(trimmed).catch(() => {
+      // ignore: history persistence is best-effort
+    });
+    setHistory((prev) => [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 20));
+  };
+
   const handleClear = () => {
     setQuery('');
     setActiveFilter('All');
     setResults([]);
+  };
+
+  const handleClearHistory = async () => {
+    setHistory([]);
+    try {
+      await AppStoreService.clearSearchHistory();
+    } catch (err) {
+      console.error("Failed to clear search history", err);
+    }
   };
 
   return (
@@ -86,6 +129,7 @@ export default function Search() {
         onChange={setQuery}
         onClear={handleClear}
         loading={loading}
+        onSubmit={() => recordSearch(query)}
       />
 
       <SearchFilters
@@ -97,7 +141,23 @@ export default function Search() {
       {query.trim() || activeFilter !== 'All' ? (
         <SearchResults query={query || activeFilter} results={results} loading={loading} />
       ) : (
-        <TrendingSearches trending={trending} onSelect={setQuery} />
+        <>
+          <SearchHistory
+            items={history}
+            onSelect={(item) => {
+              setQuery(item);
+              recordSearch(item);
+            }}
+            onClear={handleClearHistory}
+          />
+          <TrendingSearches
+            trending={trending}
+            onSelect={(item) => {
+              setQuery(item);
+              recordSearch(item);
+            }}
+          />
+        </>
       )}
     </div>
   );

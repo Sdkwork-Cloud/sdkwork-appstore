@@ -5,7 +5,7 @@ import {
   type AppStoreServicePort,
 } from '@sdkwork/appstore-pc-core';
 
-import type { AppItem, EditorialCollection, Review } from '../types';
+import type { AppItem, EditorialCollection, EventItem, Review } from '../types';
 
 /** Maximum storefront inventory page for the bounded catalog grid views. */
 const storefrontPageSize = 200;
@@ -139,6 +139,24 @@ export function createAppStoreServicePort(
       }));
     },
 
+    async getCategoryDetail(id: string) {
+      if (!id) {
+        return undefined;
+      }
+      const category = await client.catalog.getCategory(id).catch(() => undefined);
+      const row = category as unknown as Record<string, unknown> | undefined;
+      if (!row || !readString(row, 'id')) {
+        return undefined;
+      }
+      const code = readString(row, 'categoryCode', 'category_code');
+      return {
+        id: readString(row, 'id'),
+        name: readLocalizedName(row) || readString(row, 'displayName', 'display_name') || id,
+        description: readLocalizedDescription(row) || readString(row, 'description'),
+        icon: (categoryVisuals[code] ?? fallbackVisual).icon,
+      };
+    },
+
     async getCollections(): Promise<EditorialCollection[]> {
       const response = await client.catalog.listCollections({ limit: 200 });
       const items = readPageItems<Record<string, unknown>>(response);
@@ -149,6 +167,43 @@ export function createAppStoreServicePort(
         apps: readCollectionListingIds(item),
         bannerColor: 'bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600',
       }));
+    },
+
+    async getCollectionDetail(id: string) {
+      if (!id) {
+        return undefined;
+      }
+      const collection = await client.catalog.getCollection(id).catch(() => undefined);
+      const row = collection as unknown as Record<string, unknown> | undefined;
+      if (!row || !readString(row, 'id')) {
+        return undefined;
+      }
+      return {
+        id: readString(row, 'id'),
+        title: readLocalizedName(row) || id,
+        subtitle: readLocalizedDescription(row),
+        apps: readCollectionListingIds(row),
+        bannerColor: 'bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600',
+      };
+    },
+
+    async getEvents(): Promise<EventItem[]> {
+      const response = await client.catalog.listEvents({ status: 'active', limit: 50 });
+      return readPageItems<Record<string, unknown>>(response).map((item) =>
+        mapEventItem(item),
+      ).filter((event) => event.id);
+    },
+
+    async getEventDetail(id: string) {
+      if (!id) {
+        return undefined;
+      }
+      const event = await client.catalog.getEvent(id).catch(() => undefined);
+      const row = event as unknown as Record<string, unknown> | undefined;
+      if (!row || !readString(row, 'id')) {
+        return undefined;
+      }
+      return mapEventItem(row);
     },
 
     async getDiscoverApps(): Promise<{
@@ -186,6 +241,13 @@ export function createAppStoreServicePort(
         newAndNoteworthy,
         secondaryEditorial: secondaryEditorial.length ? secondaryEditorial : allApps.slice(2, 8),
       };
+    },
+
+    async listRecentlyUpdated(): Promise<AppItem[]> {
+      const response = await client.catalog.listRecentlyUpdated({ limit: 12 });
+      return readPageItems<Record<string, unknown>>(response).map((item) =>
+        mapListingSummary(item),
+      );
     },
 
     async getAllApps(): Promise<AppItem[]> {
@@ -251,6 +313,25 @@ export function createAppStoreServicePort(
         .map((item) => readString(item, 'text', 'term', 'suggestion'))
         .filter(Boolean)
         .slice(0, 5);
+    },
+
+    async getSearchHistory(): Promise<string[]> {
+      const response = await client.catalog.listSearchHistory({ limit: 20 });
+      return readPageItems<Record<string, unknown>>(response)
+        .map((item) => readString(item, 'queryText', 'term'))
+        .filter(Boolean);
+    },
+
+    async saveSearchTerm(term: string): Promise<void> {
+      const queryText = term.trim();
+      if (!queryText) {
+        return;
+      }
+      await client.catalog.upsertSearchHistory({ queryText });
+    },
+
+    async clearSearchHistory(): Promise<void> {
+      await client.catalog.clearSearchHistory();
     },
 
     async getAppById(id: string): Promise<AppItem | undefined> {
@@ -397,6 +478,35 @@ export function createAppStoreServicePort(
       return this.getSimilarApps(appId);
     },
 
+    async getWishlist(): Promise<AppItem[]> {
+      const response = await client.wishlist.listItems();
+      const wishlistItems = readPageItems<Record<string, unknown>>(response);
+      const ids = wishlistItems
+        .map((item) => readString(item, 'listingId', 'listing_id'))
+        .filter(Boolean);
+      if (ids.length === 0) {
+        return [];
+      }
+      const listings = await client.catalog.searchListings({ ids, limit: ids.length });
+      const byId = new Map(
+        readPageItems<Record<string, unknown>>(listings).map((item) => [
+          readString(item, 'id'),
+          mapListingSummary(item),
+        ]),
+      );
+      return ids
+        .map((id) => byId.get(id))
+        .filter((app): app is AppItem => Boolean(app));
+    },
+
+    async addToWishlist(listingId: string): Promise<void> {
+      await client.wishlist.addItem(listingId);
+    },
+
+    async removeFromWishlist(listingId: string): Promise<void> {
+      await client.wishlist.removeItem(listingId);
+    },
+
     async getPendingUpdates(): Promise<AppItem[]> {
       const libraryResponse = await client.library.listItems({ limit: 200 });
       const libraryItems = readPageItems<Record<string, unknown>>(libraryResponse);
@@ -448,6 +558,27 @@ export function createAppStoreServicePort(
     async updateAllApps(ids: string[]): Promise<boolean> {
       await Promise.all(ids.map((id) => this.updateApp(id)));
       return true;
+    },
+
+    async getInstalledApps(): Promise<AppItem[]> {
+      const response = await client.library.listItems({ limit: 200 });
+      const libraryItems = readPageItems<Record<string, unknown>>(response);
+      const ids = libraryItems
+        .map((item) => readString(item, 'listingId', 'listing_id'))
+        .filter(Boolean);
+      if (ids.length === 0) {
+        return [];
+      }
+      const listings = await client.catalog.searchListings({ ids, limit: ids.length });
+      const byId = new Map(
+        readPageItems<Record<string, unknown>>(listings).map((item) => [
+          readString(item, 'id'),
+          mapListingSummary(item),
+        ]),
+      );
+      return ids
+        .map((id) => byId.get(id))
+        .filter((app): app is AppItem => Boolean(app));
     },
 
     async submitFeedback(feedbackData: {
@@ -530,6 +661,21 @@ function readCollectionListingIds(item: Record<string, unknown>): string[] {
     .split(',')
     .map((id) => id.trim())
     .filter(Boolean);
+}
+
+function mapEventItem(item: Record<string, unknown>): EventItem {
+  return {
+    id: readString(item, 'id'),
+    title: readLocalizedName(item) || readString(item, 'title'),
+    subtitle: readLocalizedDescription(item) || readString(item, 'subtitle'),
+    bannerColor: 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-rose-600',
+    startsAt: formatDate(readString(item, 'startsAt', 'starts_at')),
+    endsAt: formatDate(readString(item, 'endsAt', 'ends_at')),
+    status: readString(item, 'status'),
+    apps: readCollectionListingIds(item),
+    ctaText: readString(item, 'ctaText', 'cta_text'),
+    ctaLink: readString(item, 'ctaLink', 'cta_link'),
+  };
 }
 
 function readPageItems<T>(value: unknown): T[] {

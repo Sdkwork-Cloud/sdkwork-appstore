@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, Search, Trophy, Bell } from 'lucide-react';
+import { Home, Search, Trophy, Bell, FolderHeart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MobileNav, TabItem } from './layout/MobileNav';
 import { DesktopSidebar } from './layout/DesktopSidebar';
@@ -15,6 +15,7 @@ export default function Layout() {
     { name: t('nav.menu.discover'), path: '/', icon: Home },
     { name: t('nav.menu.charts'), path: '/charts', icon: Trophy },
     { name: t('nav.menu.search'), path: '/search', icon: Search },
+    { name: t('nav.menu.library'), path: '/library', icon: FolderHeart },
     { name: t('updates.tabs.updates'), path: '/updates', icon: Bell },
   ];
 
@@ -29,7 +30,7 @@ export default function Layout() {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 h-screen bg-[#f8f9fa] dark:bg-[#181a20] overflow-hidden relative">
         {/* Desktop Header */}
-        <DesktopHeader pendingUpdatesCount={2} />
+        <DesktopHeader />
 
         <div id="main-scroll-area" className="flex-1 overflow-y-auto pb-16 md:pb-0 custom-scrollbar">
           <AnimatePresence mode="wait">

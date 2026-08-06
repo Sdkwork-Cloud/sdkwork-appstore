@@ -85,8 +85,14 @@ export function SkillsPage() {
     promptTemplate: string;
     skillMarkdown: string;
   }) => {
-    const created = await SkillsService.publishSkill(skillData);
-    setSkills((prev) => [created, ...prev]);
+    setActionError(null);
+    try {
+      const created = await SkillsService.publishSkill(skillData);
+      setSkills((prev) => [created, ...prev]);
+      setIsPublishOpen(false);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Skill publishing failed.');
+    }
   };
 
   return (

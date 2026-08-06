@@ -3,6 +3,8 @@ export const appDetail = {
     back: 'Back',
     get: 'GET',
     share: 'Share App',
+    wishlist: 'Save to wishlist',
+    wishlisted: 'Remove from wishlist',
     backToStore: 'Back',
     shareApp: 'Share Application',
     inAppPurchases: 'In-App Purchases'

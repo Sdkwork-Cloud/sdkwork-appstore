@@ -13,7 +13,13 @@ export const discover = {
     codingApps: 'AI 编程与 Agent 神器',
     creativeApps: 'AI 创意与多媒体重构',
     productivityApps: 'AI 生产力与知识库精选',
-    aiSpotlight: 'AI 焦点'
+    aiSpotlight: 'AI 焦点',
+    categories: '应用分类',
+    viewAll: '查看全部',
+    editorialPicks: '编辑精选',
+    recentlyUpdated: '最近更新',
+    recommended: '为你推荐',
+    events: '限时活动'
   },
   miniGamesBanner: {
     playInClient: '无需下载 · 即点即玩'

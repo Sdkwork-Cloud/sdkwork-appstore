@@ -13,6 +13,9 @@ export const nav = {
     updates: 'Updates & Library',
     charts: 'Top Charts',
     search: 'Search',
+    library: 'My Library',
+    wishlist: 'Wishlist',
+    publisher: 'Publisher Console',
     console: 'Developer Console',
     admin: 'System Monitor'
   },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeaderSearchBar } from './HeaderSearchBar';
 import { HeaderUserBadge } from './HeaderUserBadge';
@@ -6,14 +6,34 @@ import { HeaderWindowControls } from './HeaderWindowControls';
 import { HeaderUpdateNav } from './HeaderUpdateNav';
 import { HeaderThemeToggle } from './HeaderThemeToggle';
 import { HeaderLanguageToggle } from './HeaderLanguageToggle';
+import { AppStoreService } from '../../services/api';
 
 interface DesktopHeaderProps {
   pendingUpdatesCount?: number;
 }
 
-export function DesktopHeader({ pendingUpdatesCount = 2 }: DesktopHeaderProps) {
+export function DesktopHeader({ pendingUpdatesCount: initialCount = 0 }: DesktopHeaderProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [pendingUpdatesCount, setPendingUpdatesCount] = useState(initialCount);
+
+  // Hydrate the real pending-updates count when the library endpoint responds;
+  // anonymous sessions keep the initial value without erroring.
+  useEffect(() => {
+    let cancelled = false;
+    AppStoreService.getPendingUpdates()
+      .then((apps) => {
+        if (!cancelled) {
+          setPendingUpdatesCount(apps.length);
+        }
+      })
+      .catch(() => {
+        // keep the initial count when the library endpoint is unavailable
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

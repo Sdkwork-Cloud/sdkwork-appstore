@@ -6,21 +6,45 @@ import { ConsoleService, SecurityPolicy } from '../../services/api';
 export const SecurityPolicyCard: React.FC = () => {
   const { t } = useTranslation();
   const [policy, setPolicy] = useState<SecurityPolicy | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    ConsoleService.getSecurityPolicy().then((p) => setPolicy(p));
+    ConsoleService.getSecurityPolicy()
+      .then((p) => setPolicy(p))
+      .catch(() => setUnavailable(true));
   }, []);
 
   const handleToggle = async (key: keyof SecurityPolicy) => {
     if (!policy) return;
     setUpdating(true);
-    const updated = await ConsoleService.updateSecurityPolicy({
-      [key]: !policy[key],
-    });
-    setPolicy(updated);
-    setUpdating(false);
+    try {
+      const updated = await ConsoleService.updateSecurityPolicy({
+        [key]: !policy[key],
+      });
+      setPolicy(updated);
+    } catch {
+      setUnavailable(true);
+    } finally {
+      setUpdating(false);
+    }
   };
+
+  if (unavailable) {
+    return (
+      <div className="bg-gray-100/50 dark:bg-[#181a20] border border-gray-200 dark:border-[#22252e] rounded-2xl p-5 shadow-sm space-y-2">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-gray-400" />
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+            {t('console.security.title')}
+          </h2>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {t('console.security.unavailable', '安全策略能力暂未由 App Store 后端提供，当前保持安全默认配置。')}
+        </p>
+      </div>
+    );
+  }
 
   if (!policy) return null;
 

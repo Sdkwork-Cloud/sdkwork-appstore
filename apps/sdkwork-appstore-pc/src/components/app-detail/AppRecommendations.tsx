@@ -7,9 +7,10 @@ import { AppRecommendationCard } from './AppRecommendationCard';
 interface AppRecommendationsProps {
   currentApp: AppItem;
   allApps: AppItem[];
+  similarApps?: AppItem[];
 }
 
-export function AppRecommendations({ currentApp, allApps }: AppRecommendationsProps) {
+export function AppRecommendations({ currentApp, allApps, similarApps = [] }: AppRecommendationsProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -73,15 +74,17 @@ export function AppRecommendations({ currentApp, allApps }: AppRecommendationsPr
     return score;
   };
 
-  // 排序获取推荐列表
-  const recommendedApps = allApps
-    .map(app => ({
-      app,
-      score: calculateSimilarity(app)
-    }))
-    .filter(item => item.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 6);
+  // 排序获取推荐列表：优先采用服务端 similar 推荐，空/失败时回退客户端相似度算法
+  const recommendedApps = similarApps.length > 0
+    ? similarApps.slice(0, 6).map((app) => ({ app, score: calculateSimilarity(app) }))
+    : allApps
+        .map(app => ({
+          app,
+          score: calculateSimilarity(app)
+        }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6);
 
   if (recommendedApps.length === 0) return null;
 

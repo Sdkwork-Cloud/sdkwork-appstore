@@ -15,6 +15,12 @@ import { UpdatesPage } from '@sdkwork/appstore-pc-updates';
 import { AppDetailPage } from '@sdkwork/appstore-pc-app-detail';
 import { ConsoleSettingsPage } from '@sdkwork/appstore-pc-console-settings';
 import { AdminMonitorPage } from '@sdkwork/appstore-pc-admin-monitor';
+import { LibraryPage } from '@sdkwork/appstore-pc-library';
+import { WishlistPage } from '@sdkwork/appstore-pc-wishlist';
+import { CategoryPage } from '@sdkwork/appstore-pc-category';
+import { CollectionPage } from '@sdkwork/appstore-pc-collection';
+import { EventPage } from '@sdkwork/appstore-pc-events';
+import { PublisherOverviewPage, PublisherCreateAppPage, PublisherAppManagePage } from '@sdkwork/appstore-pc-publisher';
 import { PluginsPage } from './pages/Plugins';
 import { SkillsPage } from './pages/Skills';
 import { McpPage } from './pages/Mcp';
@@ -48,10 +54,18 @@ export default function App() {
                 <Route path="templates/:id" element={<TemplateDetailPage />} />
                 <Route path="charts" element={<ChartsPage />} />
                 <Route path="search" element={<SearchPage />} />
+                <Route path="category/:id" element={<CategoryPage />} />
+                <Route path="collection/:id" element={<CollectionPage />} />
+                <Route path="events/:id" element={<EventPage />} />
+                <Route path="library" element={<LibraryPage />} />
+                <Route path="wishlist" element={<WishlistPage />} />
                 <Route path="updates" element={<UpdatesPage />} />
                 <Route path="app/:id" element={<AppDetailPage />} />
                 <Route path="console/settings" element={<ConsoleSettingsPage />} />
                 <Route path="console" element={<Navigate to="/console/settings" replace />} />
+                <Route path="publisher" element={<PublisherOverviewPage />} />
+                <Route path="publisher/apps/new" element={<PublisherCreateAppPage />} />
+                <Route path="publisher/apps/:id" element={<PublisherAppManagePage />} />
                 <Route
                   path="admin/monitor"
                   element={

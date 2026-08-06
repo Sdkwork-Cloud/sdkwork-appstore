@@ -1,4 +1,5 @@
 import type { AgentRuntimeExecutionRecord, SdkworkAppClient } from '@sdkwork/agents-app-sdk';
+import type { AppStoreClient } from '@sdkwork/appstore-app-sdk';
 import type { AppItem } from '../types';
 import {
   configureAICompletionPort,
@@ -7,8 +8,12 @@ import {
   type AIModelInfo,
 } from '@sdkwork/appstore-pc-core';
 
+/** Maximum AI storefront inventory for the AI Hub apps tab. */
+const aiHubPageSize = 200;
+
 export function configureAppstorePcAIHub(
   agentsClient: SdkworkAppClient,
+  appstoreClient: AppStoreClient,
   agentId: string | undefined,
 ): void {
   configureAICompletionPort({
@@ -29,7 +34,35 @@ export function configureAppstorePcAIHub(
   });
   configureAIHubServicePort({
     async getAIApps(): Promise<AppItem[]> {
-      throw new Error('AI Hub apps are served by the storefront catalog runtime.');
+      // AI Hub apps are storefront catalog listings in AI categories; the
+      // storefront catalog runtime owns them, this port only filters them.
+      const [categoriesResponse, listingsResponse] = await Promise.all([
+        appstoreClient.catalog
+          .listCategories({ limit: 200, locale: 'zh-CN' })
+          .catch(() => undefined),
+        appstoreClient.catalog
+          .searchListings({ limit: aiHubPageSize })
+          .catch(() => undefined),
+      ]);
+      if (!listingsResponse) {
+        return [];
+      }
+      const aiCategoryIds = new Set(
+        readPageItems<Record<string, unknown>>(categoriesResponse as unknown)
+          .filter((item) =>
+            readString(item, 'categoryCode', 'category_code')
+              .toLocaleLowerCase()
+              .startsWith('ai'),
+          )
+          .map((item) => readString(item, 'id'))
+          .filter(Boolean),
+      );
+      return readPageItems<Record<string, unknown>>(listingsResponse)
+        .filter((row) =>
+          aiCategoryIds.has(readString(row, 'primaryCategoryId', 'primary_category_id')),
+        )
+        .map((row) => mapListingSummary(row))
+        .slice(0, 24);
     },
     async getModels(): Promise<AIModelInfo[]> {
       const response = await agentsClient.ai.agents.modelConfigurations.list();
@@ -72,6 +105,26 @@ function readPageItems<T>(value: unknown): T[] {
     return [];
   }
   return (value as Record<string, unknown>).items as T[];
+}
+
+function mapListingSummary(item: Record<string, unknown>, index = 0): AppItem {
+  return {
+    id: readString(item, 'id'),
+    name: readString(item, 'displayName', 'display_name') || readString(item, 'id'),
+    developer: readString(item, 'developerName', 'developer_name') || 'SDKWork',
+    category: readString(item, 'category', 'categoryName') || 'AI',
+    price: readString(item, 'pricingModel', 'pricing_model').toLocaleUpperCase() === 'PAID' ? 1 : 0,
+    rating: readNumber(item, 'averageRating', 'average_rating') ?? 0,
+    reviewsCount: readNumber(item, 'ratingCount', 'rating_count') ?? 0,
+    description: readString(item, 'description') || '',
+    screenshots: [],
+    icon: 'Sparkles',
+    iconColor: 'bg-indigo-600',
+    version: readString(item, 'currentVersion', 'current_version') || '1.0.0',
+    size: '—',
+    ageRating: '4+',
+    chartRank: index + 1,
+  };
 }
 
 function mapAgentPreviewResult(

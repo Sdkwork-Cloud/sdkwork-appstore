@@ -89,6 +89,21 @@ export default function Updates() {
 
   const installedApps = allApps.filter(a => installedAppIds.has(a.id));
 
+  // Real release notes: pending-update apps carry the latest release notes;
+  // installed apps without pending updates keep their listing summary.
+  const releaseNoteApps = [
+    ...appsWithUpdates,
+    ...installedApps.filter((app) => !appsWithUpdates.some((u) => u.id === app.id)),
+  ]
+    .map((app) => ({
+      name: app.name,
+      version: app.whatsNew?.version ?? app.version ?? '1.0.0',
+      date: app.whatsNew?.date,
+      notes: app.whatsNew?.notes,
+    }))
+    .filter((entry) => entry.notes || entry.date)
+    .slice(0, 20);
+
   return (
     <div className="p-6 md:p-8 w-full max-w-full transition-colors duration-200 select-none space-y-6">
       {/* Sub-component: Top Header Filter Tabs */}
@@ -157,7 +172,7 @@ export default function Updates() {
 
       {/* Tab Content: Release Notes */}
       {currentTab === 'new' && (
-        <ReleaseNotesSection />
+        <ReleaseNotesSection apps={releaseNoteApps} />
       )}
     </div>
   );

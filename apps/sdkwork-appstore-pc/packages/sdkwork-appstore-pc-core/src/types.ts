@@ -50,6 +50,27 @@ export interface EditorialCollection {
   ctaLink?: string;
 }
 
+export interface CategoryDetail {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  appCount?: number;
+}
+
+export interface EventItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  bannerColor: string;
+  startsAt?: string;
+  endsAt?: string;
+  status?: string;
+  apps: string[]; // array of app ids
+  ctaText?: string;
+  ctaLink?: string;
+}
+
 export interface PluginItem {
   id: string;
   name: string;

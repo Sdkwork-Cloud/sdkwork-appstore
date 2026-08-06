@@ -35,7 +35,9 @@ export const PluginDetailModal: React.FC<PluginDetailModalProps> = ({
       setActiveTab('overview');
       setTestCapability(plugin.capabilities[0] || 'execute');
       setExecResult(null);
-      PluginsService.getPluginSchema(plugin.id).then((s) => setSchemaText(s));
+      PluginsService.getPluginSchema(plugin.id)
+        .then((s) => setSchemaText(s))
+        .catch(() => setSchemaText(''));
     }
   }, [plugin]);
 

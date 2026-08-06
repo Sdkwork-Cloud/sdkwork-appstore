@@ -6,6 +6,24 @@ export interface SystemMetrics {
   uptimeDays: number;
 }
 
+export interface OperatorDashboard {
+  totalListings: number;
+  totalDownloads: number;
+  totalReviews: number;
+  pendingModeration: number;
+  activePublishers: number;
+  dailyInstalls: number;
+}
+
+export interface ModerationQueueItem {
+  id: string;
+  listingId: string;
+  listingName: string;
+  submissionType: string;
+  status: string;
+  submittedAt?: string;
+}
+
 export interface ClusterNode {
   id: string;
   name: string;
@@ -27,6 +45,9 @@ export interface SystemAuditEntry {
 
 export interface IAdminMonitorSDK {
   getMetrics(): Promise<SystemMetrics>;
+  getDashboard(): Promise<OperatorDashboard | undefined>;
+  getModerationQueue(): Promise<ModerationQueueItem[]>;
+  decideReview(reviewId: string, decision: 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES', reasonDetail?: string): Promise<boolean>;
   getClusterNodes(): Promise<ClusterNode[]>;
   restartNode(nodeId: string): Promise<boolean>;
   getSystemAuditLogs(level?: string): Promise<SystemAuditEntry[]>;
@@ -43,6 +64,10 @@ export function configureAdminMonitorServicePort(port: AdminMonitorServicePort):
 
 export const AdminMonitorService: IAdminMonitorSDK = {
   getMetrics: () => adminMonitorPort.getMetrics(),
+  getDashboard: () => adminMonitorPort.getDashboard(),
+  getModerationQueue: () => adminMonitorPort.getModerationQueue(),
+  decideReview: (reviewId, decision, reasonDetail) =>
+    adminMonitorPort.decideReview(reviewId, decision, reasonDetail),
   getClusterNodes: () => adminMonitorPort.getClusterNodes(),
   restartNode: (nodeId) => adminMonitorPort.restartNode(nodeId),
   getSystemAuditLogs: (level = 'ALL') => adminMonitorPort.getSystemAuditLogs(level),
@@ -54,6 +79,9 @@ function createUnconfiguredAdminMonitorPort(): AdminMonitorServicePort {
   };
   return {
     getMetrics: async () => unavailable(),
+    getDashboard: async () => unavailable(),
+    getModerationQueue: async () => unavailable(),
+    decideReview: async () => unavailable(),
     getClusterNodes: async () => unavailable(),
     restartNode: async () => unavailable(),
     getSystemAuditLogs: async () => unavailable(),

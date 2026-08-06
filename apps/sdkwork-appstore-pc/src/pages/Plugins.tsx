@@ -18,6 +18,7 @@ export function PluginsPage() {
   const [selectedPlugin, setSelectedPlugin] = useState<PluginItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const categories = [
     t('plugins.categories.all'),
@@ -45,7 +46,13 @@ export function PluginsPage() {
   }, [selectedCategory, searchQuery]);
 
   const handleToggleEnable = async (id: string) => {
-    await PluginsService.togglePlugin(id);
+    setActionError(null);
+    try {
+      await PluginsService.togglePlugin(id);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Plugin action failed.');
+      return;
+    }
     setPlugins((prev) =>
       prev.map((p) => (p.id === id ? { ...p, enabled: !p.enabled } : p))
     );
@@ -61,8 +68,14 @@ export function PluginsPage() {
     description: string;
     capabilities: string[];
   }) => {
-    const created = await PluginsService.registerPlugin(pluginData);
-    setPlugins((prev) => [created, ...prev]);
+    setActionError(null);
+    try {
+      const created = await PluginsService.registerPlugin(pluginData);
+      setPlugins((prev) => [created, ...prev]);
+      setIsRegisterOpen(false);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Plugin registration failed.');
+    }
   };
 
   return (
@@ -89,6 +102,12 @@ export function PluginsPage() {
           <span>{t('plugins.header.registerBtn')}</span>
         </button>
       </div>
+
+      {actionError && (
+        <p role="alert" className="text-xs text-indigo-700 dark:text-indigo-300">
+          {actionError}
+        </p>
+      )}
 
       {/* Plugin Grid */}
       {loading ? (

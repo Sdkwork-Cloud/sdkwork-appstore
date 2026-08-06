@@ -15,6 +15,12 @@ import { updates as updatesZh } from './zh-CN/appstore/storefront/updates';
 import { search as searchZh } from './zh-CN/appstore/storefront/search';
 import { charts as chartsZh } from './zh-CN/appstore/storefront/charts';
 import { appDetail as appDetailZh } from './zh-CN/appstore/storefront/appDetail';
+import { library as libraryZh } from './zh-CN/appstore/storefront/library';
+import { wishlist as wishlistZh } from './zh-CN/appstore/storefront/wishlist';
+import { category as categoryZh } from './zh-CN/appstore/storefront/category';
+import { collection as collectionZh } from './zh-CN/appstore/storefront/collection';
+import { events as eventsZh } from './zh-CN/appstore/storefront/events';
+import { publisher as publisherZh } from './zh-CN/appstore/storefront/publisher';
 import { consoleLocales as consoleLocalesZh } from './zh-CN/appstore/console/console';
 import { admin as adminZh } from './zh-CN/appstore/console/admin';
 import { install as installZh } from './zh-CN/appstore/system/install';
@@ -33,6 +39,12 @@ import { updates as updatesEn } from './en/appstore/storefront/updates';
 import { search as searchEn } from './en/appstore/storefront/search';
 import { charts as chartsEn } from './en/appstore/storefront/charts';
 import { appDetail as appDetailEn } from './en/appstore/storefront/appDetail';
+import { library as libraryEn } from './en/appstore/storefront/library';
+import { wishlist as wishlistEn } from './en/appstore/storefront/wishlist';
+import { category as categoryEn } from './en/appstore/storefront/category';
+import { collection as collectionEn } from './en/appstore/storefront/collection';
+import { events as eventsEn } from './en/appstore/storefront/events';
+import { publisher as publisherEn } from './en/appstore/storefront/publisher';
 import { consoleLocales as consoleLocalesEn } from './en/appstore/console/console';
 import { admin as adminEn } from './en/appstore/console/admin';
 import { install as installEn } from './en/appstore/system/install';
@@ -55,6 +67,12 @@ const zhCN = {
   search: searchZh,
   charts: chartsZh,
   appDetail: appDetailZh,
+  library: libraryZh,
+  wishlist: wishlistZh,
+  category: categoryZh,
+  collection: collectionZh,
+  events: eventsZh,
+  publisher: publisherZh,
   console: consoleLocalesZh,
   admin: adminZh,
   install: installZh,
@@ -75,6 +93,12 @@ const en = {
   search: searchEn,
   charts: chartsEn,
   appDetail: appDetailEn,
+  library: libraryEn,
+  wishlist: wishlistEn,
+  category: categoryEn,
+  collection: collectionEn,
+  events: eventsEn,
+  publisher: publisherEn,
   console: consoleLocalesEn,
   admin: adminEn,
   install: installEn,

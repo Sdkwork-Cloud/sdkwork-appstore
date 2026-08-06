@@ -99,10 +99,17 @@ export function TemplateDetailPage() {
     }
   };
 
-  const handleCopyCli = () => {
+  const handleCopyCli = async () => {
     if (!template) return;
-    const cmd = `npx create-sdkwork-app my-app --template ${template.id}`;
-    navigator.clipboard.writeText(cmd);
+    try {
+      // Prefer the server-owned template code; fall back to the listing id.
+      const cmd = await TemplatesService.getTemplateCliCommand(template.id).catch(
+        () => `npx create-sdkwork-app my-app --template ${template.id}`,
+      );
+      navigator.clipboard.writeText(cmd);
+    } catch (e) {
+      console.error(e);
+    }
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);
   };

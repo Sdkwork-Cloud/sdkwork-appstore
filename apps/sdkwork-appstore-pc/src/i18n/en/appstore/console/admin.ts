@@ -5,8 +5,8 @@ export const admin = {
   },
   header: {
     badge: 'Operations Hub',
-    title: 'Cluster Monitoring & System Audit Logs',
-    subtitle: 'Real-time monitoring of microservice nodes, CPU/Memory load, API throughput, and security audit trails.',
+    title: 'Storefront Dashboard & Moderation Queue',
+    subtitle: 'Storefront scale statistics, pending moderation queue, and review decisions.',
     refreshBtn: 'Refresh Status',
     refreshing: 'Refreshing...'
   },
@@ -22,6 +22,37 @@ export const admin = {
     uptime: 'System Uptime',
     sla: 'SLA Uptime',
     allNodesNormal: 'All Nodes Operational'
+  },
+  dashboard: {
+    title: 'Storefront Overview',
+    totalListings: 'Total Listings',
+    totalDownloads: 'Total Downloads',
+    totalReviews: 'Total Reviews',
+    pendingModeration: 'Pending Review',
+    activePublishers: 'Active Publishers',
+    dailyInstalls: 'Installs Today'
+  },
+  moderation: {
+    title: 'Moderation Queue',
+    empty: 'No submissions waiting for review',
+    unavailable: 'Moderation queue unavailable (backend not ready or permission denied)',
+    listing: 'Listing',
+    submissionType: 'Type',
+    status: 'Status',
+    submittedAt: 'Submitted',
+    statusPending: 'Pending',
+    statusInReview: 'In Review',
+    statusDecided: 'Decided',
+    approve: 'Approve',
+    reject: 'Reject',
+    requestChanges: 'Request Changes',
+    reasonPlaceholder: 'Decision reason (optional)',
+    deciding: 'Submitting decision...',
+    decided: 'Decision submitted'
+  },
+  unavailable: {
+    title: 'Unavailable',
+    description: 'Cluster node management and system audit logs are not provided by the backend yet. The dashboard and moderation queue remain available.'
   },
   cluster: {
     title: 'Distributed Cluster Nodes Status',
