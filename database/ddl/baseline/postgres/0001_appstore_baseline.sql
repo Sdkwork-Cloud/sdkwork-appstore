@@ -975,48 +975,17 @@ CREATE TABLE IF NOT EXISTS appstore_release_beta_invite (
 CREATE INDEX IF NOT EXISTS idx_appstore_release_beta_invite_release
   ON appstore_release_beta_invite (tenant_id, release_id, invite_status);
 
-CREATE TABLE IF NOT EXISTS appstore_app_template (
-  id TEXT PRIMARY KEY,
-  tenant_id TEXT NOT NULL,
-  template_code TEXT NOT NULL,
-  template_name TEXT NOT NULL,
-  template_kind TEXT NOT NULL,
-  description TEXT,
-  publisher_id TEXT,
-  status TEXT NOT NULL DEFAULT 'draft',
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  UNIQUE (tenant_id, template_code)
-);
+
 
 CREATE INDEX IF NOT EXISTS idx_appstore_app_template_status
   ON appstore_app_template (tenant_id, status, updated_at DESC);
 
-CREATE TABLE IF NOT EXISTS appstore_app_template_usage (
-  id TEXT PRIMARY KEY,
-  tenant_id TEXT NOT NULL,
-  app_id TEXT NOT NULL,
-  template_id TEXT NOT NULL,
-  usage_context_json TEXT NOT NULL DEFAULT '{}',
-  created_at TEXT NOT NULL,
-  UNIQUE (tenant_id, app_id, template_id)
-);
+
 
 CREATE INDEX IF NOT EXISTS idx_appstore_app_template_usage_template
   ON appstore_app_template_usage (tenant_id, template_id);
 
-CREATE TABLE IF NOT EXISTS appstore_app_template_version (
-  id TEXT PRIMARY KEY,
-  tenant_id TEXT NOT NULL,
-  template_id TEXT NOT NULL,
-  version_label TEXT NOT NULL,
-  manifest_json TEXT NOT NULL DEFAULT '{}',
-  status TEXT NOT NULL DEFAULT 'draft',
-  published_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  UNIQUE (tenant_id, template_id, version_label)
-);
+
 
 CREATE INDEX IF NOT EXISTS idx_appstore_app_template_version_template
   ON appstore_app_template_version (tenant_id, template_id, status);
