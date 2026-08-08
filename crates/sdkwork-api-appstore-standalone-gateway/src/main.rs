@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
-use tower_http::cors::CorsLayer;
 use tracing_subscriber::EnvFilter;
 
 mod bootstrap;
@@ -45,27 +44,12 @@ async fn main() {
     server::serve(config.addr(), app).await;
 }
 
-fn cors_layer_from_env() -> CorsLayer {
-    let environment = match config_environment().as_str() {
-        "dev" | "development" | "test" | "testing" | "local" => {
-            sdkwork_web_core::WebEnvironment::Dev
-        }
-        _ => sdkwork_web_core::WebEnvironment::Prod,
-    };
-    let origins = std::env::var("APPSTORE_CORS_ALLOWED_ORIGINS")
-        .unwrap_or_default()
-        .split(',')
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-        .map(ToOwned::to_owned)
-        .collect::<Vec<_>>();
+fn cors_layer_from_env() -> sdkwork_web_axum::CanonicalCorsLayer {
+    let environment =
+        sdkwork_web_bootstrap::web_environment_from_env(&["SDKWORK_APPSTORE_ENVIRONMENT"]);
+    let origins = sdkwork_web_bootstrap::cors_allowed_origins_from_env(&[
+        "APPSTORE_CORS_ALLOWED_ORIGINS",
+    ]);
     let policy = sdkwork_web_bootstrap::security_policy_for_environment(&environment, origins);
     sdkwork_web_axum::cors_layer_from_policy(policy.cors)
-}
-
-fn config_environment() -> String {
-    std::env::var("SDKWORK_APPSTORE_ENVIRONMENT")
-        .unwrap_or_else(|_| "development".to_owned())
-        .trim()
-        .to_ascii_lowercase()
 }
